@@ -30,9 +30,11 @@ yield.
 - **Layers import downward only:** `app → features → shared → ui → core`. When
   a lower layer must know a feature, the lower layer owns an extension point
   and the feature registers itself, or `app` wires the two together.
-- **A feature uses another only through its `index.ts`, in one direction.** A
-  generic helper is never part of a feature's API: it moves down to `shared`
-  before a second feature imports it.
+- **A feature uses another only through its `index.ts`, in one direction.**
+  Before an import from another feature, the agent looks at what that feature
+  imports. When it already imports this one, `app` reads it and passes the
+  value down as a prop. A generic helper is never part of a feature's API: it
+  moves down to `shared` before a second feature imports it.
 - **A part's own files live in its folder.** A sub-component with a hook,
   helper or constant file of its own is a folder. A file that two parts use
   goes to their nearest common folder. The page's own files sit at the feature
