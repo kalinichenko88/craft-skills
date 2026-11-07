@@ -81,16 +81,23 @@ import { useSearch } from '../search/use-search';      // no: a deep import
 import { abortPrevious } from '../reports';            // no: a generic helper
 ```
 
-Before you add an import from feature B into feature A, search the files of B
-for imports from A, deep imports too. When B already imports A, the direction
-is set: A does not import B, not even through B's index. `app` imports both: it
-reads B and gives A what A shows, as a prop.
+Before you add an import from another feature, search the files of that
+feature for imports from this one, deep imports too. Search also the features
+that it imports, and the features that they import. When an import leads back
+to this feature, do not add yours, not even through the index. A file that may
+import both composes them: a file of the other feature that already renders a
+part of this one, or else `app`. It gives this feature what it needs from the
+other one as a prop: a value, an element or a callback.
 
 ```tsx
-// app/app.tsx: offers already imports search, so search gets the counts as a prop
-function SearchRoute() {
-  const offers = useOffers();
-  return <SearchPage offerCount={(term) => offers.filter((offer) => offer.title.includes(term)).length} />;
+// app/search-route.tsx: offers already imports search, so search gets the count from app
+import { useOffers } from '../features/offers';
+import { SearchPage } from '../features/search';
+
+export function SearchRoute() {
+  const { countMatching } = useOffers();
+
+  return <SearchPage countOffers={countMatching} />;
 }
 ```
 
