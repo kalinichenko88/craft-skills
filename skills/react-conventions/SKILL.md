@@ -81,6 +81,26 @@ import { useSearch } from '../search/use-search';      // no: a deep import
 import { abortPrevious } from '../reports';            // no: a generic helper
 ```
 
+Before you add an import from another feature, search the files of that
+feature for imports from this one, deep imports too. Search also the features
+that it imports, and the features that they import. When an import leads back
+to this feature, do not add yours, not even through the index. A file that may
+import both composes them: a file of the other feature that already renders a
+part of this one, or else `app`. It gives this feature what it needs from the
+other one as a prop: a value, an element or a callback.
+
+```tsx
+// app/search-route.tsx: offers already imports search, so search gets the count from app
+import { useOffers } from '../features/offers';
+import { SearchPage } from '../features/search';
+
+export function SearchRoute() {
+  const { countMatching } = useOffers();
+
+  return <SearchPage countOffers={countMatching} />;
+}
+```
+
 A generic helper — abort logic, a formatter, a fetch wrapper — is never part of
 a feature's API, even through its `index.ts`. It moves down to `shared` before
 the second feature imports it. A move leaves one copy: in the same change, the
