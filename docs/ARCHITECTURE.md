@@ -256,4 +256,4 @@ status of an ADR that is not accepted.
 - [0002 The plugin is named craft](adr/0002-plugin-name-craft.md)
 - [0003 The flows are specified as host-neutral scenarios in scenarios/](adr/0003-host-neutral-scenarios.md)
 - [0004 rules.md reaches the session in two hook outputs](adr/0004-rules-in-two-hook-outputs.md)
-- [0005 A pinned tool prints the import graph for the architecture checks](adr/0005-no-dependency-graph-tool.md) — rejected
+- [0005 A pinned tool prints the import graph for the architecture checks](adr/0005-import-graph-from-a-pinned-tool.md) — rejected

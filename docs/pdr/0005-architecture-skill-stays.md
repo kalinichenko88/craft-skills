@@ -36,7 +36,7 @@ count as the arms with the skill on each task.
 - Remove the skill: the split came in 0 of 5 runs with no skill.
 - Keep only the ADR rules and the template: the split came in 0 of 5 runs
   with the architecture file alone.
-- Keep it whole.
+- Keep it whole: the split came in 5 of 5 runs with the skill.
 
 ## Links
 
