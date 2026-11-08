@@ -249,9 +249,11 @@ hold 10. A new number needs an ADR.
 
 ## ADRs
 
-An accepted ADR goes in `docs/adr/NNNN-title.md` and on this list.
+An ADR goes in `docs/adr/NNNN-title.md` and on this list. A line names the
+status of an ADR that is not accepted.
 
 - [0001 Each script prints its usage from its header](adr/0001-usage-from-the-header.md)
 - [0002 The plugin is named craft](adr/0002-plugin-name-craft.md)
 - [0003 The flows are specified as host-neutral scenarios in scenarios/](adr/0003-host-neutral-scenarios.md)
 - [0004 rules.md reaches the session in two hook outputs](adr/0004-rules-in-two-hook-outputs.md)
+- [0005 A pinned tool prints the import graph for the architecture checks](adr/0005-import-graph-from-a-pinned-tool.md) — rejected
