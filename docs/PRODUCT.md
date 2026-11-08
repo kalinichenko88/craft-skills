@@ -42,10 +42,7 @@ The first user is the author.
 
 ## Open questions
 
-### Q-1 Does the architecture skill stay, shrink to the ADR rules, or go?
-- Answers: person, from the eval of #99
-- Blocks: #87, M2
-- Since: 2026-10-25
+None.
 
 ## Decisions
 
@@ -53,3 +50,4 @@ The first user is the author.
 - [0002 A correction of a plugin step goes to the tracker at Finishing, with no tool of its own](pdr/0002-corrections-at-finishing.md) — accepted; revisit when: a session reaches Finishing with a correction and shows no draft, or a host lets a plugin tool's description always load
 - [0003 A change to a screen is walked by eye once, before round 1](pdr/0003-ui-walk-by-eye.md) — accepted; revisit when: the first 5 reviews with the walk show 0 findings from it in total
 - [0004 Filing puts a low finding straight into Later](pdr/0004-later-at-filing.md) — rejected; revisit when: a tracker that uses craft holds more open low findings with no milestone than one triage approval can take
+- [0005 The architecture skill stays whole](pdr/0005-architecture-skill-stays.md) — accepted; revisit when: a run of `tests/architecture_eval.sh` gives an arm with no skill the same count as the arms with the skill on each task

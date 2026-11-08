@@ -48,6 +48,12 @@ and run no code of the project.
    a file the range changes. With neither, or when it fails, say so in your
    last lines, and look for the copies yourself: for each function that the
    range adds, the code in the tree that does the same work.
+5. For each import that the range adds from a module A to a module B, follow
+   the imports between modules at `<head>` from B: the modules that any file
+   of B imports, not only the file that A imports, then the modules that any
+   of their files imports, until you reach A or no new module is left. Each
+   path back to A is a cycle that the range closes, also when no file of B
+   imports A. A file of B that imports A is only the shortest path.
 
 An ADR file that the range adds is under review: check it against *ADRs*, and
 its reason against the code that already does the same work. An ADR that
