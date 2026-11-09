@@ -24,7 +24,8 @@ touch -t 200001010000 "$tmp/projects/-home-u-proj/old.jsonl"
 # board.sh run by its path, and next.sh, whose whole path is in a variable.
 # debt: clones.sh under timeout. A diff that only names a script, a call with
 # .mdx, the failed call of the checkout's copy, a call that the worktree
-# refused before it ran and the superpowers load count nothing.
+# refused before it ran, a Read of a file that does not exist and the
+# superpowers load count nothing.
 expected="14 days: 2 transcripts, 1 of them subagents
 skill	contexts	loads	twice	chars	compacted	read	failed
 github	1	2	1	294	1	111	4

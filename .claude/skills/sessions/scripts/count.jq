@@ -54,14 +54,15 @@ input_filename as $f
         # A call has one output and one exit code, so a failure goes to its
         # last script. ponytail: in a && b and in a | grep, a failure of a or
         # of grep goes to b or to a; none of the 19 and the 72 such calls
-        # failed on 2026-11-09. The output is a read when a command reads, also when
-        # another runs a script: in such calls the .md file is most of it.
+        # failed on 2026-11-09. The output is a read when a command reads,
+        # also when another runs a script: in such calls the .md file is most
+        # of it.
         .input.command // "" | select(test(skill)) | commands
         | (.run // empty | [$f, "run", $id] + .), (.read // empty | [$f, "read", $id, .])
       else empty end
   elif .type == "user" then
     # An error with no exit code is a call that the harness, a hook or the
-    # person stopped before it ran, or a Read that read nothing.
+    # person stopped, or a Read that read nothing: it counts for no column.
     .message.content | arrays | .[] | select(.type == "tool_result")
     | (.content | text) as $t | select(.is_error != true or ($t | startswith("Exit code")))
     | [$f, "result", .tool_use_id, ($t | length), (.is_error == true)]

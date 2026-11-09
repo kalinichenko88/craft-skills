@@ -29,8 +29,9 @@ copy too.
 
 To the checks, the files that `skills/debt/scripts/data.ere` matches are
 data, as Markdown, JSON, YAML and everything under `fixtures/`. The code
-they see is the other text files: the bash, awk and jq under `skills/`,
-`hooks/`, `tests/` and `.claude/skills/`, the `Makefile`, and small files
+they see is the other text files: the bash and awk under `skills/`,
+`hooks/`, `tests/` and `.claude/skills/`, the jq of
+`.claude/skills/sessions/`, the `Makefile`, and small files
 as `LICENSE` and `data.ere`. The text of a skill is the product, but no
 `Check:` line sees it: an invariant on it is review only.
 `tests/rules_test.sh` checks the size of each `SKILL.md` (ADR 0006) and a
@@ -127,8 +128,8 @@ In a skill with scripts:
 - the edge is `SKILL.md` and the `.md` files beside it, which the model
   reads to decide which script to run, and the argument check at the top of
   each script;
-- the logic is the awk and jq programs and the shell after the argument
-  check;
+- the logic is the awk programs, the jq program of `/sessions`, and the
+  shell after the argument check;
 - the data is the `gh`, `git`, `codex` and `npx` calls.
 
 Where the split does not fit:
