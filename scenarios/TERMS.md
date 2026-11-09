@@ -20,12 +20,15 @@ column gives the name that a person who reads Russian sees.
 | branch | A git branch of the repository. | ветка | |
 | linked branch | A branch that a task records as its own: whoever opens the task sees it. | связанная ветка | |
 | pull request | A request to merge a branch into the default branch. It closes a task when it names the task with a closing word. | pull request | merge request, PR |
+| the pull request of a task | The pull request from the linked branch of a task, which closes the task: "the pull request of #91". | pull request задачи | |
 | assignee | An account that a task names as the one who does it. A task is assigned to the person when the person's account is an assignee. | исполнитель | owner |
 | busy | A task with an assignee, a linked branch or an open pull request that closes it. | занята | taken, claimed |
 | duplicate | A task that reports the same thing as another task, about the same place, in the same words or not. When it closes, it closes as a duplicate of the other task, and the other task stays as it is. | дубликат | copy |
 | comment | A text added to a task after its own text. | комментарий | note, reply |
 | workspace | The place where the run reads and changes the code: a copy of the repository with its branches. | рабочая копия | checkout, worktree, clone |
+| module | A part of the repository that the project's own instructions draw as one unit, as a feature or a package. Where they draw none, the module of a file is its directory. | модуль | area, component |
 | the work | What a task asks for: the changes to the code in the workspace. Checking the task, assigning it and making its branch are not the work. | работа | implementation |
+| finding | A defect, or a change worth making, that the run meets in the repository during the work, and that the task of the run does not ask for. | находка | issue |
 | the run | The handling of one message of the person, until it waits or stops. The run that takes a task goes on into the work. | прогон | session, turn |
 | message | One text that the run gives the person. The person reads the messages of a run in their order. | сообщение | reply, output |
 | gist | What a message tells about a task: its id, its title as the task has it, and two or three sentences in the person's language on what is wanted and what must be true for the work to be done. | суть | summary |
