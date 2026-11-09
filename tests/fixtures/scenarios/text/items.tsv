@@ -1,0 +1,83 @@
+1.T1	A free task	the first message about #91 tells its gist
+1.T2	A free task	the gist comes before any change to the tracker or the workspace
+1.T3	A free task	#91 is assigned to the person
+1.T4	A free task	a branch `<type>/91-<two to four words>` exists, where `<type>` is one of feat, fix, refactor, docs, test, ci, chore
+1.T5	A free task	that branch is made from the default branch
+1.T6	A free task	that branch is linked to #91
+1.N1	A free task	#91 gets a second linked branch
+2.T1	A closed task	the first message about #91 tells its gist
+2.T2	A closed task	the person is told that #91 is closed
+2.T3	A closed task	the run waits
+2.N1	A closed task	the state of #91 changes
+2.N2	A closed task	the assignees of #91 change
+2.N3	A closed task	a branch for #91 is created
+3.T1	A task that another person is assigned to	the first message about #91 tells its gist
+3.T2	A task that another person is assigned to	the person is told that #91 is assigned to another person
+3.T3	A task that another person is assigned to	the run waits
+3.N1	A task that another person is assigned to	the assignees of #91 change
+3.N2	A task that another person is assigned to	a branch for #91 is created
+4.T1	A task with another person's pull request	the first message about #91 tells its gist
+4.T2	A task with another person's pull request	the person is told that #96 of another person closes #91
+4.T3	A task with another person's pull request	the run waits
+4.N1	A task with another person's pull request	the assignees of #91 change
+4.N2	A task with another person's pull request	a branch for #91 is created
+5.T1	A task with the person's pull request	the first message about #91 tells its gist
+5.T2	A task with the person's pull request	the person is told that the work on #91 has pull request #96
+5.T3	A task with the person's pull request	the run stops
+5.N1	A task with the person's pull request	the assignees of #91 change
+5.N2	A task with the person's pull request	a branch for #91 is created
+6.T1	A task assigned to the person, with no branch	the first message about #91 tells its gist
+6.T2	A task assigned to the person, with no branch	the person is told that #91 is assigned to the person already
+6.T3	A task assigned to the person, with no branch	the person is asked whether the work on #91 runs somewhere else or continues here
+6.T4	A task assigned to the person, with no branch	the run waits
+6.N1	A task assigned to the person, with no branch	a branch for #91 is created
+6.N2	A task assigned to the person, with no branch	the assignees of #91 change
+7.T1	The work on the person's task continues here	#91 stays assigned to the person
+7.T2	The work on the person's task continues here	a branch for #91 exists, as in A free task
+7.T3	The work on the person's task continues here	that branch is made from the default branch
+7.T4	The work on the person's task continues here	that branch is linked to #91
+7.N1	The work on the person's task continues here	#91 gets a second linked branch
+8.T1	The work on the person's task runs somewhere else	the run stops
+8.N1	The work on the person's task runs somewhere else	a branch for #91 is created
+8.N2	The work on the person's task runs somewhere else	the assignees of #91 change
+9.T1	A linked branch with no assignee	the first message about #91 tells its gist
+9.T2	A linked branch with no assignee	the person is told that `fix/91-typo` is linked to #91
+9.T3	A linked branch with no assignee	the person is asked whose branch `fix/91-typo` is
+9.T4	A linked branch with no assignee	the run waits
+9.N1	A linked branch with no assignee	the assignees of #91 change
+9.N2	A linked branch with no assignee	a branch for #91 is created
+10.T1	The person's work is in the workspace	the first message about #91 tells its gist
+10.T2	The person's work is in the workspace	the person is told in one line that the work on #91 continues on `fix/91-typo`
+10.T3	The person's work is in the workspace	the work goes on, on `fix/91-typo`
+10.N1	The person's work is in the workspace	the person is asked whether the work runs somewhere else
+10.N2	The person's work is in the workspace	#91 gets a second linked branch
+10.N3	The person's work is in the workspace	the assignees of #91 change
+11.T1	The person's branch moved on somewhere else	the first message about #91 tells its gist
+11.T2	The person's branch moved on somewhere else	the person is told that #91 is assigned to the person
+11.T3	The person's branch moved on somewhere else	the person is told that `fix/91-typo` is linked to #91
+11.T4	The person's branch moved on somewhere else	the person is asked whether the work on #91 runs somewhere else or continues here
+11.T5	The person's branch moved on somewhere else	the run waits
+11.N1	The person's branch moved on somewhere else	a branch for #91 is created
+11.N2	The person's branch moved on somewhere else	the workspace's `fix/91-typo` changes
+12.T1	A task of another repository	the first message about #91 tells its gist
+12.T2	A task of another repository	the person is told that #91 is in another repository
+12.T3	A task of another repository	the run stops
+12.N1	A task of another repository	the assignees of #91 change
+12.N2	A task of another repository	a branch for #91 is created
+13.T1	The tracker does not answer	the person is told that the tracker could not be read, with its error
+13.T2	The tracker does not answer	the run stops
+13.N1	The tracker does not answer	the person is told a gist of #91 that the run did not read
+13.N2	The tracker does not answer	the assignees of #91 change
+13.N3	The tracker does not answer	a branch for #91 is created
+14.T1	A free duplicate	a comment on #91 holds the stack trace of #95
+14.T2	A free duplicate	#95 is closed as a duplicate of #91
+14.T3	A free duplicate	the comment on #91 comes before #95 closes
+14.T4	A free duplicate	#95 closes before the work starts
+14.T5	A free duplicate	the last message names #95 as closed
+14.T6	A free duplicate	the outcomes of A free task hold for #91
+14.N1	A free duplicate	#91 closes
+15.T1	A busy duplicate	#95 stays open
+15.T2	A busy duplicate	the person is told that #95 stays open because it is busy
+15.T3	A busy duplicate	the outcomes of A free task hold for #91
+15.N1	A busy duplicate	#95 closes
+15.N2	A busy duplicate	the assignees of #95 change
