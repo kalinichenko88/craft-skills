@@ -146,5 +146,5 @@ for i in $(seq "$runs"); do
   run change "$i" &
 done
 wait
-check "$logs"
 echo "Runs: $logs"
+check "$logs"
