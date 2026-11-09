@@ -74,7 +74,9 @@ grep -qx 'I-1 FAIL' "$tmp/out" || fail 'make invariants stops before its check' 
 # make check checks the shape of each scenario file that scenarios/README.md
 # gives, and no host word (#244). make check runs it on scenarios/ in lint;
 # here it fails on a copy with a file of each kind of fault beside take-in.md.
-grep -qF 'scenarios/*/*.md' <(make -n -s -C "$root" check 2>&1) || fail 'make check does not check the scenarios' ''
+want=$(make -n -s -C "$root" scenarios 2>&1)
+got=$(make -n -s -C "$root" check 2>&1)
+[[ $got == *"$want"* ]] || fail 'make check does not run the scenarios target' "$got"
 sc=$tmp/sc
 # shape <file> <line>...: make scenarios on take-in.md and <file> of <line>s.
 shape() {
@@ -91,9 +93,10 @@ fails() {
 }
 # well <name> <item>: a scenario in the shape, with <item> under Then.
 well() { printf '%s\n' "## $1" 'Given:' '- task #91 is open' 'When: the person writes "#91"' 'Then:' "- $2" 'Never:' '- #91 closes'; }
-shape z.md "$(well 'A new task' 'the run goes through a high branch')" ||
+shape z.md '## A new task' 'Given:' '- task #91 is open' 'When: the run meets a high branch' 'Then:' '- the run goes through it' 'Never:' '- #91 closes' ||
   fail 'make scenarios fails on a scenario in the shape' "$(cat "$tmp/out")"
-for w in 'a subagent reads #91' 'the run calls gh issue view' 'the run calls /code-review' 'Claude Code asks' 'Codex asks'; do
+# shellcheck disable=SC2016 # Markdown backticks, not shell
+for w in 'a subagent reads #91' 'the run calls gh issue view' 'the run calls `gh`' 'the run calls /code-review' 'Claude Code asks' 'Codex asks'; do
   fails "a host word in: $w" "$w" z.md "$(well 'A new task' "$w")"
 done
 fails 'a name that another scenario has' '## A free task' z.md "$(well 'A free task' '#91 is assigned to the person')"

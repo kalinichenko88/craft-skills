@@ -11,7 +11,7 @@ invariants:
 # host word, a name unique in scenarios/, a When of the person or of the run,
 # and the labels Given, When, Then and Never, once each, in this order.
 scenarios:
-	! grep -HniE 'subagent|(^|[^[:alnum:]])gh |/code-review|claude code|codex' scenarios/*/*.md
+	! grep -HniE 'subagent|(^|[^[:alnum:]])gh([^[:alnum:]]|$$)|/code-review|claude code|codex' scenarios/*/*.md
 	! grep -h '^## ' scenarios/*/*.md | sort | uniq -d | grep .
 	! grep -Hn '^When:' scenarios/*/*.md | grep -vE ':When: the (person|run) '
 	awk 'function last() { if (at != "" && labels != "GWTN") { print at ": the labels are not Given, When, Then and Never, once each, in this order"; bad = 1 } at = "" } \
