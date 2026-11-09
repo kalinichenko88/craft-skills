@@ -58,3 +58,9 @@ plugin ship a tool whose description always loads.
 ## Links
 
 #213, #64, #183, #205, `skills/github/filing.md` *A defect in this plugin*
+
+## Checked
+
+- 2026-11-09 #275: the product panel weighed a tool that reads the local
+  sessions. The person chose counts by a script with no model; the
+  corrections stay at *Finishing*.

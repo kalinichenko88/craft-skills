@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Runs count.sh of the sessions skill on built transcripts in the shape of
+# Claude Code's records: a session with its subagent, a claude -p run and an
+# old session, which it must leave out.
+
+set -eu
+
+root=$(cd "$(dirname "$0")/.." && pwd)
+count=$root/.claude/skills/sessions/scripts/count.sh
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+cp -R "$root/tests/fixtures/sessions/projects" "$tmp/"
+touch -t 200001010000 "$tmp/projects/-home-u-proj/old.jsonl"
+
+# github: two loads of 147 characters (149 bytes), one before the compaction;
+# 43 + 27 + 17 characters of take-in.md, tracker.md and filing.md, the last
+# after a cd, and 11 of a call that reads SKILL.md and runs a roadmap script;
+# collect.sh failed, run through a variable. roadmap: a load that the person
+# typed as a command, and two failed scripts, read.sh in that call. A diff
+# that only names a script, a call with .mdx, the failed call of the
+# checkout's copy and the superpowers load count nothing.
+expected="14 days: 2 transcripts, 1 of them subagents
+skill	contexts	loads	twice	chars	compacted	read	failed
+github	1	2	1	294	1	98	1
+roadmap	1	1	0	124	0	0	2
+review-loop	1	1	0	122	0	0	0
+SKILL.md characters in a context that loaded one: median 122, 90th percentile 418, max 418
+script	failed
+github/collect.sh	1
+roadmap/plan.sh	1
+roadmap/read.sh	1"
+actual=$(bash "$count" 14 "$tmp/projects")
+[ "$actual" = "$expected" ] || {
+  echo "FAIL: count.sh printed:"
+  echo "$actual"
+  exit 1
+}
+
+mkdir "$tmp/empty"
+expected="14 days: 0 transcripts, 0 of them subagents
+skill	contexts	loads	twice	chars	compacted	read	failed
+SKILL.md characters in a context that loaded one: none
+script	failed"
+actual=$(bash "$count" 14 "$tmp/empty")
+[ "$actual" = "$expected" ] || {
+  echo "FAIL: count.sh printed for no transcript:"
+  echo "$actual"
+  exit 1
+}
+
+echo "sessions_scripts_test: ok"

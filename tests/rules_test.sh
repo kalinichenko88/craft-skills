@@ -36,7 +36,7 @@ done
 # Each script prints its usage from the call lines of its header (ADR 0001).
 # shellcheck disable=SC2016 # the line as the scripts hold it
 usage='sed -n "s/^#   ${0##*/}/usage: ${0##*/}/p" "$0" >&2'
-for script in $(git -C "$root" ls-files 'skills/*/scripts/*.sh'); do
+for script in $(git -C "$root" ls-files 'skills/*/scripts/*.sh' '.claude/skills/*/scripts/*.sh'); do
   if ! grep -qF "$usage" "$root/$script" || ! grep -q "^#   ${script##*/}" "$root/$script"; then
     echo "FAIL: $script: usage must print the '#   ${script##*/}' lines of its header"
     exit 1
@@ -216,4 +216,34 @@ rules.md|A read-only subagent, as a review or an `Explore` subagent, files nothi
 skills/github/take-in.md|While a subagent reads the file, you can run `worktree.sh` below:
 skills/github/take-in.md|Claude Code: wait until each subagent that you sent returns. Then call `EnterWorktree`
 EOF
+# After a compaction Claude Code attaches each skill again, but counts 4
+# characters a token against 5,000 tokens: it cuts the text past 20,000
+# characters (ADR 0006). A file on the debt list waits for its split, and
+# must not grow past its size there. A path that is gone leaves the list.
+debt='skills/architecture/SKILL.md 23503 #284
+skills/review-loop/SKILL.md 33562 #283'
+for f in "$root"/skills/*/SKILL.md; do
+  path=${f#"$root/"}
+  chars=$(jq -Rs length "$f")
+  cap=$(awk -v p="$path" '$1 == p { print $2 }' <<<"$debt")
+  if [ -z "$cap" ]; then
+    [ "$chars" -le 20000 ] || {
+      echo "FAIL: $path has $chars characters, past the cap of 20000 (ADR 0006)"
+      exit 1
+    }
+  elif [ "$chars" -le 20000 ]; then
+    echo "FAIL: $path has $chars characters, within the cap of 20000: take it off the debt list"
+    exit 1
+  elif [ "$chars" -gt "$cap" ]; then
+    echo "FAIL: $path has $chars characters, past its $cap on the debt list"
+    exit 1
+  fi
+done
+while read -r path _; do
+  [ -f "$root/$path" ] || {
+    echo "FAIL: $path is on the debt list of the SKILL.md cap, but does not exist"
+    exit 1
+  }
+done <<<"$debt"
+
 echo 'rules_test: ok'
