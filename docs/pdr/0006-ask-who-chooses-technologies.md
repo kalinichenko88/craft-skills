@@ -6,12 +6,14 @@
 
 ## Decision
 
-We will have the agent ask the person one question at the start of a work
-that needs a new technology, as an external dependency, a framework, a build
-tool or a data store: do you want to choose the technologies yourself? After
-a no, the agent chooses them, asks nothing more about them, and does not show
-its choice afterwards. After a yes, each choice goes to the person as a
-question with its options, before the first edit that uses it.
+We will have the agent ask the person one question when the work needs a new
+technology, as an external dependency, a framework, a build tool or a data
+store, before it chooses the first one: do you want to choose the
+technologies yourself? After a no, the agent chooses them, asks nothing more
+about them, and does not tell the person its choice afterwards; the ADR and
+the pull request still record it. After a yes, each choice goes to the
+person as a question with its options, before the first edit that uses it.
+With no person, the answer is no.
 
 ## Rests on
 
@@ -40,3 +42,11 @@ ask.
 ## Links
 
 #266, `skills/architecture/SKILL.md` *Who chooses the technologies*
+
+## Checked
+
+- 2026-11-09 8 Opus runs of `claude -p` on a web-app task in
+  `tests/fixtures/architecture/repo`, 3 on the text before and 5 on the new
+  text: 0 of 8 asked. `claude -p` gives no question tool, and the runs wrote
+  that no one can answer, so they took the answer no, as the decision says
+  for a run with no person. The branch with a person is not measured.
