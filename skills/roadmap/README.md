@@ -20,8 +20,8 @@ run in parallel, and what is left to close a milestone.
 
 - **One task, and why.** Only free tasks: open, with nobody on them and no
   open blocker. The main path comes first, then bugs, then the rest. The
-  answer gives the task, its milestone, and why it is first: "it is in M1 and
-  2 issues wait on it".
+  answer gives the task with its title, its milestone, and why it is first:
+  "it is in M1 · First demo and 2 issues wait on it".
 - **Parallel work that does not collide.** No task in the set changes the same
   function as another task in it, or as work in progress.
 - **What is left in a milestone**, in dependency order: what is free, what is

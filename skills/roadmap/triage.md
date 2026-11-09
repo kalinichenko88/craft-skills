@@ -143,7 +143,8 @@ shows as busy.
 
 ## The approval
 
-Show one table: the issue, its verdict, its label, its milestone, the reply to
+Show one table: the issue with its title, a few words on what it is about,
+its verdict, its label, its milestone by its full title, the reply to
 its author, and for a duplicate the comment on the survivor and the
 survivor's new milestone, when it takes one. An issue that the
 account `gh` is logged in as filed gets no reply. Every comment is public:

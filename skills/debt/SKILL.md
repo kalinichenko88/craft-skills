@@ -297,7 +297,7 @@ and linked so far.
 
 ## The report
 
-The issues filed, re-measured and named, with their numbers; *next*, with
+The issues filed, re-measured and named, with their numbers and titles; *next*, with
 scores; the borderline hits; the invariants with no `Check:` line; the
 invariants that an exit 2 of `invariants.sh` left unchecked, with its
 messages; the copies kept on purpose; the small cuts, one line each with the score of
