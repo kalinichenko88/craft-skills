@@ -84,7 +84,7 @@ along by the first session: give it its verdict, as to a free issue.
 
 **The tracker is read next.** Run `collect.sh take-in` (`tracker.md`) with the
 issue's number and the names it gives. While a subagent reads the file, you can
-set up the worktree below: the worktree is not the work, so the duplicates can
+run `worktree.sh` below: the worktree is not the work, so the duplicates can
 still close before the work starts. The scout's groups hold the duplicates, the
 bugs and debt in the same area, the neighbours, and the linked issues, open
 work and history; the rest of this file works from them. An issue with `##
@@ -171,8 +171,14 @@ Someone else's: say so and wait. Yours: run the command the warning gives,
 which assigns the issue to you.
 
 Then move into the worktree, when the script made one or found the branch in
-one. Claude Code: `EnterWorktree` with the path it printed. Codex cannot move a running session: every command takes the worktree
-as `workdir`, and every file path, read or patched, is written under it.
+one, and the path that it printed is not the checkout that the session is in.
+Claude Code: wait until each subagent that you sent returns. Then call
+`EnterWorktree` with the path that `worktree.sh` printed. A subagent keeps the
+directory where it started. Until `ExitWorktree`, Claude Code refuses each
+Bash call that runs in the main checkout, so a subagent that started before the
+move cannot run Bash any more. Codex cannot move a running session: every
+command takes the worktree as `workdir`, and every file path, read or patched,
+is written under it.
 
 Then read what points at it: the scout's **Linked, open work and history**
 group. It holds the timeline's cross-references, including the ones the
