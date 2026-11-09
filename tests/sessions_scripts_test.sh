@@ -15,13 +15,14 @@ touch -t 200001010000 "$tmp/projects/-home-u-proj/old.jsonl"
 
 # github: two loads of 147 characters (149 bytes), one before the compaction;
 # 43 + 27 + 17 characters of take-in.md, tracker.md and filing.md, the last
-# after a cd; collect.sh failed, run through a variable. roadmap: a load that
-# the person typed as a command, and two failed scripts, read.sh in a call
-# that names github too. The failed call of the checkout's copy and the
-# superpowers load do not count.
+# after a cd, and 11 of a call that reads SKILL.md and runs a roadmap script;
+# collect.sh failed, run through a variable. roadmap: a load that the person
+# typed as a command, and two failed scripts, read.sh in that call. A diff
+# that only names a script, a call with .mdx, the failed call of the
+# checkout's copy and the superpowers load count nothing.
 expected="14 days: 2 transcripts, 1 of them subagents
 skill	contexts	loads	twice	chars	compacted	read	failed
-github	1	2	1	294	1	87	1
+github	1	2	1	294	1	98	1
 roadmap	1	1	0	124	0	0	2
 review-loop	1	1	0	122	0	0	0
 SKILL.md characters in a context that loaded one: median 122, 90th percentile 418, max 418

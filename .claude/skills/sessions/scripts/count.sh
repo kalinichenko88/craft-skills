@@ -48,13 +48,12 @@ input_filename as $f
     .message.content[]? | select(.type == "tool_use") | .id as $id
     | ((if .name == "Bash" then .input.command elif .name == "Read" then .input.file_path else null end) // "") as $c
     | ($c | capture(skill)) as $s
-    # A script under its skill path first, else one through a variable, as
-    # D=<skill>; bash $D/scripts/x.sh.
-    | ($c | [capture(skill + "/scripts/(?<script>[a-z-]+[.]sh)")][0]
-      // ([capture("(scripts/|[$][A-Za-z_]+/)(?<script>[a-z-]+[.]sh)")][0] | if . then {skill: $s.skill, script} else null end)) as $run
-    | if .name == "Bash" and $run then [$f, "run", $id, $run.skill, $run.script]
-      elif ($c | test("[.]md")) then [$f, "read", $id, $s.skill]
-      else empty end
+    # A script that bash runs: by its path, after a cd, or through a variable,
+    # as D=<skill>; bash $D/scripts/x.sh. Its skill is the one in its path,
+    # else the first in the call. One call can run a script and read a file.
+    | (if .name == "Bash" then $c | capture("bash +[\"\u0027]?(?<path>[^ ;&|\"\u0027]*)(scripts/|[$][A-Za-z_]+/)(?<script>[a-z-]+[.]sh)") // null else null end) as $run
+    | (if $run then [$f, "run", $id, (($run.path | capture(skill).skill) // $s.skill), $run.script] else empty end),
+      (if $c | test("[.]md\\b") then [$f, "read", $id, $s.skill] else empty end)
   elif .type == "user" then
     .message.content | arrays | .[] | select(.type == "tool_result")
     | [$f, "result", .tool_use_id, (.content | text | length), (.is_error == true)]

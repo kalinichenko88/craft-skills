@@ -25,26 +25,26 @@ them, and no model reads a transcript.
    | `contexts` | the transcripts that loaded the skill, by the `Skill` tool or by a command that the person typed |
    | `loads` | all its loads. Claude Code adds a second copy only when the text differs, as with other arguments |
    | `twice` | the contexts that loaded it more than once |
-   | `chars` | the characters that its loads put in the context: the line with the base directory, the text of `SKILL.md` with no front matter, and the `ARGUMENTS:` line |
-   | `compacted` | the contexts with a compaction after a load. Then Claude Code keeps the first 20,000 characters of each skill |
-   | `read` | the characters of the skill's `.md` files that `Read` or a Bash call returned. A Bash call that names the skill's folder and a `.md` file counts all its output |
-   | `failed` | the calls of its scripts that ended with an error |
+   | `chars` | the characters that its loads put in the context: the line with the base directory, the text of `SKILL.md` with no front matter, and the `ARGUMENTS:` line when the load has arguments |
+   | `compacted` | the contexts with a compaction after a load. Then Claude Code attaches the last load of each skill again, the newest first: the first 20,000 characters of each, and about 100,000 in all for the skills of every plugin. An older skill that does not fit drops out whole |
+   | `read` | the characters of the skill's `.md` files that `Read` or a Bash call returned. A Bash call that names the skill's folder and a `.md` file counts all its output, also when it runs a script |
+   | `failed` | the Bash calls that ran one of its scripts with `bash` and ended with an error |
 
    The line under the table gives, for each context that loaded a
    `SKILL.md`, the sum of their characters: the median, the 90th percentile
    and the maximum. Then each script with failed calls.
 3. **Read it.** About 3 characters are one token of the model.
    `tests/rules_test.sh` caps each `SKILL.md` at 20,000 characters (ADR
-   0006); architecture and review-loop are on its debt list and must not
-   grow. A failed call is a candidate, not a defect: `invariants.sh` exits 1
-   at a failing invariant and `take-in-check.sh` at a refusal. Each one is a
-   defect only by *Make sure the plugin is wrong* in
-   `skills/github/filing.md`.
+   0006), with a debt list of the files over it. A failed call is a
+   candidate, not a defect: `invariants.sh` exits 1 at a failing invariant
+   and `take-in-check.sh` at a refusal. Each one is a defect only by *Make
+   sure the plugin is wrong* in `skills/github/filing.md`.
 4. **The output stays on this computer.** The transcripts are of private
    projects too. A finding goes to the public tracker only as its shape and
    its counts (*Public repositories* in `skills/github/SKILL.md`). Ask the
-   person before you file it, unlike a defect found in this checkout: the
-   counts come from the private transcripts of other projects.
+   person before you file it, unlike a defect that you find in the code of
+   this checkout: the counts come from the private transcripts of other
+   projects.
 
 Claude Code deletes a transcript after `cleanupPeriodDays`, 30 days by
 default, so a count of more days can find fewer transcripts than it asks
