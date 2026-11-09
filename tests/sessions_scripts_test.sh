@@ -17,11 +17,12 @@ touch -t 200001010000 "$tmp/projects/-home-u-proj/old.jsonl"
 # 43 + 27 + 17 characters of take-in.md, tracker.md and filing.md, the first
 # by a sed with a quoted | and a head after it, the last after a cd; and 74
 # of a call that reads SKILL.md and runs a script of no skill, without the
-# line with the exit code. Failed: collect.sh through a variable and through
-# xargs, add-finding.sh with an .md argument and bash -x, which is no read,
-# and worktree.sh, the last of two scripts. roadmap: a load that the person
-# typed as a command, and four failed scripts: read.sh after a cat of
-# SKILL.md, plan.sh in a for loop, board.sh run by its path, and next.sh,
+# line with the exit code. Failed: collect.sh through a variable, through
+# xargs and with a $(...) argument, add-finding.sh with an .md argument and
+# bash -x, which is no read, and worktree.sh, the last of two scripts.
+# roadmap: a load that the person typed as a command, and four failed
+# scripts: read.sh after a cat of SKILL.md, plan.sh in a for loop with a
+# redirection after done, board.sh run by its path, and next.sh,
 # whose whole path is in a variable. debt: clones.sh under timeout. A grep
 # that quotes a run, roadmap.sh before a tail and a failed gh call, a diff and
 # a cat that only name a script, a call with .mdx, the failed call of the
@@ -29,13 +30,13 @@ touch -t 200001010000 "$tmp/projects/-home-u-proj/old.jsonl"
 # superpowers load count nothing.
 expected="14 days: 2 transcripts, 1 of them subagents
 skill	contexts	loads	twice	chars	compacted	read	failed
-github	1	2	1	294	1	161	4
+github	1	2	1	294	1	161	5
 roadmap	1	1	0	124	0	0	4
 review-loop	1	1	0	122	0	0	0
 debt	0	0	0	0	0	0	1
 SKILL.md characters in a context that loaded one: median 122, 90th percentile 418, max 418
 script	failed
-github/collect.sh	2
+github/collect.sh	3
 debt/clones.sh	1
 github/add-finding.sh	1
 github/worktree.sh	1

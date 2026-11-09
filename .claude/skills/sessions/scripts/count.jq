@@ -5,13 +5,20 @@
 def text: if type == "string" then . else [.[]? | .text? // empty] | join("") end;
 def skill: "/plugins/cache/[^/]+/(craft|kalinichenko)/[^/]+/skills/(?<skill>[a-z-]+)";
 
-# The commands of a Bash call. It splits at ; & | and new lines, and where $(,
-# <( or a backquote starts a command, but not in quotes and not at the & of a
-# redirection, as 2>&1. A heredoc body is no command.
+# The commands of a Bash call, in the order they end. It splits at ; & | and
+# new lines, but not in quotes and not at the & of a redirection, as 2>&1. A
+# command in $(...), <(...) or backquotes comes before the command around it,
+# which runs after it. A heredoc body is no command.
 def parts:
   gsub("<<-?[ \t]*['\"]?(?<w>[A-Za-z_]+)['\"]?(?<r>[^\n]*)\n[\\s\\S]*?\n[ \t]*\\k<w>(?=\n|$)"; "\(.r)")
-  | [scan("'[^']*'|\"(?:\\\\.|[^\"\\\\$]|[$](?![(]))*\"|[0-9]*[<>]&[0-9-]*|&>>?|[$<>][(]|[`;&|\n]|[^'\"`;&|\n$<>]+|[\\s\\S]")]
-  | reduce .[] as $t ([""]; if $t | test("^([$<>][(]|[`;&|\n])$") then . + [""] else .[-1] += $t end);
+  | [scan("'[^']*'|\"(?:\\\\.|[^\"\\\\$]|[$](?![(]))*\"|[0-9]*[<>]&[0-9-]*|&>>?|[$<>][(]|[`;&|\n)]|[^'\"`;&|\n$<>)]+|[\\s\\S]")]
+  | reduce .[] as $t ({out: [], stack: [{text: "", close: ""}]};
+      if ($t | test("^[$<>][(]$")) or ($t == "`" and .stack[-1].close != "`") then
+        .stack += [{text: "", close: (if $t == "`" then "`" else ")" end)}]
+      elif $t == .stack[-1].close then .out += [.stack[-1].text] | .stack |= .[:-1]
+      elif $t | test("^[;&|\n]$") then .out += [.stack[-1].text] | .stack[-1].text = ""
+      else .stack[-1].text += $t end)
+  | .out + [.stack[].text];
 def subst($vars): reduce ($vars | to_entries[]) as $e (.; gsub("[$][{]?" + $e.key + "\\b[}]?"; $e.value));
 def word: sub("^\\s+"; "") | sub("\\s+$"; "") | gsub("['\"]"; "");
 def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . else $dir + "/" + . end;
@@ -19,7 +26,8 @@ def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . els
 # The script of a skill that the last command of the call runs, with bash and
 # its options or by its path, as [skill, script]; and the skill of the first
 # command that names a .md file of a skill with cat, sed, head, tail, grep or
-# awk. An assignment, a cd, done, fi or a comment is no last command. A
+# awk. An assignment, a cd, an empty command, a comment, and done, fi or esac
+# with their redirections are no last command. A
 # variable takes its value from an assignment before it in the call, and a
 # relative path takes the folder of a cd before it.
 # ponytail: a variable that $(...) sets stays empty, so f=$(ls <skill>/x.md);
@@ -32,7 +40,7 @@ def commands:
     | if $q | test("^[A-Za-z_][A-Za-z0-9_]*=\\S*\\s*$") then
         .vars[$q | capture("^(?<k>[^=]+)").k] = ($q | sub("^[^=]+="; "") | word)
       elif $q | test("^cd\\s") then .dir = ($q | sub("^cd\\s+"; "") | word | resolve($d))
-      elif $q | test("^(done|fi|esac)?\\s*(#.*)?$") then .
+      elif $q | test("^(done|fi|esac)?(\\s*[0-9]*[<>]+&?\\s*[^\\s;&|]*)*\\s*(#.*)?$") then .
       else
         ($q | sub("^([A-Za-z_][A-Za-z0-9_]*=(\\S*|'[^']*'|\"[^\"]*\")\\s+|timeout\\s+\\S+\\s+|xargs(\\s+-\\S+)*\\s+)*"; "")) as $q
         | (($q | capture("^(bash(\\s+-[A-Za-z]+)*\\s+)?[\"']?(?<p>[^\\s\"']*scripts/[a-z-]+[.]sh)\\b") | .p | resolve($d)) // null) as $r
