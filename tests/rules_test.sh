@@ -172,8 +172,9 @@ done
 #   names the Explore subagent of part 1 instead.
 # - take-in let the worktree be set up while the scout read the tracker. A
 #   session called EnterWorktree then, and Claude Code refused every later
-#   Bash call of the scout, and of a citations scout sent beside it (#268).
-#   worktree.sh can run beside them; the move waits for each subagent.
+#   Bash call of the scout (#268). Recorded sessions show the same for a
+#   citations scout sent before the move. worktree.sh can run beside the
+#   take-in scout; the move waits for each subagent.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
