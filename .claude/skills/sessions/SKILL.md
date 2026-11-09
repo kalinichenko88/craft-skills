@@ -27,8 +27,8 @@ them, and no model reads a transcript.
    | `twice` | the contexts that loaded it more than once |
    | `chars` | the characters that its loads put in the context: the line with the base directory, the text of `SKILL.md` with no front matter, and the `ARGUMENTS:` line when the load has arguments. Not the copies that a compaction attaches again |
    | `compacted` | the contexts with a compaction after a load. Then Claude Code attaches the last load of each skill again, the newest first: the first 20,000 characters of each, and about 100,000 in all, shared by every skill that the context loaded, from a plugin or not. An older skill that does not fit drops out whole |
-   | `read` | the characters of the skill's `.md` files that `Read` returned, and the output of each Bash call in which a command reads one of them with `cat`, `sed`, `head`, `tail`, `grep` or `awk`. A call has one output, so all of it counts, also when the call runs a script too |
-   | `failed` | the Bash calls that ran one of its scripts, with `bash` or by its path, and ended with an error. A call has one exit code, that of its last command, so a call that runs two scripts counts for the last one |
+   | `read` | the characters of the skill's `.md` files that `Read` returned, and the output of each Bash call in which a command reads one of them with `cat`, `sed`, `head`, `tail`, `grep` or `awk`. A call has one output, so all of it counts, for the skill of the first file that it reads, also when the call runs a script too |
+   | `failed` | the Bash calls that ran one of its scripts, with `bash` or by its path, and ended with an exit code other than 0. A call has one exit code, so a call that runs two scripts counts for the last one. A call that the harness, a hook or the person stopped before it ran has no exit code and does not count |
 
    The line under the table gives, for each context that loaded a
    `SKILL.md`, the sum of their characters: the median, the 90th percentile
