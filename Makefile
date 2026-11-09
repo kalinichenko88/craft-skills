@@ -14,8 +14,8 @@ scenarios:
 	! grep -HniE 'subagent|(^|[^[:alnum:]])gh([^[:alnum:]]|$$)|/code-review|claude code|codex' scenarios/*/*.md
 	! grep -h '^## ' scenarios/*/*.md | sort | uniq -d | grep .
 	! grep -Hn '^When:' scenarios/*/*.md | grep -vE ':When: the (person|run) '
-	awk 'function last() { if (at != "" && labels != "GWTN") { print at ": the labels are not Given, When, Then and Never, once each, in this order"; bad = 1 } at = "" } \
-	  FNR == 1 { last() } /^## / { last(); at = FILENAME ":" FNR; labels = "" } \
+	awk 'function last() { if (at != "" && labels != "GWTN") { print at ": the labels are not Given, When, Then and Never, once each, in this order"; bad = 1 } } \
+	  /^## / { last(); at = FILENAME ":" FNR; labels = "" } \
 	  /^(Given|When|Then|Never):/ { labels = labels substr($$0, 1, 1) } END { last(); exit bad }' scenarios/*/*.md
 
 lint: scenarios
