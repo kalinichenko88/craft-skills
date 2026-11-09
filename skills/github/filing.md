@@ -111,7 +111,8 @@ than it closes. Per finding, the scout's groups decide:
     `Related to #12` in the new body, and leave a one-line comment on the host
     that names the new issue. Do not edit its body.
 
-List every issue you filed or added to, with its number, in the final report.
+List every issue you filed or added to, with its number and its title, in the
+final report.
 
 ## Filing one next to an existing issue
 

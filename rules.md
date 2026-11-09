@@ -88,6 +88,22 @@ issues. The same rules apply in other languages.
 - Do not write text that can have two meanings.
 - Do not use complex grammar.
 
+## An issue by its title (always)
+
+Each time you name an issue, a pull request or a milestone to the person, in a
+reply, a table, a question or a final report, give its title next to its
+number: `#44 Store the rate of a partner`, not `#44`; `M1 · First demo`, not
+`M1`. An issue named in passing or in a list counts too: "#42 Show the
+commission and #46 Pay out the partners wait on it", not "#42 and #46 wait on
+it". The person does not keep the tracker in mind, and a bare number sends
+them to GitHub. In one message, the first mention carries the title.
+
+When you ask the person to decide on it, or you move it, take it, close it or
+give it as the next task, add a few words in the person's language: what it
+changes, or which area it touches. A table of issues gets a column for them.
+For a milestone, they are its goal, from its description. Commands and the
+text that goes to GitHub keep their own form.
+
 ## Docs move with the change (always)
 
 A change that alters user-visible behaviour, a public contract, or how the thing

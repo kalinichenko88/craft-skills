@@ -92,8 +92,9 @@ milestone: the first after the first current one that is not current and not
 `Later`.
 
 Give one task: the first of the main path, else of bugs, else of secondary.
-Give its number, title, track and milestone, and why it is first, as "it is
-in M1 and 2 issues wait on it". Name the top bug as the alternative. When the person
+Give its number, title, a few words on what it changes, its track and its
+milestone, and why it is first, as "it is in M1 · First demo and 2 issues
+wait on it". Name the top bug as the alternative, the same way. When the person
 takes a task, the `craft:github` skill's take-in starts with its bare
 number, as `#21`: it checks the task and assigns it.
 
@@ -120,8 +121,8 @@ work in progress, your own included:
 - A task whose return says `ready: no` waits on a decision outside it: leave
   it out and say what it waits on.
 
-Answer with a short table of the set: each task and its files. Then each
-overlap in one line, with the file and the function. Each task in the set
+Answer with a short table of the set: each task with its title, and its
+files. Then each overlap in one line, with the file and the function. Each task in the set
 starts through take-in, in its own worktree. The file holds every main-path
 task, but only the top 5 of bugs and of secondary: when all five overlap, say
 so.
