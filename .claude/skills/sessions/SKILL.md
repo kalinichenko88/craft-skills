@@ -25,8 +25,8 @@ them, and no model reads a transcript.
    | `contexts` | the transcripts that loaded the skill, by the `Skill` tool or by a command that the person typed |
    | `loads` | all its loads. Claude Code adds a second copy only when the text differs, as with other arguments |
    | `twice` | the contexts that loaded it more than once |
-   | `chars` | the characters that its loads put in the context: the line with the base directory, the text of `SKILL.md` with no front matter, and the `ARGUMENTS:` line when the load has arguments |
-   | `compacted` | the contexts with a compaction after a load. Then Claude Code attaches the last load of each skill again, the newest first: the first 20,000 characters of each, and about 100,000 in all for the skills of every plugin. An older skill that does not fit drops out whole |
+   | `chars` | the characters that its loads put in the context: the line with the base directory, the text of `SKILL.md` with no front matter, and the `ARGUMENTS:` line when the load has arguments. Not the copies that a compaction attaches again |
+   | `compacted` | the contexts with a compaction after a load. Then Claude Code attaches the last load of each skill again, the newest first: the first 20,000 characters of each, and about 100,000 in all, shared by every skill that the context loaded, from a plugin or not. An older skill that does not fit drops out whole |
    | `read` | the characters of the skill's `.md` files that `Read` or a Bash call returned. A Bash call that names the skill's folder and a `.md` file counts all its output, also when it runs a script |
    | `failed` | the Bash calls that ran one of its scripts with `bash` and ended with an error |
 
@@ -34,8 +34,8 @@ them, and no model reads a transcript.
    `SKILL.md`, the sum of their characters: the median, the 90th percentile
    and the maximum. Then each script with failed calls.
 3. **Read it.** About 3 characters are one token of the model.
-   `tests/rules_test.sh` caps each `SKILL.md` at 20,000 characters (ADR
-   0006), with a debt list of the files over it. A failed call is a
+   `tests/rules_test.sh` caps each `skills/*/SKILL.md` at 20,000 characters
+   (ADR 0006), with a debt list of the files over it. A failed call is a
    candidate, not a defect: `invariants.sh` exits 1 at a failing invariant
    and `take-in-check.sh` at a refusal. Each one is a defect only by *Make
    sure the plugin is wrong* in `skills/github/filing.md`.
