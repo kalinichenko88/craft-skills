@@ -65,10 +65,10 @@ cost $0.28 to $0.80. The fake reached the session. The eval checks each of
 the 17 Then and Never items of the three scenarios, one check each, from the
 tracker, the branches, the workspace, the tool calls and the messages. 15 of
 the 17 checks gave a verdict. A message that ends a run was in its log as
-text. A message that comes before a tool call can reach the log only as
-thinking in other words, without the task's id and title, as #206 found.
-In that case the log cannot show what it told: the two checks of the gist of the
-free task gave no verdict.
+text, and so were some messages that come before a tool call. Another message
+before a tool call can reach the log only as thinking in other words, without
+the task's id and title, as #206 found. In that case the log cannot show what
+it told: the two checks of the gist of the free task gave no verdict.
 
 ## Consequences
 
@@ -81,7 +81,8 @@ into a repository of its own stays cheap, with `git subtree split`.
 Bad: a change of a flow now edits two texts, and only the review ties them.
 `TERMS.md` repeats some meanings that a skill holds too, as *busy* in
 `skills/github/tracker.md`: another implementation reads only `scenarios/`.
-A message before a tool call cannot be checked from a Claude Code log. The
+A message before a tool call that reaches a Claude Code log only as thinking
+cannot be checked. The
 shape fits a flow that a message of the person starts; a flow that the run
 starts itself, as the filing of a finding, needs a When of another kind. The
 word "scenario" also names the picture sections of the READMEs. The first

@@ -18,8 +18,9 @@ Not covered yet:
   workspace has;
 - a linked branch in another repository only, and a branch in the
   workspace that has the name of the new branch;
-- a read of the task that fails after the check, and an earlier run on the
-  same task that still waits.
+- a read of the task that fails after the check;
+- an earlier run that took the same task into the work, and still runs or
+  waits.
 
 ## A free task
 

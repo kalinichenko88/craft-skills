@@ -157,9 +157,10 @@ EOF
 # record <dir>: <dir>.events holds the messages to the person, as text lines,
 # the session's thinking that has words, as think lines, and each tool call of
 # the session and its subagents, as its tool's name, or sub and the name, and
-# its command, path or skill. A message that comes before a tool call can
-# reach the log only as a think line, in other words, without the task's id
-# and title (#206), with --include-partial-messages too. Paths of this machine
+# its command, path or skill. A message that comes before a tool call is a
+# text line in some runs. In others it can reach the log only as a think
+# line, in other words, without the task's id and title (#206), with
+# --include-partial-messages too. Paths of this machine
 # become <craft>, <work> and <tmp>. <dir>.branches holds the origin's
 # branches, each one that is not made from main marked so. <dir>.workspace
 # holds the changed files, the local branches, the worktrees, the branch of
@@ -191,6 +192,9 @@ record() {
 # the title. A think line before that message, or before the first change
 # with no message about #91 before it, gives SKIP: it can be a message that
 # the log holds only in other words, and the log cannot show what it told.
+# "The run waits" and "the run stops" have one check, no change: one run
+# cannot tell them apart (scenarios/README.md), so a run that stops passes
+# "the run waits".
 # shellcheck disable=SC2034 # the items read the values through eval
 check() {
   local d=$1 s first_write named nline gist titled think assignees linked branch same
