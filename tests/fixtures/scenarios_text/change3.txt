@@ -1,0 +1,83 @@
+1.T1 skills/github/take-in.md:18 "write its number, its title and two or three sentences of your own"
+1.T2 skills/github/take-in.md:17 "Before the next step"
+1.T3 skills/github/take-in.md:126 "It assigns the issue to you"
+1.T4 skills/github/take-in.md:118 "`<type>/<number>-<two to four words>`"
+1.T5 skills/github/take-in.md:126 "branches from the remote's default branch"
+1.T6 skills/github/take-in.md:127 "the branch to the issue"
+1.N1 none
+2.T1 skills/github/take-in.md:18 "write its number, its title and two or three sentences of your own"
+2.T2 none
+2.T3 none
+2.N1 none
+2.N2 none
+2.N3 none
+3.T1 skills/github/take-in.md:18 "write its number, its title and two or three sentences of your own"
+3.T2 skills/github/take-in.md:165 "Someone else's: say so and wait"
+3.T3 skills/github/take-in.md:165 "Someone else's: say so and wait"
+3.N1 skills/github/take-in.md:163 "does not assign the issue to you"
+3.N2 skills/github/take-in.md:165 "Someone else's: say so and wait"
+4.T1 skills/github/take-in.md:18 "write its number, its title and two or three sentences of your own"
+4.T2 none
+4.T3 none
+4.N1 none
+4.N2 none
+5.T1 skills/github/take-in.md:18 "write its number, its title and two or three sentences of your own"
+5.T2 none
+5.T3 skills/github/tracker.md:78 "`take-in-check.sh` stops on your own entries"
+5.N1 skills/github/tracker.md:78 "`take-in-check.sh` stops on your own entries"
+5.N2 skills/github/tracker.md:78 "`take-in-check.sh` stops on your own entries"
+6.T1 skills/github/take-in.md:18 "write its number, its title and two or three sentences of your own"
+6.T2 skills/github/take-in.md:32 "`assigned to you` line"
+6.T3 skills/github/take-in.md:37 "Does the work run somewhere else, or does it continue here?"
+6.T4 skills/github/take-in.md:34 "ask one at a time"
+6.N1 skills/github/take-in.md:34 "ask one at a time"
+6.N2 skills/github/take-in.md:34 "ask one at a time"
+7.T1 skills/github/take-in.md:126 "It assigns the issue to you"
+7.T2 skills/github/take-in.md:123 "bash <dir>/scripts/worktree.sh 91 fix/91-electron-binary-in-lanes"
+7.T3 skills/github/take-in.md:126 "branches from the remote's default branch"
+7.T4 skills/github/take-in.md:127 "the branch to the issue"
+7.N1 none
+8.T1 skills/github/take-in.md:38 "else: stop"
+8.N1 skills/github/take-in.md:38 "else: stop"
+8.N2 skills/github/take-in.md:38 "else: stop"
+9.T1 skills/github/take-in.md:18 "write its number, its title and two or three sentences of your own"
+9.T2 skills/github/take-in.md:32 "`branch` lines"
+9.T3 skills/github/take-in.md:35 "whose is the branch?"
+9.T4 skills/github/take-in.md:34 "ask one at a time"
+9.N1 skills/github/take-in.md:163 "does not assign the issue to you"
+9.N2 skills/github/take-in.md:34 "ask one at a time"
+10.T1 skills/github/take-in.md:18 "write its number, its title and two or three sentences of your own"
+10.T2 skills/github/take-in.md:30 "say in one line that the"
+10.T3 skills/github/take-in.md:31 "go on with *Continuing the work* below"
+10.N1 skills/github/take-in.md:30 "Ask nothing"
+10.N2 skills/github/take-in.md:132 "it makes and links no branch"
+10.N3 none
+11.T1 skills/github/take-in.md:18 "write its number, its title and two or three sentences of your own"
+11.T2 skills/github/take-in.md:32 "`assigned to you` line"
+11.T3 skills/github/take-in.md:32 "`branch` lines"
+11.T4 skills/github/take-in.md:37 "Does the work run somewhere else, or does it continue here?"
+11.T5 skills/github/take-in.md:34 "ask one at a time"
+11.N1 skills/github/take-in.md:34 "ask one at a time"
+11.N2 skills/github/take-in.md:34 "ask one at a time"
+12.T1 skills/github/take-in.md:18 "write its number, its title and two or three sentences of your own"
+12.T2 none
+12.T3 none
+12.N1 none
+12.N2 none
+13.T1 skills/github/take-in.md:13 "report it and stop"
+13.T2 skills/github/take-in.md:13 "report it and stop"
+13.N1 skills/github/take-in.md:14 "no summary is due"
+13.N2 skills/github/take-in.md:13 "report it and stop"
+13.N3 skills/github/take-in.md:13 "report it and stop"
+14.T1 skills/github/take-in.md:91 "is carried into a comment on the survivor"
+14.T2 skills/github/take-in.md:89 "closes against the issue in hand"
+14.T3 skills/github/take-in.md:90 "once anything it adds"
+14.T4 skills/github/take-in.md:89 "closes against the issue in hand before"
+14.T5 skills/github/take-in.md:96 "Name every one closed in the final report."
+14.T6 skills/github/take-in.md:126 "It assigns the issue to you"
+14.N1 none
+15.T1 skills/github/take-in.md:92 "stays open: say so"
+15.T2 skills/github/take-in.md:91 "One that is busy"
+15.T3 skills/github/take-in.md:126 "It assigns the issue to you"
+15.N1 skills/github/take-in.md:92 "stays open"
+15.N2 none
