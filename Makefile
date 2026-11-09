@@ -25,7 +25,7 @@ lint: scenarios
 	! git grep -n 'kalinichenko[:]' -- . ':!docs/superpowers' ':!CHANGELOG.md' ':!docs/migrating-from-kalinichenko.md'
 	! git grep -nE "(^|[^<])<<-?[[:space:]]*[^[:space:]<0-9]" -- 'skills/*.md' rules.md
 	! git grep -n 'gh auth refresh' -- . ':!docs/superpowers' ':!CHANGELOG.md' ':!Makefile' | grep -vE -- '(-h|--hostname)[ =]github\.com'
-	shellcheck hooks/*.sh tests/*.sh skills/github/scripts/*.sh skills/roadmap/scripts/*.sh skills/debt/scripts/*.sh skills/review-loop/scripts/*.sh skills/architecture/scripts/*.sh tests/fixtures/debt/*.sh
+	shellcheck hooks/*.sh tests/*.sh skills/github/scripts/*.sh skills/roadmap/scripts/*.sh skills/debt/scripts/*.sh skills/review-loop/scripts/*.sh skills/architecture/scripts/*.sh .claude/skills/sessions/scripts/*.sh tests/fixtures/debt/*.sh
 
 # A test passes only when it exits 0 and its last non-empty line on stdout is
 # its ok line: under bash 3.2 a script that set -u stops exits 0 when it has an

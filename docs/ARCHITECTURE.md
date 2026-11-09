@@ -32,7 +32,8 @@ data, as Markdown, JSON, YAML and everything under `fixtures/`. The code
 they see is the other text files: the bash and awk under `skills/`,
 `hooks/` and `tests/`, the `Makefile`, and small files as `LICENSE` and
 `data.ere`. The text of a skill is the product, but no `Check:` line sees
-it: an invariant on it is review only.
+it: an invariant on it is review only. `tests/rules_test.sh` checks the size
+of each `SKILL.md` (ADR 0006) and a few of its sentences.
 
 ## Codemap
 
@@ -66,7 +67,7 @@ it: an invariant on it is review only.
   index of its decisions in `docs/pdr/`.
 - `CONTRIBUTING.md` — how to work on the plugin: the checks, the tests and
   the release.
-- `.claude/skills/` — `release` and `infographic`: skills of this
+- `.claude/skills/` — `release`, `infographic` and `sessions`: skills of this
   repository, not of the plugin.
 - `.claude/CLAUDE.md`, `AGENTS.md` — the instructions for an agent that
   works in this repository. No host loads them from the installed plugin:
@@ -90,6 +91,7 @@ module too: the text that the flows are checked against.
 | product | `skills/product/` | `tests/product_eval.sh`, `tests/product_checks_test.sh`, `tests/fixtures/product/` |
 | docker, typescript-conventions, react-conventions | `skills/<name>/` | text only; `tests/skill_load_eval.sh`, `tests/skill_load_checks_test.sh` and `tests/fixtures/skill_load/` count the loads of the two conventions |
 | scenarios | `scenarios/` | `tests/scenarios_eval.sh`, which runs craft on three take-in scenarios with a fake `gh` over a JSON tracker; `tests/scenarios_checks_test.sh`, which also reads the headings of `scenarios/github/take-in.md`; `tests/fixtures/scenarios/`; the `scenarios` target of the `Makefile`, which checks the shape and the host words of each scenario file, and which `tests/makefile_test.sh` tests |
+| sessions | `.claude/skills/sessions/` | `tests/sessions_scripts_test.sh`, `tests/fixtures/sessions/` |
 | release, infographic | `.claude/skills/<name>/` | none |
 | plugin | `.claude-plugin/`, `.codex-plugin/`, `Makefile`, `.github/` | `tests/makefile_test.sh` |
 
@@ -131,7 +133,8 @@ Where the split does not fit:
 
 - Most rules of the product are prose in `SKILL.md` and the `.md` files
   beside it, and the model runs them. No `Check:` line sees the prose;
-  `tests/rules_test.sh` checks a few of its sentences. A form that a set of
+  `tests/rules_test.sh` checks a few of its sentences, and the size of each
+  `SKILL.md`. A form that a set of
   files may not hold, as a skill name with the old prefix or a heredoc in
   the text of a skill or of `rules.md`, is a `grep` in the `lint` target
   of the `Makefile`, as the check of the `CHANGELOG.md` lines is. The
@@ -145,7 +148,8 @@ Where the split does not fit:
 
 ## Patterns
 
-Patterns 1, 2, 3 and 5 hold for each `.sh` script in `skills/*/scripts/`.
+Patterns 1, 2, 3 and 5 hold for each `.sh` script in `skills/*/scripts/`
+and `.claude/skills/*/scripts/`.
 Pattern 4 holds for the `.md` files of each skill.
 
 1. The header is the contract: what the script does, its
@@ -240,8 +244,11 @@ hold 10. A new number needs an ADR.
   characters, Claude Code's cap on one hook context; `tests/rules_test.sh`
   checks it. A host runs the two hooks of an event in parallel and gives
   no order, so no text points across the marker line with "above" or
-  "below" (ADR 0004): review only. Pictures are WebP, since the plugin installs as a
-  copy of the repository.
+  "below" (ADR 0004): review only. Each `skills/*/SKILL.md` stays at most
+  20,000 characters, what Claude Code keeps of a skill after a compaction;
+  `tests/rules_test.sh` checks it, with a debt list of the files over the
+  cap, each at its size there (ADR 0006). Pictures are WebP, since the
+  plugin installs as a copy of the repository.
 - **Safety.** No step of the debt and architecture skills runs the code of
   the project it reads. Nothing from a private source goes into a public
   repository (`craft:github`).
@@ -261,3 +268,4 @@ status of an ADR that is not accepted.
 - [0003 The flows are specified as host-neutral scenarios in scenarios/](adr/0003-host-neutral-scenarios.md)
 - [0004 rules.md reaches the session in two hook outputs](adr/0004-rules-in-two-hook-outputs.md)
 - [0005 A pinned tool prints the import graph for the architecture checks](adr/0005-import-graph-from-a-pinned-tool.md) — rejected
+- [0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps](adr/0006-skill-text-within-the-compaction-budget.md)

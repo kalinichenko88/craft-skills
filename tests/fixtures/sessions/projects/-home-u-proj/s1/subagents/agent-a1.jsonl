@@ -1,0 +1,3 @@
+{"type":"user","entrypoint":"cli","isSidechain":true,"agentId":"a1","message":{"role":"user","content":"Review the range"}}
+{"type":"assistant","entrypoint":"cli","isSidechain":true,"agentId":"a1","message":{"role":"assistant","content":[{"type":"tool_use","id":"toolu_11","name":"Skill","input":{"skill":"kalinichenko:review-loop"}}]}}
+{"type":"user","entrypoint":"cli","isSidechain":true,"agentId":"a1","isMeta":true,"sourceToolUseID":"toolu_11","message":{"role":"user","content":[{"type":"text","text":"Base directory for this skill: /home/u/.claude/plugins/cache/m/kalinichenko/89abcdef0123/skills/review-loop\n\n# Review loop"}]}}

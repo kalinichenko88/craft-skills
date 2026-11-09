@@ -18,8 +18,9 @@ The first user is the author.
   place by a measured run, not by a guess.
 - The plugin grows past development: skills for content and against AI slop
   (ADR 0002, #214). One plugin, one namespace `craft:`.
-- **Current goal:** M2 · Architecture measured: numbers decide what the
-  architecture skill keeps (#87, #99).
+- **Current goal:** M3 · Skills hold in real runs: the skills do what their
+  rules say in real runs, and their text is whole in the context (#196,
+  #275).
 
 ## What it will not do
 
@@ -34,7 +35,9 @@ The first user is the author.
   from public repositories, or from a fake tracker that a test builds.
 - **The hosts:** Claude Code caps the context of one hook at 10,000
   characters, and `rules.md` loads through two hooks for each event, one for
-  each part. Codex runs plugin hooks only after the person trusts them.
+  each part. After a compaction, Claude Code keeps only the first 20,000
+  characters of each skill (ADR 0006). Codex runs plugin hooks only after the
+  person trusts them.
 - **Money:** the plugin is free and earns nothing. Its cost is the user's
   tokens: the panel, the second reviewer, the walk of a screen and the evals
   call models.

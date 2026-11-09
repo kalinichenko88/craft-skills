@@ -10,7 +10,10 @@ replays `rules.md` through the hook, part by part, to prove that the two parts
 and the marker line between them rebuild the file byte for byte, and that each
 part stays within Claude Code's 10,000-character cap on one hook context,
 starts with its own heading, and runs under each event from
-`hooks/hooks.json`. It checks that a checkout with `core.autocrlf=true`, the
+`hooks/hooks.json`. It checks that each `skills/*/SKILL.md` stays within
+20,000 characters, the text that Claude Code keeps of a skill after a
+compaction (ADR 0006): a file on the test's debt list must not grow past its
+size there. It checks that a checkout with `core.autocrlf=true`, the
 Git for Windows default, keeps every text file in LF, that the hook still
 gives the rules from a CRLF `rules.md`, that every script starts with
 `#!/usr/bin/env bash`, and that every `- ` line of `CHANGELOG.md` starts with
@@ -210,6 +213,13 @@ The pictures in `docs/` are drawn by Codex from the brief next to them, as
 `docs/github/brief.md`. To change a picture, change its brief and run
 `/infographic` in Claude Code from this repository. Like `/release`, it lives
 in `.claude/skills/` and does not ship with the plugin.
+
+`/sessions` counts the local Claude Code transcripts of all projects on the
+computer: for each skill, the characters of its text in the context, its
+loads, the compactions after them, and the failed calls of its scripts. Run
+it before you decide on the size of a skill, or instead of a count by hand
+from the transcripts. It lives in `.claude/skills/` too. Its output stays on
+the computer: a finding reaches the tracker only as its shape and its counts.
 
 ## Release
 
