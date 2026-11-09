@@ -54,3 +54,4 @@ None.
 - [0003 A change to a screen is walked by eye once, before round 1](pdr/0003-ui-walk-by-eye.md) — accepted; revisit when: the first 5 reviews with the walk show 0 findings from it in total
 - [0004 Filing puts a low finding straight into Later](pdr/0004-later-at-filing.md) — rejected; revisit when: a tracker that uses craft holds more open low findings with no milestone than one triage approval can take
 - [0005 The architecture skill stays whole](pdr/0005-architecture-skill-stays.md) — accepted; revisit when: a run of `tests/architecture_eval.sh` gives an arm with no skill the same count as the arms with the skill on each task
+- [0006 The agent asks once whether the person chooses the technologies](pdr/0006-ask-who-chooses-technologies.md) — accepted; revisit when: a person who answered no stops the agent over a technology that it chose, or one who answered yes calls a question too small to ask
