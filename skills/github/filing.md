@@ -221,11 +221,12 @@ gh pr diff <n> --repo github.com/kalinichenko88/craft-skills
   another file of the plugin, or you can have a new reproduction. Then write
   it as a comment, as *Write the issue* below says. Ask before you write it,
   as *Ask the person* below says.
-- An open pull request fixes it: file nothing. Give the person its number.
+- An open pull request fixes it: file nothing. Give the person its number
+  and its title.
 - A pull request closed without a merge does not decide the case. Name it in
   the issue you file.
 - A closed issue has the same report, and its `stateReason` is `NOT_PLANNED`:
-  file nothing. It was decided. Give the person its number.
+  file nothing. It was decided. Give the person its number and its title.
 - A closed issue with the `stateReason` `DUPLICATE`: judge the issue that it
   duplicates by these bullets instead. This call gives its repository, number
   and state:
@@ -238,8 +239,8 @@ gh pr diff <n> --repo github.com/kalinichenko88/craft-skills
   ```
 
   When `nameWithOwner` is not `kalinichenko88/craft-skills`, the report is in
-  another tracker. File nothing. Give the person that issue's repository and
-  number. When `duplicateOf` is `null`, or the call fails, the issue does
+  another tracker. File nothing. Give the person that issue's repository,
+  number and title. When `duplicateOf` is `null`, or the call fails, the issue does
   not decide the case: name it in the issue you file.
 - `main` has the defect again, and a closed issue with `COMPLETED` or a
   merged pull request fixed it before: file a new issue. Its body starts
@@ -285,7 +286,7 @@ call fails, give the person the draft and the link: for an issue,
 `https://github.com/kalinichenko88/craft-skills/issues/new`; for a comment,
 `https://github.com/kalinichenko88/craft-skills/issues/<n>`.
 
-List the issue number in the final report.
+List the issue number and its title in the final report.
 
 **The session at the end.** *Finishing* in `SKILL.md` runs this step after the
 merge. It finds the steps that the person pointed out during the work, and

@@ -14,7 +14,7 @@ and stop.
 
 | Moment | What must happen | Read first |
 | --- | --- | --- |
-| "What can I take now", "what is next on the roadmap" | `next.sh`; give one task, its track and milestone, and why it is first | *One task* below |
+| "What can I take now", "what is next on the roadmap" | `next.sh`; give one task with its title, its track and milestone, and why it is first | *One task* below |
 | "What can I take in parallel with the main work" | `next.sh`, then the overlap check; one bug and one secondary task that overlap with nothing | *Parallel work* below |
 | "What on the roadmap can run in parallel" | `next.sh`, then the overlap check; every free main-path task that overlaps with nothing | *Parallel work* below |
 | "What is needed to close M1" | `roadmap.sh M1`; its open tasks in dependency order, what is in progress, what is blocked and by what | *The roadmap* below |
@@ -121,8 +121,9 @@ work in progress, your own included:
 - A task whose return says `ready: no` waits on a decision outside it: leave
   it out and say what it waits on.
 
-Answer with a short table of the set: each task with its title, and its
-files. Then each overlap in one line, with the file and the function. Each task in the set
+Answer with a short table of the set: each task with its title, a few words
+on what it changes, and its files. Then each overlap in one line, with the
+file and the function. Each task in the set
 starts through take-in, in its own worktree. The file holds every main-path
 task, but only the top 5 of bugs and of secondary: when all five overlap, say
 so.
