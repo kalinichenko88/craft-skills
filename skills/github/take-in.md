@@ -171,13 +171,14 @@ Someone else's: say so and wait. Yours: run the command the warning gives,
 which assigns the issue to you.
 
 Then move into the worktree, when the script made one or found the branch in
-one, and its path is not where the session is. Claude Code: wait until each
-subagent that you sent returns. Then call `EnterWorktree` with the path that
-`worktree.sh` printed. A subagent keeps the directory where it started. Until
-`ExitWorktree`, Claude Code refuses each Bash call that runs in the main
-checkout, so a subagent that started before the move cannot run Bash any more.
-Codex cannot move a running session: every command takes the worktree as
-`workdir`, and every file path, read or patched, is written under it.
+one, and the path that it printed is not the checkout that the session is in.
+Claude Code: wait until each subagent that you sent returns. Then call
+`EnterWorktree` with the path that `worktree.sh` printed. A subagent keeps the
+directory where it started. Until `ExitWorktree`, Claude Code refuses each
+Bash call that runs in the main checkout, so a subagent that started before the
+move cannot run Bash any more. Codex cannot move a running session: every
+command takes the worktree as `workdir`, and every file path, read or patched,
+is written under it.
 
 Then read what points at it: the scout's **Linked, open work and history**
 group. It holds the timeline's cross-references, including the ones the
