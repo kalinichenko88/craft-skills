@@ -84,6 +84,12 @@ ends, or the order of two of these. A message is checked by what it says,
 not by its words. Each item that names a message says in what order it
 comes, when the order matters.
 
+A wait and a stop are the exception to one check for each item. They end a
+run in the same state, and differ only in what the next text that the person
+writes does (`TERMS.md`). So a check of the run tests only that nothing more
+changed. The difference shows in the next run: in a scenario whose Given
+holds the earlier run, as the scenarios of an answer to a question do.
+
 A scenario can build on another one, by its heading: "a branch for #91
 exists, as in A free task" takes one item, and "the outcomes of A free task
 hold for #91" takes all its Then items.

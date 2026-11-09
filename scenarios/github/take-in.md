@@ -1,9 +1,9 @@
 # Take a task into work
 
-The person names one task as the whole message: "#91", "take #91", or the
-link of the task. The run checks whether the task is free, tells the person
-the gist of the task, closes its duplicates, and starts the work on a branch
-linked to the task.
+The whole text that the person writes names one task: "#91", "take #91", or
+the link of the task. The run checks whether the task is free, tells the
+person the gist of the task, closes its duplicates, and starts the work on a
+branch linked to the task.
 
 Not covered yet:
 
@@ -13,13 +13,16 @@ Not covered yet:
 - the correction of the places in the code that a task names, as a file and
   a line;
 - a task whose text holds added problems;
-- the person's message that asks for a branch only, or for no new branch;
+- a text of the person that asks for a branch only, or for no new branch;
 - the person's own task with an open pull request whose branch the
   workspace has;
 - a linked branch in another repository only, and a branch in the
   workspace that has the name of the new branch;
-- a read of the task that fails after the check, and an earlier run on the
-  same task that still waits.
+- a read of the task that fails after the check;
+- an earlier run that took the same task into the work, and still runs or
+  waits;
+- the next text that the person writes after a run that waits or stops,
+  other than an answer to a question.
 
 ## A free task
 
