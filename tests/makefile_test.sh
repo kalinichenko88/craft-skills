@@ -3,7 +3,9 @@
 # harness of the real ones: set -eu, an EXIT trap and check. Under bash 3.2 a
 # script that set -u stops exits 0 when it has an EXIT trap, so make test must
 # fail a script that does not print its ok line. Then checks that make check
-# runs invariants.sh, and that its target fails on a broken invariant.
+# runs invariants.sh, and that its target fails on a broken invariant; and that
+# make check runs the scenarios target, which fails on each kind of fault in
+# the shape of a scenario file.
 
 set -eu
 
@@ -68,4 +70,40 @@ git -C "$inv" init -q
 make -s -C "$inv" -f "$root/Makefile" invariants >"$tmp/out" 2>&1 &&
   fail 'make invariants passes a broken invariant' "$(cat "$tmp/out")"
 grep -qx 'I-1 FAIL' "$tmp/out" || fail 'make invariants stops before its check' "$(cat "$tmp/out")"
+
+# make check checks the shape of each scenario file that scenarios/README.md
+# gives, and no host word (#244): it passes on scenarios/, and fails on a
+# copy with a file of each kind of fault beside take-in.md.
+grep -qF 'scenarios/*/*.md' <(make -n -s -C "$root" check 2>&1) || fail 'make check does not check the scenarios' ''
+make -s -C "$root" scenarios >"$tmp/out" 2>&1 || fail 'make scenarios fails on scenarios/' "$(cat "$tmp/out")"
+sc=$tmp/sc
+# shape <file> <line>...: make scenarios on take-in.md and <file> of <line>s.
+shape() {
+  rm -rf "$sc"
+  mkdir -p "$sc/scenarios/github"
+  cp "$root/scenarios/github/take-in.md" "$sc/scenarios/github/"
+  printf '%s\n' "${@:2}" >"$sc/scenarios/github/$1"
+  make -s -C "$sc" -f "$root/Makefile" scenarios >"$tmp/out" 2>&1
+}
+# fails <fault> <want> <file> <line>...: shape fails, and its output holds <want>.
+fails() {
+  shape "${@:3}" && fail "make scenarios passes $1" "$(cat "$tmp/out")"
+  grep -qF -- "$2" "$tmp/out" || fail "make scenarios does not name $1" "$(cat "$tmp/out")"
+}
+# well <name> <item>: a scenario in the shape, with <item> under Then.
+well() { printf '%s\n' "## $1" 'Given:' '- task #91 is open' 'When: the person writes "#91"' 'Then:' "- $2" 'Never:' '- #91 closes'; }
+shape z.md "$(well 'A new task' 'the run goes through a high branch')" ||
+  fail 'make scenarios fails on a scenario in the shape' "$(cat "$tmp/out")"
+for w in 'a subagent reads #91' 'the run calls gh issue view' 'the run calls /code-review' 'Claude Code asks' 'Codex asks'; do
+  fails "a host word in: $w" "$w" z.md "$(well 'A new task' "$w")"
+done
+fails 'a name that another scenario has' '## A free task' z.md "$(well 'A free task' '#91 is assigned to the person')"
+fails 'a When of no person and no run' 'When: someone writes' z.md \
+  '## A new task' 'Given:' '- a' 'When: someone writes "#91"' 'Then:' '- b' 'Never:' '- c'
+fails 'Never before Then' 'z.md:1: the labels' z.md \
+  '## A new task' 'Given:' '- a' 'When: the person writes "#91"' 'Never:' '- b' 'Then:' '- c'
+fails 'two Whens' 'z.md:1: the labels' z.md \
+  '## A new task' 'Given:' '- a' 'When: the person writes "#91"' 'When: the run meets #91' 'Then:' '- b' 'Never:' '- c'
+fails 'no Never in the last scenario of a file before another' 'a.md:1: the labels' a.md \
+  '## A new task' 'Given:' '- a' 'When: the person writes "#91"' 'Then:' '- b'
 echo 'makefile_test: ok'

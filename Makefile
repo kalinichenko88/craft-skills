@@ -1,13 +1,24 @@
 TESTS = $(patsubst tests/%_test.sh,%,$(wildcard tests/*_test.sh))
 
-.PHONY: check lint invariants test
+.PHONY: check lint scenarios invariants test
 .NOTPARALLEL:
 check: lint invariants test
 
 invariants:
 	bash skills/architecture/scripts/invariants.sh
 
-lint:
+# The shape of a scenario file that scenarios/README.md gives (ADR 0003): no
+# host word, a name unique in scenarios/, a When of the person or of the run,
+# and the labels Given, When, Then and Never, once each, in this order.
+scenarios:
+	! grep -HniE 'subagent|(^|[^[:alnum:]])gh |/code-review|claude code|codex' scenarios/*/*.md
+	! grep -h '^## ' scenarios/*/*.md | sort | uniq -d | grep .
+	! grep -Hn '^When:' scenarios/*/*.md | grep -vE ':When: the (person|run) '
+	awk 'function last() { if (at != "" && labels != "GWTN") { print at ": the labels are not Given, When, Then and Never, once each, in this order"; bad = 1 } at = "" } \
+	  FNR == 1 { last() } /^## / { last(); at = FILENAME ":" FNR; labels = "" } \
+	  /^(Given|When|Then|Never):/ { labels = labels substr($$0, 1, 1) } END { last(); exit bad }' scenarios/*/*.md
+
+lint: scenarios
 	claude plugin validate .
 	jq empty .codex-plugin/plugin.json hooks/hooks.json
 	! grep -n '^- ' CHANGELOG.md | grep -v '^[0-9]*:- ([a-z][a-z, -]*) '
