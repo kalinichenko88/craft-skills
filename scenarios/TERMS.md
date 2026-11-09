@@ -10,7 +10,7 @@ column gives the name that a person who reads Russian sees.
 | --- | --- | --- | --- |
 | the person | The human who works with the agent. The tracker and the repository know the person's account. | человек | user, operator |
 | another person | Any account other than the person's. | другой человек | someone, a teammate |
-| the person's language | The language of the person's messages, or the language that the person set. | язык человека | locale |
+| the person's language | The language of the texts that the person writes, or the language that the person set. | язык человека | locale |
 | task | A unit of work in the tracker: an id, a title, a text, a state (open or closed), assignees, comments and linked branches. | задача | issue, ticket, card |
 | task id | The number of a task, as the person writes it: `#91`. | номер задачи | |
 | link | The web address of a task, which names its repository and its id. | ссылка | URL |
@@ -35,4 +35,4 @@ column gives the name that a person who reads Russian sees.
 | tell | Give the person a message that needs no answer. | сказать | show, notify |
 | ask | Give the person a question. The run then waits for the answer and changes nothing until it comes. | спросить | confirm, prompt |
 | wait | End the run with nothing more changed. The next text that the person writes goes on with the same task. | ждать | pause |
-| stop | End the run with nothing more changed. The run does not take the task: a next message that names it starts again. | остановиться | abort, quit |
+| stop | End the run with nothing more changed. The run does not take the task: a next text that the person writes and that names it starts again. | остановиться | abort, quit |
