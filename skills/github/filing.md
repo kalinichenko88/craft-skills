@@ -228,13 +228,13 @@ gh pr diff <n> --repo github.com/kalinichenko88/craft-skills
 - A closed issue has the same report, and its `stateReason` is `NOT_PLANNED`:
   file nothing. It was decided. Give the person its number and its title.
 - A closed issue with the `stateReason` `DUPLICATE`: judge the issue that it
-  duplicates by these bullets instead. This call gives its repository, number
-  and state:
+  duplicates by these bullets instead. This call gives its repository,
+  number, title and state:
 
   ```bash
   gh api --hostname github.com graphql -f query='{ repository(owner:
     "kalinichenko88", name: "craft-skills") { issue(number: <n>) {
-    duplicateOf { number state stateReason
+    duplicateOf { number title state stateReason
     repository { nameWithOwner } } } } }'
   ```
 
