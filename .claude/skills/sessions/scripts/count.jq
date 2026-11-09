@@ -11,7 +11,7 @@ def skill: "/plugins/cache/[^/]+/(craft|kalinichenko)/[^/]+/skills/(?<skill>[a-z
 # which runs after it. A heredoc body is no command.
 def parts:
   gsub("<<-?[ \t]*['\"]?(?<w>[A-Za-z_]+)['\"]?(?<r>[^\n]*)\n[\\s\\S]*?\n[ \t]*\\k<w>(?=\n|$)"; "\(.r)")
-  | [scan("'[^']*'|\"(?:\\\\.|[^\"\\\\$]|[$](?![(]))*\"|[0-9]*[<>]&[0-9-]*|&>>?|[$<>][(]|[`;&|\n)]|[^'\"`;&|\n$<>)]+|[\\s\\S]")]
+  | [scan("'[^']*'|\"(?:\\\\.|[^\"\\\\$]|[$](?![(]))*\"|[0-9]*[<>]&[0-9-]*|[&]>{1,2}|[$<>][(]|[`;&|\n)]|[^'\"`;&|\n$<>)]+|[\\s\\S]")]
   | reduce .[] as $t ({out: [], stack: [{text: "", close: ""}]};
       if ($t | test("^[$<>][(]$")) or ($t == "`" and .stack[-1].close != "`") then
         .stack += [{text: "", close: (if $t == "`" then "`" else ")" end)}]
