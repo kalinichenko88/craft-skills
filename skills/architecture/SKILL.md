@@ -107,7 +107,8 @@ offer and the gate has no invariant to check; the other steps are the same.
 5. Give at most three options, the recommendation first, each with its cost
    in files and concepts, and the cost of the next likely change in the same
    area. No option adds an abstraction with one implementation or a layer for
-   a future need.
+   a future need. Who chooses a technology: *Who chooses the technologies*,
+   below.
 6. **The gate.** Check the recommended option against the text of each
    invariant of the area and its `Check:` line: it keeps it, or it breaks it.
    The option is not in the tree yet, so `invariants.sh` cannot judge it; the
@@ -131,6 +132,21 @@ offer and the gate has no invariant to check; the other steps are the same.
    whether the gate is right, and what the next likely change will cost.
    Its answer is advice: answer each point, and a point on which the two of
    you do not agree goes to the person.
+
+**Who chooses the technologies.** A technology is a choice that adds an
+external dependency, a framework, a build tool or a data store. When the work
+needs one, ask the person one question at the start of the work, before you
+choose the first one: do you want to choose the technologies yourself? Ask it
+once: the answer holds for the whole work.
+
+- **No:** choose each technology yourself, by the steps above, and ask
+  nothing more about them, at step 8 too. Do not show the choice afterwards,
+  not even as information: the person said that they do not need it.
+- **Yes:** each technology goes to the person as a question, with the
+  options of step 5, before the first edit that uses it.
+
+With no person, as in a run that a script starts or with "do not ask
+questions", the answer is no.
 
 **Consistency first.** When the project's code breaks a principle of *Modules
 and layers* everywhere, as components that all call `fetch` with no service

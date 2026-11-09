@@ -25,6 +25,11 @@ checks, and an ADR for each decision that needs one.
   that already does this kind of work and extends it. A new structure needs a
   reason why the existing one cannot take the change. At most three options,
   each with its cost, and no abstraction for a future need.
+- **You choose the technologies, if you want to.** When the work needs a new
+  dependency, framework, build tool or data store, the agent first asks once
+  whether you want to choose them. Yes: each choice comes to you as a question
+  with its options, before the code that uses it. No: the agent chooses, and
+  asks and reports nothing more about them.
 - **Your invariants, checked.** `docs/ARCHITECTURE.md` (or `ARCHITECTURE.md`
   at the root) holds numbered invariants. Each has a `Check:` line, or is
   checked in review only. A check is a pattern that must find nothing, a size
