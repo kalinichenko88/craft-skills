@@ -46,33 +46,36 @@ Never:
   brings what it needs, as a pull request brings its branch.
 - **When** is one line: the one event that starts the flow. It starts with
   "the person" or with "the run":
-  - a message of the person, which starts the run, as
+  - what the person writes, which starts the run, as
     `When: the person writes "#91"`;
-  - a point that the run gets to with no message, after a message started
-    it, as `When: the run completes the work on #91`. The Given then names
-    the task that the run works on, and what the run did before that point.
+  - a point that the run gets to by itself, after the person started it,
+    as `When: the run meets a finding in src/parser/read.ts`. The Given
+    then names what the run works on, as task #91, and what the run did
+    before that point. It holds a state that brings each correct run to
+    that point: a check cannot make the run get there.
 
-  A When of the run is only for a flow that no message of the person
-  starts. An answer to the question of an earlier run is a message too.
+  Take a When of the run only when nothing that the person writes starts
+  that point. An answer to a question of an earlier run is a When of the
+  person.
 - **Then** is what holds after the run.
 - **Never** is what no run may do, also on the way to a correct end.
 
 A scenario with a When of the run:
 
 ```markdown
-## A false comment in the module of the task
+## A function that no code calls, in a file of the task
 
 Given:
-- the run works on task #91, and the work changes 40 lines of
-  `src/parser/read.ts`
-- `src/parser/rows.ts` is in the module of `src/parser/read.ts`
-- a comment in `src/parser/rows.ts` says something false
-When: the run meets the false comment in `src/parser/rows.ts`
+- the outcomes of A free task hold for #91
+- the work on #91 changes 40 lines of `src/parser/read.ts`
+- `src/parser/read.ts` holds a function that its module does not export
+  and that no code calls
+When: the run meets that function in `src/parser/read.ts`
 Then:
-- the pull request of #91 corrects the comment
+- the pull request of #91 removes that function
 - the text of the pull request of #91 names the finding as not part of #91
 Never:
-- a task is created for the comment
+- a task is created for that function
 ```
 
 Each Then and Never item is one fact, so that one check can test it: a

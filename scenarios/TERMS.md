@@ -19,20 +19,20 @@ column gives the name that a person who reads Russian sees.
 | default branch | The branch that the work of the repository merges into. | основная ветка | main, master |
 | branch | A git branch of the repository. | ветка | |
 | linked branch | A branch that a task records as its own: whoever opens the task sees it. | связанная ветка | |
-| pull request | A request to merge a branch into the default branch. It closes a task when it names the task with a closing word. | pull request | merge request, PR |
-| the pull request of a task | The pull request from the linked branch of a task, which closes the task: "the pull request of #91". | pull request задачи | |
+| pull request | A request to merge a branch into the default branch, with a title and a text. It closes a task when it names the task with a closing word. | pull request | merge request, PR |
+| the pull request of a task | The pull request that brings the work of a task to the default branch: "the pull request of #91". | pull request задачи | |
 | assignee | An account that a task names as the one who does it. A task is assigned to the person when the person's account is an assignee. | исполнитель | owner |
 | busy | A task with an assignee, a linked branch or an open pull request that closes it. | занята | taken, claimed |
 | duplicate | A task that reports the same thing as another task, about the same place, in the same words or not. When it closes, it closes as a duplicate of the other task, and the other task stays as it is. | дубликат | copy |
 | comment | A text added to a task after its own text. | комментарий | note, reply |
 | workspace | The place where the run reads and changes the code: a copy of the repository with its branches. | рабочая копия | checkout, worktree, clone |
-| module | A part of the repository that the project's own instructions draw as one unit, as a feature or a package. Where they draw none, the module of a file is its directory. | модуль | area, component |
+| module | A part of the repository that the project's own instructions, or the conventions of its framework, draw as one unit, as a feature or a package. Where neither draws one, the module of a file is its directory. A test is in the module of the code that it tests. | модуль | area, component |
 | the work | What a task asks for: the changes to the code in the workspace. Checking the task, assigning it and making its branch are not the work. | работа | implementation |
-| finding | A defect, or a change worth making, that the run meets in the repository during the work, and that the task of the run does not ask for. | находка | issue |
-| the run | The handling of one message of the person, until it waits or stops. The run that takes a task goes on into the work. | прогон | session, turn |
+| finding | A defect, or a change worth making, that the run meets outside its task: in code that the task does not ask to change and that the work did not write. | находка | issue |
+| the run | The handling of one text that the person writes, until it waits or stops. The run that takes a task goes on into the work. | прогон | session, turn |
 | message | One text that the run gives the person. The person reads the messages of a run in their order. | сообщение | reply, output |
 | gist | What a message tells about a task: its id, its title as the task has it, and two or three sentences in the person's language on what is wanted and what must be true for the work to be done. | суть | summary |
 | tell | Give the person a message that needs no answer. | сказать | show, notify |
 | ask | Give the person a question. The run then waits for the answer and changes nothing until it comes. | спросить | confirm, prompt |
-| wait | End the run with nothing more changed. The next message of the person goes on with the same task. | ждать | pause |
+| wait | End the run with nothing more changed. The next text that the person writes goes on with the same task. | ждать | pause |
 | stop | End the run with nothing more changed. The run does not take the task: a next message that names it starts again. | остановиться | abort, quit |
