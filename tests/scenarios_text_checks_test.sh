@@ -49,9 +49,11 @@ leave_out "$tmp/same/change3.txt" 1.T1
 out=$(checks "$tmp/same")
 [ "$(grep '^LOST' <<<"$out")" = 'LOST 1.T1 A free task: the first message about #91 tells its gist (no line in 3 of 5 runs, on the base in 0 of 5)' ] ||
   fail 'an item that 2 of 5 runs answer none and 1 leaves out is not lost' "$out"
-for i in 1 2 3; do set_none "$tmp/same/base$i.txt" 1.T1; done
+set_none "$tmp/same/base1.txt" 1.T1
+set_none "$tmp/same/base2.txt" 1.T1
+leave_out "$tmp/same/base3.txt" 1.T1
 out=$(checks "$tmp/same")
-! grep -q '^LOST' <<<"$out" || fail 'an item that most runs on the base answer none is lost' "$out"
+! grep -q '^LOST' <<<"$out" || fail 'an item that most runs on the base give no line for is lost' "$out"
 
 # A stub claude first on PATH answers nothing, and records each call.
 mkdir "$tmp/bin"
@@ -82,7 +84,8 @@ mkdir -p "$repo/tests" "$repo/scenarios/github" "$repo/skills/github"
 cp "$root/tests/scenarios_text_eval.sh" "$repo/tests/"
 cp "$root/scenarios/github/take-in.md" "$repo/scenarios/github/"
 cp "$root/skills/github/SKILL.md" "$root/skills/github/take-in.md" "$root/skills/github/tracker.md" "$repo/skills/github/"
-commit() { git -C "$repo" add -A && git -C "$repo" -c user.name=test -c user.email=test@example.com commit -qm "$1"; }
+# -f, so that a global gitignore cannot drop a file that the test needs.
+commit() { git -C "$repo" add -A -f && git -C "$repo" -c user.name=test -c user.email=test@example.com commit -qm "$1"; }
 git -C "$repo" init -q
 commit 'no scout.md'
 cp "$root/skills/github/scout.md" "$repo/skills/github/"
