@@ -17,6 +17,12 @@ gives the rules from a CRLF `rules.md`, that every script starts with
 its scope in parentheses. It fails on a skill name with the plugin's old
 prefix outside the history and the migration guide, and on a heredoc in the
 text of a skill or of `rules.md`: a prompt to Codex goes through a file.
+In each file `scenarios/<skill>/<flow>.md`, it fails on a host word
+(`subagent`, the word `gh`, `/code-review`, `Claude Code`, `Codex`), on a
+scenario name that another scenario has, on a When that starts with neither
+"the person" nor "the run", and on a scenario whose labels are not Given,
+When, Then and Never, once each, in this order. The review reads for the other
+words of a host or a command.
 Outside the history and the Makefile, it fails on a line that holds
 `gh auth refresh` and no `-h github.com` or `--hostname github.com`: with no
 terminal, as under `!` in Claude Code, `gh` needs the host. It

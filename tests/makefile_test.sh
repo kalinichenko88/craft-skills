@@ -3,7 +3,9 @@
 # harness of the real ones: set -eu, an EXIT trap and check. Under bash 3.2 a
 # script that set -u stops exits 0 when it has an EXIT trap, so make test must
 # fail a script that does not print its ok line. Then checks that make check
-# runs invariants.sh, and that its target fails on a broken invariant.
+# runs invariants.sh, and that its target fails on a broken invariant; and that
+# make check runs the scenarios target, which fails on each kind of fault in
+# the shape of a scenario file.
 
 set -eu
 
@@ -68,4 +70,44 @@ git -C "$inv" init -q
 make -s -C "$inv" -f "$root/Makefile" invariants >"$tmp/out" 2>&1 &&
   fail 'make invariants passes a broken invariant' "$(cat "$tmp/out")"
 grep -qx 'I-1 FAIL' "$tmp/out" || fail 'make invariants stops before its check' "$(cat "$tmp/out")"
+
+# make check checks the shape of each scenario file that scenarios/README.md
+# gives, and no host word (#244). make check runs it on scenarios/ in lint;
+# here it fails on a copy with a file of each kind of fault in another skill's
+# folder, before or after github/take-in.md.
+want=$(make -n -s -C "$root" scenarios 2>&1) || fail 'make -n scenarios fails' "$want"
+got=$(make -n -s -C "$root" check 2>&1) || fail 'make -n check fails' "$got"
+[[ $got == *"$want"* ]] || fail 'make check does not run the scenarios target' "$got"
+sc=$tmp/sc
+# shape <file> <line>...: make scenarios on take-in.md and scenarios/<file> of <line>s.
+shape() {
+  rm -rf "$sc"
+  mkdir -p "$sc/scenarios/github" "$sc/scenarios/$(dirname "$1")"
+  cp "$root/scenarios/github/take-in.md" "$sc/scenarios/github/"
+  printf '%s\n' "${@:2}" >"$sc/scenarios/$1"
+  make -s -C "$sc" -f "$root/Makefile" scenarios >"$tmp/out" 2>&1
+}
+# fails <fault> <want> <file> <line>...: shape fails, and its output holds <want>.
+fails() {
+  shape "${@:3}" && fail "make scenarios passes $1" "$(cat "$tmp/out")"
+  grep -qF -- "$2" "$tmp/out" || fail "make scenarios does not name $1" "$(cat "$tmp/out")"
+}
+# well <name> <item> [when]: a scenario in the shape, with <item> under Then.
+well() { printf '%s\n' "## $1" 'Given:' '- task #91 is open' "${3:-When: the person writes \"#91\"}" 'Then:' "- $2" 'Never:' '- #91 closes'; }
+shape x/z.md "$(well 'A new task' 'the run goes through a ghost' 'When: the run meets a high branch')" ||
+  fail 'make scenarios fails on a scenario in the shape' "$(cat "$tmp/out")"
+# shellcheck disable=SC2016 # Markdown backticks, not shell
+for w in 'a subagent reads #91' 'the run calls gh issue view' 'the run calls `gh`' 'the run calls gh' 'the run calls /code-review' 'Claude Code asks' 'Codex asks'; do
+  fails "a host word in: $w" "$w" x/z.md "$(well 'A new task' "$w")"
+done
+fails 'gh at the start of a line' 'gh issue view 91' x/z.md "$(well 'A new task' 'the run calls')" 'gh issue view 91'
+fails 'a name that a scenario of another skill has' '## A free task' x/z.md "$(well 'A free task' '#91 is assigned to the person')"
+fails 'a When of neither the person nor the run' 'When: the tracker answers' x/z.md \
+  "$(well 'A new task' 'b' 'When: the tracker answers with an error')"
+fails 'Never before Then, in a scenario before another' 'x/z.md:1: the labels' x/z.md \
+  '## A new task' 'Given:' '- a' 'When: the person writes "#91"' 'Never:' '- b' 'Then:' '- c' "$(well 'Another task' 'd')"
+fails 'two Whens' 'x/z.md:1: the labels' x/z.md \
+  '## A new task' 'Given:' '- a' 'When: the person writes "#91"' 'When: the run meets #91' 'Then:' '- b' 'Never:' '- c'
+fails 'no Never in the last scenario of a file before another' 'a/a.md:1: the labels' a/a.md \
+  '## A new task' 'Given:' '- a' 'When: the person writes "#91"' 'Then:' '- b'
 echo 'makefile_test: ok'

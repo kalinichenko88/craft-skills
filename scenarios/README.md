@@ -23,8 +23,8 @@ yet.
 
 ## The shape of a scenario
 
-One scenario for each `##` heading. Its name is unique in the folder. Under
-it come four labels, in this order:
+One scenario for each `##` heading. Its name is unique in `scenarios/`, over
+the files of every skill. Under it come four labels, in this order:
 
 ```markdown
 ## A task that another person is assigned to

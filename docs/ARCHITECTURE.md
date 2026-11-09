@@ -89,7 +89,7 @@ module too: the text that the flows are checked against.
 | architecture | `skills/architecture/` | `tests/architecture_scripts_test.sh`, `tests/architecture_since_test.sh`, `tests/architecture_fences_test.sh`, `tests/architecture_eval.sh`, `tests/architecture_checks_test.sh`, `tests/fixtures/architecture/` |
 | product | `skills/product/` | `tests/product_eval.sh`, `tests/product_checks_test.sh`, `tests/fixtures/product/` |
 | docker, typescript-conventions, react-conventions | `skills/<name>/` | text only; `tests/skill_load_eval.sh`, `tests/skill_load_checks_test.sh` and `tests/fixtures/skill_load/` count the loads of the two conventions |
-| scenarios | `scenarios/` | `tests/scenarios_eval.sh`, which runs craft on three take-in scenarios with a fake `gh` over a JSON tracker; `tests/scenarios_checks_test.sh`, which also reads the headings of `scenarios/github/take-in.md`; `tests/fixtures/scenarios/` |
+| scenarios | `scenarios/` | `tests/scenarios_eval.sh`, which runs craft on three take-in scenarios with a fake `gh` over a JSON tracker; `tests/scenarios_checks_test.sh`, which also reads the headings of `scenarios/github/take-in.md`; `tests/fixtures/scenarios/`; the `scenarios` target of the `Makefile`, which checks the shape and the host words of each scenario file, and which `tests/makefile_test.sh` tests |
 | release, infographic | `.claude/skills/<name>/` | none |
 | plugin | `.claude-plugin/`, `.codex-plugin/`, `Makefile`, `.github/` | `tests/makefile_test.sh` |
 
@@ -133,7 +133,10 @@ Where the split does not fit:
   `tests/rules_test.sh` checks a few of its sentences. A form that a set of
   files may not hold, as a skill name with the old prefix or a heredoc in
   the text of a skill or of `rules.md`, is a `grep` in the `lint` target
-  of the `Makefile`, as the check of the `CHANGELOG.md` lines is.
+  of the `Makefile`, as the check of the `CHANGELOG.md` lines is. The
+  checks of a scenario file, its shape and its host words, are in the
+  `scenarios` target, which `lint` runs first: a test runs that target
+  alone on a copy.
 - Inside a script, the roles are parts of the file, not folders. A script
   can take part of a role from a sibling in its folder, as `roadmap.sh`,
   `next.sh` and `plan.sh` take some reads from `read.sh` and the graph
