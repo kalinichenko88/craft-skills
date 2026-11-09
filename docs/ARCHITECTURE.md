@@ -104,9 +104,10 @@ and for a section also for its anchor, as `#the-ponytail-step`.
 **Direction in text.** `rules.md` names github, product, roadmap, review-loop and
 the two conventions. architecture names debt, github, product, roadmap and
 react-conventions. debt names architecture, github, roadmap and
-review-loop. review-loop names architecture, debt, github and product.
-product names architecture, github, review-loop and roadmap. roadmap names
-github. react-conventions names typescript-conventions. architecture and
+review-loop. review-loop names architecture, debt, github, product and the
+two conventions. product names architecture, github, review-loop and
+roadmap. roadmap names github. react-conventions names
+typescript-conventions. architecture and
 debt name each other, and so do architecture and product, github and
 review-loop, debt and review-loop, and product and review-loop. github,
 review-loop and the two conventions name the global prompt back. No cycle
