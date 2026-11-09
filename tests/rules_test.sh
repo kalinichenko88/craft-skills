@@ -170,6 +170,10 @@ done
 #   read-only subagent of GitHub once pointed "above" to the Haiku subagents
 #   of part 1, and without that word it read as every Haiku subagent. It
 #   names the Explore subagent of part 1 instead.
+# - take-in let the worktree be set up while the scout read the tracker. A
+#   session called EnterWorktree then, and Claude Code refused every later
+#   Bash call of the scout (#268). worktree.sh can run beside the scout; the
+#   move waits for it.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
@@ -208,5 +212,7 @@ skills/github/SKILL.md|A problem marked `Done in #<PR>.` needs no other correcti
 skills/github/scout.md|Then read the title and the whole body of each issue against them, the sentences with no citation too.
 rules.md|`craft:react-conventions` too. A subagent invokes them itself. No pattern to copy and no rule to keep the work short skips these calls.
 rules.md|A read-only subagent, as a review or an `Explore` subagent, files nothing, whatever the rules below say.
+skills/github/take-in.md|While a subagent reads the file, you can run `worktree.sh` below, but do not move into the worktree yet
+skills/github/take-in.md|First wait until the scout of the tracker returns.
 EOF
 echo 'rules_test: ok'

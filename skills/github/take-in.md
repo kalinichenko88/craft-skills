@@ -84,11 +84,12 @@ along by the first session: give it its verdict, as to a free issue.
 
 **The tracker is read next.** Run `collect.sh take-in` (`tracker.md`) with the
 issue's number and the names it gives. While a subagent reads the file, you can
-set up the worktree below: the worktree is not the work, so the duplicates can
-still close before the work starts. The scout's groups hold the duplicates, the
-bugs and debt in the same area, the neighbours, and the linked issues, open
-work and history; the rest of this file works from them. An issue with `##
-Also:` sections is one task: its own problem and every added one.
+run `worktree.sh` below, but do not move into the worktree yet: the worktree is
+not the work, so the duplicates can still close before the work starts. The
+scout's groups hold the duplicates, the bugs and debt in the same area, the
+neighbours, and the linked issues, open work and history; the rest of this
+file works from them. An issue with `## Also:` sections is one task: its own
+problem and every added one.
 
 **Its duplicates close first.** A duplicate — the same report, in different
 words or not, about the same place — closes against the issue in hand before
@@ -171,8 +172,12 @@ Someone else's: say so and wait. Yours: run the command the warning gives,
 which assigns the issue to you.
 
 Then move into the worktree, when the script made one or found the branch in
-one. Claude Code: `EnterWorktree` with the path it printed. Codex cannot move a running session: every command takes the worktree
-as `workdir`, and every file path, read or patched, is written under it.
+one. First wait until the scout of the tracker returns. Claude Code:
+`EnterWorktree` with the path it printed. After it, Claude Code refuses each
+Bash call outside the worktree for the rest of the session, the calls of a
+running subagent too. Codex cannot move a running session: every command takes
+the worktree as `workdir`, and every file path, read or patched, is written
+under it.
 
 Then read what points at it: the scout's **Linked, open work and history**
 group. It holds the timeline's cross-references, including the ones the
