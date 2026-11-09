@@ -25,21 +25,12 @@ days=${1:-14} projects=${2:-$HOME/.claude/projects}
   exit 2
 }
 
-list=$(mktemp)
-finished=
-clean() {
-  code=$?
-  rm -f "$list"
-  [ "$code" != 0 ] || [ -n "$finished" ] || code=1
-  exit "$code"
-}
-trap clean EXIT
-
-# grep exits 1 when no file matches: that is an empty list, not an error.
-find "$projects" -name '*.jsonl' -mtime -"$days" -print0 |
-  xargs -0 grep -lE '"entrypoint":"(cli|claude-desktop)"' >"$list" || [ $? = 123 ]
-transcripts=$(wc -l <"$list" | tr -d ' ')
-subagents=$(grep -c '/subagents/' "$list" || true)
+# grep exits 1 when no file matches, and xargs then 123: that is an empty
+# list, not an error.
+list=$(find "$projects" -name '*.jsonl' -mtime -"$days" -print0 |
+  xargs -0 grep -lE '"entrypoint":"(cli|claude-desktop)"' || [ $? = 123 ])
+transcripts=$(grep -c . <<<"$list" || true)
+subagents=$(grep -c '/subagents/' <<<"$list" || true)
 
 # One row per event, in the order of the records: a load of a SKILL.md, a
 # compaction, a run of a script, a read of a .md file of a skill, and the
@@ -70,7 +61,7 @@ input_filename as $f
 # The files go to jq in the order of the list, so the rows of one transcript
 # come together. ponytail: a Bash call that names a .md file of a skill counts
 # all its output as that skill's read; parse the command when that misleads.
-tr '\n' '\0' <"$list" | xargs -0 jq -r "$program" | awk -F '\t' \
+printf "%s" "$list" | tr "\n" "\0" | xargs -0 jq -r "$program" | awk -F '\t' \
   -v days="$days" -v transcripts="$transcripts" -v subagents="$subagents" '
   $1 != file { file = $1; loaded = "" }
   $2 == "load" {
@@ -89,16 +80,16 @@ tr '\n' '\0' <"$list" | xargs -0 jq -r "$program" | awk -F '\t' \
     if ($3 in read) { reads[read[$3]] += $4; seen[read[$3]] = 1 }
     if (($3 in run) && $5 == "true") { failed[runskill[$3]]++; fails[run[$3]]++; seen[runskill[$3]] = 1 }
   }
-  # ponytail: an insertion sort, O(n^2) on a few thousand contexts at most.
+  # Down by "by", and up by name in a tie. ponytail: an insertion sort,
+  # O(n^2) on a few thousand contexts at most.
   function sort(a, n, by,   i, j, t) {
-    for (i = 2; i <= n; i++) for (j = i; j > 1 && by[a[j - 1]] + 0 < by[a[j]] + 0; j--) { t = a[j]; a[j] = a[j - 1]; a[j - 1] = t }
+    for (i = 2; i <= n; i++)
+      for (j = i; j > 1 && (by[a[j - 1]] < by[a[j]] || by[a[j - 1]] == by[a[j]] && a[j - 1] > a[j]); j--) { t = a[j]; a[j] = a[j - 1]; a[j - 1] = t }
   }
   END {
     printf "%s days: %d transcripts, %d of them subagents\n", days, transcripts, subagents
     print "skill\tcontexts\tloads\ttwice\tchars\tcompacted\tread\tfailed"
     n = 0; for (s in seen) names[++n] = s
-    # The names first, so that a tie in characters keeps them in order.
-    for (i = 2; i <= n; i++) for (j = i; j > 1 && names[j - 1] > names[j]; j--) { t = names[j]; names[j] = names[j - 1]; names[j - 1] = t }
     sort(names, n, chars)
     for (i = 1; i <= n; i++) {
       s = names[i]
@@ -111,8 +102,6 @@ tr '\n' '\0' <"$list" | xargs -0 jq -r "$program" | awk -F '\t' \
       context[ids[int((m + 1) / 2)]], context[ids[int((9 * m + 9) / 10)]], context[ids[m]]
     print "script\tfailed"
     k = 0; for (r in fails) scripts[++k] = r
-    for (i = 2; i <= k; i++) for (j = i; j > 1 && scripts[j - 1] > scripts[j]; j--) { t = scripts[j]; scripts[j] = scripts[j - 1]; scripts[j - 1] = t }
     sort(scripts, k, fails)
     for (i = 1; i <= k; i++) printf "%s\t%d\n", scripts[i], fails[scripts[i]]
   }'
-finished=1
