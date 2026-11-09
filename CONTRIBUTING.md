@@ -18,8 +18,9 @@ Git for Windows default, keeps every text file in LF, that the hook still
 gives the rules from a CRLF `rules.md`, that every script starts with
 `#!/usr/bin/env bash`, and that every `- ` line of `CHANGELOG.md` starts with
 its scope in parentheses. It fails on a skill name with the plugin's old
-prefix outside the history and the migration guide, and on a heredoc in the
-text of a skill or of `rules.md`: a prompt to Codex goes through a file.
+prefix outside the history, the migration guide and the transcripts of
+`tests/fixtures/sessions/`, and on a heredoc in the text of a skill or of
+`rules.md`: a prompt to Codex goes through a file.
 In each file `scenarios/<skill>/<flow>.md`, it fails on a host word
 (`subagent`, the word `gh`, `/code-review`, `Claude Code`, `Codex`), on a
 scenario name that another scenario has, on a When that starts with neither

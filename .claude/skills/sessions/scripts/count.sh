@@ -41,16 +41,19 @@ def text: if type == "string" then . else [.[]? | .text? // empty] | join("") en
 def skill: "/plugins/cache/[^/]+/(craft|kalinichenko)/[^/]+/skills/(?<skill>[a-z-]+)";
 input_filename as $f
 | if .type == "system" and .subtype == "compact_boundary" then [$f, "compact"]
-  elif .type == "user" and .isMeta == true and .sourceToolUseID != null then
+  elif .type == "user" and .isMeta == true then
     (.message.content | text) as $t
     | ($t | capture("^Base directory for this skill: [^\n]*" + skill + "\n")) | [$f, "load", .skill, ($t | length)]
   elif .type == "assistant" then
     .message.content[]? | select(.type == "tool_use") | .id as $id
     | ((if .name == "Bash" then .input.command elif .name == "Read" then .input.file_path else null end) // "") as $c
     | ($c | capture(skill)) as $s
-    | ($c | [capture("scripts/(?<script>[a-z-]+[.]sh)")][0]) as $run
-    | if .name == "Bash" and $run then [$f, "run", $id, $s.skill, $run.script]
-      elif ($c | test(skill + "/[^/ ]+[.]md")) then [$f, "read", $id, $s.skill]
+    # A script under its skill path first, else one through a variable, as
+    # D=<skill>; bash $D/scripts/x.sh.
+    | ($c | [capture(skill + "/scripts/(?<script>[a-z-]+[.]sh)")][0]
+      // ([capture("(scripts/|[$][A-Za-z_]+/)(?<script>[a-z-]+[.]sh)")][0] | if . then {skill: $s.skill, script} else null end)) as $run
+    | if .name == "Bash" and $run then [$f, "run", $id, $run.skill, $run.script]
+      elif ($c | test("[.]md")) then [$f, "read", $id, $s.skill]
       else empty end
   elif .type == "user" then
     .message.content | arrays | .[] | select(.type == "tool_result")
@@ -59,7 +62,7 @@ input_filename as $f
 | @tsv'
 
 # The files go to jq in the order of the list, so the rows of one transcript
-# come together. ponytail: a Bash call that names a .md file of a skill counts
+# come together. ponytail: a Bash call that names a skill and a .md file counts
 # all its output as that skill's read; parse the command when that misleads.
 printf "%s" "$list" | tr "\n" "\0" | xargs -0 jq -r "$program" | awk -F '\t' \
   -v days="$days" -v transcripts="$transcripts" -v subagents="$subagents" '

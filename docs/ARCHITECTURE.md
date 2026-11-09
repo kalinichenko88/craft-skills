@@ -30,10 +30,11 @@ copy too.
 To the checks, the files that `skills/debt/scripts/data.ere` matches are
 data, as Markdown, JSON, YAML and everything under `fixtures/`. The code
 they see is the other text files: the bash and awk under `skills/`,
-`hooks/` and `tests/`, the `Makefile`, and small files as `LICENSE` and
-`data.ere`. The text of a skill is the product, but no `Check:` line sees
-it: an invariant on it is review only. `tests/rules_test.sh` checks the size
-of each `SKILL.md` (ADR 0006) and a few of its sentences.
+`hooks/`, `tests/` and `.claude/skills/`, the `Makefile`, and small files
+as `LICENSE` and `data.ere`. The text of a skill is the product, but no
+`Check:` line sees it: an invariant on it is review only.
+`tests/rules_test.sh` checks the size of each `SKILL.md` (ADR 0006) and a
+few of its sentences.
 
 ## Codemap
 
@@ -197,9 +198,9 @@ reads for the rest.
   case attribute; no `mapfile`, `readarray`, `coproc`, `;&`, `;;&`, `|&`,
   `&>>` or `-v` test; no negative index; no case change as `${x,,}` or
   `${x@U}`.
-  Check: grep `(^|[[:space:];(])(declare|local|typeset)([[:space:]]+-[a-zA-Z]+)*[[:space:]]+-[a-zA-Z]*[Anlu]|mapfile|readarray|coproc|;;?&([[:space:]]|$)|\|&|(\[\[?|test|&&|\|\|)[[:space:]]+(![[:space:]]+)?-v[[:space:]]|\$\{[A-Za-z_0-9]+(\[[^]]*\])?([,^]|@[A-Za-z])|\$\{[A-Za-z_0-9]+\[-[0-9]|&>>` in `skills` `hooks` `tests`.
+  Check: grep `(^|[[:space:];(])(declare|local|typeset)([[:space:]]+-[a-zA-Z]+)*[[:space:]]+-[a-zA-Z]*[Anlu]|mapfile|readarray|coproc|;;?&([[:space:]]|$)|\|&|(\[\[?|test|&&|\|\|)[[:space:]]+(![[:space:]]+)?-v[[:space:]]|\$\{[A-Za-z_0-9]+(\[[^]]*\])?([,^]|@[A-Za-z])|\$\{[A-Za-z_0-9]+\[-[0-9]|&>>` in `skills` `hooks` `tests` `.claude/skills`.
 - **I-4.** awk code MUST run on BWK awk, mawk and gawk: no gawk extension.
-  Check: grep `gensub|asorti?[[:space:]]*\(|strftime|systime|mktime|strtonum|PROCINFO|IGNORECASE|FPAT|FIELDWIDTHS|ARGIND|BEGINFILE|ENDFILE|patsplit|isarray|typeof|@(include|load|namespace)|\\[y<>]|match[[:space:]]*\([^,]*,[^,]*,[[:space:]]*[A-Za-z_][A-Za-z_0-9]*[[:space:]]*\)` in `skills` `hooks` `tests`.
+  Check: grep `gensub|asorti?[[:space:]]*\(|strftime|systime|mktime|strtonum|PROCINFO|IGNORECASE|FPAT|FIELDWIDTHS|ARGIND|BEGINFILE|ENDFILE|patsplit|isarray|typeof|@(include|load|namespace)|\\[y<>]|match[[:space:]]*\([^,]*,[^,]*,[[:space:]]*[A-Za-z_][A-Za-z_0-9]*[[:space:]]*\)` in `skills` `hooks` `tests` `.claude/skills`.
 - **I-5.** A script MUST NOT read a file of another skill. The one
   exception is `invariants.sh`, which reads the debt skill's `data.ere`: one
   data rule for `measure.sh`, `clones.sh` and the checks.

@@ -14,15 +14,21 @@ cp -R "$root/tests/fixtures/sessions/projects" "$tmp/"
 touch -t 200001010000 "$tmp/projects/-home-u-proj/old.jsonl"
 
 # github: two loads of 147 characters (149 bytes), one before the compaction;
-# 43 + 27 characters of take-in.md and tracker.md; collect.sh failed. The
-# failed call of the checkout's copy and the superpowers load do not count.
+# 43 + 27 + 17 characters of take-in.md, tracker.md and filing.md, the last
+# after a cd; collect.sh failed, run through a variable. roadmap: a load that
+# the person typed as a command, and two failed scripts, read.sh in a call
+# that names github too. The failed call of the checkout's copy and the
+# superpowers load do not count.
 expected="14 days: 2 transcripts, 1 of them subagents
 skill	contexts	loads	twice	chars	compacted	read	failed
-github	1	2	1	294	1	70	1
+github	1	2	1	294	1	87	1
+roadmap	1	1	0	124	0	0	2
 review-loop	1	1	0	122	0	0	0
-SKILL.md characters in a context that loaded one: median 122, 90th percentile 294, max 294
+SKILL.md characters in a context that loaded one: median 122, 90th percentile 418, max 418
 script	failed
-github/collect.sh	1"
+github/collect.sh	1
+roadmap/plan.sh	1
+roadmap/read.sh	1"
 actual=$(bash "$count" 14 "$tmp/projects")
 [ "$actual" = "$expected" ] || {
   echo "FAIL: count.sh printed:"
