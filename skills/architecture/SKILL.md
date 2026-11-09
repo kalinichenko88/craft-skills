@@ -14,7 +14,7 @@ principles and the steps.
 | Moment | What must happen | Read first |
 | --- | --- | --- |
 | A new capability starts: a screen, an endpoint, a module, an integration | The block of two answers and the report of `craft:product`, in a message before the spec or the first edit; then the decision of where its code goes | *The start of a feature* |
-| Where new code goes; a new module, layer, dependency, pattern or data store; a choice between options; a change to a file or a folder past its limit | The eight steps and the gate | *The moment of a decision* |
+| Where new code goes; a new module, layer, dependency, pattern or data store; a choice between options; a change to a file or a folder past its limit | The eight steps and the gate; for a new technology, first the question of who chooses | *The moment of a decision* |
 | A decision in a project with no architecture file | Offer to write one, once a session; write nothing without a yes | `first-file.md` |
 | An edit exists, before its commit | `invariants.sh` | *`invariants.sh`* |
 | A decision may need an ADR | The four reasons and the template | *ADRs* |
@@ -107,7 +107,8 @@ offer and the gate has no invariant to check; the other steps are the same.
 5. Give at most three options, the recommendation first, each with its cost
    in files and concepts, and the cost of the next likely change in the same
    area. No option adds an abstraction with one implementation or a layer for
-   a future need.
+   a future need. Who chooses a technology: *Who chooses the technologies*,
+   below.
 6. **The gate.** Check the recommended option against the text of each
    invariant of the area and its `Check:` line: it keeps it, or it breaks it.
    The option is not in the tree yet, so `invariants.sh` cannot judge it; the
@@ -131,6 +132,25 @@ offer and the gate has no invariant to check; the other steps are the same.
    whether the gate is right, and what the next likely change will cost.
    Its answer is advice: answer each point, and a point on which the two of
    you do not agree goes to the person.
+
+**Who chooses the technologies.** A technology here is an external
+dependency, a framework, a build tool or a data store that the work adds. As
+soon as you see that the work needs one, and before you choose the first one,
+ask the person one question: do you want to choose the technologies
+yourself? Ask it once: the answer holds for the whole work.
+
+- **No:** choose each technology yourself, by the steps above, and ask
+  nothing more about them, at step 8 too. Do not tell the person the choice
+  afterwards, not even as information: a person who said no does not need
+  it. Its ADR and the pull request still record it.
+- **Yes:** after step 5, each technology goes to the person as a question
+  with its options, before the first edit that uses it. Steps 6 to 8 then
+  take the option that the person chose.
+
+With no person, as in a run that a script starts or with "do not ask
+questions", the answer is no. A subagent takes the answer from its brief,
+the spec or the plan. With none, it chooses no technology, and its reply
+gives the options to the main session.
 
 **Consistency first.** When the project's code breaks a principle of *Modules
 and layers* everywhere, as components that all call `fetch` with no service
