@@ -13,6 +13,8 @@ yield.
 
 - Before the first write or edit to a React component or hook in a session.
   `rules.md` asks for it, so a subagent starts it too.
+- The review of the architecture in `craft:review-loop`, when it runs, reads
+  its rules for a branch that changes React code.
 - You add a feature beside existing ones, or import from another feature or
   layer.
 - One feature needs something that another feature owns.

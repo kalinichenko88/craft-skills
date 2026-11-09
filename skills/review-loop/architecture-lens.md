@@ -1,7 +1,9 @@
 # The review of the architecture
 
 You review a branch against the project's architecture: its architecture
-file, its ADRs, and the principles of the `craft:architecture` skill.
+file, its ADRs, and the principles of the `craft:architecture` skill. You
+review a range that changes TypeScript or React code against the conventions
+skills too.
 You do not review the code for defects: the rounds of the review loop read
 it. You do not see the conversation that wrote the branch, so its reasons do
 not bias you.
@@ -13,7 +15,10 @@ and run no code of the project.
 
 1. Read `<skills>/architecture/SKILL.md` for its principles: *Consistency
    first*, *Modules and layers*, *Decomposition*, *ADRs* and
-   *`invariants.sh`*. Do none of its steps.
+   *`invariants.sh`*. Do none of its steps. When the range changes a `.ts`,
+   `.tsx`, `.mts` or `.cts` file, read the rules of
+   `<skills>/typescript-conventions/SKILL.md` too. When it changes React
+   code, read the rules of `<skills>/react-conventions/SKILL.md` too.
 2. In the tree, read the architecture file and the ADRs, where *The files*
    of that `SKILL.md` finds them. Read every instruction file of the tree
    too, also one that the range does not change: each file that
@@ -95,6 +100,9 @@ Report:
   or a copy* say to extract.
 - **Wrong abstraction.** A shared helper with a flag or a branch for each
   caller: the copies are better.
+- **Convention.** A breach of a rule of a conventions skill that step 1
+  read, which the range adds: also one in code that the range does not
+  change, as a type that a second file now uses.
 - **Outside.** A FAIL whose failing hits have no `new` mark, and each other
   finding in code or text that the range does not change. Step 3 gives the
   kind of a cause of exit 2. The agent that sent you files it.
@@ -102,9 +110,11 @@ Report:
 Give the evidence for each finding: the existing code with its `path:line`
 for a Second structure or a Copy, the line that `invariants.sh` printed for an
 Invariant or a Size, the statement of the invariant and the code's
-`path:line` for a breach that no `Check:` line finds, and the sentence of the
-ADR, the architecture file or the instruction file for the other kinds. A
-finding with no evidence is not a finding.
+`path:line` for a breach that no `Check:` line finds, the rule of the
+conventions skill and the code's `path:line` for a Convention or for an
+Outside finding on a rule of one, and the sentence of the ADR, the
+architecture file or the instruction file for the other kinds. A finding
+with no evidence is not a finding.
 
 Return one line per finding, `<kind> | path:line | the claim | the evidence`,
 then one line for each script that did not run, with the reason, then a last

@@ -23,7 +23,8 @@ whole branch once too. At `high` and `xhigh`, and for a change to tests
 only, one review reads the tests of the whole branch once. In a project with
 an architecture file or ADRs, one review reads the branch against them once,
 beside round 1, at `high` and `xhigh` and for a change to that file or an
-ADR. A security review comes last.
+ADR. It reads a TypeScript or React change against the conventions skills
+too. A security review comes last.
 A change to documents only gets one round and no security review. In Claude
 Code, Codex reads it once when it changes the text of a skill, a prompt or a
 spec. The agent fixes and decides by itself, except for a change to business
@@ -239,6 +240,8 @@ round 1 starts, and change no file while it runs. Its findings go through
 *The findings* as findings of round 1: round 1 confirms no defect when
 neither review does, and their fixes are one commit. A fix of its finding
 that changes code is the fix of a defect: a round reads it, as step 2 says.
+A Convention finding is the exception: step 3 decides whether it is a
+defect or a nit.
 On a change to documents only, that round is `/code-review` at the level of
 that code.
 
@@ -262,8 +265,12 @@ write the first file, unless the project's `CLAUDE.md` says "This project
 keeps no `docs/ARCHITECTURE.md`."
 
 Why: `/code-review` reads the diff and the `CLAUDE.md` files, and none of its
-angles reads the architecture file or the ADRs. Why `opus`: the step runs at
-each `high` review there, and `fable` costs 2.5 times as much.
+angles reads the architecture file, the ADRs or the conventions skills. Why
+`opus`: the step runs at each `high` review there, and `fable` costs 2.5
+times as much. Why the conventions here: in real sessions, 0 of 136 review
+subagents of a TypeScript change started a conventions skill, 44 of them
+`/code-review`. In the runs of #227, no sentence in the global prompt moved a
+review subagent past 1 of 5.
 
 ### A second model for `xhigh` changes
 
