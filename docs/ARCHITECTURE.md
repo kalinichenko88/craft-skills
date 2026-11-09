@@ -107,11 +107,11 @@ react-conventions. debt names architecture, github, roadmap and
 review-loop. review-loop names architecture, debt, github, product and the
 two conventions. product names architecture, github, review-loop and
 roadmap. roadmap names github. react-conventions names
-typescript-conventions. architecture and
-debt name each other, and so do architecture and product, github and
-review-loop, debt and review-loop, and product and review-loop. github,
-review-loop and the two conventions name the global prompt back. No cycle
-closes in code.
+typescript-conventions. architecture and debt name each other, and so do
+architecture and product, github and review-loop, debt and review-loop,
+product and review-loop, and review-loop and each of the two conventions.
+github, review-loop and the two conventions name the global prompt back. No
+cycle closes in code.
 
 **Where a module's files are.** A module's test and fixtures are outside its
 folder, in `tests/`: the Makefile finds a test by `tests/<name>_test.sh`. So

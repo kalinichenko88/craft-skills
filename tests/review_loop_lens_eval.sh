@@ -14,7 +14,8 @@
 #   the wrapper calls fetch;
 # - legacy adds a feature that uses the wrapper, on a base whose own code
 #   breaks I-1 already: no Invariant finding that cites I-1, an Outside
-#   finding on that code, src/legacy/ping.ts, and no False doc on AGENTS.md;
+#   finding on that code, src/legacy/ping.ts, that cites I-1 (not the rule
+#   of typescript-conventions it breaks too), and no False doc on AGENTS.md;
 # - bad-path adds a folder with no code file to the Check: line of I-2, so
 #   invariants.sh exits 2: a False doc finding that cites I-2, and no Outside
 #   finding that cites I-2;
@@ -305,7 +306,7 @@ for i in $(seq "$runs"); do
     report=$(cat "$logs/$kase-$i.txt" 2>/dev/null || true)
     invariant=$(found invariant 'I-1([^0-9]|$)')
     second=$(found 'second structure' '')
-    outside=$(found outside 'src/legacy/ping\.ts')
+    outside=$(found outside '(src/legacy/ping\.ts.*I-1([^0-9]|$)|I-1[^0-9].*src/legacy/ping\.ts)')
     doc=$(found 'false doc' '')
     doc2=$(found 'false doc' 'I-2([^0-9]|$)')
     # The place of the finding, the field after its kind, names AGENTS.md.

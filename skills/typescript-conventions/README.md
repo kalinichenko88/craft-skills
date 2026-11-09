@@ -7,8 +7,8 @@ agent matches it and says so.
 
 - Before the first write or edit to a TypeScript file (`.ts`, `.tsx`, `.mts`,
   `.cts`) in a session. `rules.md` asks for it, so a subagent starts it too.
-- The review of the architecture in `craft:review-loop` reads its rules for
-  a branch that changes a TypeScript file.
+- The review of the architecture in `craft:review-loop`, when it runs, reads
+  its rules for a branch that changes a TypeScript file.
 - You write or review TypeScript: declare an object shape, place a type, an
   enum or a schema that several files use, name a new file or a constant,
   write a callback, reach for a dependency.
