@@ -20,7 +20,9 @@ Not covered yet:
   workspace that has the name of the new branch;
 - a read of the task that fails after the check;
 - an earlier run that took the same task into the work, and still runs or
-  waits.
+  waits;
+- the person's next message after a run that waits or stops, other than an
+  answer to a question.
 
 ## A free task
 

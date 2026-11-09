@@ -23,11 +23,11 @@ column gives the name that a person who reads Russian sees.
 | the pull request of a task | The pull request that brings the work of a task to the default branch: "the pull request of #91". | pull request задачи | |
 | assignee | An account that a task names as the one who does it. A task is assigned to the person when the person's account is an assignee. | исполнитель | owner |
 | busy | A task with an assignee, a linked branch or an open pull request that closes it. | занята | taken, claimed |
-| duplicate | A task that reports the same thing as another task, about the same place, in the same words or not. When it closes, it closes as a duplicate of the other task, and the other task keeps its state. | дубликат | copy |
+| duplicate | A task that reports the same thing as another task, about the same place, in the same words or not. When it closes, it closes as a duplicate of the other task, and the other task stays open or closed, as it was. | дубликат | copy |
 | comment | A text added to a task after its own text. | комментарий | note, reply |
 | workspace | The place where the run reads and changes the code: a copy of the repository with its branches. | рабочая копия | checkout, worktree, clone |
 | module | A part of the repository that the project's own instructions, or the conventions of its framework, draw as one unit, as a feature or a package. Where neither draws one, the module of a file is its directory. A test is in the module of the code that it tests. | модуль | area, component |
-| the work | What a task asks for: the changes to the code that do it, in the run's workspace or in another one. Checking the task, assigning it and making its branch are not the work. | работа | implementation |
+| the work | What a task asks for: the changes to the code that do it, in the workspace or somewhere else. Checking the task, assigning it and making its branch are not the work. | работа | implementation |
 | finding | A defect, or a change worth making, that the run meets outside its task: in code that the task does not ask to change and that the work did not write. | находка | issue |
 | the run | The handling of one text that the person writes, until it waits or stops. The run that takes a task goes on into the work. | прогон | session, turn |
 | message | One text that the run gives the person. The person reads the messages of a run in their order. | сообщение | reply, output |

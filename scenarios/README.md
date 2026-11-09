@@ -84,10 +84,10 @@ ends, or the order of two of these. A message is checked by what it says,
 not by its words. Each item that names a message says in what order it
 comes, when the order matters.
 
-A run that waits and a run that stops end in the same state: they differ only
-in what the person's next message does (`TERMS.md`). So the check of how one
-run ends tests only that nothing more changed. Only a next run can tell a wait
-from a stop: a scenario whose Given holds the earlier run, as the scenarios of
+A wait and a stop are the exception to one check for each item. They end a
+run in the same state, and differ only in what the person's next message does
+(`TERMS.md`). So a check of the run tests only that nothing more changed. The difference shows in the
+next run: in a scenario whose Given holds the earlier run, as the scenarios of
 an answer to a question do.
 
 A scenario can build on another one, by its heading: "a branch for #91
