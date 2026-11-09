@@ -72,10 +72,9 @@ make -s -C "$inv" -f "$root/Makefile" invariants >"$tmp/out" 2>&1 &&
 grep -qx 'I-1 FAIL' "$tmp/out" || fail 'make invariants stops before its check' "$(cat "$tmp/out")"
 
 # make check checks the shape of each scenario file that scenarios/README.md
-# gives, and no host word (#244): it passes on scenarios/, and fails on a
-# copy with a file of each kind of fault beside take-in.md.
+# gives, and no host word (#244). make check runs it on scenarios/ in lint;
+# here it fails on a copy with a file of each kind of fault beside take-in.md.
 grep -qF 'scenarios/*/*.md' <(make -n -s -C "$root" check 2>&1) || fail 'make check does not check the scenarios' ''
-make -s -C "$root" scenarios >"$tmp/out" 2>&1 || fail 'make scenarios fails on scenarios/' "$(cat "$tmp/out")"
 sc=$tmp/sc
 # shape <file> <line>...: make scenarios on take-in.md and <file> of <line>s.
 shape() {
