@@ -38,12 +38,11 @@ usage() { echo "usage: $0 [runs] [base] | --check <runs folder>" >&2; exit 2; }
 # tree answer none, and at most half of the runs on the base. A run with no
 # answer counts on neither side.
 check() {
-  [ -s "$1/items.tsv" ] || { echo "$0: $1 has no items.tsv" >&2; exit 2; }
   awk 'FILENAME ~ /items\.tsv$/ { split($0, a, "\t"); order[++n] = a[1]; name[a[1]] = a[2] ": " a[3]; next }
     { split($0, w, " ") }
     !(w[1] in name) { next }
     !(FILENAME in answered) { answered[FILENAME]; side = FILENAME; sub(/.*\//, "", side); sub(/[0-9]+\.txt$/, "", side); runs[side]++ }
-    w[2] == "none" && !seen[FILENAME, w[1]]++ { none[side, w[1]]++ }
+    w[2] == "none" { none[side, w[1]]++ }
     END {
       if (!runs["change"] || !runs["base"]) { print "no answer on the working tree or on the base" > "/dev/stderr"; exit 2 }
       for (i = 1; i <= n; i++) {
