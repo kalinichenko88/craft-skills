@@ -16,15 +16,16 @@ def subst($vars): reduce ($vars | to_entries[]) as $e (.; gsub("[$][{]?" + $e.ke
 def word: sub("^\\s+"; "") | sub("\\s+$"; "") | gsub("['\"]"; "");
 def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . else $dir + "/" + . end;
 
-# Each command that runs a script of a skill, with bash and its options or by
-# its path, and each that reads a .md file of a skill with cat, sed, head,
-# tail, grep or awk. A variable takes its value from an assignment before it
-# in the call, and a relative path takes the folder of a cd before it.
+# The last command of the call that runs a script of a skill, with bash and
+# its options or by its path, as [skill, script]; and the skill of the first
+# that reads a .md file of a skill with cat, sed, head, tail, grep or awk. A
+# variable takes its value from an assignment before it in the call, and a
+# relative path takes the folder of a cd before it.
 # ponytail: a variable that $(...) sets stays empty, so f=$(ls <skill>/x.md);
 # cat "$f" is no read: 4 of 2,645 calls on 2026-11-09. Resolve it when it
 # grows.
 def commands:
-  reduce parts[] as $p ({vars: {}, dir: "", out: []};
+  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null};
     .vars as $v | .dir as $d
     | ($p | subst($v) | sub("^([\\s(){}!]|(do|then|else|time|if|while|until|export)\\s)*"; "")) as $q
     | if $q | test("^[A-Za-z_][A-Za-z0-9_]*=\\S*\\s*$") then
@@ -34,13 +35,11 @@ def commands:
         ($q | sub("^([A-Za-z_][A-Za-z0-9_]*=(\\S*|'[^']*'|\"[^\"]*\")\\s+|timeout\\s+\\S+\\s+|xargs(\\s+-\\S+)*\\s+)*"; "")) as $q
         | (($q | capture("^(bash(\\s+-[A-Za-z]+)*\\s+)?[\"']?(?<p>[^\\s\"']*scripts/[a-z-]+[.]sh)\\b") | .p | resolve($d)) // null) as $r
         | if $r and ($r | test(skill + "/scripts/[a-z-]+[.]sh$")) then
-            .out += [{kind: "run", skill: ($r | capture(skill).skill), script: ($r | sub(".*/"; ""))}]
+            .run = [($r | capture(skill).skill), ($r | sub(".*/"; ""))]
           elif $q | test("^(cat|sed|head|tail|grep|awk)\\s") then
-            ([$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d) | capture(skill).skill] | first) as $s
-            | if $s then .out += [{kind: "read", skill: $s}] else . end
+            .read //= ([$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d) | capture(skill).skill] | first)
           else . end
-      end)
-  | .out;
+      end);
 
 input_filename as $f
 | if .type == "system" and .subtype == "compact_boundary" then [$f, "compact"]
@@ -57,8 +56,7 @@ input_filename as $f
         # is a read when a command reads, also when another runs a script: in
         # such calls the .md file is most of the output.
         .input.command // "" | select(test(skill)) | commands
-        | ([.[] | select(.kind == "run")] | last // empty | [$f, "run", $id, .skill, .script]),
-          ([.[] | select(.kind == "read")] | first // empty | [$f, "read", $id, .skill])
+        | (.run // empty | [$f, "run", $id] + .), (.read // empty | [$f, "read", $id, .])
       else empty end
   elif .type == "user" then
     .message.content | arrays | .[] | select(.type == "tool_result")
