@@ -130,7 +130,8 @@ In a skill with scripts:
   each script;
 - the logic is the awk programs, the jq program of `/sessions`, and the
   shell after the argument check;
-- the data is the `gh`, `git`, `codex` and `npx` calls.
+- the data is the `gh`, `git`, `codex` and `npx` calls, and the transcripts
+  that `/sessions` reads.
 
 Where the split does not fit:
 
