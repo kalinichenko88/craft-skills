@@ -240,8 +240,8 @@ round 1 starts, and change no file while it runs. Its findings go through
 *The findings* as findings of round 1: round 1 confirms no defect when
 neither review does, and their fixes are one commit. A fix of its finding
 that changes code is the fix of a defect: a round reads it, as step 2 says.
-A Convention finding is the exception: it is a nit, as step 3 says, unless
-its breach gives a wrong result that real use reaches.
+A Convention finding is the exception: step 3 decides whether it is a
+defect or a nit.
 On a change to documents only, that round is `/code-review` at the level of
 that code.
 
