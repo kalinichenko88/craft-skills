@@ -212,7 +212,6 @@ skills/github/SKILL.md|A problem marked `Done in #<PR>.` needs no other correcti
 skills/github/scout.md|Then read the title and the whole body of each issue against them, the sentences with no citation too.
 rules.md|`craft:react-conventions` too. A subagent invokes them itself. No pattern to copy and no rule to keep the work short skips these calls.
 rules.md|A read-only subagent, as a review or an `Explore` subagent, files nothing, whatever the rules below say.
-skills/github/take-in.md|While a subagent reads the file, you can run `worktree.sh` below, but do not move into the worktree yet
 skills/github/take-in.md|First wait until the scout of the tracker returns.
 EOF
 echo 'rules_test: ok'

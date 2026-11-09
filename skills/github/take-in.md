@@ -84,12 +84,11 @@ along by the first session: give it its verdict, as to a free issue.
 
 **The tracker is read next.** Run `collect.sh take-in` (`tracker.md`) with the
 issue's number and the names it gives. While a subagent reads the file, you can
-run `worktree.sh` below, but do not move into the worktree yet: the worktree is
-not the work, so the duplicates can still close before the work starts. The
-scout's groups hold the duplicates, the bugs and debt in the same area, the
-neighbours, and the linked issues, open work and history; the rest of this
-file works from them. An issue with `## Also:` sections is one task: its own
-problem and every added one.
+run `worktree.sh` below: the worktree is not the work, so the duplicates can
+still close before the work starts. The scout's groups hold the duplicates, the
+bugs and debt in the same area, the neighbours, and the linked issues, open
+work and history; the rest of this file works from them. An issue with `##
+Also:` sections is one task: its own problem and every added one.
 
 **Its duplicates close first.** A duplicate — the same report, in different
 words or not, about the same place — closes against the issue in hand before
