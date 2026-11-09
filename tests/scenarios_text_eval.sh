@@ -7,9 +7,10 @@
 # each line with its path and number. For each item it answers with the line
 # that produces it, or none. The eval makes k runs on the text at a base commit
 # and k on the working tree, both with the scenario file of the working tree.
-# An item is LOST when most runs on the working tree answer none, and at most
-# half of the runs on the base do: a weak Never item that no line produces
-# gets none on both texts.
+# An item is LOST when most runs on the working tree give no line for it, as
+# none or by leaving it out, and at most half of the runs on the base do: a
+# weak Never item that no line produces gets none on both texts. A file of the
+# list that is missing on either side stops the eval before a run.
 #
 # Measured on two cuts of five lines of take-in.md with k = 5: 22 of the 26
 # items that the cut lines produce are LOST, and no other item. One run on each
@@ -21,7 +22,7 @@
 # item is a result, not an error: it exits 0. The runs folder keeps the items,
 # the prompts and the answers. With --check, it runs only the checks, on the
 # folder of an earlier run. `make check` runs them so on
-# tests/fixtures/scenarios/text, through tests/scenarios_text_checks_test.sh.
+# tests/fixtures/scenarios_text, through tests/scenarios_text_checks_test.sh.
 #
 # Usage: tests/scenarios_text_eval.sh [runs, default 5] [base, default the merge base with origin/main]
 #        tests/scenarios_text_eval.sh --check <runs folder>
@@ -35,21 +36,24 @@ files=(skills/github/SKILL.md skills/github/take-in.md skills/github/tracker.md 
 usage() { echo "usage: $0 [runs] [base] | --check <runs folder>" >&2; exit 2; }
 
 # check <runs folder>: a LOST line for each item that most runs on the working
-# tree answer none, and at most half of the runs on the base. A run with no
-# answer counts on neither side.
+# tree give no line for, and at most half of the runs on the base. An item
+# that a run answers none, or leaves out, has no line in that run. A run with
+# no answer counts on neither side.
 check() {
   awk 'FILENAME ~ /items\.tsv$/ { split($0, a, "\t"); order[++n] = a[1]; name[a[1]] = a[2] ": " a[3]; next }
     { split($0, w, " ") }
     !(w[1] in name) { next }
     !(FILENAME in answered) { answered[FILENAME]; side = FILENAME; sub(/.*\//, "", side); sub(/[0-9]+\.txt$/, "", side); runs[side]++ }
-    w[2] == "none" { none[side, w[1]]++ }
+    w[2] != "none" { cited[side, w[1]]++ }
     END {
       if (!runs["change"] || !runs["base"]) { print "no answer on the working tree or on the base" > "/dev/stderr"; exit 2 }
       for (i = 1; i <= n; i++) {
         id = order[i]
-        if (2 * none["change", id] > runs["change"] && 2 * none["base", id] <= runs["base"]) {
+        c = runs["change"] - cited["change", id]
+        b = runs["base"] - cited["base", id]
+        if (2 * c > runs["change"] && 2 * b <= runs["base"]) {
           lost++
-          printf "LOST %s %s (none in %d of %d runs, on the base in %d of %d)\n", id, name[id], none["change", id], runs["change"], none["base", id], runs["base"]
+          printf "LOST %s %s (no line in %d of %d runs, on the base in %d of %d)\n", id, name[id], c, runs["change"], b, runs["base"]
         }
       }
       printf "%d of %d items lost, %d runs on the working tree and %d on the base\n", lost, n, runs["change"], runs["base"]
@@ -66,6 +70,12 @@ runs=${1:-5}
 [ "$runs" -ge 1 ] 2>/dev/null || usage
 base=${2:-$(git -C "$root" merge-base origin/main HEAD)}
 git -C "$root" rev-parse -q --verify "$base^{commit}" >/dev/null || { echo "$0: no commit $base" >&2; exit 2; }
+for f in "${files[@]}"; do
+  if [ ! -f "$root/$f" ] || ! git -C "$root" cat-file -e "$base:$f" 2>/dev/null; then
+    echo "$0: $f is not in the working tree or at $base: the list of files needs a change" >&2
+    exit 2
+  fi
+done
 logs=$(mktemp -d)
 
 # Each Then and Never item: <scenario number>.<T or N><item number>, the

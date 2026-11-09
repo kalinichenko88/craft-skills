@@ -174,11 +174,11 @@ session with no tool. It gets the scenario file and the four files that a
 take-in reads, and gives for each Then and Never item the line that produces
 it, or none. The eval makes five runs on the text at the merge base with
 `origin/main` and five on the working tree, and gives LOST for each item that
-most runs on the working tree give as none and at most half of the runs on
-the base do. Five runs on each side cost about $0.20. Run it after a change
+most runs on the working tree give no line for and at most half of the runs
+on the base do. The ten runs cost about $0.20. Run it after a change
 to `skills/github/take-in.md`, before a paid run of `tests/scenarios_eval.sh`.
 `tests/scenarios_text_checks_test.sh` runs its checks in `make check`, on ten
-recorded runs in `tests/fixtures/scenarios/text/`, and runs the eval with a
+recorded runs in `tests/fixtures/scenarios_text/`, and runs the eval with a
 stub `claude`.
 `tests/rules_decision_eval.sh` runs craft on a decision that the person makes
 in a conversation, with no pull request (#253). Each run is one Opus session
