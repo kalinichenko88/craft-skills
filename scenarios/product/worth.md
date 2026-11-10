@@ -137,7 +137,6 @@ Given:
 - the text of #91 holds a report on that export, with the verdict do it
 When: the person writes "#91"
 Then:
-- the outcomes of A free task hold for #91
 - the work on #91 starts in the run
 Never:
 - the person is given a second report on the export
