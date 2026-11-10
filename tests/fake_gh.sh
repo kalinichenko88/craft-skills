@@ -20,8 +20,8 @@
 #   origin       the bare origin where `gh issue develop` makes a branch
 #   down         true: each call but --version fails with a 502
 #
-# Each write adds "<command> <number>" to .log, as "comment 91": the
-# order of the writes.
+# Each comment and each close adds "<command> <number>" to .log, as
+# "comment 91": their order.
 #
 # Needs bash, jq and git.
 
@@ -133,7 +133,6 @@ case "$1 $2" in
       '.issues += [{number: $n, title: $t, body: $b, state: "OPEN", labels: $l, comments: [],
         assignees: (if $a == "" then [] elif $a == "@me" then [$me] else [$a] end),
         milestone: (if $m == "" then null else $m end)}]'
-    logged create "$num"
     echo "https://github.com/$repo/issues/$num"
     ;;
   'issue edit')
@@ -143,7 +142,6 @@ case "$1 $2" in
     [ -z "$b" ] || save --argjson n "$num" --arg b "$b" '(.issues[] | select(.number == $n) | .body) = $b'
     [ -z "$who" ] || save --argjson n "$num" --arg who "$who" '(.issues[] | select(.number == $n) | .assignees) |= (. + [$who] | unique)'
     save --argjson n "$num" --argjson l "$(labels --add-label)" '(.issues[] | select(.number == $n) | .labels) |= (. + $l | unique)'
-    logged edit "$num"
     echo "https://github.com/$repo/issues/$num"
     ;;
   'issue comment')
@@ -167,7 +165,6 @@ case "$1 $2" in
       b=$(value --name)
       git -C "$(jq -r .origin "$state")" branch "$b" main
       save --argjson n "$num" --arg b "$b" '(.issues[] | select(.number == $n) | .linked) += [$b]'
-      logged develop "$num"
       echo "github.com/$repo/tree/$b"
       [[ $* != *--checkout* ]] || { git fetch -q origin "$b" && git checkout -q -b "$b" "origin/$b"; }
     fi
