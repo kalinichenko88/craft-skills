@@ -25,6 +25,9 @@
 # comment. On filing.md before its list of no-nits, 9 of 10 such runs left
 # the low finding off the tracker.
 #
+# The runs before #238 had a fake gh that gave collect.sh no entry and
+# refused issue close: their counts are not comparable with later runs.
+#
 # With --check, it runs only the checks, on the folder of an earlier run.
 # `make check` runs them so on tests/fixtures/github_filing, through
 # tests/github_filing_checks_test.sh.

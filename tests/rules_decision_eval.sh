@@ -21,6 +21,10 @@
 # --max-budget-usd caps each turn. A failing check is a result, not an error:
 # it exits 0. The run folder keeps each run's log, events and tracker.
 #
+# The runs before #238 had a fake gh that answered no check of
+# take-in-check.sh and collect.sh, and dropped labels and assignees in issue
+# edit: their counts are not comparable with later runs.
+#
 # With --check, it runs only the checks, on the folder of an earlier run.
 #
 # Usage: tests/rules_decision_eval.sh [runs] [decide|think|busy]

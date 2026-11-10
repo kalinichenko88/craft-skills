@@ -171,9 +171,10 @@ copy
 state dup '.log |= map(if . == "close 95" then "close 95 +changes" else . end)'
 flips dup '#95 closes before the work starts'
 
-# A last message that does not name #95.
+# A last message that names #95, and a close of something else in another
+# sentence.
 copy
-add dup $'text\tThe pull request waits for you.'
+add dup $'text\t#95 reports the same typo. I closed the worktree.'
 flips dup 'the last message names #95 as closed'
 
 # #91 closed.
@@ -182,7 +183,7 @@ state dup '(.issues[] | select(.number == 91) | .state) = "CLOSED"'
 flips dup 'never: #91 closes'
 
 # A busy duplicate: #95 closed in the tracker, closed in the log, given a
-# second assignee, and named in no message.
+# second assignee, and named with no word of why it stays open.
 copy
 state busy '(.issues[] | select(.number == 95) | .state) = "CLOSED"'
 flips busy '#95 stays open'
@@ -193,7 +194,7 @@ copy
 state busy '(.issues[] | select(.number == 95) | .assignees) += ["kim"]'
 flips busy 'never: the assignees of #95 change'
 copy
-sed -i.bak '/^text/s/#95/#96/g' "$tmp/$n/busy.events"
+sed -i.bak '/^text.*#95/{s/busy/taken/g; s/rivera/someone/g;}' "$tmp/$n/busy.events"
 flips busy 'the person is told that #95 stays open because it is busy'
 
 # The fake gh marks a write that comes after a change in a worktree of the
@@ -207,11 +208,13 @@ fake issue comment 95 --body a
 git -C "$tmp/ws" worktree add -q -b docs/95-x "$tmp/wt"
 fake issue edit 95 --add-assignee @me
 echo x >"$tmp/wt/README.md"
-fake issue close 95
+fake issue close 95 --duplicate-of 91
 git -C "$tmp/wt" add README.md
 git -C "$tmp/wt" -c user.name=kim -c user.email=kim@example.com commit -q -m x
 fake issue comment 95 --body b
 [ "$(jq -c .log "$tmp/fake.state.json")" = '["comment 95","edit 95","close 95 +changes","comment 95 +changes"]' ] ||
   fail 'the fake gh does not mark the writes after a change in a worktree' "$(jq -c .log "$tmp/fake.state.json")"
+[ "$(jq -c '.issues[0] | [.state, .stateReason, .duplicateOf]' "$tmp/fake.state.json")" = '["CLOSED","DUPLICATE",91]' ] ||
+  fail 'the fake gh does not close #95 as a duplicate of #91' "$(jq -c .issues "$tmp/fake.state.json")"
 
 echo 'scenarios_checks_test: ok'

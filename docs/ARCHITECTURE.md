@@ -53,7 +53,8 @@ few of its sentences.
 - `tests/<name>_test.sh` — the tests that `make check` runs.
   `tests/<name>_eval.sh` — the evals. They call the model, except in the
   runs that I-7 describes. `tests/fake_gh.sh` — the fake `gh` over a JSON
-  tracker that the evals put first on `PATH`; what differs from one eval
+  tracker that the evals of rules, github and scenarios put first on
+  `PATH`, so a change to it changes the three; what differs from one eval
   to another, as the labels and the visibility, is in that JSON.
   `tests/fixtures/<area>/` — recorded payloads and trees, for the tests
   that read them: `tests/<area>_<kind>_test.sh`, where `<kind>` is the
