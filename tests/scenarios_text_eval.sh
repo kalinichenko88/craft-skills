@@ -1,22 +1,29 @@
 #!/usr/bin/env bash
-# Reads the text of the github skill against scenarios/github/take-in.md, for
-# #243: an edit of skills/github/take-in.md that drops a branch of the flow
-# fails no other check but a paid run of tests/scenarios_eval.sh. Each run is
-# one haiku session of `claude -p` with no tool. It gets the scenario file, its
-# Then and Never items with an id, and the four files that a take-in reads,
-# each line with its path and number. For each item it answers with the line
-# that produces it, or none. The eval makes k runs on the text at a base commit
-# and k on the working tree, both with the scenario file of the working tree.
-# An item is LOST when most runs on the working tree give no line for it, as
-# none or by leaving it out, and at most half of the runs on the base do: a
-# weak Never item that no line produces gets none on both texts. A file of the
-# list that is missing on either side stops the eval before a run.
+# Reads the text of a skill against the scenario file of its flow, for #243 and
+# #294: an edit of a skill's text that drops a branch of a flow fails no other
+# check but a paid run of tests/scenarios_eval.sh, which has cases for take-in
+# only. Each file in scenarios/*/*.md has a row in `rows` below: the scenario
+# file, then the files of the skill that its flow reads. The eval runs each
+# row, or the row of the scenario file that its first argument names. A
+# scenario file with no row stops the eval before a run, and so does a file of
+# a row that is missing on either side.
+#
+# Each run is one haiku session of `claude -p` with no tool. It gets the
+# scenario file, its Then and Never items with an id, and the files of the
+# row, each line with its path and number. For each item it answers with the
+# line that produces it, or none. The eval makes k runs on the text at a base
+# commit and k on the working tree, both with the scenario file of the working
+# tree. An item is LOST when most runs on the working tree give no line for
+# it, as none or by leaving it out, and at most half of the runs on the base
+# do: a weak Never item that no line produces gets none on both texts.
 #
 # Measured on two cuts of five lines of take-in.md with k = 5: 22 of the 26
 # items that the cut lines produce are LOST, and no other item. One run on each
 # text finds 107 of 130, with 11 other items over 10 pairs. With no rule
 # against a general step in the prompt, 2 of 16: Haiku gives the nearest
-# heading or the rule for errors.
+# heading or the rule for errors. A new row counts after the same measure: one
+# cut of 3 to 5 lines that its scenarios need, 5 runs on the cut text against
+# 5 on the base, with the result in the pull request that adds the row.
 #
 # Each run costs about $0.02, so the eval is not part of `make check`. A LOST
 # item is a result, not an error: it exits 0. The runs folder keeps the items,
@@ -24,16 +31,23 @@
 # folder of an earlier run. `make check` runs them so on
 # tests/fixtures/scenarios_text, through tests/scenarios_text_checks_test.sh.
 #
-# Usage: tests/scenarios_text_eval.sh [runs, default 5] [base, default the merge base with origin/main]
+# Usage: tests/scenarios_text_eval.sh [scenario file] [runs, default 5] [base, default the merge base with origin/main]
 #        tests/scenarios_text_eval.sh --check <runs folder>
 
 # shellcheck disable=SC2016 # Markdown's backticks
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
-scenario=scenarios/github/take-in.md
-files=(skills/github/SKILL.md skills/github/take-in.md skills/github/tracker.md skills/github/scout.md)
-usage() { echo "usage: $0 [runs] [base] | --check <runs folder>" >&2; exit 2; }
+rows=(
+  'scenarios/github/take-in.md skills/github/SKILL.md skills/github/take-in.md skills/github/tracker.md skills/github/scout.md'
+)
+usage() { echo "usage: $0 [scenario file] [runs] [base] | --check <runs folder>" >&2; exit 2; }
+# row_of <scenario file>: the row of that file, or a status of 1.
+row_of() {
+  local r
+  for r in "${rows[@]}"; do [ "${r%% *}" != "$1" ] || { echo "$r"; return 0; }; done
+  return 1
+}
 
 # check <runs folder>: a LOST line for each item that most runs on the working
 # tree give no line for, and at most half of the runs on the base. An item
@@ -65,30 +79,37 @@ if [ "${1:-}" = --check ]; then
   check "$2"
   exit 0
 fi
+selected=("${rows[@]}")
+case "${1:-}" in
+*.md)
+  row=$(row_of "${1#./}") || { echo "$0: $1 has no row" >&2; exit 2; }
+  selected=("$row")
+  shift
+  ;;
+esac
 [ "$#" -le 2 ] || usage
 runs=${1:-5}
 [ "$runs" -ge 1 ] 2>/dev/null || usage
 base=${2:-$(git -C "$root" merge-base origin/main HEAD)}
 git -C "$root" rev-parse -q --verify "$base^{commit}" >/dev/null || { echo "$0: no commit $base" >&2; exit 2; }
-for f in "${files[@]}"; do
-  if [ ! -f "$root/$f" ] || ! git -C "$root" cat-file -e "$base:$f" 2>/dev/null; then
-    echo "$0: $f is not in the working tree or at $base: the list of files needs a change" >&2
-    exit 2
-  fi
+for f in "$root"/scenarios/*/*.md; do
+  f=${f#"$root/"}
+  row_of "$f" >/dev/null || { echo "$0: $f has no row: add one, measured as the header says" >&2; exit 2; }
 done
-logs=$(mktemp -d)
 
-# Each Then and Never item: <scenario number>.<T or N><item number>, the
-# scenario, and the item's text with its continuation lines.
-awk 'function flush() { if (id != "") printf "%s\t%s\t%s\n", id, s, t; id = "" }
-  /^## / { flush(); n++; s = substr($0, 4); sec = ""; next }
-  /^Then:/ { flush(); sec = "T"; k = 0; next }
-  /^Never:/ { flush(); sec = "N"; k = 0; next }
-  /^(Given|When):/ { flush(); sec = ""; next }
-  sec != "" && /^- / { flush(); id = n "." sec (++k); t = substr($0, 3); next }
-  id != "" && /^  / { sub(/^ +/, ""); t = t " " $0; next }
-  { flush() }
-  END { flush() }' "$root/$scenario" >"$logs/items.tsv"
+# items: each Then and Never item of $scenario: <scenario number>.<T or N><item
+# number>, the scenario, and the item's text with its continuation lines.
+items() {
+  awk 'function flush() { if (id != "") printf "%s\t%s\t%s\n", id, s, t; id = "" }
+    /^## / { flush(); n++; s = substr($0, 4); sec = ""; next }
+    /^Then:/ { flush(); sec = "T"; k = 0; next }
+    /^Never:/ { flush(); sec = "N"; k = 0; next }
+    /^(Given|When):/ { flush(); sec = ""; next }
+    sec != "" && /^- / { flush(); id = n "." sec (++k); t = substr($0, 3); next }
+    id != "" && /^  / { sub(/^ +/, ""); t = t " " $0; next }
+    { flush() }
+    END { flush() }' "$root/$scenario"
+}
 
 # lines <side>: the skill's files on that side, each line with its path and
 # number.
@@ -140,11 +161,32 @@ run() {
   rm -rf "$dir"
 }
 
-for side in base change; do prompt "$side" >"$logs/$side.prompt"; done
-for i in $(seq "$runs"); do
-  run base "$i" &
-  run change "$i" &
+# The items and the prompts of every row come first, so that a fault in any
+# row stops the eval before a run.
+folders=()
+for row in "${selected[@]}"; do
+  read -r -a files <<<"$row"
+  scenario=${files[0]}
+  files=("${files[@]:1}")
+  for f in "${files[@]}"; do
+    if [ ! -f "$root/$f" ] || ! git -C "$root" cat-file -e "$base:$f" 2>/dev/null; then
+      echo "$0: $f is not in the working tree or at $base: the row of $scenario needs a change" >&2
+      exit 2
+    fi
+  done
+  logs=$(mktemp -d)
+  items >"$logs/items.tsv"
+  for side in base change; do prompt "$side" >"$logs/$side.prompt"; done
+  folders+=("$logs")
 done
-wait
-echo "Runs: $logs"
-check "$logs"
+for i in "${!folders[@]}"; do
+  logs=${folders[$i]}
+  for j in $(seq "$runs"); do
+    run base "$j" &
+    run change "$j" &
+  done
+  wait
+  echo "Scenario: ${selected[$i]%% *}"
+  echo "Runs: $logs"
+  check "$logs"
+done
