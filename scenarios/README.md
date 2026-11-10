@@ -22,6 +22,7 @@ yet.
 | [`github/take-in.md`](github/take-in.md) | The person names one task, and the run takes it into work. |
 | [`github/filing.md`](github/filing.md) | The run meets a finding outside its task, and fixes it in the pull request of the task, adds it to a task, creates a task for it, or files nothing when a task already reports it or settles it. |
 | [`github/pull-request.md`](github/pull-request.md) | The run ends the work on a task and opens its pull request. On the person's answer, it merges the pull request or leaves it open; after a merge, it corrects the open tasks that the merge makes false, and removes the workspace of the task when the person asks for it. |
+| [`review-loop/review.md`](review-loop/review.md) | Reviews read the change on a branch in rounds, when the run ends the work on a task, when the person asks for a review, or when the person answers the question after a stop at round 3. For a task, the run then opens the pull request and asks whether to merge it, in the same run. |
 
 ## The shape of a scenario
 
@@ -43,9 +44,11 @@ Never:
 ```
 
 - **Given** is the state before the When: the tasks, the branches, the
-  workspace, and what an earlier run said. What the scenario does not name is
-  absent: no other task, and no branch but the default branch. A named thing
-  brings what it needs, as a pull request brings its branch.
+  workspace, and what an earlier run said. It can also say what a review
+  reports, as `round 1 reports one defect: …`: a review is outside the run,
+  as the tracker is. What the scenario does not name is absent: no other
+  task, no branch but the default branch, and no report of a review. A named
+  thing brings what it needs, as a pull request brings its branch.
 - **When** is one line: the one event that starts the flow. It starts with
   "the person" or with "the run":
   - what the person writes, which starts the run, as

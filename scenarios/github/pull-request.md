@@ -8,11 +8,7 @@ false, and removes the workspace of the task when the person asked for it.
 
 Not covered yet:
 
-- the review of the work before the pull request, a check that fails, a
-  question on business logic that is still open, and a review that stopped
-  at its third round, whose question has one more answer;
-- work on the default branch, a push that fails, and a branch that has an
-  open pull request already;
+- a push that fails, and a branch that has an open pull request already;
 - a pull request that closes a task that its text does not close on purpose,
   by a closing word or by a link;
 - a task that the pull request closes and that another person is assigned
