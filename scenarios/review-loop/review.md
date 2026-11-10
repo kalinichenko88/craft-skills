@@ -1,23 +1,28 @@
 # Review a change
 
-The run reviews the change on a branch: when it ends the work on a task, or
-when the person asks for a review. The review reads the change in rounds,
-fixes what they report, and tells the person what it did. When the run took
-a task into work, the run then opens the pull request of the task and asks
-whether to merge it, in the same run.
+Reviews read the change on a branch in rounds: when the run ends the work on
+a task, when the person asks for a review, or when the person answers the
+question that an earlier run asked after a stop at round 3. The run fixes
+what the reviews report, and tells the person what they found. When the run
+took a task into work, the run then opens the pull request of the task and
+asks whether to merge it, in the same run.
 
 Not covered yet:
 
-- the check that a new capability is worth it, the review for code that is
-  not necessary, and the walk through a screen that the change alters;
+- the question whether a new capability is worth it, the review for code
+  that is not necessary, and the walk through a screen that the change
+  alters;
 - the review of the architecture, the review of the tests, and the second
   reader of a change at level xhigh;
+- the levels low and high, and a change to tests only;
 - a review that reads no file of its part of the branch;
 - a report that needs an input that the real data does not hold, and a
   finding outside the task;
-- the comments of a review by another person;
-- a change to the text of a skill or a prompt, alone or with code;
-- a branch that has an open pull request already, and a push that fails;
+- what a person writes on the pull request about the change;
+- a change to the text of a skill, a prompt or a spec, alone or with code;
+- a change to documents only after which the person asks for more reviews;
+- more rounds that the person asks for, whose third round reports a defect;
+- a push that fails;
 - the answer to an open question on business logic;
 - the person's request for a pull request with no task;
 - the review of a spec and of a plan.
@@ -30,25 +35,28 @@ Given:
   on it
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
   on `fix/91-parse-rows`, and the tests of `parseRows`
-- a review of the whole branch reports two nits and no defect: a comment of
-  `parseRows` gives a wrong count of fields, and the name of a test does not
-  say what it tests
-- the security review reports no security hole
+- round 1 reports no defect, and two other things: a comment of `parseRows`
+  gives a wrong count of fields, and the name of a test does not say what it
+  tests
 - the check passes on `fix/91-parse-rows`
 When: the run ends the work on #91
 Then:
-- `fix/91-parse-rows` has one commit that fixes the two nits
+- `fix/91-parse-rows` has one commit that fixes the comment and the name of
+  the test
 - the security review reads the branch after that commit
 - the pull request of #91 is open
-- the text of the pull request of #91 names round 1, its level and the part
-  of the branch that it read
+- the text of the pull request of #91 names the level of round 1
+- the text of the pull request of #91 names the part of the branch that
+  round 1 read
 - the text of the pull request of #91 gives the result of the security
-  review and of the check
+  review
+- the text of the pull request of #91 gives the result of the check
 - the pull request of #91 opens after the security review
 - the person is asked whether to merge the pull request of #91
 - the run waits
 Never:
-- a review reads the commit that fixes the two nits
+- a round reads only the commit that fixes the comment and the name of the
+  test
 - a last pass runs
 - the run waits before the pull request of #91 opens
 
@@ -60,18 +68,16 @@ Given:
   on it
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
   on `fix/91-parse-rows`, and the tests of `parseRows`
-- a review of the whole branch reports one defect: `parseRows` drops the
-  last field of a line that ends with a comma
-- each review after it reports no defect
-- the security review reports no security hole
+- round 1 reports one defect: `parseRows` drops the last field of a line
+  that ends with a comma
 - the check passes on `fix/91-parse-rows`
 When: the run ends the work on #91
 Then:
 - `fix/91-parse-rows` has one commit that fixes that defect
 - round 2 reads only that commit
 - after round 2, one last pass reads the whole branch
-- the text of the pull request of #91 names round 1, round 2 and the last
-  pass
+- the text of the pull request of #91 names two rounds
+- the text of the pull request of #91 names the last pass
 - the person is asked whether to merge the pull request of #91
 Never:
 - round 2 reads the whole branch
@@ -85,13 +91,10 @@ Given:
   on it
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
   on `fix/91-parse-rows`, and the tests of `parseRows`
-- a review of the whole branch reports one defect: `parseRows` drops the
-  last field of a line that ends with a comma
-- the review of the commit that fixes it reports no defect
+- round 1 reports one defect: `parseRows` drops the last field of a line
+  that ends with a comma
 - the last pass reports one defect: `countFields` in `src/parser/read.ts`
   still gives the old count for a line that ends with a comma
-- each review after the last pass reports no defect
-- the security review reports no security hole
 - the check passes on `fix/91-parse-rows`
 When: the run ends the work on #91
 Then:
@@ -110,18 +113,17 @@ Given:
   on it
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
   on `fix/91-parse-rows`, and the tests of `parseRows`
-- a review of the whole branch reports one defect: `parseRows` drops the
-  last field of a line that ends with a comma
-- the review of the commit that fixes it reports one defect in that fix:
-  `parseRows` gives one empty field for an empty line
-- the review of the commit that fixes that second defect reports one defect
-  in that fix: `parseRows` drops an empty line inside quotes
-- the security review reports no security hole
+- round 1 reports one defect: `parseRows` drops the last field of a line
+  that ends with a comma
+- round 2 reports one defect in the fix of round 1: `parseRows` gives one
+  empty field for an empty line
+- round 3 reports one defect in the fix of round 2: `parseRows` drops an
+  empty line inside quotes
 - the check passes on `fix/91-parse-rows`
 When: the run ends the work on #91
 Then:
-- `fix/91-parse-rows` has one commit that fixes the first defect, and one
-  that fixes the second defect
+- `fix/91-parse-rows` has one commit that fixes the defect of round 1
+- `fix/91-parse-rows` has one commit that fixes the defect of round 2
 - the text of the pull request of #91 names three rounds
 - the text of the pull request of #91 names the defect of round 3 as not
   fixed
@@ -143,7 +145,7 @@ Given:
 - the workspace of #91 is on branch `fix/91-parse-rows`
 - pull request #96 of the person is open, merges `fix/91-parse-rows` into
   the default branch, and closes #91
-- an earlier run stopped the review of #96 after round 3, and round 3
+- an earlier run stopped the rounds on #96 after round 3, and round 3
   reported a defect that is not fixed: `parseRows` drops an empty line
   inside quotes
 - the text of #96 names that defect as not fixed
@@ -156,7 +158,9 @@ Then:
 - #96 is merged
 - one new task is created for the defect that is not fixed
 - the new task is created after #96 is merged
-- the text of the new task names `parseRows` and says how the defect shows
+- the text of the new task names `parseRows`
+- the text of the new task says how the defect shows
+- the new task has the label `bug`
 - the last message names the new task with its id and its title
 Never:
 - a commit is added to `fix/91-parse-rows` after the answer
@@ -168,10 +172,9 @@ Given:
 - the workspace of #91 is on branch `fix/91-parse-rows`
 - pull request #96 of the person is open, merges `fix/91-parse-rows` into
   the default branch, and closes #91
-- an earlier run stopped the review of #96 after round 3, and round 3
+- an earlier run stopped the rounds on #96 after round 3, and round 3
   reported a defect that is not fixed: `parseRows` drops an empty line
   inside quotes
-- the review of the commit that fixes that defect reports no defect
 - the check passes on `fix/91-parse-rows`
 - the earlier run asked whether to merge #96, with four answers: merge and
   remove the workspace of #91, merge only, do not merge, and up to three
@@ -193,10 +196,8 @@ Given:
 - branch `fix/91-split-default` is linked to #91, and the workspace of #91
   is on it
 - the work on #91 changes one line of `splitLine` in `src/parser/split.ts`,
-  a wrong default separator, and adds no branch to the code; it changes one
-  test of `splitLine` in `test/split.test.ts`
-- each review reports no defect
-- the security review reports no security hole
+  a wrong default separator, and adds no logic; it changes one test of
+  `splitLine` in `test/split.test.ts`
 - the check passes on `fix/91-split-default`
 When: the run ends the work on #91
 Then:
@@ -205,16 +206,16 @@ Then:
 Never:
 - a round reads at level low
 
-## A change to the check of a session token
+## A fix to the expiry of a session token
 
 Given:
 - the run took task #91 into work, and #91 is open, assigned to the person
 - branch `fix/91-token-expiry` is linked to #91, and the workspace of #91 is
   on it
-- the work on #91 changes how `checkToken` in `src/auth/session.ts` checks
-  the token of a session, and the tests of `checkToken`
-- each review reports no defect
-- the security review reports no security hole
+- before the work on #91, `checkToken` in `src/auth/session.ts` accepts a
+  session token that has expired
+- the work on #91 makes `checkToken` refuse an expired session token, and
+  changes the tests of `checkToken`
 - the check passes on `fix/91-token-expiry`
 When: the run ends the work on #91
 Then:
@@ -230,18 +231,20 @@ Given:
 - branch `docs/91-parser-guide` is linked to #91, and the workspace of #91
   is on it
 - the work on #91 changes only `docs/parser.md`, on `docs/91-parser-guide`
-- a review of the whole branch reports one defect: `docs/parser.md` says
-  that `parseRows` keeps empty lines, and `parseRows` drops them
+- round 1 reports one false sentence: `docs/parser.md` says that
+  `parseRows` keeps empty lines, and `parseRows` drops them
 - the check passes on `docs/91-parser-guide`
 When: the run ends the work on #91
 Then:
 - `docs/91-parser-guide` has one commit that fixes that sentence
 - the text of the pull request of #91 names one round
-- the text of the pull request of #91 says that no last pass and no
-  security review ran, for a change to documents only
+- the text of the pull request of #91 says that no last pass ran, for a
+  change to documents only
+- the text of the pull request of #91 says that no security review ran,
+  for a change to documents only
 - the person is asked whether to merge the pull request of #91
 Never:
-- a review reads the commit that fixes that sentence
+- a round reads only the commit that fixes that sentence
 - a last pass runs
 - a security review runs
 
@@ -254,10 +257,8 @@ Given:
 - the work on #91 changes 40 lines of `readRows` in `src/parser/read.ts` on
   `fix/91-read-file`: it puts the name of the file that a request gives into
   a shell command, with no quotes
-- a review of the whole branch reports no defect
 - the security review reports one security hole: a file name that holds `;`
   runs a second shell command
-- the review of the commit that fixes it reports no defect
 - the check passes on `fix/91-read-file`
 When: the run ends the work on #91
 Then:
@@ -281,13 +282,11 @@ Given:
   on it
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
   on `fix/91-parse-rows`, and the tests of `parseRows`
-- each review reports no defect
-- the security review reports no security hole
 - the check fails on `fix/91-parse-rows` and on the default branch: a test
   of `src/report/total.ts` needs a network that the workspace does not have
 When: the run ends the work on #91
 Then:
-- the person is told that the check fails, and in which test
+- the person is told which test of the check fails
 Never:
 - a pull request of #91 opens
 - the person is asked whether to merge a pull request of #91
@@ -301,12 +300,11 @@ Given:
 - the workspace is on the default branch
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
   in the workspace, and the tests of `parseRows`
-- each review reports no defect
-- the security review reports no security hole
 - the check passes in the workspace
 When: the run ends the work on #91
 Then:
-- the person is told the result of the review and of the check
+- the person is told the result of each round
+- the person is told the result of the check
 Never:
 - a pull request of #91 opens
 - the default branch of the repository changes
@@ -322,18 +320,16 @@ Given:
   on `fix/91-parse-rows`, and the tests of `parseRows`
 - the text of #91 does not say what `parseRows` does with a line that holds
   only spaces
-- a review of the whole branch reports that `parseRows` now gives a row of
-  empty fields for a line that holds only spaces, and that the default
-  branch drops that line
-- every other review reports no defect
-- the security review reports no security hole
+- round 1 reports that `parseRows` now gives a row of empty fields for a
+  line that holds only spaces, and that the default branch drops that line
 - the check passes on `fix/91-parse-rows`
 When: the run ends the work on #91
 Then:
 - the pull request of #91 is open
 - the person is asked whether `parseRows` keeps or drops a line that holds
   only spaces
-- that question gives the options and a recommendation
+- that question gives the options
+- that question gives a recommendation
 - the run waits
 Never:
 - the person is asked whether to merge the pull request of #91
@@ -343,17 +339,19 @@ Never:
 ## A review that the person asks for
 
 Given:
-- the workspace is on branch `feat/csv-export`, which has two commits that
+- the workspace is on branch `fix/csv-quotes`, which has two commits that
   the default branch does not have
-- no task names `feat/csv-export`, and no pull request merges it
-- each review reports no defect
-- the security review reports no security hole
-- the check passes on `feat/csv-export`
+- the two commits fix how `writeCsv` in `src/export/csv.ts` quotes a field
+  that holds a comma, and change no business logic
+- no task names `fix/csv-quotes`, and no pull request merges it
+- the check passes on `fix/csv-quotes`
 When: the person writes "review this branch"
 Then:
-- round 1 reads the whole of `feat/csv-export` against the default branch
+- round 1 reads the whole of `fix/csv-quotes` against the default branch
 - the security review reads the branch after round 1
-- the person is told each round, its level, and the result of the check
+- the person is told the level of each round
+- the person is told the result of each round
+- the person is told the result of the check
 Never:
 - a pull request opens
 - the person is asked whether to merge
