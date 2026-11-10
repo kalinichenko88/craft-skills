@@ -188,29 +188,27 @@ run() {
   rm -rf "$dir"
 }
 
-# The items and the prompts of every row come first, so that a fault in any
-# row stops the eval before a run.
-folders=()
+# The files of every row are checked first, so that a fault in any row stops
+# the eval before a run. A row gets its runs folder only when its runs start.
+for row in "${selected[@]}"; do
+  read -r -a files <<<"$row"
+  for f in "${files[@]:1}"; do
+    [ -f "$root/$f" ] || { echo "$0: $f is not in the working tree: the row of ${files[0]} needs a change" >&2; exit 2; }
+  done
+done
 for row in "${selected[@]}"; do
   read -r -a files <<<"$row"
   scenario=${files[0]}
   files=("${files[@]:1}")
-  for f in "${files[@]}"; do
-    [ -f "$root/$f" ] || { echo "$0: $f is not in the working tree: the row of $scenario needs a change" >&2; exit 2; }
-  done
   logs=$(mktemp -d)
   items >"$logs/items.tsv"
   for side in base change; do prompt "$side" >"$logs/$side.prompt"; done
-  folders+=("$logs")
-done
-for i in "${!folders[@]}"; do
-  logs=${folders[$i]}
   for j in $(seq "$runs"); do
     run base "$j" &
     run change "$j" &
   done
   wait
-  echo "Scenario: ${selected[$i]%% *}"
+  echo "Scenario: $scenario"
   echo "Runs: $logs"
   # With no answer, the first run tells why, as a token that expired: the CLI
   # puts the reason in .result.

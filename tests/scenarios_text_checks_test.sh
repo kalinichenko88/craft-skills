@@ -15,8 +15,8 @@
 # tree's to the two sides, no line of a file that the base does not have, the
 # recorded items for the recorded scenario file, and the scenario file of the
 # row in its output. With --changed, it runs only the rows with a skill file
-# that differs from the base, also an untracked one, and none when no skill
-# file does; with no answer, it prints what the first run printed.
+# that differs from the base, committed, changed or untracked, and none when
+# no skill file does; with no answer, it prints the reason of the first run.
 
 set -eu
 
@@ -152,13 +152,18 @@ grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' 
   fail "the prompt of the working tree lacks the working tree's line"
 ! grep -q 'A line of the working tree only' "$tmp/logs/base.prompt" || fail "the prompt of the base has the working tree's line"
 
-# --changed runs each row with a skill file that differs from the base, also
-# an untracked one, and no other: no row with no change, nor with a change of
-# a scenario file alone, which both sides read from the working tree; each
-# row of a shared file, so also the row of the worth flow, whose files are
-# not here; and the row of an untracked skill file. A run with no answer
-# prints what the first run printed.
+# --changed, on copies whose second row shares a skill file with the take-in
+# row, runs each row with a skill file that differs from the base, and no
+# other: no row with no change, nor with a change of a scenario file alone,
+# which both sides read from the working tree; the take-in row alone for a
+# committed change against the default base, as in CI; both rows for a change
+# of the shared file; and the row of an untracked skill file. A run with no
+# answer prints the reason of the first run: .result of the CLI's JSON, or
+# else the start of its output.
 git -C "$repo" checkout -q -- skills/github/take-in.md
+mkdir "$repo/scenarios/none"
+cp "$fixtures/take-in.md" "$repo/scenarios/none/none.md"
+with_row "  'scenarios/none/none.md skills/github/take-in.md'"
 # no_row <state>: in that state, --changed runs no row and calls no claude.
 no_row() {
   rm -f "$tmp/called"
@@ -172,15 +177,19 @@ no_row 'no change'
 echo 'A line of the working tree only.' >>"$repo/$take"
 no_row 'a change of a scenario file alone'
 git -C "$repo" checkout -q -- "$take"
+# The default base is the first commit, and HEAD adds scout.md.
+refused 'no answer' --changed 1
+changed_rows "$take"
 echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
-refused 'rules.md is not in the working tree: the row of scenarios/product/worth.md' --changed 1 HEAD
-changed_rows "$take" scenarios/product/worth.md
+refused 'no answer' --changed 1 HEAD
+changed_rows "$take" scenarios/none/none.md
+grep -qxF "$evalsh: the first run printed: Not logged in" "$tmp/err" || fail 'a run with no answer does not print .result of the first run' "$(cat "$tmp/err")"
 git -C "$repo" checkout -q -- skills/github/take-in.md
-mkdir "$repo/scenarios/none"
-cp "$fixtures/take-in.md" "$repo/scenarios/none/none.md"
 echo 'A line of an untracked file.' >"$repo/skills/github/new.md"
 with_row "  'scenarios/none/none.md skills/github/new.md'"
+# A CLI that prints no JSON, as for an option that it does not know.
+printf '#!/usr/bin/env bash\ntouch %q\ncat >/dev/null\necho %q\n' "$tmp/called" 'error: unknown option' >"$tmp/bin/claude"
 refused 'no answer' --changed 1 HEAD
 changed_rows scenarios/none/none.md
-grep -qxF "$evalsh: the first run printed: Not logged in" "$tmp/err" || fail 'a run with no answer does not print the reason of the first run' "$(cat "$tmp/err")"
+grep -qxF "$evalsh: the first run printed: error: unknown option" "$tmp/err" || fail 'a run with no answer does not print the output of a CLI that prints no JSON' "$(cat "$tmp/err")"
 echo 'scenarios_text_checks_test: ok'
