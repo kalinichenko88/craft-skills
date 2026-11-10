@@ -8,8 +8,8 @@ branch linked to the task.
 Not covered yet:
 
 - the other tasks on the same code that the work takes along;
-- a duplicate that tells only the failure that was seen, which waits for a
-  reproduction of the failure;
+- a duplicate that tells only the failure that was seen, which closes only
+  after a reproduction of the failure;
 - the correction of the places in the code that a task names, as a file and
   a line;
 - a task whose text holds added findings;
@@ -18,9 +18,17 @@ Not covered yet:
   workspace has;
 - a linked branch in another repository only, and a branch in the
   workspace that has the name of the new branch;
-- a read of the task that fails after the check;
+- a read of the task that fails after the run checks whether the task is
+  free;
 - an earlier run that took the same task into the work, and still runs or
   waits;
+- two states that each end the run in another way, as a closed task with a
+  duplicate, or a task of another person whose linked branch the workspace
+  has;
+- a branch in the workspace with a commit that the repository's branch does
+  not have;
+- the answers to the question whose branch a linked branch is, and to the
+  question where the work runs when the task has a linked branch;
 - the next text that the person writes after a run that waits or stops,
   other than an answer to a question.
 

@@ -190,6 +190,25 @@ scenario file needs its row, measured as the header of the eval says.
 `tests/scenarios_text_checks_test.sh` runs its checks in `make check`, on ten
 recorded runs in `tests/fixtures/scenarios_text/`, and runs the eval with a
 stub `claude`: it fails for a scenario file with no row.
+`scenarios/check.md` reads the scenarios against each other, as
+`scenarios/README.md` says. Run it by hand from the root of the checkout,
+after a change to a file of `scenarios/`. The model runs in an empty folder,
+so that no file of the project and no memory reaches it:
+
+```bash
+prompt=$(mktemp)
+{ cat scenarios/check.md
+  for f in scenarios/README.md scenarios/TERMS.md scenarios/*/*.md; do
+    printf '\n=== %s\n' "$f"; cat "$f"
+  done; } >"$prompt"
+(cd "$(mktemp -d)" && claude -p --model opus --tools '' \
+  --setting-sources project --settings '{"language":"English"}' \
+  --no-session-persistence <"$prompt")
+```
+
+One run on the 59 scenarios of 2026-11-10 took about 10 minutes and cost
+about $1.40 to $1.70. It changes no file. Check each finding against the
+files, then fix it or decline it, with the reason, in the pull request.
 `tests/rules_decision_eval.sh` runs craft on a decision that the person makes
 in a conversation, with no pull request (#253). Each run is one Opus session
 of `claude -p` in two turns, with a fake `gh` over a JSON tracker. Open issue
