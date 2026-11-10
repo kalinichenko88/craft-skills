@@ -41,8 +41,8 @@ We will run `tests/scenarios_text_eval.sh --changed` in a job of
 `.github/workflows/check.yml` at each push to a pull request from this
 repository. The job reads the secret `CLAUDE_CODE_OAUTH_TOKEN`, which
 `claude setup-token` prints, so the runs count against the subscription of
-its owner. It fails when the eval gives a LOST item, and a new push cancels
-the run that is still going. `--changed` runs each row with a file that
+its owner. It fails when the eval gives a LOST item. `--changed` runs each
+row with a file that
 differs between the merge base with `origin/main` and the tree of the pull
 request. The live eval of the take-in, `tests/scenarios_eval.sh`, stays a run
 by hand.
