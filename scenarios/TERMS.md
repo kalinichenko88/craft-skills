@@ -20,14 +20,17 @@ column gives the name that a person who reads Russian sees.
 | default branch | The branch that the work of the repository merges into. | основная ветка | main, master |
 | branch | A git branch of the repository. | ветка | |
 | linked branch | A branch that a task records as its own: whoever opens the task sees it. | связанная ветка | |
-| pull request | A request to merge a branch into the default branch, with a title and a text. It closes a task when it names the task with a closing word. | pull request | merge request, PR |
+| pull request | A request to merge a branch into the default branch, with a title, a text and assignees. It closes a task when it names the task with a closing word, or when it is a linked pull request of the task. | pull request | merge request, PR |
+| linked pull request | A pull request that a task records as its own: whoever opens the task sees it. When the pull request of a linked branch opens, the task records the pull request in place of the branch. | связанный pull request | |
 | the pull request of a task | The pull request that brings the work of a task to the default branch: "the pull request of #91". | pull request задачи | |
-| assignee | An account that a task names as the one who does it. A task is assigned to the person when the person's account is an assignee. | исполнитель | owner |
+| assignee | An account that a task or a pull request names as the one who does it. A task or a pull request is assigned to the person when the person's account is an assignee. | исполнитель | owner |
 | busy | A task with an assignee, a linked branch or an open pull request that closes it. | занята | taken, claimed |
 | duplicate | A task that reports the same thing as another task, about the same place, in the same words or not. When it closes, it closes as a duplicate of the other task, and the other task stays open or closed, as it was. | дубликат | copy |
 | comment | A text added to a task after its own text. | комментарий | note, reply |
 | workspace | The place where the run reads and changes the code: a copy of the repository with its branches. | рабочая копия | checkout, worktree, clone |
+| the workspace of a task | A second workspace for the work of one task, on the branch of the task. It shares its branches with the first workspace. Where a scenario names both, the workspace alone is the first one. | рабочая копия задачи | worktree |
 | module | A part of the repository that the project's own instructions, or the conventions of its framework, draw as one unit, as a feature or a package. Where neither draws one, the module of a file is its directory. A test is in the module of the code that it tests. | модуль | area, component |
+| check | What the repository runs as one step to test a change: its lint, its type checks and its tests. | проверка | gate, CI |
 | the work | What a task asks for: the changes to the code that do it, in the workspace or somewhere else. Checking the task, assigning it and making its branch are not the work. | работа | implementation |
 | finding | A defect, or a change worth making, that the run meets outside its task: in code that the task does not ask to change and that the work did not write. | находка | issue |
 | added finding | A finding that a run wrote into the text of an open task on the same code, after the problem of the task. The task then closes only when its own problem and each added finding are fixed. | добавленная находка | appendix |
