@@ -29,10 +29,6 @@ Then act on what the check printed:
   linked or the branch of your open pull request, is a local branch here with
   the branch's last commit on GitHub. Ask nothing: say in one line that the
   work continues, and go on with *Continuing the work* below.
-- `closed`, or a line that names someone else: say so and wait. These lines
-  win over the lines below.
-- `PR #<n> by you`, with no `continue` line: the work has a pull request
-  already. Say so and stop.
 - Only an `assigned to you` line, `branch` lines, or both: another session of
   yours can work on the issue, on this computer or on another one. Show the
   person what the script printed, and ask one at a time, in this order:
@@ -40,7 +36,6 @@ Then act on what the check printed:
      whose a branch is. Someone else's: say so and wait, and do not ask 2.
   2. Does the work run somewhere else, or does it continue here? Somewhere
      else: stop. Here: go on with the steps below.
-- An issue of another repository than this checkout's: say so and stop.
 
 **Continuing the work.** The session that worked on the issue can still be
 open, and git does not show it. In Claude Code, look for it first:
