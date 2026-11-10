@@ -7,19 +7,23 @@
 
 ADR 0003 left one gap: a change of a flow edits two texts, the skill and its
 scenario, and only the review ties them. `tests/scenarios_text_eval.sh` (#243,
-#294) closes the gap for the text: it reads the skill's files against the
-scenario file of each row, and gives LOST for an item that the change drops.
-But it calls the model, so `make check` runs only its checks on recorded runs
-(I-7), and `CONTRIBUTING.md` asks a person to run it. No one did: #281 and
-#257 changed the files that the eval reads, and neither records a run (#307).
+#294) closes the gap in one direction: it reads the skill's files against the
+scenario file of each row, and gives LOST for an item that a change of the
+skill drops. But it calls the model, so `make check` runs only its checks on
+recorded runs (I-7), and `CONTRIBUTING.md` asks a person to run it, as it asks
+for the live eval `tests/scenarios_eval.sh`. #281 and #257 changed the files
+after which it asks for a live run, and neither records one (#307). Since #288
+added the text eval, five merged pull requests changed a file of a row, all
+of them scenario files only: #299 to #302 record a run by hand, and #308 does
+not.
 
 The counts, for the 63 pull requests merged from 2026-10-27 to 2026-11-10:
-33 changed a file of a row, 3 rows each on average. The `pull_request` runs
-of `check.yml` show one push for 57 of the 63, two for 5 and three for 1, as
-the review runs before the pull request opens. Ten Haiku sessions,
-one row, cost a median of $0.24 at API prices in 13 recorded runs; two of them
-cost $1.29 and $1.74. At each push, the rows that the pull request changes come
-to 124 row runs in those 15 days, about $14 to $24 a week.
+27 changed a skill file of a row, 3 to 4 rows each. The `pull_request` runs of
+`check.yml` show one push for 57 of the 63, two for 5 and three for 1, as the
+review runs before the pull request opens. Ten Haiku sessions, one row, cost a
+median of $0.24 at API prices in 13 recorded runs; two of them cost $1.29 and
+$1.74. At each push, the rows whose skill files the pull request changes come
+to 109 row runs in those 15 days, about $12 to $21 a week.
 
 ## Options considered
 
@@ -29,11 +33,13 @@ to 124 row runs in those 15 days, about $14 to $24 a week.
 - A Claude Code hook before `gh pr create`: no secret, but a Codex session, a
   person and each push after the pull request opens get no run.
 - A line in `.claude/CLAUDE.md` and `AGENTS.md`: no code, but a step that an
-  agent can skip, as the 0 of 2 runs show for the line in `CONTRIBUTING.md`.
+  agent can skip, as the live eval shows for the line in `CONTRIBUTING.md`.
 - `anthropics/claude-code-action` with a prompt that runs the eval: the same
   secret, but an agent session on top of the ten runs of a row, with tokens of
   its own and a step that a model can do wrong. The eval needs only the CLI,
-  which the `check` job installs already.
+  which the `check` job installs too.
+- An API key with a cost cap, as #307 names: the same job, but each run is
+  paid apart from the subscription that the work already uses.
 
 ## Decision
 
@@ -41,24 +47,32 @@ We will run `tests/scenarios_text_eval.sh --changed` in a job of
 `.github/workflows/check.yml` at each push to a pull request from this
 repository. The job reads the secret `CLAUDE_CODE_OAUTH_TOKEN`, which
 `claude setup-token` prints, so the runs count against the subscription of
-its owner. It fails when the eval gives a LOST item. `--changed` runs each
-row with a file that
-differs between the merge base with `origin/main` and the tree of the pull
-request. The live eval of the take-in, `tests/scenarios_eval.sh`, stays a run
-by hand.
+its owner. It fails when the eval gives a LOST item. `--changed` runs each row
+with a skill file that differs between the merge base with `origin/main` and
+the tree of the pull request. A change of a scenario file alone runs no row:
+both sides read the scenario file of the working tree, so its run gives no
+LOST but noise. The live eval of the take-in, `tests/scenarios_eval.sh`, stays
+a run by hand.
 
 ## Consequences
 
-Good: a change of a skill that drops what a scenario needs fails its pull
-request, with no step that a person or an agent must remember. A new scenario
-file with no row fails it too, as the eval stops on it. A pull request that
-changes no file of a row costs a runner and no token.
+Good: a change of a skill that drops what a scenario needs makes its pull
+request red, with no step that a person or an agent must remember. A new
+scenario file with no row makes it red too, as the eval stops on it. A pull
+request that changes no skill file of a row costs a runner and no token.
 
-Bad: the repository keeps a secret, and a token that expires or is missing
-makes the job fail with no answer. Each person with write access to the
-repository can read the token, with a branch that changes the eval. A pull request from a fork gets no secret
-and no check. A LOST item can be noise of the model: rerun the job. A push
-runs every changed row again, also when it changes only a test.
+Bad: nothing makes the merge wait for the job: `main` has no required check,
+and the merge of `craft:github` reads no check. The repository keeps a
+secret. A token that expires or is missing, or a spent limit of the
+subscription, makes the job fail; it prints the first output of the CLI.
+Each person with write access to the repository can read the token, with a
+branch that changes the eval. A pull request from a fork gets no secret and no
+check. A LOST item can be noise of the model, though in the measure of the
+eval's header no item outside the cut lines was LOST at five runs: rerun the
+job. A renamed file of a row gives the base no line, so no item that it
+produces can be LOST in that pull request; no file of a row was renamed up to
+2026-11-10. A push runs every changed row again, also when it changes only a
+test.
 
 ## Invariants
 

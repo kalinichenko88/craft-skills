@@ -14,8 +14,9 @@
 # run, and runs with no answer; and it gives the base's text and the working
 # tree's to the two sides, no line of a file that the base does not have, the
 # recorded items for the recorded scenario file, and the scenario file of the
-# row in its output. With --changed, it runs only the rows with a file that
-# differs from the base, also an untracked one, and none when no file does.
+# row in its output. With --changed, it runs only the rows with a skill file
+# that differs from the base, also an untracked one, and none when no skill
+# file does; with no answer, it prints what the first run printed.
 
 set -eu
 
@@ -85,6 +86,7 @@ refused() {
   shift
   rm -f "$tmp/called"
   err=$(PATH="$tmp/bin:$PATH" "$evalsh" "$@" 2>&1 >"$tmp/out") || code=$?
+  printf '%s\n' "$err" >"$tmp/err"
   logs=$(sed -n 's/^Runs: //p' "$tmp/out")
   [ -z "$logs" ] || { rm -rf "$tmp/logs" && mv "$logs" "$tmp/logs"; }
   [ "$code" = 2 ] && [ "${err#*"$message"}" != "$err" ] || fail "'$*' exited $code with '$err', not 2 with '$message'"
@@ -149,20 +151,25 @@ grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' 
   fail "the prompt of the working tree lacks the working tree's line"
 ! grep -q 'A line of the working tree only' "$tmp/logs/base.prompt" || fail "the prompt of the base has the working tree's line"
 
-# --changed runs each row with a file that differs from the base, and no
-# other: no row with no change, the take-in row alone for a change of its
-# scenario file, each row of a shared file, so also the row of the worth
-# flow, whose files are not here, and the row of an untracked file.
+# --changed runs each row with a skill file that differs from the base, also
+# an untracked one, and no other: no row with no change, nor with a change of
+# a scenario file alone, which both sides read from the working tree; each
+# row of a shared file, so also the row of the worth flow, whose files are
+# not here; and the row of an untracked skill file. A run with no answer
+# prints what the first run printed.
 git -C "$repo" checkout -q -- skills/github/take-in.md
-rm -f "$tmp/called"
-out=$(PATH="$tmp/bin:$PATH" "$evalsh" --changed 1 HEAD) || fail "--changed with no change exited $?" "$out"
-[ "$out" = 'No file of a row differs from HEAD.' ] || fail '--changed with no change does not say that no file differs' "$out"
-[ ! -e "$tmp/called" ] || fail '--changed with no change called claude'
+# no_row <state>: in that state, --changed runs no row and calls no claude.
+no_row() {
+  rm -f "$tmp/called"
+  out=$(PATH="$tmp/bin:$PATH" "$evalsh" --changed 1 HEAD) || fail "--changed with $1 exited $?" "$out"
+  [ "$out" = 'No skill file of a row differs from HEAD.' ] || fail "--changed with $1 does not say that no skill file differs" "$out"
+  [ ! -e "$tmp/called" ] || fail "--changed with $1 called claude"
+}
 # changed_rows <scenario file>...: the rows that the last call named.
-changed_rows() { grep -qx "Changed rows: $*" "$tmp/out" || fail "--changed did not run the rows of $*" "$(cat "$tmp/out")"; }
+changed_rows() { grep -qxF "Changed rows: $*" "$tmp/out" || fail "--changed did not run the rows of $*" "$(cat "$tmp/out")"; }
+no_row 'no change'
 echo 'A line of the working tree only.' >>"$repo/$take"
-refused 'no answer' --changed 1 HEAD
-changed_rows "$take"
+no_row 'a change of a scenario file alone'
 git -C "$repo" checkout -q -- "$take"
 echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
 refused 'rules.md is not in the working tree: the row of scenarios/product/worth.md' --changed 1 HEAD
@@ -170,7 +177,9 @@ changed_rows "$take" scenarios/product/worth.md
 git -C "$repo" checkout -q -- skills/github/take-in.md
 mkdir "$repo/scenarios/none"
 cp "$fixtures/take-in.md" "$repo/scenarios/none/none.md"
-with_row "  'scenarios/none/none.md skills/github/SKILL.md'"
+echo 'A line of an untracked file.' >"$repo/skills/github/new.md"
+with_row "  'scenarios/none/none.md skills/github/new.md'"
 refused 'no answer' --changed 1 HEAD
 changed_rows scenarios/none/none.md
+grep -qF 'the first run printed: {"result": ""}' "$tmp/err" || fail 'a run with no answer does not print what the first run printed' "$(cat "$tmp/err")"
 echo 'scenarios_text_checks_test: ok'

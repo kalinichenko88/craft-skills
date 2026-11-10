@@ -5,9 +5,10 @@
 # only. Each file in scenarios/*/*.md has a row in `rows` below: the scenario
 # file, then the files of the skill that its flow reads. The eval runs each
 # row, or the row of the scenario file that its first argument names, or with
-# --changed each row with a file that differs between the base and the working
-# tree, also an untracked one. CI runs it with --changed on each pull request
-# (ADR 0007). A scenario file with no row stops the eval before a run, and so
+# --changed each row with a skill file that differs between the base and the
+# working tree, also an untracked one. Both sides read the scenario file of the
+# working tree, so a change of it alone gives no LOST. CI runs the eval with
+# --changed on each pull request (ADR 0007). A scenario file with no row stops the eval before a run, and so
 # does a file of a row that is missing in the working tree.
 #
 # Each run is one haiku session of `claude -p` with no tool. It gets the
@@ -111,12 +112,13 @@ if [ -n "$changed" ]; then
   selected=()
   for row in "${rows[@]}"; do
     read -r -a files <<<"$row"
+    files=("${files[@]:1}")
     if ! git -C "$root" diff --quiet "$base" -- "${files[@]}" ||
       [ -n "$(git -C "$root" ls-files --others --exclude-standard -- "${files[@]}")" ]; then
       selected+=("$row")
     fi
   done
-  [ "${#selected[@]}" -gt 0 ] || { echo "No file of a row differs from $base."; exit 0; }
+  [ "${#selected[@]}" -gt 0 ] || { echo "No skill file of a row differs from $base."; exit 0; }
   echo "Changed rows: ${selected[*]%% *}"
 fi
 
@@ -140,11 +142,8 @@ items() {
 lines() {
   local f
   for f in "${files[@]}"; do
-    if [ "$1" = change ]; then
-      cat "$root/$f"
-    elif git -C "$root" cat-file -e "$base:$f" 2>/dev/null; then
-      git -C "$root" show "$base:$f"
-    fi | awk -v f="$f" '{ print f ":" FNR ": " $0 }'
+    if [ "$1" = base ]; then git -C "$root" show "$base:$f" 2>/dev/null; else cat "$root/$f"; fi |
+      awk -v f="$f" '{ print f ":" FNR ": " $0 }'
   done
 }
 prompt() {
@@ -212,5 +211,6 @@ for i in "${!folders[@]}"; do
   wait
   echo "Scenario: ${selected[$i]%% *}"
   echo "Runs: $logs"
-  check "$logs"
+  # With no answer, the output of the CLI tells why, as a token that expired.
+  check "$logs" || { echo "$0: the first run printed: $(head -c 300 "$logs/change1.json")" >&2; exit 2; }
 done
