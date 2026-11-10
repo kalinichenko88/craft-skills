@@ -13,6 +13,7 @@ column gives the name that a person who reads Russian sees.
 | the person's language | The language of the texts that the person writes, or the language that the person set. | язык человека | locale |
 | task | A unit of work in the tracker: an id, a title, a text, a state (open or closed), assignees, comments and linked branches. | задача | issue, ticket, card |
 | task id | The number of a task, as the person writes it: `#91`. | номер задачи | |
+| label | A name from the list of labels of the repository, which a task carries, as `bug`. | метка | tag |
 | link | The web address of a task, which names its repository and its id. | ссылка | URL |
 | tracker | The place where the tasks of one repository live. | трекер | board, backlog |
 | repository | The git repository of the code, with its default branch, on GitHub. | репозиторий | repo, project |
@@ -29,6 +30,7 @@ column gives the name that a person who reads Russian sees.
 | module | A part of the repository that the project's own instructions, or the conventions of its framework, draw as one unit, as a feature or a package. Where neither draws one, the module of a file is its directory. A test is in the module of the code that it tests. | модуль | area, component |
 | the work | What a task asks for: the changes to the code that do it, in the workspace or somewhere else. Checking the task, assigning it and making its branch are not the work. | работа | implementation |
 | finding | A defect, or a change worth making, that the run meets outside its task: in code that the task does not ask to change and that the work did not write. | находка | issue |
+| added finding | A finding that a run wrote into the text of an open task on the same code, after the problem of the task. The task then closes only when its own problem and each added finding are fixed. | добавленная находка | appendix |
 | the run | The handling of one text that the person writes, until it waits or stops. The run that takes a task goes on into the work. | прогон | session, turn |
 | message | One text that the run gives the person. The person reads the messages of a run in their order. | сообщение | reply, output |
 | gist | What a message tells about a task: its id, its title as the task has it, and two or three sentences in the person's language on what is wanted and what must be true for the work to be done. | суть | summary |
