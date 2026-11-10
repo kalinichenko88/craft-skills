@@ -31,7 +31,7 @@ jobs:
       - run: make check
 
   # The text eval of each scenario row whose files the pull request changes
-  # (ADR 0007): about $0.24 a row, on the subscription of the token. A pull
+  # (ADR 0007): about $0.20 a row, on the subscription of the token. A pull
   # request from a fork gets no secret, so it skips the job.
   scenarios-text:
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
@@ -53,7 +53,7 @@ jobs:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: |
           tests/scenarios_text_eval.sh --changed | tee "$RUNNER_TEMP/eval.txt"
-          ! grep '^LOST' "$RUNNER_TEMP/eval.txt"
+          if grep -q '^LOST' "$RUNNER_TEMP/eval.txt"; then exit 1; fi
 
   secrets:
     runs-on: ubuntu-26.04

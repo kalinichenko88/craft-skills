@@ -188,7 +188,7 @@ the row, and gives for each Then and Never item the line that produces it,
 or none. The eval makes five runs on the text at the merge base with
 `origin/main` and five on the working tree, and gives LOST for each item that
 most runs on the working tree give no line for and at most half of the runs
-on the base do. The ten runs of a row cost about $0.24. CI runs it with
+on the base do. The ten runs of a row cost about $0.20. CI runs it with
 `--changed` at each push to a pull request. Before a paid run of
 `tests/scenarios_eval.sh`, run the same command by hand:
 `tests/scenarios_text_eval.sh --changed`. A new scenario file needs its row, measured

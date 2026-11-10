@@ -13,10 +13,10 @@ But it calls the model, so `make check` runs only its checks on recorded runs
 (I-7), and `CONTRIBUTING.md` asks a person to run it. No one did: #281 and
 #257 changed the files that the eval reads, and neither records a run (#307).
 
-The counts, for the pull requests merged from 2026-10-27 to 2026-11-10: 33
-changed a file of a row, 3 rows each on average. The `pull_request` runs of
-`check.yml` show one push for 57 of them, two for 5 and three for 1, as the
-review runs before the pull request opens. Ten Haiku sessions,
+The counts, for the 63 pull requests merged from 2026-10-27 to 2026-11-10:
+33 changed a file of a row, 3 rows each on average. The `pull_request` runs
+of `check.yml` show one push for 57 of the 63, two for 5 and three for 1, as
+the review runs before the pull request opens. Ten Haiku sessions,
 one row, cost a median of $0.24 at API prices in 13 recorded runs; two of them
 cost $1.29 and $1.74. At each push, the rows that the pull request changes come
 to 124 row runs in those 15 days, about $14 to $24 a week.
@@ -55,7 +55,8 @@ file with no row fails it too, as the eval stops on it. A pull request that
 changes no file of a row costs a runner and no token.
 
 Bad: the repository keeps a secret, and a token that expires or is missing
-makes the job fail with no answer. A pull request from a fork gets no secret
+makes the job fail with no answer. Each person with write access to the
+repository can read the token, with a branch that changes the eval. A pull request from a fork gets no secret
 and no check. A LOST item can be noise of the model: rerun the job. A push
 runs every changed row again, also when it changes only a test.
 

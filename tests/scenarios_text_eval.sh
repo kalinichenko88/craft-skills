@@ -6,9 +6,9 @@
 # file, then the files of the skill that its flow reads. The eval runs each
 # row, or the row of the scenario file that its first argument names, or with
 # --changed each row with a file that differs between the base and the working
-# tree. CI runs it with --changed on each pull request (ADR 0007). A scenario
-# file with no row stops the eval before a run, and so does a file of a row
-# that is missing on either side.
+# tree, also an untracked one. CI runs it with --changed on each pull request
+# (ADR 0007). A scenario file with no row stops the eval before a run, and so
+# does a file of a row that is missing in the working tree.
 #
 # Each run is one haiku session of `claude -p` with no tool. It gets the
 # scenario file, its Then and Never items with an id, and the files of the
@@ -111,9 +111,13 @@ if [ -n "$changed" ]; then
   selected=()
   for row in "${rows[@]}"; do
     read -r -a files <<<"$row"
-    git -C "$root" diff --quiet "$base" -- "${files[@]}" || selected+=("$row")
+    if ! git -C "$root" diff --quiet "$base" -- "${files[@]}" ||
+      [ -n "$(git -C "$root" ls-files --others --exclude-standard -- "${files[@]}")" ]; then
+      selected+=("$row")
+    fi
   done
   [ "${#selected[@]}" -gt 0 ] || { echo "No file of a row differs from $base."; exit 0; }
+  echo "Changed rows: ${selected[*]%% *}"
 fi
 
 # items: each Then and Never item of $scenario: <scenario number>.<T or N><item
@@ -131,12 +135,16 @@ items() {
 }
 
 # lines <side>: the skill's files on that side, each line with its path and
-# number.
+# number. A file that the base does not have, as a new one, gives the base no
+# line.
 lines() {
   local f
   for f in "${files[@]}"; do
-    if [ "$1" = base ]; then git -C "$root" show "$base:$f"; else cat "$root/$f"; fi |
-      awk -v f="$f" '{ print f ":" FNR ": " $0 }'
+    if [ "$1" = change ]; then
+      cat "$root/$f"
+    elif git -C "$root" cat-file -e "$base:$f" 2>/dev/null; then
+      git -C "$root" show "$base:$f"
+    fi | awk -v f="$f" '{ print f ":" FNR ": " $0 }'
   done
 }
 prompt() {
@@ -188,10 +196,7 @@ for row in "${selected[@]}"; do
   scenario=${files[0]}
   files=("${files[@]:1}")
   for f in "${files[@]}"; do
-    if [ ! -f "$root/$f" ] || ! git -C "$root" cat-file -e "$base:$f" 2>/dev/null; then
-      echo "$0: $f is not in the working tree or at $base: the row of $scenario needs a change" >&2
-      exit 2
-    fi
+    [ -f "$root/$f" ] || { echo "$0: $f is not in the working tree: the row of $scenario needs a change" >&2; exit 2; }
   done
   logs=$(mktemp -d)
   items >"$logs/items.tsv"

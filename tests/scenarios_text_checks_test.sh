@@ -10,12 +10,12 @@
 # base's answers on the working tree walk the limits one run at a time, with
 # five runs on each side and with four. With a stub claude, the eval refuses
 # a wrong call, a scenario file with no row, in this tree too, a file of a
-# row that is missing at the base or in the working tree, also in a later
-# row before any run, and runs with no answer; and it gives the base's text
-# and the working tree's to the two sides, the recorded items for the
-# recorded scenario file, and the scenario file of the row in its output.
-# With --changed, it runs only the rows with a file that differs from the
-# base, and none when no file does.
+# row that is missing in the working tree, also in a later row before any
+# run, and runs with no answer; and it gives the base's text and the working
+# tree's to the two sides, no line of a file that the base does not have, the
+# recorded items for the recorded scenario file, and the scenario file of the
+# row in its output. With --changed, it runs only the rows with a file that
+# differs from the base, also an untracked one, and none when no file does.
 
 set -eu
 
@@ -115,21 +115,28 @@ commit 'no scout.md'
 cp "$root/skills/github/scout.md" "$repo/skills/github/"
 evalsh=$repo/tests/scenarios_text_eval.sh
 take=scenarios/github/take-in.md
-refused 'skills/github/scout.md is not' "$take" 1 HEAD
 commit 'add scout.md'
 git -C "$repo" update-ref refs/remotes/origin/main HEAD~1
-refused 'skills/github/scout.md is not' "$take" 1
+# The default base is the merge base, which has no scout.md: the base side
+# gets no line of it, and the working tree's side does.
+refused 'no answer' "$take" 1
+! grep -q '^skills/github/scout\.md:' "$tmp/logs/base.prompt" || fail 'the base side has lines of a file that the base does not have'
+grep -q '^skills/github/scout\.md:' "$tmp/logs/change.prompt" || fail "the working tree's side lacks the lines of a new file"
 rm "$repo/skills/github/scout.md"
-refused 'skills/github/scout.md is not' "$take" 1 HEAD
+refused 'skills/github/scout.md is not in the working tree' "$take" 1 HEAD
 cp "$root/skills/github/scout.md" "$repo/skills/github/"
 mkdir "$repo/scenarios/none"
 cp "$fixtures/take-in.md" "$repo/scenarios/none/none.md"
 refused 'scenarios/none/none.md has no row' "$take" 1 HEAD
-# A second row after the take-in row, with a file that is missing, in place
-# of the other rows: the eval runs every row, and a fault in a later row
-# stops it before any run.
-awk -v rows="  'scenarios/" -v after="  'scenarios/github/take-in.md " -v row="  'scenarios/none/none.md skills/none/none.md'" \
-  'index($0, rows) == 1 && index($0, after) != 1 { next } 1; index($0, after) == 1 { print row }' "$root/tests/scenarios_text_eval.sh" >"$evalsh"
+# with_row <row>: the copy of the eval gets that row after the take-in row,
+# in place of the other rows.
+with_row() {
+  awk -v rows="  'scenarios/" -v after="  'scenarios/github/take-in.md " -v row="$1" \
+    'index($0, rows) == 1 && index($0, after) != 1 { next } 1; index($0, after) == 1 { print row }' "$root/tests/scenarios_text_eval.sh" >"$evalsh"
+}
+# With a file that is missing in a second row, the eval runs every row, and a
+# fault in a later row stops it before any run.
+with_row "  'scenarios/none/none.md skills/none/none.md'"
 refused 'skills/none/none.md is not' 1 HEAD
 cp "$root/tests/scenarios_text_eval.sh" "$repo/tests/"
 rm -r "$repo/scenarios/none"
@@ -144,18 +151,26 @@ grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' 
 
 # --changed runs each row with a file that differs from the base, and no
 # other: no row with no change, the take-in row alone for a change of its
-# scenario file, and each row of a shared file, so also the row of the worth
-# flow, whose files are not here.
+# scenario file, each row of a shared file, so also the row of the worth
+# flow, whose files are not here, and the row of an untracked file.
 git -C "$repo" checkout -q -- skills/github/take-in.md
 rm -f "$tmp/called"
 out=$(PATH="$tmp/bin:$PATH" "$evalsh" --changed 1 HEAD) || fail "--changed with no change exited $?" "$out"
 [ "$out" = 'No file of a row differs from HEAD.' ] || fail '--changed with no change does not say that no file differs' "$out"
 [ ! -e "$tmp/called" ] || fail '--changed with no change called claude'
+# changed_rows <scenario file>...: the rows that the last call named.
+changed_rows() { grep -qx "Changed rows: $*" "$tmp/out" || fail "--changed did not run the rows of $*" "$(cat "$tmp/out")"; }
 echo 'A line of the working tree only.' >>"$repo/$take"
 refused 'no answer' --changed 1 HEAD
-[ "$(grep '^Scenario: ' "$tmp/out")" = "Scenario: $take" ] ||
-  fail '--changed does not run the take-in row alone for a change of its scenario file' "$(cat "$tmp/out")"
+changed_rows "$take"
 git -C "$repo" checkout -q -- "$take"
 echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
-refused 'rules.md is not in the working tree or at HEAD: the row of scenarios/product/worth.md' --changed 1 HEAD
+refused 'rules.md is not in the working tree: the row of scenarios/product/worth.md' --changed 1 HEAD
+changed_rows "$take" scenarios/product/worth.md
+git -C "$repo" checkout -q -- skills/github/take-in.md
+mkdir "$repo/scenarios/none"
+cp "$fixtures/take-in.md" "$repo/scenarios/none/none.md"
+with_row "  'scenarios/none/none.md skills/github/SKILL.md'"
+refused 'no answer' --changed 1 HEAD
+changed_rows scenarios/none/none.md
 echo 'scenarios_text_checks_test: ok'
