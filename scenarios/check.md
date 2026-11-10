@@ -52,8 +52,10 @@ examples in the code fences of the README are not scenarios.
 4. **The items.** Each Then and Never item is one fact that one test can
    check: a state of the tracker or of git, a message to the person, how the
    run ends, or the order of two of these. Report an item that holds two
-   facts, and an item that no such test can check. For a When of the run,
-   report a Given that does not bring each correct run to that point.
+   facts, and an item that no such test can check. A wait and a stop are
+   the exception that the README gives: a test of the run checks only that
+   nothing more changed. For a When of the run, report a Given that does
+   not bring each correct run to that point.
 5. **The coverage.** For each scenario file, find the axes: each part of the
    state that its Givens change from one scenario to another, with each of
    its values, as for the take-in: the task open or closed; its assignee
