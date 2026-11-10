@@ -32,38 +32,11 @@ list=$(find "$projects" -name '*.jsonl' -mtime -"$days" -print0 |
 transcripts=$(grep -c . <<<"$list" || true)
 subagents=$(grep -c '/subagents/' <<<"$list" || true)
 
-# One row per event, in the order of the records: a load of a SKILL.md, a
-# compaction, a run of a script, a read of a .md file of a skill, and the
-# result of a tool call.
-# shellcheck disable=SC2016 # the $ are jq's
-program='
-def text: if type == "string" then . else [.[]? | .text? // empty] | join("") end;
-def skill: "/plugins/cache/[^/]+/(craft|kalinichenko)/[^/]+/skills/(?<skill>[a-z-]+)";
-input_filename as $f
-| if .type == "system" and .subtype == "compact_boundary" then [$f, "compact"]
-  elif .type == "user" and .isMeta == true then
-    (.message.content | text) as $t
-    | ($t | capture("^Base directory for this skill: [^\n]*" + skill + "\n")) | [$f, "load", .skill, ($t | length)]
-  elif .type == "assistant" then
-    .message.content[]? | select(.type == "tool_use") | .id as $id
-    | ((if .name == "Bash" then .input.command elif .name == "Read" then .input.file_path else null end) // "") as $c
-    | ($c | capture(skill)) as $s
-    # A script that bash runs: by its path, after a cd, or through a variable,
-    # as D=<skill>; bash $D/scripts/x.sh. Its skill is the one in its path,
-    # else the first in the call. One call can run a script and read a file.
-    | (if .name == "Bash" then $c | capture("bash +[\"\u0027]?(?<path>[^ ;&|\"\u0027]*)(scripts/|[$][A-Za-z_]+/)(?<script>[a-z-]+[.]sh)") // null else null end) as $run
-    | (if $run then [$f, "run", $id, (($run.path | capture(skill).skill) // $s.skill), $run.script] else empty end),
-      (if $c | test("[.]md\\b") then [$f, "read", $id, $s.skill] else empty end)
-  elif .type == "user" then
-    .message.content | arrays | .[] | select(.type == "tool_result")
-    | [$f, "result", .tool_use_id, (.content | text | length), (.is_error == true)]
-  else empty end
-| @tsv'
+program=$(dirname "$0")/count.jq
 
 # The files go to jq in the order of the list, so the rows of one transcript
-# come together. ponytail: a Bash call that names a skill and a .md file counts
-# all its output as that skill's read; parse the command when that misleads.
-printf "%s" "$list" | tr "\n" "\0" | xargs -0 jq -r "$program" | awk -F '\t' \
+# come together.
+printf "%s" "$list" | tr "\n" "\0" | xargs -0 jq -r -f "$program" | awk -F '\t' \
   -v days="$days" -v transcripts="$transcripts" -v subagents="$subagents" '
   $1 != file { file = $1; loaded = "" }
   $2 == "load" {
