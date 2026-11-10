@@ -9,10 +9,10 @@
 # 15 items of those four scenarios, and for no other item. Copies with the
 # base's answers on the working tree walk the limits one run at a time, with
 # five runs on each side and with four. With a stub claude, the eval refuses
-# a wrong call, a file of its list that is missing at the base or in the
-# working tree, and runs with no answer; and it gives the base's text and the
-# working tree's to the two sides, and the recorded items for the recorded
-# scenario file.
+# a wrong call, a scenario file with no row, in this tree too, a file of a
+# row that is missing at the base or in the working tree, and runs with no
+# answer; and it gives the base's text and the working tree's to the two
+# sides, and the recorded items for the recorded scenario file.
 
 set -eu
 
@@ -93,10 +93,12 @@ evalsh=$root/tests/scenarios_text_eval.sh
 refused usage: 0
 refused usage: 1 HEAD 3
 refused 'no commit' 1 no-such-ref
+# Every row of this tree, so a scenario file here with no row fails here.
 refused 'no answer' 1 HEAD
 
 # A copy of the eval in a repository with the recorded scenario file, and no
-# skills/github/scout.md at its first commit.
+# skills/github/scout.md at its first commit. Each call names the take-in
+# row, so a row of another flow does not need its files here.
 repo=$tmp/repo
 mkdir -p "$repo/tests" "$repo/scenarios/github" "$repo/skills/github"
 cp "$root/tests/scenarios_text_eval.sh" "$repo/tests/"
@@ -108,15 +110,21 @@ git -C "$repo" init -q
 commit 'no scout.md'
 cp "$root/skills/github/scout.md" "$repo/skills/github/"
 evalsh=$repo/tests/scenarios_text_eval.sh
-refused 'skills/github/scout.md is not' 1 HEAD
+take=scenarios/github/take-in.md
+refused 'skills/github/scout.md is not' "$take" 1 HEAD
 commit 'add scout.md'
 git -C "$repo" update-ref refs/remotes/origin/main HEAD~1
-refused 'skills/github/scout.md is not' 1
+refused 'skills/github/scout.md is not' "$take" 1
 rm "$repo/skills/github/scout.md"
-refused 'skills/github/scout.md is not' 1 HEAD
+refused 'skills/github/scout.md is not' "$take" 1 HEAD
 cp "$root/skills/github/scout.md" "$repo/skills/github/"
+mkdir "$repo/scenarios/none"
+cp "$fixtures/take-in.md" "$repo/scenarios/none/none.md"
+refused 'scenarios/none/none.md has no row' "$take" 1 HEAD
+rm -r "$repo/scenarios/none"
+refused 'scenarios/github/none.md has no row' scenarios/github/none.md 1 HEAD
 echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
-refused 'no answer' 1 HEAD
+refused 'no answer' "$take" 1 HEAD
 diff "$fixtures/items.tsv" "$tmp/logs/items.tsv" >/dev/null || fail 'the items of the recorded scenario file are not the recorded items'
 grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' "$tmp/logs/change.prompt" ||
   fail "the prompt of the working tree lacks the working tree's line"
