@@ -21,7 +21,7 @@ yet.
 | --- | --- |
 | [`github/take-in.md`](github/take-in.md) | The person names one task, and the run takes it into work. |
 | [`github/filing.md`](github/filing.md) | The run meets a finding outside its task, and fixes it in the pull request of the task, adds it to a task, creates a task for it, or files nothing when a task already reports it or settles it. |
-| [`github/pull-request.md`](github/pull-request.md) | The run ends the work on a task and opens its pull request. On the person's answer, it merges the pull request or leaves it open; after a merge, it corrects the open tasks that the merge makes false, and removes the workspace of the task. |
+| [`github/pull-request.md`](github/pull-request.md) | The run ends the work on a task and opens its pull request. On the person's answer, it merges the pull request or leaves it open; after a merge, it corrects the open tasks that the merge makes false, and removes the workspace of the task when the person asks for it. |
 
 ## The shape of a scenario
 
