@@ -102,9 +102,9 @@ When: the run ends the work on #91
 Then:
 - the pull request of #91 is open
 - the text of the pull request of #91 says that it does a part of #91
+- the pull request of #91 does not close #91
 - the person is asked whether to merge the pull request of #91
 Never:
-- the pull request of #91 closes #91
 - #91 closes
 
 ## A pull request with no workspace of its task
