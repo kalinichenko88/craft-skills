@@ -9,16 +9,18 @@ false, and removes the workspace of the task when the person asked for it.
 Not covered yet:
 
 - a push that fails, and a branch that has an open pull request already;
-- a pull request that closes a task that its text does not close on purpose,
-  by a closing word or by a link;
+- a pull request that, when it opens, closes a task that its text does not
+  close on purpose, by a closing word or by a link;
 - a task that the pull request closes and that another person is assigned
   to;
 - the language of the title and the text of the pull request, and the text
   of the commit that the merge adds;
 - the answer do not merge, and a merge that fails;
 - the merge of a branch that no workspace of its task has;
-- a duplicate that waits for a reproduction of the failure, after the
-  merge;
+- a duplicate that closes only after a reproduction of the failure, after
+  the merge;
+- a task whose text holds an added finding that the work does not fix,
+  when the person said nothing of it;
 - in the corrections after a merge: a title that the merge makes false, a
   number that it changes, a place in the code that it removes, a task that
   holds two added findings, a task whose premise it removes, a question that
@@ -67,7 +69,7 @@ Given:
   tab as a field separator
 - the run took #12 along when it took #91 into work
 - the work on #91 changes 40 lines of `src/parser/read.ts` on
-  `fix/91-parse-rows`, and fixes the bug of #12 too
+  `fix/91-parse-rows`, and fixes the defect of #12 too
 - the check passes on `fix/91-parse-rows`
 When: the run ends the work on #91
 Then:
@@ -87,8 +89,8 @@ Given:
   finding, that `parseRows` drops a line that holds only spaces
 - branch `fix/91-parse-rows` is linked to #91, and the workspace of #91 is
   on it
-- the person told the run that the added finding of #91 waits for another
-  pull request
+- the person told the run that the added finding of #91 is left for
+  another pull request
 - the work on #91 fixes its own problem on `fix/91-parse-rows`, and does not
   fix its added finding
 - the check passes on `fix/91-parse-rows`
@@ -177,7 +179,7 @@ Given:
   that closes it; its text holds its own problem, that `addTax` in
   `src/report/total.ts` takes a fixed rate in place of the rate of the
   order, and one added finding, that `addTax` adds the tax twice
-- #96 fixes the bug that `addTax` adds the tax twice, and does not change
+- #96 fixes the defect that `addTax` adds the tax twice, and does not change
   the rate that `addTax` takes
 - the text of #96 says that #96 does a part of #15, and #96 does not close
   #15

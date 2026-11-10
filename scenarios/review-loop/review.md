@@ -2,14 +2,14 @@
 
 Reviews read the change on a branch in rounds: when the run ends the work on
 a task, when the person asks for a review, or when the person answers the
-question that an earlier run asked after a stop at round 3. The run fixes
+question that an earlier run asked after round 3. The run fixes
 what the reviews report, and tells the person what they found. When the run
 took a task into work, the run then opens the pull request of the task and
 asks whether to merge it, in the same run.
 
 Not covered yet:
 
-- the question whether a new capability is worth it, on a branch of another
+- the question whether a feature is worth it, on a branch of another
   person, or on the person's own branch when its task holds no worth report
   (`product/worth.md` covers the rest);
 - the review for code that is not necessary, and the walk through a screen
@@ -24,6 +24,9 @@ Not covered yet:
 - a change to the text of a skill, a prompt or a spec, alone or with code;
 - a change to documents only after which the person asks for more reviews;
 - more rounds that the person asks for, whose third round reports a defect;
+- a defect in round 1 and in round 2, and none in round 3;
+- the answers merge and remove the workspace, and do not merge, after
+  round 3;
 - a push that fails;
 - the answer to an open question on business logic;
 - the person's request for a pull request with no task;
@@ -37,14 +40,14 @@ Given:
   on it
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
   on `fix/91-parse-rows`, and the tests of `parseRows`
-- round 1 reports no defect, and two other things: a comment of `parseRows`
-  gives a wrong count of fields, and the name of a test does not say what it
-  tests
+- round 1 reports no defect, and two other things: the docstring of
+  `parseRows` gives a wrong count of fields, and the name of a test does not
+  say what it tests
 - the check passes on `fix/91-parse-rows`
 When: the run ends the work on #91
 Then:
-- `fix/91-parse-rows` has one commit that fixes the comment and the name of
-  the test
+- `fix/91-parse-rows` has one commit that fixes the docstring and the name
+  of the test
 - the security review reads the branch after that commit
 - the pull request of #91 is open
 - the text of the pull request of #91 names the level of round 1
@@ -57,8 +60,8 @@ Then:
 - the person is asked whether to merge the pull request of #91
 - the run waits
 Never:
-- a round reads only the commit that fixes the comment and the name of the
-  test
+- a round reads only the commit that fixes the docstring and the name of
+  the test
 - a last pass runs
 - the run waits before the pull request of #91 opens
 
@@ -77,7 +80,7 @@ When: the run ends the work on #91
 Then:
 - `fix/91-parse-rows` has one commit that fixes that defect
 - round 2 reads only that commit
-- after round 2, one last pass reads the whole branch
+- a last pass runs after round 2
 - the text of the pull request of #91 names two rounds
 - the text of the pull request of #91 names the last pass
 - the person is asked whether to merge the pull request of #91
@@ -140,15 +143,15 @@ Never:
 - a last pass runs
 - the pull request of #91 is merged
 
-## The answer merge only after a stop at round 3
+## The answer merge only after round 3
 
 Given:
 - task #91 is open, assigned to the person
 - the workspace of #91 is on branch `fix/91-parse-rows`
 - pull request #96 of the person is open, merges `fix/91-parse-rows` into
   the default branch, and closes #91
-- an earlier run stopped the rounds on #96 after round 3, and round 3
-  reported a defect that is not fixed: `parseRows` drops an empty line
+- an earlier run ended the rounds on #96 at round 3, and round 3 reported
+  a defect that is not fixed: `parseRows` drops an empty line
   inside quotes
 - the text of #96 names that defect as not fixed
 - the repository has the labels `bug` and `docs`
@@ -167,15 +170,15 @@ Then:
 Never:
 - a commit is added to `fix/91-parse-rows` after the answer
 
-## The answer more rounds after a stop at round 3
+## The answer more rounds after round 3
 
 Given:
 - task #91 is open, assigned to the person
 - the workspace of #91 is on branch `fix/91-parse-rows`
 - pull request #96 of the person is open, merges `fix/91-parse-rows` into
   the default branch, and closes #91
-- an earlier run stopped the rounds on #96 after round 3, and round 3
-  reported a defect that is not fixed: `parseRows` drops an empty line
+- an earlier run ended the rounds on #96 at round 3, and round 3 reported
+  a defect that is not fixed: `parseRows` drops an empty line
   inside quotes
 - the check passes on `fix/91-parse-rows`
 - the earlier run asked whether to merge #96, with four answers: merge and

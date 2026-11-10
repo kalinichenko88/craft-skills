@@ -46,7 +46,8 @@ few of its sentences.
   files, and `scripts/`.
 - `scenarios/` — what the flows do, as seen from outside, with no word of an
   agent host (ADR 0003): `scenarios/<skill>/<flow>.md`, the shape in its
-  `README.md`, and the terms in `TERMS.md`. craft is one implementation of
+  `README.md`, the terms in `TERMS.md`, and in `check.md` the prompt that
+  reads the scenarios against each other. craft is one implementation of
   them. The pictures of `docs/<skill>/` and the scenario sections of a
   skill's `README.md` show the same flows to a reader; where they differ,
   the file in `scenarios/` holds.

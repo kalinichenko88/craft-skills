@@ -23,7 +23,7 @@ yet.
 | [`github/filing.md`](github/filing.md) | The run meets a finding outside its task, and fixes it in the pull request of the task, adds it to a task, creates a task for it, or files nothing when a task already reports it or settles it. |
 | [`github/pull-request.md`](github/pull-request.md) | The run ends the work on a task and opens its pull request. On the person's answer, it merges the pull request or leaves it open; after a merge, it corrects the open tasks that the merge makes false, and removes the workspace of the task when the person asks for it. |
 | [`product/worth.md`](product/worth.md) | The person asks for a feature, or a review shows that a feature gives its users nothing, and the run gives the person a worth report on it: before the work, or after that review. On the person's answer, it writes the product decision, puts the task off to `Later`, or closes it as not planned. |
-| [`review-loop/review.md`](review-loop/review.md) | Reviews read the change on a branch in rounds, when the run ends the work on a task, when the person asks for a review, or when the person answers the question after a stop at round 3. For a task, the run then opens the pull request and asks whether to merge it, in the same run. |
+| [`review-loop/review.md`](review-loop/review.md) | Reviews read the change on a branch in rounds, when the run ends the work on a task, when the person asks for a review, or when the person answers the question after round 3. For a task, the run then opens the pull request and asks whether to merge it, in the same run. |
 
 ## The shape of a scenario
 
@@ -58,7 +58,7 @@ Never:
     as `When: the run meets a finding in src/parser/read.ts`. The Given
     then names what the run works on, as task #91, and what the run did
     before that point. It holds a state that brings each correct run to
-    that point: a check cannot make the run get there.
+    that point: a test cannot make the run get there.
 
   Take a When of the run only when nothing that the person writes starts
   that point. An answer to a question of an earlier run is a When of the
@@ -84,18 +84,27 @@ Never:
 - a task is created for that function
 ```
 
-Each Then and Never item is one fact, so that one check can test it: a
+Each Then and Never item is one fact, so that one test can check it: a
 state of the tracker, a state of git, a message to the person, how the run
 ends, or the order of two of these. A message is checked by what it says,
 not by its words. Each item that names a message says in what order it
 comes, when the order matters.
 
-A wait and a stop are the exception to one check for each item. They end a
+A wait and a stop are the exception to one test for each item. They end a
 run in the same state, and differ only in what the next text that the person
-writes does (`TERMS.md`). So a check of the run tests only that nothing more
+writes does (`TERMS.md`). So a test of the run checks only that nothing more
 changed. The difference shows in the next run: in a scenario whose Given
 holds the earlier run, as the scenarios of an answer to a question do.
 
 A scenario can build on another one, by its heading: "a branch for #91
 exists, as in A free task" takes one item, and "the outcomes of A free task
 hold for #91" takes all its Then items.
+
+## Reading the scenarios against each other
+
+[`check.md`](check.md) is a prompt for a model. It reads the scenarios of
+all the files one pair at a time, and reports two outcomes for one state, a
+word in two meanings, an item that one test cannot check, and a state that
+no scenario covers, with a table of that coverage. It changes no file: a
+person reads each finding and decides on it. One run finds a part of the
+conflicts, not all of them.

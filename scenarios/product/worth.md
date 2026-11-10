@@ -3,17 +3,18 @@
 The person writes a text that asks for a feature, or a review of the work on
 a task reports that the feature gives its users nothing. The run gives the
 person a worth report on the feature: before the work, or after that review.
-A verdict other than do it is a question, and the work waits for the answer.
-On the answer, the run writes the product decision, puts the task off to
-`Later`, or closes the task as not planned. A feature that has a worth report
-gets no other one, except after a review that shows that it gives its users
-nothing.
+A verdict other than do it is a question, and the work does not start
+before the answer. On the answer, the run writes the product decision, puts
+the task off to `Later`, or closes the task as not planned. A feature that
+has a worth report gets no other one, except after a review that shows that
+it gives its users nothing.
 
 Not covered yet:
 
-- a bug fix that changes business logic, and the changes that get no worth
-  report: a bug fix that changes no business logic, a change to documents
-  that are not the text of a skill or a prompt, and a dependency bump;
+- a fix of a defect that changes business logic, and the changes that get
+  no worth report: a fix of a defect that changes no business logic, a
+  change to documents that are not the text of a skill or a prompt, and a
+  dependency bump;
 - the review of the person's own branch of a feature that has no worth
   report, and the review of a branch or a pull request of another person;
 - a feature whose shape the run asks about before its worth report, a
@@ -26,10 +27,15 @@ Not covered yet:
   to revisit, and a task that has to go around it;
 - the product decision that the run writes after a deferral or a close;
 - a run with no person to answer;
-- a deferral of a task that an open task outside `Later` waits on;
+- a deferral of a task that an open task outside `Later` depends on;
 - the answer no to a deferral or a close, and the answer to do the feature as
   the person asked;
-- a task that records a decision with its reasons, and holds no worth report.
+- a task that records a decision with its reasons, and holds no worth
+  report;
+- a task that asks for a feature and holds no worth report, when the person
+  writes its id;
+- a task that holds a worth report with the verdict do it, on a feature
+  that `docs/PRODUCT.md` rules out.
 
 ## A feature that the person asks for
 
