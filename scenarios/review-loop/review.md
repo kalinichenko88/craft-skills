@@ -201,10 +201,10 @@ Given:
 - the check passes on `fix/91-split-default`
 When: the run ends the work on #91
 Then:
-- round 1 reads at level medium
+- the run gives round 1 level medium
 - the person is told the reason for that level in one sentence
 Never:
-- a round reads at level low
+- the run gives a round level low
 
 ## A fix to the expiry of a session token
 
@@ -219,10 +219,10 @@ Given:
 - the check passes on `fix/91-token-expiry`
 When: the run ends the work on #91
 Then:
-- round 1 reads at level xhigh
+- the run gives round 1 level xhigh
 - the person is told the reason for that level in one sentence
 Never:
-- a round reads at level low, medium or high
+- the run gives a round level low, medium or high
 
 ## A change to documents only
 
@@ -265,7 +265,7 @@ Then:
 - the security review reads the branch after round 1
 - `fix/91-read-file` has one commit that fixes that hole
 - a round reads only that commit
-- that round reads at level xhigh
+- the run gives that round level xhigh
 - the text of the pull request of #91 names that hole as fixed
 - the pull request of #91 opens after that round
 - the person is asked whether to merge the pull request of #91
