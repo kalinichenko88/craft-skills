@@ -35,7 +35,7 @@ checks() {
 }
 
 report=$("$eval" --check "$fixtures")
-out=$(checks "$fixtures")
+out=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$report")
 [ "$(grep '^pass' <<<"$report")" = 'pass^1 busy: PASS, 1 of 1 runs pass
 pass^1 down: PASS, 1 of 1 runs pass
 pass^1 dup: FAIL, 0 of 1 runs pass
@@ -260,10 +260,11 @@ mkdir "$tmp/stub"
 printf '#!/usr/bin/env bash\necho "$*" >>%q\necho %q\n' "$tmp/stub.args" \
   '{"type":"result","subtype":"success","total_cost_usd":1.5}' >"$tmp/stub/claude"
 chmod +x "$tmp/stub/claude"
-got=$(PATH="$tmp/stub:$PATH" "$eval" --runs 3 --model haiku --max-cost 9 other down)
+got=$(PATH="$tmp/stub:$PATH" "$eval" --runs 3 --model haiku --max-cost 9 other down) ||
+  fail 'the eval with a stub claude exits with an error' "$got"
 rm -rf "$(sed -n 's/^runs: //p' <<<"$got")"
 [ "$(grep -c -- '--model haiku ' "$tmp/stub.args")" = 4 ] || fail 'the runs do not take --model' "$(cat "$tmp/stub.args")"
-grep -qxF "stopped before run 3 of 3: \$6.00 spent, and a run can cost \$4.00 more, past the cap of \$9" <<<"$got" ||
+grep -qxF "stopped before round 3 of 3: \$6.00 spent, and a round can cost \$4.00 more, past the cap of \$9" <<<"$got" ||
   fail 'the eval does not stop before its cap' "$got"
 grep -qxF "cost: \$6.00" <<<"$got" || fail 'the eval does not print the cost of the pass' "$got"
 [ "$(grep '^pass' <<<"$got")" = 'pass^3 other: FAIL, 0 of 2 runs pass

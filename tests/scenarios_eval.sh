@@ -23,9 +23,10 @@
 # case is not measured.
 #
 # Each run costs tokens, so the eval is not part of `make check`.
-# --max-budget-usd caps each run, so a round can cost the sum of those caps.
-# With --max-cost, the eval stops before a round that could take the cost of
-# the pass past it. The report ends with the cost of the pass. A failing check
+# --max-budget-usd caps each run, so a round can cost the sum of those caps,
+# and a little more: claude -p checks its cap after each turn. With
+# --max-cost, the eval stops before a round that could take the cost of the
+# pass past it. The report ends with the cost of the pass. A failing check
 # is a result, not an error: it exits 0. The run folder keeps a folder for
 # each round, run1 and on, with each case's log, events, tracker and branches.
 #
@@ -241,9 +242,9 @@ score() {
   shift
   for d; do
     i=$((i + 1))
-    echo "run $i of $k"
+    echo "round $i of $k"
     for c in $cases; do
-      [ -f "$d/$c.events" ] || { echo "$c: no run"; continue; }
+      [ -f "$d/$c.events" ] || { echo "$c: no run: $d has no $c.events, as when its setup fails"; continue; }
       [ ! -f "$d/$c.jsonl" ] || printf '%s: %s\n' "$c" \
         "$(jq -Rr 'fromjson? | select(.type == "result") | "\(.subtype), $\(.total_cost_usd)"' "$d/$c.jsonl")"
       lines=$(check "$d/$c" "$c")
@@ -313,7 +314,7 @@ runs=$(mktemp -d)
 rounds=() stop=
 for i in $(seq "$k"); do
   if [ -n "$cap" ] && awk -v s="$(spent)" -v n="$need" -v c="$cap" 'BEGIN { exit !(s + n > c) }'; then
-    stop=$(printf 'stopped before run %s of %s: $%s spent, and a run can cost $%.2f more, past the cap of $%s' \
+    stop=$(printf 'stopped before round %s of %s: $%s spent, and a round can cost $%.2f more, past the cap of $%s' \
       "$i" "$k" "$(spent)" "$need" "$cap")
     break
   fi
