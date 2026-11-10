@@ -34,6 +34,14 @@ column gives the name that a person who reads Russian sees.
 | the work | What a task asks for: the changes to the code that do it, in the workspace or somewhere else. Checking the task, assigning it and making its branch are not the work. | работа | implementation |
 | finding | A defect, or a change worth making, that the run meets outside its task: in code that the task does not ask to change and that the work did not write. | находка | issue |
 | added finding | A finding that a run wrote into the text of an open task on the same code, after the problem of the task. The task then closes only when its own problem and each added finding are fixed. | добавленная находка | appendix |
+| review | A read of a change for defects by a reader that did not write it: of the whole branch against the default branch, or of one commit. It reports what it finds, and the run checks each report against the code before it acts on it. | ревью | audit |
+| level | How deep a review reads, from the least deep: low, medium, high, xhigh. The run picks it by the weight of the change. | уровень | depth, effort |
+| round | One review in the series that the run starts on a change. Round 1 reads the whole branch; each later round reads only the commit that fixes what the round before reported. | раунд | iteration |
+| defect | A report of a review that holds against the code, of one of two kinds: a wrong result, a crash or a broken contract, on an input or a state that the real use of the repository reaches; or data loss or a security hole, on any input. | дефект | |
+| nit | A report of a review that holds and is not a defect: a missing or a redundant test, a comment, a name, wording. | мелочь | minor |
+| last pass | One more review of the whole branch, after the rounds, when there was more than one round. | последний проход | final review |
+| security review | A review of the final branch against the default branch for security holes only. It comes after the rounds and the last pass. | security review | |
+| a change to documents only | A change in which each changed file is text for a person to read, as Markdown, and no file is code. | изменение только документов | |
 | the run | The handling of one text that the person writes, until it waits or stops. The run that takes a task goes on into the work. | прогон | session, turn |
 | message | One text that the run gives the person. The person reads the messages of a run in their order. | сообщение | reply, output |
 | gist | What a message tells about a task: its id, its title as the task has it, and two or three sentences in the person's language on what is wanted and what must be true for the work to be done. | суть | summary |
