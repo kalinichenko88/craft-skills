@@ -1,4 +1,4 @@
-# 0007 CI runs the text eval on the scenario rows that a pull request changes
+# 0007 CI runs the text eval on each scenario row whose skill files a pull request changes
 
 - Status: accepted
 - Date: 2026-11-11
@@ -62,7 +62,7 @@ scenario file with no row makes it red too, as the eval stops on it. A pull
 request that changes no skill file of a row costs a runner and no token.
 
 Bad: nothing makes the merge wait for the job: `main` has no required check,
-and the merge of `craft:github` reads no check. The repository keeps a
+and the merge of `craft:github` reads no check (#309). The repository keeps a
 secret. A token that expires or is missing, or a spent limit of the
 subscription, makes the job fail; it prints the first output of the CLI.
 Each person with write access to the repository can read the token, with a

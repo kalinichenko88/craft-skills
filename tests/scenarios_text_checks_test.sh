@@ -74,9 +74,10 @@ set_none "$tmp/four/base1.txt" 1.T1
 set_none "$tmp/four/base2.txt" 1.T1
 expect four "$gist (no line in 3 of 4 runs, on the base in 2 of 4)" 'an item with no line in 3 of 4 runs, and in 2 of 4 on the base, is not lost'
 
-# A stub claude first on PATH answers nothing, and records each call.
+# A stub claude first on PATH answers with an error, as the CLI with no login
+# does, and records each call.
 mkdir "$tmp/bin"
-printf '#!/usr/bin/env bash\ntouch %q\ncat >/dev/null\necho %q\n' "$tmp/called" '{"result": ""}' >"$tmp/bin/claude"
+printf '#!/usr/bin/env bash\ntouch %q\ncat >/dev/null\necho %q\n' "$tmp/called" '{"is_error": true, "usage": {}, "result": "Not logged in"}' >"$tmp/bin/claude"
 chmod +x "$tmp/bin/claude"
 # refused <message> <argument>...: the eval exits 2 with <message> on stderr,
 # and calls claude only when the refusal names no answer. The runs folder that
@@ -181,5 +182,5 @@ echo 'A line of an untracked file.' >"$repo/skills/github/new.md"
 with_row "  'scenarios/none/none.md skills/github/new.md'"
 refused 'no answer' --changed 1 HEAD
 changed_rows scenarios/none/none.md
-grep -qF 'the first run printed: {"result": ""}' "$tmp/err" || fail 'a run with no answer does not print what the first run printed' "$(cat "$tmp/err")"
+grep -qxF "$evalsh: the first run printed: Not logged in" "$tmp/err" || fail 'a run with no answer does not print the reason of the first run' "$(cat "$tmp/err")"
 echo 'scenarios_text_checks_test: ok'

@@ -183,9 +183,8 @@ has a row in the eval: the scenario file and the files of the skill that its
 flow reads, as the four files that a take-in reads. The eval runs each row,
 or the row of the scenario file that its first argument names, or with
 `--changed` each row with a skill file that differs from the base, also an
-untracked one. Each run is
-one Haiku session with no tool. It gets the scenario file and the files of
-the row, and gives for each Then and Never item the line that produces it,
+untracked one. Each run is one Haiku session with no tool. It gets the
+scenario file and the files of the row, and gives for each Then and Never item the line that produces it,
 or none. The eval makes five runs on the text at the merge base with
 `origin/main` and five on the working tree, and gives LOST for each item that
 most runs on the working tree give no line for and at most half of the runs

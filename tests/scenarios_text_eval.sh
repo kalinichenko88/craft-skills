@@ -8,8 +8,9 @@
 # --changed each row with a skill file that differs between the base and the
 # working tree, also an untracked one. Both sides read the scenario file of the
 # working tree, so a change of it alone gives no LOST. CI runs the eval with
-# --changed on each pull request (ADR 0007). A scenario file with no row stops the eval before a run, and so
-# does a file of a row that is missing in the working tree.
+# --changed on each pull request (ADR 0007). A scenario file with no row stops
+# the eval before a run, and so does a file of a row that is missing in the
+# working tree.
 #
 # Each run is one haiku session of `claude -p` with no tool. It gets the
 # scenario file, its Then and Never items with an id, and the files of the
@@ -211,6 +212,7 @@ for i in "${!folders[@]}"; do
   wait
   echo "Scenario: ${selected[$i]%% *}"
   echo "Runs: $logs"
-  # With no answer, the output of the CLI tells why, as a token that expired.
-  check "$logs" || { echo "$0: the first run printed: $(head -c 300 "$logs/change1.json")" >&2; exit 2; }
+  # With no answer, the first run tells why, as a token that expired: the CLI
+  # puts the reason in .result.
+  check "$logs" || { echo "$0: the first run printed: $(jq -r '.result // empty' "$logs/change1.json" 2>/dev/null || head -c 300 "$logs/change1.json")" >&2; exit 2; }
 done
