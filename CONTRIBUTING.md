@@ -162,18 +162,25 @@ the citations job of `skills/github/scout.md` or to *Finishing*.
 `tests/scenarios_eval.sh` runs craft on five scenarios of
 `scenarios/github/take-in.md`: a free task, a task that another person is
 assigned to, a tracker that does not answer, a free duplicate and a busy
-duplicate. Each case is one Opus run of
+duplicate. Each run of a case is one run of
 `claude -p` with this checkout as the only plugin, a fake `gh` first on
 `PATH` that reads and writes a JSON tracker (`tests/fake_gh.sh`), and a
 workspace with a local `origin`. It checks each Then and Never item of the
 five scenarios against
 the tracker, the branches, the workspace, and the session's messages and
 tool calls, and prints PASS, FAIL or SKIP for each: SKIP where the log holds
-a message only as thinking (#206). Run it after a change to
+a message only as thinking (#206). `--runs k` runs each case k times, and a
+case passes pass^k only when no item fails in any of its k runs. `--model`
+sets the model, Opus by default. The report ends with the cost of the pass,
+and `--max-cost` stops the eval before a round of the cases that could take
+the cost past it. Run it after a change to
 `skills/github/take-in.md` or to the scripts of the github skill.
 `tests/scenarios_checks_test.sh` runs its checks in `make check`, on one
 recorded run of each case in `tests/fixtures/scenarios/`, and on copies that
-change the verdict of one item.
+change the verdict of one item. It counts pass^2 over the recorded runs and a
+copy, runs the eval with a stub `claude` to check `--model` and the stop
+before `--max-cost`, and fails for a scenario of take-in that has no case and
+is not in the eval's `--not-run` list.
 `tests/scenarios_text_eval.sh` reads the text of a skill against the
 scenario file of its flow, with no live run. Each file in `scenarios/*/*.md`
 has a row in the eval: the scenario file and the files of the skill that its

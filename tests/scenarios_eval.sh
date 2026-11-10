@@ -2,9 +2,10 @@
 # Probes a conformance run of craft against scenarios/github/take-in.md, for
 # #231. Each case builds a tracker as JSON and a workspace with a bare origin,
 # puts a gh first on PATH that runs tests/fake_gh.sh over that JSON, and runs one
-# opus session of `claude -p` on the person's message. Then it checks the Then
-# and Never items of the case's scenario against the end state of the JSON,
-# the branches of the origin, and the session's messages and tool calls:
+# session of `claude -p` on the person's message, on the model of --model,
+# opus by default. Then it checks the Then and Never items of the case's
+# scenario against the end state of the JSON, the branches of the origin, and
+# the session's messages and tool calls:
 #
 #   free   A free task
 #   other  A task that another person is assigned to
@@ -13,24 +14,48 @@
 #   busy   A busy duplicate
 #
 # The session loads this checkout as the plugin, with --setting-sources
-# project, so no other plugin and no setting of this machine reaches it. Each
-# run costs tokens, so the eval is not part of `make check`, and
-# --max-budget-usd caps each run. A failing check is a result, not an error:
-# it exits 0. The run folder keeps each case's log, events, tracker and
-# branches.
+# project, so no other plugin and no setting of this machine reaches it.
 #
-# With --check, it runs only the checks, on the folder of an earlier run.
-# `make check` runs them so on tests/fixtures/scenarios, through
-# tests/scenarios_checks_test.sh.
+# With --runs k, each case runs k times, one round of the cases after
+# another. As tau-bench scores an agent, a case passes pass^k only when each
+# of its k runs passes it. A run passes a case when no item of the case gives
+# FAIL: a SKIP gives no verdict. With fewer than k runs and no failed one, the
+# case is not measured.
 #
-# Usage: tests/scenarios_eval.sh [case ...]
-#        tests/scenarios_eval.sh --check <runs folder>
+# Each run costs tokens, so the eval is not part of `make check`.
+# --max-budget-usd caps each run, so a round can cost the sum of those caps.
+# With --max-cost, the eval stops before a round that could take the cost of
+# the pass past it. The report ends with the cost of the pass. A failing check
+# is a result, not an error: it exits 0. The run folder keeps a folder for
+# each round, run1 and on, with each case's log, events, tracker and branches.
+#
+# With --check, it runs only the checks and the pass^k count, on the round
+# folders of an earlier run, one folder for each run. `make check` runs them so
+# on tests/fixtures/scenarios, through tests/scenarios_checks_test.sh. With
+# --not-run, it prints the scenarios of take-in that no case runs yet.
+#
+# Usage: tests/scenarios_eval.sh [--runs k] [--model name] [--max-cost usd] [case ...]
+#        tests/scenarios_eval.sh --check <round folder> ...
+#        tests/scenarios_eval.sh --not-run
 
 # shellcheck disable=SC2016 # Markdown's backticks, and jq and checks run later
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
-usage() { echo "usage: $0 [free|other|down|dup|busy ...] | --check <runs folder>" >&2; exit 2; }
+usage() { echo "usage: $0 [--runs k] [--model name] [--max-cost usd] [case ...] | --check <round folder> ... | --not-run" >&2; exit 2; }
+# The scenarios of take-in that no case runs yet (#237, #239).
+# tests/scenarios_checks_test.sh fails for a heading of the file that is
+# neither a case nor in this list, and for a name here that is no heading.
+not_run="A closed task
+A task with another person's pull request
+A task with the person's pull request
+A task assigned to the person, with no branch
+The work on the person's task continues here
+The work on the person's task runs somewhere else
+A linked branch with no assignee
+The person's work is in the workspace
+The person's branch moved on somewhere else
+A task of another repository"
 
 title='README: the install command says npm instal'
 body='The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.'
@@ -116,7 +141,7 @@ record() {
 # "The run waits" and "the run stops" have the same check, "no change": one
 # run cannot show the difference (scenarios/README.md), so a run that stops
 # passes "the run waits".
-# shellcheck disable=SC2034 # the items read the values through eval
+# shellcheck disable=SC2034,SC2329 # the items read the values and call issue, at and told through eval
 check() {
   local d=$1 s first_write named nline gist titled think assignees linked branch same last
   # A write: an edit of a file, a commit, a branch, a worktree, or a write to
@@ -208,37 +233,96 @@ check() {
   esac
 }
 
+# score <k> <round folder>...: for each round, the result and the cost of
+# each case's run when its log is there, and the lines of check; then the
+# pass^k line of each case in $cases.
+score() {
+  local k=$1 i=0 d c lines tally=
+  shift
+  for d; do
+    i=$((i + 1))
+    echo "run $i of $k"
+    for c in $cases; do
+      [ -f "$d/$c.events" ] || { echo "$c: no run"; continue; }
+      [ ! -f "$d/$c.jsonl" ] || printf '%s: %s\n' "$c" \
+        "$(jq -Rr 'fromjson? | select(.type == "result") | "\(.subtype), $\(.total_cost_usd)"' "$d/$c.jsonl")"
+      lines=$(check "$d/$c" "$c")
+      printf '%s\n' "$lines"
+      if grep -q '^FAIL ' <<<"$lines"; then tally="$tally$c 0"$'\n'; else tally="$tally$c 1"$'\n'; fi
+    done
+  done
+  for c in $cases; do
+    printf '%s' "$tally" | awk -v c="$c" -v k="$k" '$1 == c { n++; p += $2 } END {
+      if (p < n) printf "pass^%d %s: FAIL, %d of %d runs pass\n", k, c, p, n
+      else if (n < k) printf "pass^%d %s: not measured, %d run%s of %d\n", k, c, n, (n == 1 ? "" : "s"), k
+      else printf "pass^%d %s: PASS, %d of %d runs pass\n", k, c, p, n }'
+  done
+}
+
+[ "${1:-}" != --not-run ] || { printf '%s\n' "$not_run"; exit 0; }
 if [ "${1:-}" = --check ]; then
-  [ $# -eq 2 ] && [ -d "$2" ] || usage
-  for f in "$2"/*.events; do check "${f%.events}" "$(basename "$f" .events)"; done
+  shift
+  [ $# -ge 1 ] || usage
+  for d; do [ -d "$d" ] || usage; done
+  cases=$(for d; do for f in "$d"/*.events; do [ ! -e "$f" ] || basename "$f" .events; done; done | sort -u)
+  [ -n "$cases" ] || usage
+  score $# "$@"
   exit 0
 fi
+k=1 model=opus cap=
+while [ $# -ge 2 ]; do
+  case $1 in
+    --runs) k=$2 ;;
+    --model) model=$2 ;;
+    --max-cost) cap=$2 ;;
+    *) break ;;
+  esac
+  shift 2
+done
+case $k in '' | *[!0-9]* | 0*) usage ;; esac
+case $cap in *[!0-9.]* | *.*.* | .) usage ;; esac
+[ -n "$model" ] || usage
 cases=${*:-free other down dup busy}
 for c in $cases; do case $c in free | other | down | dup | busy) ;; *) usage ;; esac; done
 command -v claude >/dev/null || { echo "$0: no claude command" >&2; exit 2; }
 command -v jq >/dev/null || { echo "$0: no jq command" >&2; exit 2; }
 
-# run <case>: a free task goes on into the work after the take-in, so its
-# cap is higher.
+# budget <case>: the cap of one run. A free task goes on into the work after
+# the take-in, so its cap is higher.
+budget() { case $1 in other | down) echo 2 ;; *) echo 4 ;; esac; }
+
+# run <round folder> <case>
 run() {
-  local w=$runs/$1 budget=4
-  [ "$1" != other ] && [ "$1" != down ] || budget=2
-  setup "$w" "$1"
-  (cd "$w" && PATH="$w.bin:$PATH" claude -p --model opus --setting-sources project \
+  local w=$1/$2
+  setup "$w" "$2"
+  (cd "$w" && PATH="$w.bin:$PATH" claude -p --model "$model" --setting-sources project \
     --settings '{"language":"English"}' --plugin-dir "$root" --output-format stream-json --verbose \
-    --max-budget-usd "$budget" --dangerously-skip-permissions '#91') >"$w.jsonl" 2>&1 || true
+    --max-budget-usd "$(budget "$2")" --dangerously-skip-permissions '#91') >"$w.jsonl" 2>&1 || true
   record "$w"
 }
 
+# spent: the cost of the runs so far, from the result line of each log.
+spent() {
+  cat "$runs"/run*/*.jsonl 2>/dev/null | jq -Rr 'fromjson? | select(.type == "result") | .total_cost_usd' |
+    awk '{ s += $1 } END { printf "%.2f\n", s }'
+}
+
+need=0
+for c in $cases; do need=$((need + $(budget "$c"))); done
 runs=$(mktemp -d)
-for c in $cases; do run "$c" & done
-wait
-for c in $cases; do
-  if [ -f "$runs/$c.events" ]; then
-    printf '%s: %s\n' "$c" "$(jq -r 'select(.type == "result") | "\(.subtype), $\(.total_cost_usd)"' "$runs/$c.jsonl")"
-    check "$runs/$c" "$c"
-  else
-    echo "$c: no run; its setup failed"
+rounds=() stop=
+for i in $(seq "$k"); do
+  if [ -n "$cap" ] && awk -v s="$(spent)" -v n="$need" -v c="$cap" 'BEGIN { exit !(s + n > c) }'; then
+    stop=$(printf 'stopped before run %s of %s: $%s spent, and a run can cost $%.2f more, past the cap of $%s' \
+      "$i" "$k" "$(spent)" "$need" "$cap")
+    break
   fi
+  mkdir "$runs/run$i"
+  rounds+=("$runs/run$i")
+  for c in $cases; do run "$runs/run$i" "$c" & done
+  wait
 done
+score "$k" ${rounds[@]+"${rounds[@]}"}
+[ -z "$stop" ] || echo "$stop"
+echo "cost: \$$(spent)"
 echo "runs: $runs"
