@@ -16,6 +16,7 @@ column gives the name that a person who reads Russian sees.
 | label | A name from the list of labels of the repository, as `bug`. A task carries labels from that list. | метка | tag |
 | link | The web address of a task, which names its repository and its id. | ссылка | URL |
 | tracker | The place where the tasks of one repository live. | трекер | board, backlog |
+| milestone | A named group of tasks in the tracker, as `M1`. A task is in one milestone or in none. The milestone `Later` holds the tasks that are put off. | веха | sprint |
 | repository | The git repository of the code, with its default branch, on GitHub. | репозиторий | repo, project |
 | default branch | The branch that the work of the repository merges into. | основная ветка | main, master |
 | branch | A git branch of the repository. | ветка | |
@@ -26,6 +27,7 @@ column gives the name that a person who reads Russian sees.
 | assignee | An account that a task or a pull request names as the one who does it. A task or a pull request is assigned to the person when the person's account is an assignee. | исполнитель | owner |
 | busy | A task with an assignee, a linked branch or an open pull request that closes it. | занята | taken, claimed |
 | duplicate | A task that reports the same thing as another task, about the same place, in the same words or not. When it closes, it closes as a duplicate of the other task, and the other task stays open or closed, as it was. | дубликат | copy |
+| closed as not planned | The state of a task that closed because its work will not be done, not because the work is done. | закрыта как незапланированная | rejected, wontfix |
 | comment | A text added to a task after its own text. | комментарий | note, reply |
 | workspace | The place where the run reads and changes the code: a copy of the repository with its branches. | рабочая копия | checkout, worktree, clone |
 | the workspace of a task | A second workspace for the work of one task, on the branch of the task. It shares its branches with the first workspace. Where a scenario names both, the workspace alone is the first one. | рабочая копия задачи | worktree |
@@ -41,6 +43,10 @@ column gives the name that a person who reads Russian sees.
 | last pass | One more review of the whole branch, once for a branch, after the rounds: when there were two or three rounds, and round 3, if it ran, reported no defect. | последний проход | final review |
 | security review | A review of the final branch against the default branch for security holes only, once for a branch. It comes after the rounds and the last pass. | security review | |
 | a change to documents only | A change in which no changed file is code: each one is text, as Markdown, for a person or an agent to read, as the text of a skill or a prompt. | изменение только документов | |
+| feature | A new capability for the users of the product, or a change of what the product does for them. | фича | |
+| report | A message that judges whether a feature is worth its cost, before the work that it judges. It starts with its verdict, gives the reason with a number, a place in the code or a source for each claim, and at most three options, the recommended one first. A task or a pull request holds a report when its text holds one. | отчёт | assessment, evaluation |
+| verdict | The first line of a report: do it, do it another way, defer until a condition, or close. A verdict other than do it is a question to the person. | вердикт | |
+| product decision | A decision about what the users of the product see, pay or get, or what the project owes by law or contract. The repository keeps each one in a numbered file of `docs/pdr/`, with its status, what it rests on and when to revisit it, and `docs/PRODUCT.md` lists each file. | продуктовое решение | PDR |
 | the run | The handling of one text that the person writes, until it waits or stops. The run that takes a task goes on into the work. | прогон | session, turn |
 | message | One text that the run gives the person. The person reads the messages of a run in their order. | сообщение | reply, output |
 | gist | What a message tells about a task: its id, its title as the task has it, and two or three sentences in the person's language on what is wanted and what must be true for the work to be done. | суть | summary |

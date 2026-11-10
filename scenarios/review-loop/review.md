@@ -9,9 +9,9 @@ asks whether to merge it, in the same run.
 
 Not covered yet:
 
-- the question whether a new capability is worth it, the review for code
-  that is not necessary, and the walk through a screen that the change
-  alters;
+- the question whether a new capability is worth it, when its task holds no
+  report, the review for code that is not necessary, and the walk through a
+  screen that the change alters;
 - the review of the architecture, the review of the tests, and the second
   reader of a change at level xhigh;
 - the levels low and high, and a change to tests only;
