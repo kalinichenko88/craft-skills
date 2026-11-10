@@ -2,15 +2,15 @@
 
 Reviews read the change on a branch in rounds: when the run ends the work on
 a task, when the person asks for a review, or when the person answers the
-question that an earlier run asked after round 3. The run fixes
+question that an earlier run asked after a defect in round 3. The run fixes
 what the reviews report, and tells the person what they found. When the run
 took a task into work, the run then opens the pull request of the task and
 asks whether to merge it, in the same run.
 
 Not covered yet:
 
-- the question whether a feature is worth it, on a branch of another
-  person, or on the person's own branch when its task holds no worth report
+- the question whether a feature is worth it, on a branch of another person,
+  or on the person's own branch when its task holds no worth report
   (`product/worth.md` covers the rest);
 - the review for code that is not necessary, and the walk through a screen
   that the change alters;
@@ -25,8 +25,8 @@ Not covered yet:
 - a change to documents only after which the person asks for more reviews;
 - more rounds that the person asks for, whose third round reports a defect;
 - a defect in round 1 and in round 2, and none in round 3;
-- the answers merge and remove the workspace, and do not merge, after
-  round 3;
+- the answers merge and remove the workspace, and do not merge, after a
+  defect in round 3;
 - a push that fails;
 - the answer to an open question on business logic;
 - the person's request for a pull request with no task;
@@ -143,7 +143,7 @@ Never:
 - a last pass runs
 - the pull request of #91 is merged
 
-## The answer merge only after round 3
+## The answer merge only after a defect in round 3
 
 Given:
 - task #91 is open, assigned to the person
@@ -151,8 +151,7 @@ Given:
 - pull request #96 of the person is open, merges `fix/91-parse-rows` into
   the default branch, and closes #91
 - an earlier run ended the rounds on #96 at round 3, and round 3 reported
-  a defect that is not fixed: `parseRows` drops an empty line
-  inside quotes
+  a defect that is not fixed: `parseRows` drops an empty line inside quotes
 - the text of #96 names that defect as not fixed
 - the repository has the labels `bug` and `docs`
 - the earlier run asked whether to merge #96, with four answers: merge and
@@ -170,7 +169,7 @@ Then:
 Never:
 - a commit is added to `fix/91-parse-rows` after the answer
 
-## The answer more rounds after round 3
+## The answer more rounds after a defect in round 3
 
 Given:
 - task #91 is open, assigned to the person
@@ -178,8 +177,7 @@ Given:
 - pull request #96 of the person is open, merges `fix/91-parse-rows` into
   the default branch, and closes #91
 - an earlier run ended the rounds on #96 at round 3, and round 3 reported
-  a defect that is not fixed: `parseRows` drops an empty line
-  inside quotes
+  a defect that is not fixed: `parseRows` drops an empty line inside quotes
 - the check passes on `fix/91-parse-rows`
 - the earlier run asked whether to merge #96, with four answers: merge and
   remove the workspace of #91, merge only, do not merge, and up to three

@@ -9,7 +9,7 @@ false, and removes the workspace of the task when the person asked for it.
 Not covered yet:
 
 - a push that fails, and a branch that has an open pull request already;
-- a pull request that, when it opens, closes a task that its text does not
+- the opening of a pull request that closes a task that its text does not
   close on purpose, by a closing word or by a link;
 - a task that the pull request closes and that another person is assigned
   to;
@@ -19,8 +19,8 @@ Not covered yet:
 - the merge of a branch that no workspace of its task has;
 - a duplicate that closes only after a reproduction of the failure, after
   the merge;
-- a task whose text holds an added finding that the work does not fix,
-  when the person said nothing of it;
+- the end of the work on a task whose text holds an added finding that the
+  work does not fix, when the person said nothing of it;
 - in the corrections after a merge: a title that the merge makes false, a
   number that it changes, a place in the code that it removes, a task that
   holds two added findings, a task whose premise it removes, a question that

@@ -27,8 +27,8 @@ Not covered yet:
   has;
 - a branch in the workspace with a commit that the repository's branch does
   not have;
-- the answers to the question whose a linked branch is, and to the question
-  where the work runs when the task has a linked branch;
+- the answers to the question whose branch a linked branch is, and to the
+  question where the work runs when the task has a linked branch;
 - the next text that the person writes after a run that waits or stops,
   other than an answer to a question.
 

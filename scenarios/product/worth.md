@@ -3,7 +3,7 @@
 The person writes a text that asks for a feature, or a review of the work on
 a task reports that the feature gives its users nothing. The run gives the
 person a worth report on the feature: before the work, or after that review.
-A verdict other than do it is a question, and the work does not start
+A verdict other than do it is a question, and the work goes no further
 before the answer. On the answer, the run writes the product decision, puts
 the task off to `Later`, or closes the task as not planned. A feature that
 has a worth report gets no other one, except after a review that shows that
