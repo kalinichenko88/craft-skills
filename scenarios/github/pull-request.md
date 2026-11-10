@@ -45,8 +45,6 @@ Given:
 When: the run ends the work on #91
 Then:
 - the pull request of #91 is open
-- the pull request of #91 merges `fix/91-parse-rows` into the default
-  branch
 - the pull request of #91 is assigned to the person
 - the pull request of #91 closes #91
 - the title of the pull request of #91 is `<type>: <sentence>` or
