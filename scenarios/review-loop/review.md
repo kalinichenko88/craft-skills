@@ -9,9 +9,11 @@ asks whether to merge it, in the same run.
 
 Not covered yet:
 
-- the question whether a new capability is worth it, the review for code
-  that is not necessary, and the walk through a screen that the change
-  alters;
+- the question whether a new capability is worth it, on a branch of another
+  person, or on the person's own branch when its task holds no worth report
+  (`product/worth.md` covers the rest);
+- the review for code that is not necessary, and the walk through a screen
+  that the change alters;
 - the review of the architecture, the review of the tests, and the second
   reader of a change at level xhigh;
 - the levels low and high, and a change to tests only;

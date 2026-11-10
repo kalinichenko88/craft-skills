@@ -22,6 +22,7 @@ yet.
 | [`github/take-in.md`](github/take-in.md) | The person names one task, and the run takes it into work. |
 | [`github/filing.md`](github/filing.md) | The run meets a finding outside its task, and fixes it in the pull request of the task, adds it to a task, creates a task for it, or files nothing when a task already reports it or settles it. |
 | [`github/pull-request.md`](github/pull-request.md) | The run ends the work on a task and opens its pull request. On the person's answer, it merges the pull request or leaves it open; after a merge, it corrects the open tasks that the merge makes false, and removes the workspace of the task when the person asks for it. |
+| [`product/worth.md`](product/worth.md) | The person asks for a feature, or a review shows that a feature gives its users nothing, and the run gives the person a worth report on it: before the work, or after that review. On the person's answer, it writes the product decision, puts the task off to `Later`, or closes it as not planned. |
 | [`review-loop/review.md`](review-loop/review.md) | Reviews read the change on a branch in rounds, when the run ends the work on a task, when the person asks for a review, or when the person answers the question after a stop at round 3. For a task, the run then opens the pull request and asks whether to merge it, in the same run. |
 
 ## The shape of a scenario
