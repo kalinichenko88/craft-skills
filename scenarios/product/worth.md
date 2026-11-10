@@ -13,7 +13,7 @@ Not covered yet:
 
 - a bug fix that changes business logic, and the changes that get no worth
   report: a bug fix that changes no business logic, a change to documents
-  only and a dependency bump;
+  that are not the text of a skill or a prompt, and a dependency bump;
 - the review of the person's own branch of a feature that has no worth
   report, and the review of a branch or a pull request of another person;
 - a feature whose shape the run asks about before its worth report, a
