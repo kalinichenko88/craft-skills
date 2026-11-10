@@ -5,6 +5,30 @@ Every release of this plugin, newest first. A line is one commit on
 type, and the PR number when it has one. The `/release` skill writes the
 section; pull requests leave this file alone.
 
+## 2.2.0 - 2026-11-10
+
+### Added
+
+- (sessions) count the skill text in local sessions, and cap each SKILL.md at 20,000 characters (#289)
+- (rules) name each issue and milestone to the person by its title, not its number alone (#279)
+- (github) give a nit outside the task a line in the final report, not an issue (#261)
+
+### Changed
+
+- (scenarios) read the github skill's text against the take-in scenarios on Haiku (#288)
+- (scenarios) check the shape and the host words of each scenario file in make check (#272)
+- (scenarios) give a When to a flow that the run starts itself (#271)
+
+### Fixed
+
+- (sessions) sort each command of a Bash call into a run or a read (#292)
+- (architecture) ask once whether the person chooses the technologies (#287)
+- (github) move into the worktree only after each take-in subagent returns (#281)
+- (review-loop) check a TypeScript range against the conventions in the architecture review (#273)
+- (scenarios) make four statements of the review of #234 true, and keep the settled ADR 0003
+- (review-loop) find a cycle that a branch closes through several modules (#264)
+- (react) look at what the other feature imports before importing from it (#263)
+
 ## 2.1.0 - 2026-11-06
 
 ### Added
