@@ -1,0 +1,59 @@
+{
+  "me": "kim",
+  "repo": "acme/shop",
+  "origin": "<work>.origin",
+  "down": false,
+  "prs": [],
+  "labels": [
+    "bug",
+    "debt",
+    "enhancement"
+  ],
+  "visibility": "PUBLIC",
+  "issues": [
+    {
+      "number": 91,
+      "title": "README: the install command says npm instal",
+      "body": "The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.",
+      "state": "OPEN",
+      "stateReason": null,
+      "assignees": [
+        "kim"
+      ],
+      "labels": [],
+      "comments": [
+        {
+          "author": "kim",
+          "body": "From #95: after the README command fails, an app that requires the package fails with `Error: Cannot find module 'shop'`."
+        }
+      ],
+      "linked": [
+        "docs/91-fix-npm-install-command"
+      ]
+    },
+    {
+      "number": 95,
+      "title": "Installing shop by the README leaves the app without the module",
+      "body": "I followed README.md to install shop, and the package did not install: the command there is `npm instal shop`, with one l.\n\nThen my app failed:\n\n```\nError: Cannot find module 'shop'\nRequire stack:\n- /home/lee/app/index.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Module._load (node:internal/modules/cjs/loader:1051:27)\n    at Module.require (node:internal/modules/cjs/loader:1311:19)\n    at require (node:internal/modules/helpers:179:18)\n    at Object.<anonymous> (/home/lee/app/index.js:1:14)\n```",
+      "state": "CLOSED",
+      "stateReason": "DUPLICATE",
+      "assignees": [],
+      "labels": [],
+      "comments": [
+        {
+          "author": "kim",
+          "body": "Same report as #91; what it adds is copied there."
+        }
+      ],
+      "linked": [],
+      "duplicateOf": 91
+    }
+  ],
+  "log": [
+    "comment 91",
+    "comment 95",
+    "close 95",
+    "edit 91",
+    "develop 91"
+  ]
+}

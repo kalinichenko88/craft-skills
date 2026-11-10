@@ -1,0 +1,29 @@
+Skill	craft:github
+Bash	D=<craft>/skills/github; cat $D/take-in.md; ls $D/scripts
+Bash	D=<craft>/skills/github; bash $D/scripts/take-in-check.sh 91; echo "exit=$?"; gh issue view 91 --json title,body; git remote -v
+think	The README's install command reads `npm instal shop`, which fails because npm has no `instal` command. I'm changing it to `npm install shop`.  
+Bash	D=<craft>/skills/github; cat $D/tracker.md
+Bash	D=<craft>/skills/github; gh label list; bash $D/scripts/collect.sh take-in 91 bug,debt README.md "npm instal" install
+text	Small file; I read it myself.
+Bash	cat <tmp>/collect.YfiG4R; sed -n 1,200p <craft>/skills/github/scout.md | head -80
+think	I'm marking #95 as a duplicate of #91, since it reports the same `npm instal shop` command and adds the "Cannot find module 'shop'" error. Checking the repository's visibility before I write the comment.  
+Bash	gh repo view --json nameWithOwner,visibility; grep -n "instal" README.md
+Bash	gh issue comment 91 --body 'From #95: after the README command fails, an app that requires the package fails with `Error: Cannot find module '"'"'shop'"'"'`.' && gh issue close 95 --duplicate-of 91 --comment "Same report as #91; what it adds is copied there."
+Bash	D=<craft>/skills/github; bash $D/scripts/worktree.sh 91 docs/91-fix-npm-install-command
+ToolSearch	
+EnterWorktree	
+Bash	ls -a; cat README.md; git ls-files
+text	I'm in the worktree for #91 now. The repository has only README.md, and its line 3 has the typo. I fix it next.
+Bash	sed -i '' 's/npm instal shop/npm install shop/' README.md && cat README.md && git diff --stat
+text	The repository has no check command: there is no package.json, Makefile or CI. The closest check I can run is a search for the typo in all tracked files.
+Bash	git grep -nE '\binstal\b' ; echo "matches-exit=$?"
+Skill	craft:review-loop
+text	This change touches only documents. So the review is one subagent round. There is no Codex read, because a README is not skill text, and there is no security review. First I commit the change.
+Bash	git add README.md && git commit -q -m "docs: correct the npm install command in the README" && git log --oneline -1 && git merge-base origin/main HEAD
+Agent	Review README docs change
+subBash	git diff 8ce41e1..HEAD; git ls-files
+text	The review round found no defect. Next I push the branch and open the pull request.
+Bash	git grep -nE '\binstal\b'; echo "check-exit=$? (1 = no typo left)"; git push -q -u origin HEAD 2>&1 | tail -2; cat > /tmp/pr91.md <<'EOF'; Closes #91; ; The README told the reader to run `npm instal shop`. npm has no `instal` command, so the install failed. The README now says `npm install shop`.; ; ## Review; ; - **Change:**;   - Correct the install command in `README.md` to `npm install shop`; - **Rounds:** Worth first: skipped, documents only. ponytail-review: not installed. Walk: skipped, documents only. Round 1: one review subagent on `8ce41e1..5111f59`, 0 findings. Architecture review: no architecture file or ADR folder; `craft:architecture` can write the first file. Codex read: not run, the README is not skill or prompt text. Last pass: documents only. Security review: documents only. Check: the repository has no check command; `git grep` for `instal` finds no match.; - **Decisions:** none.; - **Fixed:** none.; - **Declined:** none.; - **Filed:** none. #95 Installing shop by the README leaves the app without the module was closed as a duplicate of #91. Its error message was copied to #91.; - **Docs:** `README.md` is the change itself.; ; 🤖 Generated with [Claude Code](https://claude.com/claude-code); EOF; gh pr create --assignee @me --title "docs: correct the npm install command in the README" --body-file /tmp/pr91.md
+text	`gh pr create` failed. The `gh` on this machine is a stub, and it has no answer for that command. I check whether the push got through.
+Bash	git status -sb | head -1; git ls-remote origin docs/91-fix-npm-install-command
+text	I fixed #91 README: the install command says npm instal, and pushed the branch. The pull request did not open: the `gh` on this machine is a stub and returned `fake gh: no answer for: pr create …`. So there is no merge question yet.  **What I did** - Fixed `README.md:3`: it now says `npm install shop`. I committed this as `5111f59` on `docs/91-fix-npm-install-command`, in its own worktree. - #91 is assigned to you, and the branch is linked to it. - I closed #95 Installing shop by the README leaves the app without the module as a duplicate of #91. It reported the same README typo. Its one new detail, the `Cannot find module 'shop'` error, is now a comment on #91. - The branch is on `origin` at `5111f59`.  **Review and check** - The change is documents only, so one review subagent read the branch. It found nothing. - There is no Codex read, because a README is not skill or prompt text. There is no security review, because the change is documents only. - The repository has no check command: no `package.json`, Makefile or CI. The closest check I could run is a search of all tracked files for `instal`. It finds nothing. - The repository has no architecture file. `craft:architecture` can write the first one if you want it.  **Docs:** the README is the change itself. No other document exists.  **To finish:** the PR description is ready in `/tmp/pr91.md`, with `Closes #91` and the `## Review` section. With a real `gh` installed and logged in, open the PR with:  ``` gh pr create --assignee @me --title "docs: correct the npm install command in the README" --body-file /tmp/pr91.md ```  After the PR opens, I can run the merge and the follow-up work.

@@ -159,12 +159,14 @@ checks that the scout gives a sentence of #117 and the title of #205 as false,
 no sentence of #179, and the moved citation of #179.
 It needs the history of the checkout down to #217. Run it after a change to
 the citations job of `skills/github/scout.md` or to *Finishing*.
-`tests/scenarios_eval.sh` runs craft on three scenarios of
+`tests/scenarios_eval.sh` runs craft on five scenarios of
 `scenarios/github/take-in.md`: a free task, a task that another person is
-assigned to, and a tracker that does not answer. Each case is one Opus run of
+assigned to, a tracker that does not answer, a free duplicate and a busy
+duplicate. Each case is one Opus run of
 `claude -p` with this checkout as the only plugin, a fake `gh` first on
-`PATH` that reads and writes a JSON tracker, and a workspace with a local
-`origin`. It checks each Then and Never item of the three scenarios against
+`PATH` that reads and writes a JSON tracker (`tests/fake_gh.sh`), and a
+workspace with a local `origin`. It checks each Then and Never item of the
+five scenarios against
 the tracker, the branches, the workspace, and the session's messages and
 tool calls, and prints PASS, FAIL or SKIP for each: SKIP where the log holds
 a message only as thinking (#206). Run it after a change to
