@@ -20,7 +20,7 @@ yet.
 | File | The flow |
 | --- | --- |
 | [`github/take-in.md`](github/take-in.md) | The person names one task, and the run takes it into work. |
-| [`github/filing.md`](github/filing.md) | The run meets a finding outside its task, and fixes it in the pull request of the task, adds it to a task, or creates a task for it. |
+| [`github/filing.md`](github/filing.md) | The run meets a finding outside its task, and fixes it in the pull request of the task, adds it to a task, creates a task for it, or files nothing when a task already reports it or settles it. |
 
 ## The shape of a scenario
 

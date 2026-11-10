@@ -11,9 +11,9 @@ column gives the name that a person who reads Russian sees.
 | the person | The human who works with the agent. The tracker and the repository know the person's account. | человек | user, operator |
 | another person | Any account other than the person's. | другой человек | someone, a teammate |
 | the person's language | The language of the texts that the person writes, or the language that the person set. | язык человека | locale |
-| task | A unit of work in the tracker: an id, a title, a text, a state (open or closed), assignees, comments and linked branches. | задача | issue, ticket, card |
+| task | A unit of work in the tracker: an id, a title, a text, a state (open or closed), labels, assignees, comments and linked branches. | задача | issue, ticket, card |
 | task id | The number of a task, as the person writes it: `#91`. | номер задачи | |
-| label | A name from the list of labels of the repository, which a task carries, as `bug`. | метка | tag |
+| label | A name from the list of labels of the repository, as `bug`. A task carries labels from that list. | метка | tag |
 | link | The web address of a task, which names its repository and its id. | ссылка | URL |
 | tracker | The place where the tasks of one repository live. | трекер | board, backlog |
 | repository | The git repository of the code, with its default branch, on GitHub. | репозиторий | repo, project |

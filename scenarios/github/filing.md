@@ -2,10 +2,15 @@
 
 The run works on a task and meets a finding. Without a question to the
 person, it fixes the finding in the pull request of the task, adds it to an
-open task on the same code, or creates a task for it.
+open task on the same code, or creates a task for it. When a task already
+reports the finding or settles it, the run files nothing.
 
 Not covered yet:
 
+- a finding in the module of the task that has more than one fix, or that
+  code outside the module relies on, which becomes a task;
+- a finding that no label of the repository fits, and a second finding for
+  the same open task in one run;
 - a finding that is a nit, which the last message names instead of a task;
 - a finding that a merged pull request fixed before, and that shows again;
 - an open pull request that changes the code of the finding;
@@ -38,8 +43,11 @@ Never:
 Given:
 - the outcomes of A free task hold for #91
 - the work on #91 changes 40 lines of `src/parser/read.ts`
-- `splitLine` in `src/parser/split.ts` drops the last field of a line that
-  ends with a comma, and only `src/parser/read.ts` calls it
+- `src/parser/read.ts` is the only caller of `splitLine` in
+  `src/parser/split.ts`, and the run read `splitLine`
+- the comment of `splitLine` says that a line with n commas gives n + 1
+  fields, and `splitLine` drops the last field of a line that ends with a
+  comma
 When: the run meets that bug in `src/parser/split.ts`
 Then:
 - the pull request of #91 fixes `splitLine`
@@ -54,7 +62,9 @@ Never:
 
 Given:
 - the outcomes of A free task hold for #91
-- the work on #91 changes 40 lines of `src/parser/read.ts`
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- the run read `src/report/total.ts`, the only caller of `parseRows`, and
+  the work on #91 does not change it
 - the repository has the labels `bug` and `docs`
 - `addTax` in `src/report/total.ts` adds the tax twice
 When: the run meets that bug in `src/report/total.ts`
@@ -75,7 +85,9 @@ Never:
 
 Given:
 - the outcomes of A free task hold for #91
-- the work on #91 changes 40 lines of `src/parser/read.ts`
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- the run read `src/report/total.ts`, the only caller of `parseRows`, and
+  the work on #91 does not change it
 - `addTax` in `src/report/total.ts` adds the tax twice
 - task #12 is open, with no assignee; it names `addTax` and reports that it
   adds the tax twice, in other words than the run would write
@@ -87,27 +99,30 @@ Never:
 - a task is created for the bug
 - the assignees of #12 change
 
-## A finding that a task closed as not planned
+## A finding that a closed task settled
 
 Given:
 - the outcomes of A free task hold for #91
-- the work on #91 changes 40 lines of `src/parser/read.ts`
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- the run read `src/report/total.ts`, the only caller of `parseRows`, and
+  the work on #91 does not change it
 - `roundLine` in `src/report/total.ts` rounds each line before the sum
-- task #40 is closed as not planned; it names `roundLine`, and a comment on
-  it says that the rounding stays on purpose
+- task #40 is closed; it names `roundLine`, and a comment on it says that
+  the rounding stays on purpose
 When: the run meets that rounding in `src/report/total.ts`
 Then:
 - #40 stays closed
-- the pull request of #91 does not change `roundLine`
 Never:
 - a task is created for the rounding
 - #40 is opened again
 
-## A free task on the code of the finding
+## An open task with no assignee on the code of the finding
 
 Given:
 - the outcomes of A free task hold for #91
-- the work on #91 changes 40 lines of `src/parser/read.ts`
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- the run read `src/report/total.ts`, the only caller of `parseRows`, and
+  the work on #91 does not change it
 - `addTax` in `src/report/total.ts` adds the tax twice
 - the repository has the labels `bug` and `enhancement`
 - task #12 is open, with no assignee, no linked branch, no pull request and
@@ -115,12 +130,14 @@ Given:
   `addTax` take the rate from the order
 When: the run meets that bug in `src/report/total.ts`
 Then:
-- the text of #12 holds the bug as an added finding, with
-  `src/report/total.ts` and the line of the bug
+- the text of #12 holds the bug as an added finding
+- that added finding names `src/report/total.ts` and the line of the bug
+- that added finding says how the bug shows
+- that added finding says why the bug is not part of #91
 - the text of #12 before the added finding stays as it was
 - the title of #12 names its own problem and the bug
 - #12 has the labels `enhancement` and `bug`
-- a comment on #12 tells that a finding was added to its text
+- a comment on #12 says that a finding was added to its text
 - the last message names #12 with its title
 Never:
 - a new task is created for the bug
@@ -129,7 +146,9 @@ Never:
 
 Given:
 - the outcomes of A free task hold for #91
-- the work on #91 changes 40 lines of `src/parser/read.ts`
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- the run read `src/report/total.ts`, the only caller of `parseRows`, and
+  the work on #91 does not change it
 - `addTax` in `src/report/total.ts` adds the tax twice
 - task #12 is open, assigned to another person, with no added finding; it
   asks that `addTax` take the rate from the order
@@ -148,7 +167,9 @@ Never:
 
 Given:
 - the outcomes of A free task hold for #91
-- the work on #91 changes 40 lines of `src/parser/read.ts`
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- the run read `src/report/total.ts`, the only caller of `parseRows`, and
+  the work on #91 does not change it
 - `addTax` in `src/report/total.ts` adds the tax twice
 - task #12 is open, with no assignee, no linked branch and no pull request;
   it asks that `addTax` take the rate from the order, and its text holds two
@@ -167,8 +188,10 @@ Never:
 Given:
 - the repository is public
 - the outcomes of A free task hold for #91
-- the work on #91 changes 40 lines of `src/parser/read.ts`
-- the person gave a log of a failed run, which names the customer
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- the run read `src/report/total.ts`, the only caller of `parseRows`, and
+  the work on #91 does not change it
+- the person gave a log of a failed import, which names the customer
   `Acme Ltd` and the path `/srv/acme/orders.csv`
 - `addTax` in `src/report/total.ts` adds the tax twice, and a line of that
   log shows it
@@ -180,3 +203,4 @@ Never:
 - the title or the text of the new task holds `Acme Ltd`
 - the title or the text of the new task holds `/srv/acme/orders.csv`
 - the text of the pull request of #91 holds `Acme Ltd`
+- the text of the pull request of #91 holds `/srv/acme/orders.csv`
