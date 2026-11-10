@@ -64,7 +64,7 @@ request that changes no skill file of a row costs a runner and no token.
 Bad: nothing makes the merge wait for the job: `main` has no required check,
 and the merge of `craft:github` reads no check (#309). The repository keeps a
 secret. A token that expires or is missing, or a spent limit of the
-subscription, makes the job fail; it prints the first output of the CLI.
+subscription, makes the job fail; it prints the reason that the CLI gives.
 Each person with write access to the repository can read the token, with a
 branch that changes the eval. A pull request from a fork gets no secret and no
 check. A LOST item can be noise of the model, though in the measure of the
