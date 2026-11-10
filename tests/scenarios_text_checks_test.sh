@@ -99,7 +99,8 @@ refused 'no answer' 1 HEAD
 
 # A copy of the eval in a repository with the recorded scenario file, and no
 # skills/github/scout.md at its first commit. Each call names the take-in
-# row, so a row of another flow does not need its files here.
+# row, or runs a copy with no row of another flow, so a row of another flow
+# does not need its files here.
 repo=$tmp/repo
 mkdir -p "$repo/tests" "$repo/scenarios/github" "$repo/skills/github"
 cp "$root/tests/scenarios_text_eval.sh" "$repo/tests/"
@@ -122,10 +123,11 @@ cp "$root/skills/github/scout.md" "$repo/skills/github/"
 mkdir "$repo/scenarios/none"
 cp "$fixtures/take-in.md" "$repo/scenarios/none/none.md"
 refused 'scenarios/none/none.md has no row' "$take" 1 HEAD
-# A second row after the take-in row, with a file that is missing: the eval
-# runs every row, and a fault in a later row stops it before any run.
-awk -v after="  'scenarios/github/take-in.md " -v row="  'scenarios/none/none.md skills/none/none.md'" \
-  '1; index($0, after) == 1 { print row }' "$root/tests/scenarios_text_eval.sh" >"$evalsh"
+# A second row after the take-in row, with a file that is missing, in place
+# of the other rows: the eval runs every row, and a fault in a later row
+# stops it before any run.
+awk -v rows="  'scenarios/" -v after="  'scenarios/github/take-in.md " -v row="  'scenarios/none/none.md skills/none/none.md'" \
+  'index($0, rows) == 1 && index($0, after) != 1 { next } 1; index($0, after) == 1 { print row }' "$root/tests/scenarios_text_eval.sh" >"$evalsh"
 refused 'skills/none/none.md is not' 1 HEAD
 cp "$root/tests/scenarios_text_eval.sh" "$repo/tests/"
 rm -r "$repo/scenarios/none"

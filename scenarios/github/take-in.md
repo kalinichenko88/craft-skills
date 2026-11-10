@@ -12,7 +12,7 @@ Not covered yet:
   reproduction of the failure;
 - the correction of the places in the code that a task names, as a file and
   a line;
-- a task whose text holds added problems;
+- a task whose text holds added findings;
 - a text of the person that asks for a branch only, or for no new branch;
 - the person's own task with an open pull request whose branch the
   workspace has;
