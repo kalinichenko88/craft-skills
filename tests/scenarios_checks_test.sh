@@ -166,12 +166,16 @@ copy
 state dup '.log = ["close 95"] + (.log - ["close 95"])'
 flips dup 'the comment on #91 comes before #95 closes'
 
-# An edit in the workspace before #95 closes, and a file in <tmp> there.
+# An edit in the workspace before #95 closes; a temporary file written or
+# edited there is not the work.
 copy
 { head -n 10 "$fixtures/dup.events"; printf 'Edit\t<work>/README.md\n'; tail -n +11 "$fixtures/dup.events"; } >"$tmp/$n/dup.events"
 flips dup '#95 closes before the work starts'
 copy
 { head -n 10 "$fixtures/dup.events"; printf 'Write\t<tmp>/comment.md\n'; tail -n +11 "$fixtures/dup.events"; } >"$tmp/$n/dup.events"
+stays
+copy
+{ head -n 10 "$fixtures/dup.events"; printf "Bash\tsed -i '' s/a/b/ /private/tmp/claude/scratchpad/comment.md\n"; tail -n +11 "$fixtures/dup.events"; } >"$tmp/$n/dup.events"
 stays
 
 # A last message that does not name #95.

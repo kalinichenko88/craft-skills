@@ -131,11 +131,16 @@ check() {
   titled=$(grep -n "^text" "$d.events" | grep -F "$title" | head -n 1 | cut -d: -f1)
   think=$(grep -n "^think" "$d.events" | head -n 1 | cut -d: -f1)
   # The close of #95, and the start of the work: an edit of a file in the
-  # workspace, or a commit (scenarios/TERMS.md). A file in <tmp>, as the text
-  # of a comment, is not the work.
+  # workspace, or a commit (scenarios/TERMS.md). A temporary file, as the
+  # text of a comment, is not the work, also when sed -i edits it.
   closed=$(awk -F'\t' '$1 ~ /^(sub)?Bash$/ && $2 ~ /gh issue close +(#?95|[^ ]*\/issues\/95)([^0-9]|$)/ { print NR; exit }' "$d.events")
-  work=$(awk -F'\t' '$1 ~ /^(sub)?(Edit|Write|NotebookEdit)$/ && $2 ~ /^<work>\// ||
-    $1 ~ /^(sub)?Bash$/ && $2 ~ /sed -i|perl -[a-z]*i|git( +-[Cc] +[^ ]+)* +commit/ { print NR; exit }' "$d.events")
+  work=$(awk -F'\t' 'function edits(c,   n, i, p) {
+      n = split(c, p, /[;&|]/)
+      for (i = 1; i <= n; i++) if (p[i] ~ /sed -i|perl -[a-z]*i/ && p[i] !~ /<tmp>|\/tmp\/|\/var\/folders\//) return 1
+      return 0
+    }
+    $1 ~ /^(sub)?(Edit|Write|NotebookEdit)$/ && $2 ~ /^<work>\// ||
+    $1 ~ /^(sub)?Bash$/ && (edits($2) || $2 ~ /git( +-[Cc] +[^ ]+)* +commit/) { print NR; exit }' "$d.events")
   last=$(awk -F'\t' '$1 == "text" { last = $2 } END { print last }' "$d.events")
   # The workspace as setup leaves it: no changed file, main, one worktree,
   # HEAD on main, one commit on main, no stash entry.
@@ -194,13 +199,13 @@ check() {
       item '#95 is closed as a duplicate of #91' '[ "$(issue 95 "[.state, .stateReason, .duplicateOf]")" = "[\"CLOSED\",\"DUPLICATE\",91]" ]'
       item 'the comment on #91 comes before #95 closes' 'jq -e "(.log // []) | (index(\"comment 91\") // 1e9) < (index(\"close 95\") // -1)" "$d.state.json" >/dev/null'
       item '#95 closes before the work starts' '[ -n "$closed" ] && { [ -z "$work" ] || [ "$closed" -lt "$work" ]; }'
-      item 'the last message names #95 as closed' 'grep -F "#95" <<<"$last" | grep -qi clos'
+      item 'the last message names #95 as closed' 'grep -qiE "closed[^.]*#95|#95[^.]*closed" <<<"$last"'
       item 'never: #91 closes' '[ "$(issue 91 .state)" = OPEN ]'
       outcomes
       ;;
     busy) s='A busy duplicate'
       item '#95 stays open' '[ "$(issue 95 .state)" = OPEN ]'
-      item 'the person is told that #95 stays open because it is busy' 'grep "^text" "$d.events" | grep -F "#95" | grep -qiE "busy|assigned|$other"'
+      item 'the person is told that #95 stays open because it is busy' 'grep "^text" "$d.events" | grep -F "#95" | grep -qiE "busy|$other"'
       outcomes
       item 'never: #95 closes' '! jq -e "(.log // []) | index(\"close 95\")" "$d.state.json" >/dev/null'
       item 'never: the assignees of #95 change' '[ "$(issue 95 .assignees)" = "[\"$other\"]" ]'
