@@ -62,10 +62,10 @@ setup() {
   git -C "$w" remote add origin "$w.origin"
   git -C "$w" push -q -u origin main
   jq -n --arg case "$2" --arg me "$me" --arg other "$other" --arg origin "$w.origin" \
-    --arg title "$title" --arg body "$body" --arg title95 "$title95" --arg body95 "$body95" --arg trace "$trace" '
+    --arg w "$w" --arg title "$title" --arg body "$body" --arg title95 "$title95" --arg body95 "$body95" --arg trace "$trace" '
     def task($n; $t; $b; $who): {number: $n, title: $t, body: $b, state: "OPEN", stateReason: null,
       assignees: $who, labels: [], comments: [], linked: []};
-    {me: $me, repo: "acme/shop", origin: $origin, down: ($case == "down"), prs: [],
+    {me: $me, repo: "acme/shop", origin: $origin, workspace: $w, down: ($case == "down"), prs: [],
       labels: ["bug", "debt", "enhancement"], visibility: "PUBLIC",
       issues: ([task(91; $title; $body; if $case == "other" then [$other] else [] end)]
         + if $case == "dup" then [task(95; $title95; $body95 + "\n\nThen my app failed:\n\n```\n" + $trace + "\n```"; [])]
@@ -118,7 +118,7 @@ record() {
 # passes "the run waits".
 # shellcheck disable=SC2034 # the items read the values through eval
 check() {
-  local d=$1 s first_write named nline gist titled think assignees linked branch same closed work last
+  local d=$1 s first_write named nline gist titled think assignees linked branch same last
   # A write: an edit of a file, a commit, a branch, a worktree, or a write to
   # the tracker. A read, as `sed -n 1p worktree.sh` or `git merge-base`, is
   # none.
@@ -130,17 +130,6 @@ check() {
   gist=$(grep -F "$title" <<<"$named" | cut -d: -f1 || true)
   titled=$(grep -n "^text" "$d.events" | grep -F "$title" | head -n 1 | cut -d: -f1)
   think=$(grep -n "^think" "$d.events" | head -n 1 | cut -d: -f1)
-  # The close of #95, and the start of the work: an edit of a file in the
-  # workspace, or a commit (scenarios/TERMS.md). A temporary file, as the
-  # text of a comment, is not the work, also when sed -i edits it.
-  closed=$(awk -F'\t' '$1 ~ /^(sub)?Bash$/ && $2 ~ /gh issue close +(#?95|[^ ]*\/issues\/95)([^0-9]|$)/ { print NR; exit }' "$d.events")
-  work=$(awk -F'\t' 'function edits(c,   n, i, p) {
-      n = split(c, p, /[;&|]/)
-      for (i = 1; i <= n; i++) if (p[i] ~ /sed -i|perl -[a-z]*i/ && p[i] !~ /<tmp>|\/tmp\/|\/var\/folders\//) return 1
-      return 0
-    }
-    $1 ~ /^(sub)?(Edit|Write|NotebookEdit)$/ && $2 ~ /^<work>\// ||
-    $1 ~ /^(sub)?Bash$/ && (edits($2) || $2 ~ /git( +-[Cc] +[^ ]+)* +commit/) { print NR; exit }' "$d.events")
   last=$(awk -F'\t' '$1 == "text" { last = $2 } END { print last }' "$d.events")
   # The workspace as setup leaves it: no changed file, main, one worktree,
   # HEAD on main, one commit on main, no stash entry.
@@ -150,6 +139,10 @@ check() {
   branch=$(jq -r '.[0] // empty' <<<"$linked")
   item() { if eval "$2"; then echo "PASS $s: $1"; else echo "FAIL $s: $1"; fi; }
   issue() { jq -rc --argjson n "$1" ".issues[] | select(.number == \$n) | $2" "$d.state.json"; }
+  # at <jq test>: the test holds on the tracker. In it, at("close 95") is the
+  # index of the first write "close 95" in the log of the fake gh, marked or
+  # not, or null.
+  at() { jq -e "def at(\$w): [(.log // [])[] | split(\" \")[0:2] | join(\" \") == \$w] | index(true); $1" "$d.state.json" >/dev/null; }
   told() { grep "^text" "$d.events" | grep -qiF "$1"; }
   before() { [ -n "$1" ] && { [ -z "$first_write" ] || [ "$1" -lt "$first_write" ]; }; }
   # first: the first message about #91 tells its gist.
@@ -197,9 +190,10 @@ check() {
       item 'a comment on #91 holds the stack trace of #95' 'jq -e --arg t "$trace" "(.issues[] | select(.number == 91) | .comments)
         | any(.[]; .body as \$b | all(\$t | split(\"\\n\")[] | sub(\"^ +\"; \"\"); . as \$l | \$b | contains(\$l)))" "$d.state.json" >/dev/null'
       item '#95 is closed as a duplicate of #91' '[ "$(issue 95 "[.state, .stateReason, .duplicateOf]")" = "[\"CLOSED\",\"DUPLICATE\",91]" ]'
-      item 'the comment on #91 comes before #95 closes' 'jq -e "(.log // []) | (index(\"comment 91\") // 1e9) < (index(\"close 95\") // -1)" "$d.state.json" >/dev/null'
-      item '#95 closes before the work starts' '[ -n "$closed" ] && { [ -z "$work" ] || [ "$closed" -lt "$work" ]; }'
-      item 'the last message names #95 as closed' 'grep -qiE "closed[^.]*#95|#95[^.]*closed" <<<"$last"'
+      item 'the comment on #91 comes before #95 closes' 'at "(at(\"comment 91\") // 1e9) < (at(\"close 95\") // -1)"'
+      # The work: a changed file or a commit in the workspace (scenarios/TERMS.md).
+      item '#95 closes before the work starts' 'at "(.log // []) | index(\"close 95\") != null"'
+      item 'the last message names #95 as closed' 'grep -qiE "clos(ed|ing)([^.]|\.[^ ])*#95|#95([^.]|\.[^ ])*clos(ed|ing)" <<<"$last"'
       item 'never: #91 closes' '[ "$(issue 91 .state)" = OPEN ]'
       outcomes
       ;;
@@ -207,7 +201,7 @@ check() {
       item '#95 stays open' '[ "$(issue 95 .state)" = OPEN ]'
       item 'the person is told that #95 stays open because it is busy' 'grep "^text" "$d.events" | grep -F "#95" | grep -qiE "busy|$other"'
       outcomes
-      item 'never: #95 closes' '! jq -e "(.log // []) | index(\"close 95\")" "$d.state.json" >/dev/null'
+      item 'never: #95 closes' 'at "at(\"close 95\") == null"'
       item 'never: the assignees of #95 change' '[ "$(issue 95 .assignees)" = "[\"$other\"]" ]'
       ;;
     *) echo "$0: no case $2" >&2; return 2 ;;

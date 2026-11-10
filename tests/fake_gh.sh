@@ -18,10 +18,13 @@
 #   visibility   PUBLIC or PRIVATE
 #   prs          the pull requests that `gh pr list` gives; none if absent
 #   origin       the bare origin where `gh issue develop` makes a branch
+#   workspace    the checkout of the eval, whose worktrees the log reads
 #   down         true: each call but --version fails with a 502
 #
 # Each write adds "<command> <number>" to .log, as "comment 91": the
-# order of the writes.
+# order of the writes. The entry ends in " +changes" when a worktree of the
+# workspace has a changed file or a commit past main at that moment: the
+# write came after the work started.
 #
 # Needs bash, jq and git.
 
@@ -55,7 +58,15 @@ me=$(jq -r .me "$state") repo=$(jq -r .repo "$state")
 out() { if [ -n "$jqf" ]; then jq -r "$jqf" <<<"$1"; else printf '%s\n' "$1"; fi; }
 pick() { jq -c --arg f "$fields" "$1"' | . as $i | if $f == "" then . else reduce ($f | split(","))[] as $k ({}; .[$k] = $i[$k]) end'; }
 save() { local t; t=$(jq "$@" "$state") && printf '%s\n' "$t" >"$state"; }
-logged() { save --arg e "$1 $2" '.log += [$e]'; }
+logged() { # logged <command> <number>
+  local e="$1 $2" ws t
+  ws=$(jq -r '.workspace // empty' "$state")
+  if [ -n "$ws" ] && git -C "$ws" worktree list --porcelain | sed -n 's/^worktree //p' |
+    while read -r t; do git -C "$t" status --porcelain; git -C "$t" log --oneline main..HEAD; done | grep -q .; then
+    e="$e +changes"
+  fi
+  save --arg e "$e" '.log += [$e]'
+}
 issues() {
   jq --arg repo "$repo" '[.issues[] | {number, title, body, state, stateReason: (.stateReason // null),
     url: "https://github.com/\($repo)/issues/\(.number)", assignees: [.assignees[] | {login: .}],

@@ -166,17 +166,10 @@ copy
 state dup '.log = ["close 95"] + (.log - ["close 95"])'
 flips dup 'the comment on #91 comes before #95 closes'
 
-# An edit in the workspace before #95 closes; a temporary file written or
-# edited there is not the work.
+# #95 closed after the work started: the fake gh marks the close.
 copy
-{ head -n 10 "$fixtures/dup.events"; printf 'Edit\t<work>/README.md\n'; tail -n +11 "$fixtures/dup.events"; } >"$tmp/$n/dup.events"
+state dup '.log |= map(if . == "close 95" then "close 95 +changes" else . end)'
 flips dup '#95 closes before the work starts'
-copy
-{ head -n 10 "$fixtures/dup.events"; printf 'Write\t<tmp>/comment.md\n'; tail -n +11 "$fixtures/dup.events"; } >"$tmp/$n/dup.events"
-stays
-copy
-{ head -n 10 "$fixtures/dup.events"; printf "Bash\tsed -i '' s/a/b/ /private/tmp/claude/scratchpad/comment.md\n"; tail -n +11 "$fixtures/dup.events"; } >"$tmp/$n/dup.events"
-stays
 
 # A last message that does not name #95.
 copy
@@ -202,5 +195,23 @@ flips busy 'never: the assignees of #95 change'
 copy
 sed -i.bak '/^text/s/#95/#96/g' "$tmp/$n/busy.events"
 flips busy 'the person is told that #95 stays open because it is busy'
+
+# The fake gh marks a write that comes after a change in a worktree of the
+# workspace: a changed file, or a commit past main.
+git init -q -b main "$tmp/ws"
+git -C "$tmp/ws" -c user.name=kim -c user.email=kim@example.com commit -q --allow-empty -m start
+jq -n --arg w "$tmp/ws" '{me: "kim", repo: "acme/shop", workspace: $w,
+  issues: [{number: 95, title: "t", body: "b", state: "OPEN", assignees: [], labels: [], comments: []}]}' >"$tmp/fake.state.json"
+fake() { bash "$root/tests/fake_gh.sh" "$tmp/fake.state.json" "$@" >/dev/null; }
+fake issue comment 95 --body a
+git -C "$tmp/ws" worktree add -q -b docs/95-x "$tmp/wt"
+fake issue edit 95 --add-assignee @me
+echo x >"$tmp/wt/README.md"
+fake issue close 95
+git -C "$tmp/wt" add README.md
+git -C "$tmp/wt" -c user.name=kim -c user.email=kim@example.com commit -q -m x
+fake issue comment 95 --body b
+[ "$(jq -c .log "$tmp/fake.state.json")" = '["comment 95","edit 95","close 95 +changes","comment 95 +changes"]' ] ||
+  fail 'the fake gh does not mark the writes after a change in a worktree' "$(jq -c .log "$tmp/fake.state.json")"
 
 echo 'scenarios_checks_test: ok'
