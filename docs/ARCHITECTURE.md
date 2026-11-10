@@ -52,7 +52,9 @@ few of its sentences.
   the file in `scenarios/` holds.
 - `tests/<name>_test.sh` — the tests that `make check` runs.
   `tests/<name>_eval.sh` — the evals. They call the model, except in the
-  runs that I-7 describes.
+  runs that I-7 describes. `tests/fake_gh.sh` — the fake `gh` over a JSON
+  tracker that the evals put first on `PATH`; what differs from one eval
+  to another, as the labels and the visibility, is in that JSON.
   `tests/fixtures/<area>/` — recorded payloads and trees, for the tests
   that read them: `tests/<area>_<kind>_test.sh`, where `<kind>` is the
   last word before `_test.sh`, for example `scripts`, `checks` or
@@ -92,7 +94,7 @@ module too: the text that the flows are checked against.
 | architecture | `skills/architecture/` | `tests/architecture_scripts_test.sh`, `tests/architecture_since_test.sh`, `tests/architecture_fences_test.sh`, `tests/architecture_eval.sh`, `tests/architecture_checks_test.sh`, `tests/fixtures/architecture/` |
 | product | `skills/product/` | `tests/product_eval.sh`, `tests/product_checks_test.sh`, `tests/fixtures/product/` |
 | docker, typescript-conventions, react-conventions | `skills/<name>/` | text only; `tests/skill_load_eval.sh`, `tests/skill_load_checks_test.sh` and `tests/fixtures/skill_load/` count the loads of the two conventions |
-| scenarios | `scenarios/` | `tests/scenarios_eval.sh`, which runs craft on three take-in scenarios with a fake `gh` over a JSON tracker; `tests/scenarios_checks_test.sh`, which also reads the headings of `scenarios/github/take-in.md`; `tests/scenarios_text_eval.sh`, which reads the text of a skill against the scenario file of its flow on Haiku, with a row for each file in `scenarios/*/*.md`, and `tests/scenarios_text_checks_test.sh`; `tests/fixtures/scenarios/`, `tests/fixtures/scenarios_text/`; the `scenarios` target of the `Makefile`, which checks the shape and the host words of each scenario file, and which `tests/makefile_test.sh` tests |
+| scenarios | `scenarios/` | `tests/scenarios_eval.sh`, which runs craft on five take-in scenarios with the fake `gh` of `tests/fake_gh.sh`; `tests/scenarios_checks_test.sh`, which also reads the headings of `scenarios/github/take-in.md`; `tests/scenarios_text_eval.sh`, which reads the text of a skill against the scenario file of its flow on Haiku, with a row for each file in `scenarios/*/*.md`, and `tests/scenarios_text_checks_test.sh`; `tests/fixtures/scenarios/`, `tests/fixtures/scenarios_text/`; the `scenarios` target of the `Makefile`, which checks the shape and the host words of each scenario file, and which `tests/makefile_test.sh` tests |
 | sessions | `.claude/skills/sessions/` | `tests/sessions_scripts_test.sh`, `tests/fixtures/sessions/` |
 | release, infographic | `.claude/skills/<name>/` | none |
 | plugin | `.claude-plugin/`, `.codex-plugin/`, `Makefile`, `.github/` | `tests/makefile_test.sh` |

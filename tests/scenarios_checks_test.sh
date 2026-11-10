@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Runs the checks of tests/scenarios_eval.sh on recorded runs, with no model.
 # tests/fixtures/scenarios/take-in/ holds the events, the tracker, the
-# branches and the workspace of one probe run of each case, 2026-11-03. In
-# the run of the free task, no message about #91 comes before the branch, but
-# think lines do: the log cannot show whether a message told the gist (#206),
-# so the two gist items give SKIP, and every other item passes. A copy with
+# branches and the workspace of one probe run of each case: free, other and
+# down of 2026-11-03, dup and busy of 2026-11-10. In the runs of free, dup and
+# busy, no message about #91 comes before the branch, but think lines do: the
+# log cannot show whether a message told the gist (#206), so the two gist
+# items give SKIP. The run of dup carries one line of the stack trace of #95
+# to #91, not the trace, and fails that item. Every other item passes. A copy with
 # one change to a recorded run changes the verdicts it names and no other; a
 # read added to a run changes none. Each scenario that the checks name is a
 # heading of scenarios/github/take-in.md.
@@ -24,10 +26,15 @@ fail() {
 checks() { "$root/tests/scenarios_eval.sh" --check "$1"; }
 
 out=$(checks "$fixtures")
-[ "$(grep -c '^PASS ' <<<"$out")" = 15 ] || fail 'the recorded runs do not pass 15 items' "$out"
-[ "$(grep -v '^PASS ' <<<"$out")" = 'SKIP A free task: the first message about #91 tells its gist: a think line comes before it
+[ "$(grep -c '^PASS ' <<<"$out")" = 34 ] || fail 'the recorded runs do not pass 34 items' "$out"
+[ "$(grep -v '^PASS ' <<<"$out")" = 'SKIP A busy duplicate: the first message about #91 tells its gist: a think line comes before it
+SKIP A busy duplicate: the gist comes before any change: only a think line comes before the change
+FAIL A free duplicate: a comment on #91 holds the stack trace of #95
+SKIP A free duplicate: the first message about #91 tells its gist: a think line comes before it
+SKIP A free duplicate: the gist comes before any change: only a think line comes before the change
+SKIP A free task: the first message about #91 tells its gist: a think line comes before it
 SKIP A free task: the gist comes before any change: only a think line comes before the change' ] ||
-  fail 'the recorded runs do not skip only the two gist items of the free task' "$out"
+  fail 'the recorded runs do not give only the six gist SKIPs and the FAIL of the trace' "$out"
 
 while IFS= read -r scenario; do
   grep -qxF "## $scenario" "$root/scenarios/github/take-in.md" || fail "no scenario named $scenario" "$out"
@@ -38,7 +45,12 @@ copy() {
   n=$((n + 1))
   cp -R "$fixtures" "$tmp/$n"
 }
-scenario() { case $1 in free) echo 'A free task' ;; other) echo 'A task that another person is assigned to' ;; down) echo 'The tracker does not answer' ;; esac; }
+scenario() {
+  case $1 in
+    free) echo 'A free task' ;; other) echo 'A task that another person is assigned to' ;;
+    down) echo 'The tracker does not answer' ;; dup) echo 'A free duplicate' ;; busy) echo 'A busy duplicate' ;;
+  esac
+}
 state() { jq "$2" "$tmp/$n/$1.state.json" >"$tmp/state" && mv "$tmp/state" "$tmp/$n/$1.state.json"; }
 add() { printf '%s\n' "$2" >>"$tmp/$n/$1.events"; }
 first() { { printf '%s\n' "$2"; cat "$fixtures/$1.events"; } >"$tmp/$n/$1.events"; }
@@ -136,5 +148,55 @@ flips down 'never: a gist of #91 that the run did not read'
 copy
 sed -i.bak 's/502/5xx/g' "$tmp/$n/down.events"
 flips down 'the person is told the error of the tracker'
+
+# A free duplicate. The stack trace of #95 in a comment on #91, its indent
+# lost.
+copy
+state dup '(.issues[] | select(.number == 91) | .comments) +=
+  [{author: "kim", body: (.issues[] | select(.number == 95) | .body | split("```")[1] | gsub("\n +"; "\n"))}]'
+flips dup 'a comment on #91 holds the stack trace of #95'
+
+# #95 closed, but not as a duplicate.
+copy
+state dup '(.issues[] | select(.number == 95)) |= (.stateReason = "COMPLETED" | .duplicateOf = null)'
+flips dup '#95 is closed as a duplicate of #91'
+
+# #95 closed before the comment on #91.
+copy
+state dup '.log = ["close 95"] + (.log - ["close 95"])'
+flips dup 'the comment on #91 comes before #95 closes'
+
+# An edit in the workspace before #95 closes, and a file in <tmp> there.
+copy
+{ head -n 10 "$fixtures/dup.events"; printf 'Edit\t<work>/README.md\n'; tail -n +11 "$fixtures/dup.events"; } >"$tmp/$n/dup.events"
+flips dup '#95 closes before the work starts'
+copy
+{ head -n 10 "$fixtures/dup.events"; printf 'Write\t<tmp>/comment.md\n'; tail -n +11 "$fixtures/dup.events"; } >"$tmp/$n/dup.events"
+stays
+
+# A last message that does not name #95.
+copy
+add dup $'text\tThe pull request waits for you.'
+flips dup 'the last message names #95 as closed'
+
+# #91 closed.
+copy
+state dup '(.issues[] | select(.number == 91) | .state) = "CLOSED"'
+flips dup 'never: #91 closes'
+
+# A busy duplicate: #95 closed in the tracker, closed in the log, given a
+# second assignee, and named in no message.
+copy
+state busy '(.issues[] | select(.number == 95) | .state) = "CLOSED"'
+flips busy '#95 stays open'
+copy
+state busy '.log += ["close 95"]'
+flips busy 'never: #95 closes'
+copy
+state busy '(.issues[] | select(.number == 95) | .assignees) += ["kim"]'
+flips busy 'never: the assignees of #95 change'
+copy
+sed -i.bak '/^text/s/#95/#96/g' "$tmp/$n/busy.events"
+flips busy 'the person is told that #95 stays open because it is busy'
 
 echo 'scenarios_checks_test: ok'

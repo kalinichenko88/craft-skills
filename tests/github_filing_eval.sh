@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Probes #260: does an agent file a nit that a review found outside the
 # task? Each run builds a Python workspace on the branch of a task, #14, a
-# tracker as JSON, and a fake gh first on PATH that reads and writes that
-# JSON. One opus session of `claude -p` gets three review findings outside
+# tracker as JSON, and a gh first on PATH that runs tests/fake_gh.sh over
+# that JSON. One opus session of `claude -p` gets three review findings outside
 # the module of the task, `orders/`:
 #
 #   nit     `get_invoice_total` could be `invoice_total`: taste, no rule
@@ -84,7 +84,7 @@ setup() {
   # the remote names a real host, and git asks no credential helper for it.
   git -C "$w" remote set-url origin https://github.com/acme/shop.git
   git -C "$w" config credential.helper ''
-  jq -n --arg me "$me" '{me: $me, repo: "acme/shop",
+  jq -n --arg me "$me" '{me: $me, repo: "acme/shop", labels: ["bug", "debt", "documentation", "enhancement"], visibility: "PUBLIC",
     issues: [
       {number: 14, title: "Order total is off by a cent on some orders", body: "`orders/total.py` sums floats and rounds with `round`, so 3 × 0.35 gives 1.05 on one order and 1.04 on another. Done when the total rounds half up, in Decimal.",
        state: "OPEN", assignees: [$me], labels: ["bug"], milestone: "M1 · Checkout", comments: []},
@@ -94,100 +94,7 @@ setup() {
        state: "OPEN", assignees: [], labels: ["enhancement"], milestone: "Later", comments: []}]}' >"$w.state.json"
   cp "$w.state.json" "$w.start.json"
   mkdir "$w.bin" "$w.ghconfig"
-  printf '#!/usr/bin/env bash\nstate=%q\n' "$w.state.json" >"$w.bin/gh"
-  cat >>"$w.bin/gh" <<'EOF'
-# A fake gh over one JSON tracker: it answers the reads that filing makes,
-# applies its writes to the JSON, and logs each call.
-printf '%s\n' "$*" >>"${state%.state.json}.calls"
-args=("$@") jqf='' fields='' search='' list_state=open num=''
-for ((i = 0; i < $#; i++)); do
-  case ${args[i]} in
-    --jq | -q) jqf=${args[i + 1]} ;;
-    --json) fields=${args[i + 1]} ;;
-    --search | -S) search=${args[i + 1]} ;;
-    --state | -s) list_state=${args[i + 1]} ;;
-  esac
-done
-for a in "${args[@]:2}"; do
-  case $a in
-    */issues/*) num=${a##*/issues/} num=${num%%[!0-9]*} && break ;;
-    \#[0-9]* | [0-9]*) num=${a#\#} && break ;;
-  esac
-done
-me=$(jq -r .me "$state") repo=$(jq -r .repo "$state")
-out() { if [ -n "$jqf" ]; then jq -r "$jqf" <<<"$1"; else printf '%s\n' "$1"; fi; }
-pick() { jq -c --arg f "$fields" "$1"' | . as $i | if $f == "" then . else reduce ($f | split(","))[] as $k ({}; .[$k] = $i[$k]) end'; }
-save() { local t; t=$(jq "$@" "$state") && printf '%s\n' "$t" >"$state"; }
-issues() {
-  jq --arg repo "$repo" '[.issues[] | {number, title, body, state, stateReason: null,
-    url: "https://github.com/\($repo)/issues/\(.number)", assignees: [.assignees[] | {login: .}],
-    labels: [.labels[] | {name: .}], milestone: (if .milestone then {title: .milestone} else null end),
-    comments: [.comments[] | {author: {login: .author}, body}]}]' "$state"
-}
-value() { # value <flag ...>: the argument after the first of the flags
-  for ((i = 0; i < ${#args[@]}; i++)); do
-    for f in "$@"; do [ "${args[i]}" != "$f" ] || { echo "${args[i + 1]}"; return; }; done
-  done
-}
-labels() { # labels <flag ...>: each argument after one of the flags, as a JSON list
-  for ((i = 0; i < ${#args[@]}; i++)); do
-    for f in "$@"; do [ "${args[i]}" != "$f" ] || tr ',' '\n' <<<"${args[i + 1]}"; done
-  done | jq -Rsc 'split("\n") | map(select(length > 0))'
-}
-text() { # text: the body that --body or --body-file gives
-  local f
-  f=$(value --body-file -F)
-  if [ "$f" = - ]; then cat; elif [ -n "$f" ]; then cat "$f"; else value --body -b; fi
-}
-case "$1 $2" in
-  'api repos/{owner}/{repo}') out "$(jq -c '{full_name: .repo, default_branch: "main", visibility: "public"}' "$state")" ;;
-  'api graphql')
-    if [[ $* == *issueOrPullRequest* ]]; then # the entries of collect.sh: none
-      out "$(jq -c '{data: {viewer: {login: .me}, repository: {}}}' "$state")"
-    else
-      echo "fake gh: no answer for: $*" >&2
-      exit 1
-    fi
-    ;;
-  'issue view')
-    if [ -n "$fields" ]; then
-      out "$(issues | jq -c --argjson n "$num" '.[] | select(.number == $n)' | pick .)"
-    else
-      issues | jq -r --argjson n "$num" '.[] | select(.number == $n)
-        | "title:\t\(.title)\nstate:\t\(.state)\nmilestone:\t\(.milestone.title // "")\n--\n\(.body)\n", (.comments[] | "-- \(.author.login)\n\(.body)\n")'
-    fi
-    ;;
-  'issue list')
-    out "$(issues | jq -c --arg s "$list_state" --arg q "$search" '[.[] | select($s == "all" or (.state | ascii_downcase) == $s)
-      | select($q == "" or ((.title + " " + .body) | ascii_downcase | contains($q | ascii_downcase)))]' | pick '.[]' | jq -sc .)"
-    ;;
-  'issue create')
-    n=$(jq '[.issues[].number] | max + 1' "$state")
-    save --argjson n "$n" --arg t "$(value --title -t)" --arg b "$(text)" --arg m "$(value --milestone -m)" \
-      --argjson l "$(labels --label -l)" --arg me "$me" --arg a "$(value --assignee -a)" \
-      '.issues += [{number: $n, title: $t, body: $b, state: "OPEN", labels: $l, comments: [],
-        assignees: (if $a == "" then [] elif $a == "@me" then [$me] else [$a] end),
-        milestone: (if $m == "" then null else $m end)}]'
-    echo "https://github.com/$repo/issues/$n"
-    ;;
-  'issue edit')
-    t=$(value --title -t) b=$(text)
-    [ -z "$t" ] || save --argjson n "$num" --arg t "$t" '(.issues[] | select(.number == $n) | .title) = $t'
-    [ -z "$b" ] || save --argjson n "$num" --arg b "$b" '(.issues[] | select(.number == $n) | .body) = $b'
-    save --argjson n "$num" --argjson l "$(labels --add-label)" '(.issues[] | select(.number == $n) | .labels) |= (. + $l | unique)'
-    echo "https://github.com/$repo/issues/$num"
-    ;;
-  'issue comment')
-    save --argjson n "$num" --arg me "$me" --arg b "$(text)" '(.issues[] | select(.number == $n) | .comments) += [{author: $me, body: $b}]'
-    echo "https://github.com/$repo/issues/$num#issuecomment-1"
-    ;;
-  'pr list') out '[]' ;;
-  'repo view') out "$(jq -c '{nameWithOwner: .repo, visibility: "PUBLIC", defaultBranchRef: {name: "main"}}' "$state")" ;;
-  'label list') out '[{"name":"bug"},{"name":"debt"},{"name":"documentation"},{"name":"enhancement"}]' ;;
-  'auth status') echo "github.com: Logged in to github.com account $me" ;;
-  *) echo "fake gh: no answer for: $*" >&2; exit 1 ;;
-esac
-EOF
+  printf '#!/usr/bin/env bash\nexec bash %q %q "$@"\n' "$root/tests/fake_gh.sh" "$w.state.json" >"$w.bin/gh"
   chmod +x "$w.bin/gh"
 }
 

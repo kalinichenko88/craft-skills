@@ -2,8 +2,8 @@
 # Probes #253: a decision that the person makes in a conversation, with no
 # pull request, and that makes an open issue false. Does it reach the issue
 # in the same session? Each run builds a workspace with a letter from a
-# client, a tracker as JSON with three open issues, and a fake gh first on
-# PATH that reads and writes that JSON. #12 states default A for a partner's
+# client, a tracker as JSON with three open issues, and a gh first on PATH
+# that runs tests/fake_gh.sh over that JSON. #12 states default A for a partner's
 # new rate; the letter asks for default B. One opus session of `claude -p`
 # takes two turns: the person asks to check the letter against the open
 # issues, then decides default B and asks for the paragraph of the reply.
@@ -62,7 +62,7 @@ EOF
   # With no remote, 3 of 5 runs found no repository and read no issue.
   git -C "$w" remote add origin https://github.com/acme/shop.git
   git -C "$w" config credential.helper '' # git asks no helper for a login to that host
-  jq -n --arg me "$me" --arg a "$default_a" --argjson who "$([ "$case" = busy ] && echo '["rivera"]' || echo '[]')" '{me: $me, repo: "acme/shop", issues: [
+  jq -n --arg me "$me" --arg a "$default_a" --argjson who "$([ "$case" = busy ] && echo '["rivera"]' || echo '[]')" '{me: $me, repo: "acme/shop", labels: ["bug", "enhancement"], visibility: "PRIVATE", issues: [
     {number: 12, title: "Let the merchant choose whether a new partner rate applies to existing customers",
      body: ("**What.** When the merchant changes the rate of a partner who has customers, a dialog asks where the new rate applies:\n\n- " + $a + ": every current customer of the partner pays the new rate from the next payment.\n- **New customers only**: the current customers keep their rate; only customers brought from now on pay the new rate.\n\nThe partner'"'"'s history records the choice.\n\n**Why.** Decided on 29 Oct 2026: the market applies a new rate to all customers, and so does our level 1. With the dialog, the client no longer has to answer our question 1 of 23 Oct.\n\n**Acceptance.** A partner has 3 customers at 5%. The merchant sets 7% and keeps the default: the next payment of each of the 3 customers pays the partner 7%. With \"New customers only\", the 3 customers still pay 5%."),
      state: "OPEN", assignees: $who, labels: ["enhancement"], comments: []},
@@ -74,76 +74,7 @@ EOF
      state: "OPEN", assignees: [], labels: ["enhancement"], comments: []}]}' >"$w.state.json"
   cp "$w.state.json" "$w.start.json"
   mkdir "$w.bin" "$w.ghconfig"
-  printf '#!/usr/bin/env bash\nstate=%q\n' "$w.state.json" >"$w.bin/gh"
-  cat >>"$w.bin/gh" <<'EOF'
-# A fake gh over one JSON tracker: it answers the reads, applies the writes
-# to the JSON, and logs each call.
-printf '%s\n' "$*" >>"${state%.state.json}.calls"
-args=("$@") jqf='' fields='' search='' list_state=open num=''
-for ((i = 0; i < $#; i++)); do
-  case ${args[i]} in
-    --jq | -q) jqf=${args[i + 1]} ;;
-    --json) fields=${args[i + 1]} ;;
-    --search | -S) search=${args[i + 1]} ;;
-    --state | -s) list_state=${args[i + 1]} ;;
-  esac
-done
-for a in "${args[@]:2}"; do
-  case $a in
-    */issues/*) num=${a##*/issues/} num=${num%%[!0-9]*} && break ;;
-    \#[0-9]* | [0-9]*) num=${a#\#} && break ;;
-  esac
-done
-me=$(jq -r .me "$state") repo=$(jq -r .repo "$state")
-out() { if [ -n "$jqf" ]; then jq -r "$jqf" <<<"$1"; else printf '%s\n' "$1"; fi; }
-pick() { jq -c --arg f "$fields" "$1"' | . as $i | if $f == "" then . else reduce ($f | split(","))[] as $k ({}; .[$k] = $i[$k]) end'; }
-save() { local t; t=$(jq "$@" "$state") && printf '%s\n' "$t" >"$state"; }
-issues() {
-  jq --arg repo "$repo" '[.issues[] | {number, title, body, state, stateReason: null,
-    url: "https://github.com/\($repo)/issues/\(.number)", assignees: [.assignees[] | {login: .}],
-    labels: [.labels[] | {name: .}], comments: [.comments[] | {author: {login: .author}, body}]}]' "$state"
-}
-value() { # value <flag ...>: the argument after the first of the flags
-  for ((i = 0; i < ${#args[@]}; i++)); do
-    for f in "$@"; do [ "${args[i]}" != "$f" ] || { echo "${args[i + 1]}"; return; }; done
-  done
-}
-text() { # text: the body that --body or --body-file gives
-  local f
-  f=$(value --body-file -F)
-  if [ "$f" = - ]; then cat; elif [ -n "$f" ]; then cat "$f"; else value --body -b; fi
-}
-case "$1 $2" in
-  'issue view')
-    if [ -n "$fields" ]; then
-      out "$(issues | jq -c --argjson n "$num" '.[] | select(.number == $n)' | pick .)"
-    else
-      issues | jq -r --argjson n "$num" '.[] | select(.number == $n)
-        | "title:\t\(.title)\nstate:\t\(.state)\n--\n\(.body)\n", (.comments[] | "-- \(.author.login)\n\(.body)\n")'
-    fi
-    ;;
-  'issue list')
-    out "$(issues | jq -c --arg s "$list_state" --arg q "$search" '[.[] | select($s == "all" or (.state | ascii_downcase) == $s)
-      | select($q == "" or ((.title + " " + .body) | ascii_downcase | contains($q | ascii_downcase)))]' | pick '.[]' | jq -sc .)"
-    ;;
-  'issue edit')
-    t=$(value --title -t) b=$(text)
-    [ -z "$t" ] || save --argjson n "$num" --arg t "$t" '(.issues[] | select(.number == $n) | .title) = $t'
-    [ -z "$b" ] || save --argjson n "$num" --arg b "$b" '(.issues[] | select(.number == $n) | .body) = $b'
-    echo "https://github.com/$repo/issues/$num"
-    ;;
-  'issue comment')
-    save --argjson n "$num" --arg me "$me" --arg b "$(text)" '(.issues[] | select(.number == $n) | .comments) += [{author: $me, body: $b}]'
-    echo "https://github.com/$repo/issues/$num#issuecomment-1"
-    ;;
-  'api user') out "$(jq -c '{login: .me}' "$state")" ;; # 2 of 50 runs asked who is logged in
-  'pr list') out '[]' ;;
-  'repo view') out "$(jq -c '{nameWithOwner: .repo, visibility: "PRIVATE", defaultBranchRef: {name: "main"}}' "$state")" ;;
-  'label list') out '[{"name":"bug"},{"name":"enhancement"}]' ;;
-  'auth status') echo "github.com: Logged in to github.com account $me" ;;
-  *) echo "fake gh: no answer for: $*" >&2; exit 1 ;;
-esac
-EOF
+  printf '#!/usr/bin/env bash\nexec bash %q %q "$@"\n' "$root/tests/fake_gh.sh" "$w.state.json" >"$w.bin/gh"
   chmod +x "$w.bin/gh"
 }
 

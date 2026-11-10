@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Probes a conformance run of craft against scenarios/github/take-in.md, for
 # #231. Each case builds a tracker as JSON and a workspace with a bare origin,
-# puts a fake gh first on PATH that reads and writes that JSON, and runs one
+# puts a gh first on PATH that runs tests/fake_gh.sh over that JSON, and runs one
 # opus session of `claude -p` on the person's message. Then it checks the Then
 # and Never items of the case's scenario against the end state of the JSON,
 # the branches of the origin, and the session's messages and tool calls:
@@ -9,6 +9,8 @@
 #   free   A free task
 #   other  A task that another person is assigned to
 #   down   The tracker does not answer
+#   dup    A free duplicate
+#   busy   A busy duplicate
 #
 # The session loads this checkout as the plugin, with --setting-sources
 # project, so no other plugin and no setting of this machine reaches it. Each
@@ -28,11 +30,23 @@
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
-usage() { echo "usage: $0 [free|other|down ...] | --check <runs folder>" >&2; exit 2; }
+usage() { echo "usage: $0 [free|other|down|dup|busy ...] | --check <runs folder>" >&2; exit 2; }
 
 title='README: the install command says npm instal'
 body='The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.'
 me=kim other=rivera
+# #95, the duplicate: the same report in other words. In the case of a free
+# duplicate, its text has a stack trace that #91 does not have.
+title95='Installing shop by the README leaves the app without the module'
+body95='I followed README.md to install shop, and the package did not install: the command there is `npm instal shop`, with one l.'
+trace="Error: Cannot find module 'shop'
+Require stack:
+- /home/lee/app/index.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.<anonymous> (/home/lee/app/index.js:1:14)"
 
 # setup <dir> <case>: the workspace <dir>, its origin <dir>.origin, the
 # tracker <dir>.state.json, and the fake gh in <dir>.bin.
@@ -48,109 +62,16 @@ setup() {
   git -C "$w" remote add origin "$w.origin"
   git -C "$w" push -q -u origin main
   jq -n --arg case "$2" --arg me "$me" --arg other "$other" --arg origin "$w.origin" \
-    --arg title "$title" --arg body "$body" '{me: $me, repo: "acme/shop", origin: $origin,
-      down: ($case == "down"), prs: [],
-      issues: [{number: 91, title: $title, body: $body, state: "OPEN", stateReason: null,
-        assignees: (if $case == "other" then [$other] else [] end),
-        labels: [], comments: [], linked: []}]}' >"$w.state.json"
+    --arg title "$title" --arg body "$body" --arg title95 "$title95" --arg body95 "$body95" --arg trace "$trace" '
+    def task($n; $t; $b; $who): {number: $n, title: $t, body: $b, state: "OPEN", stateReason: null,
+      assignees: $who, labels: [], comments: [], linked: []};
+    {me: $me, repo: "acme/shop", origin: $origin, down: ($case == "down"), prs: [],
+      labels: ["bug", "debt", "enhancement"], visibility: "PUBLIC",
+      issues: ([task(91; $title; $body; if $case == "other" then [$other] else [] end)]
+        + if $case == "dup" then [task(95; $title95; $body95 + "\n\nThen my app failed:\n\n```\n" + $trace + "\n```"; [])]
+          elif $case == "busy" then [task(95; $title95; $body95; [$other])] else [] end)}' >"$w.state.json"
   mkdir "$w.bin"
-  printf '#!/usr/bin/env bash\nstate=%q\n' "$w.state.json" >"$w.bin/gh"
-  cat >>"$w.bin/gh" <<'EOF'
-# A fake gh over one JSON tracker: it answers the reads that the take-in
-# makes, applies its writes to the JSON, and logs each call.
-printf '%s\n' "$*" >>"${state%.state.json}.calls"
-args=("$@") jqf='' fields='' search='' list_state=open num='' n=''
-for ((i = 0; i < $#; i++)); do
-  a=${args[i]}
-  case $a in
-    --jq | -q) jqf=${args[i + 1]} ;;
-    --json) fields=${args[i + 1]} ;;
-    --search | -S) search=${args[i + 1]} ;;
-    --state | -s) list_state=${args[i + 1]} ;;
-    n=*) n=${a#n=} ;;
-  esac
-done
-for a in "${args[@]:2}"; do
-  case $a in
-    */issues/*) num=${a##*/issues/} num=${num%%[!0-9]*} && break ;;
-    \#[0-9]* | [0-9]*) num=${a#\#} && break ;;
-  esac
-done
-case $* in --version | *' --help' | *' -h') echo 'gh version 2.98.0'; exit 0 ;; esac
-if [ "$(jq -r .down "$state")" = true ]; then
-  echo 'HTTP 502: Bad Gateway (https://api.github.com/graphql)' >&2
-  exit 1
-fi
-me=$(jq -r .me "$state") repo=$(jq -r .repo "$state") origin=$(jq -r .origin "$state")
-out() { if [ -n "$jqf" ]; then jq -r "$jqf" <<<"$1"; else printf '%s\n' "$1"; fi; }
-pick() { jq -c --arg f "$fields" "$1"' | . as $i | if $f == "" then . else reduce ($f | split(","))[] as $k ({}; .[$k] = $i[$k]) end'; }
-save() { local t; t=$(jq "$@" "$state") && printf '%s\n' "$t" >"$state"; }
-issues() {
-  jq --arg repo "$repo" '[.issues[] | {number, title, body, state, stateReason,
-    url: "https://github.com/\($repo)/issues/\(.number)", assignees: [.assignees[] | {login: .}],
-    labels: [.labels[] | {name: .}], comments: [.comments[] | {author: {login: .author}, body}]}]' "$state"
-}
-value() { # value <flag>: the argument after <flag>
-  for ((i = 0; i < ${#args[@]}; i++)); do [ "${args[i]}" != "$1" ] || { echo "${args[i + 1]}"; return; }; done
-}
-case "$1 $2" in
-  'api repos/{owner}/{repo}') out "$(jq -c '{full_name: .repo, default_branch: "main", visibility: "public"}' "$state")" ;;
-  'api user') out "$(jq -c '{login: .me}' "$state")" ;;
-  'api graphql')
-    [ -n "$n" ] || n=$(grep -oE 'issue\(number: *[0-9]+' <<<"$*" | grep -oE '[0-9]+$' || true)
-    if [[ $* == *'issue(number:'* ]] && [ -n "$n" ]; then
-      linked=$(jq -r --argjson n "$n" '.issues[] | select(.number == $n) | .linked[]' "$state" |
-        while read -r b; do
-          oid=$(git -C "$origin" rev-parse "refs/heads/$b")
-          jq -nc --arg b "$b" --arg oid "$oid" --arg repo "$repo" '{ref: {name: $b, repository: {nameWithOwner: $repo},
-            target: {oid: $oid, committedDate: "2026-11-03T00:00:00Z"}, compare: {behindBy: 0}}}'
-        done | jq -sc .)
-      out "$(jq -c --argjson n "$n" --argjson linked "$linked" '. as $s | ($s.issues[] | select(.number == $n)) as $i
-        | {data: {viewer: {login: $s.me}, repository: {nameWithOwner: $s.repo, defaultBranchRef: {name: "main"},
-          issue: {state: $i.state, assignees: {nodes: [$i.assignees[] | {login: .}]}, linkedBranches: {nodes: $linked},
-            closedByPullRequestsReferences: {nodes: []}}}}}' "$state")"
-    elif [[ $* == *issueOrPullRequest* ]]; then # the entries of collect.sh: none
-      out "$(jq -c '{data: {viewer: {login: .me}, repository: {}}}' "$state")"
-    else
-      echo "fake gh: no answer for: $*" >&2
-      exit 1
-    fi
-    ;;
-  'issue view')
-    if [ -n "$fields" ]; then
-      out "$(issues | jq -c --argjson n "$num" '.[] | select(.number == $n)' | pick .)"
-    else
-      issues | jq -r --argjson n "$num" '.[] | select(.number == $n)
-        | "title:\t\(.title)\nstate:\t\(.state)\nassignees:\t\([.assignees[].login] | join(", "))\n--\n\(.body)"'
-    fi
-    ;;
-  'issue list')
-    out "$(issues | jq -c --arg s "$list_state" --arg q "$search" '[.[] | select($s == "all" or (.state | ascii_downcase) == $s)
-      | select($q == "" or ((.title + " " + .body) | ascii_downcase | contains($q | ascii_downcase)))]' | pick '.[]' | jq -sc .)"
-    ;;
-  'issue edit')
-    who=$(value --add-assignee)
-    [ "$who" != @me ] || who=$me
-    [ -z "$who" ] || save --argjson n "$num" --arg who "$who" '(.issues[] | select(.number == $n) | .assignees) |= (. + [$who] | unique)'
-    ;;
-  'issue develop')
-    if [[ $* == *--list* ]]; then
-      jq -r --argjson n "$num" --arg repo "$repo" '.issues[] | select(.number == $n) | .linked[] | "\(.)\thttps://github.com/\($repo)/tree/\(.)"' "$state"
-    else
-      b=$(value --name)
-      git -C "$origin" branch "$b" main
-      save --argjson n "$num" --arg b "$b" '(.issues[] | select(.number == $n) | .linked) += [$b]'
-      echo "github.com/$repo/tree/$b"
-      [[ $* != *--checkout* ]] || { git fetch -q origin "$b" && git checkout -q -b "$b" "origin/$b"; }
-    fi
-    ;;
-  'pr list') out "$(jq -c .prs "$state")" ;;
-  'repo view') out "$(jq -c '{nameWithOwner: .repo, visibility: "PUBLIC", defaultBranchRef: {name: "main"}}' "$state")" ;;
-  'label list') out '[{"name":"bug"},{"name":"debt"},{"name":"enhancement"}]' ;;
-  'auth status') echo "github.com: Logged in to github.com account $me" ;;
-  *) echo "fake gh: no answer for: $*" >&2; exit 1 ;;
-esac
-EOF
+  printf '#!/usr/bin/env bash\nexec bash %q %q "$@"\n' "$root/tests/fake_gh.sh" "$w.state.json" >"$w.bin/gh"
   chmod +x "$w.bin/gh"
 }
 
@@ -197,7 +118,7 @@ record() {
 # passes "the run waits".
 # shellcheck disable=SC2034 # the items read the values through eval
 check() {
-  local d=$1 s first_write named nline gist titled think assignees linked branch same
+  local d=$1 s first_write named nline gist titled think assignees linked branch same closed work last
   # A write: an edit of a file, a commit, a branch, a worktree, or a write to
   # the tracker. A read, as `sed -n 1p worktree.sh` or `git merge-base`, is
   # none.
@@ -209,6 +130,13 @@ check() {
   gist=$(grep -F "$title" <<<"$named" | cut -d: -f1 || true)
   titled=$(grep -n "^text" "$d.events" | grep -F "$title" | head -n 1 | cut -d: -f1)
   think=$(grep -n "^think" "$d.events" | head -n 1 | cut -d: -f1)
+  # The close of #95, and the start of the work: an edit of a file in the
+  # workspace, or a commit (scenarios/TERMS.md). A file in <tmp>, as the text
+  # of a comment, is not the work.
+  closed=$(awk -F'\t' '$1 ~ /^(sub)?Bash$/ && $2 ~ /gh issue close +(#?95|[^ ]*\/issues\/95)([^0-9]|$)/ { print NR; exit }' "$d.events")
+  work=$(awk -F'\t' '$1 ~ /^(sub)?(Edit|Write|NotebookEdit)$/ && $2 ~ /^<work>\// ||
+    $1 ~ /^(sub)?Bash$/ && $2 ~ /sed -i|perl -[a-z]*i|git( +-[Cc] +[^ ]+)* +commit/ { print NR; exit }' "$d.events")
+  last=$(awk -F'\t' '$1 == "text" { last = $2 } END { print last }' "$d.events")
   # The workspace as setup leaves it: no changed file, main, one worktree,
   # HEAD on main, one commit on main, no stash entry.
   same='[ "$(cat "$d.workspace")" = "$(printf "main\nworktrees 1\nhead main\nmain 1\nstash 0")" ]'
@@ -216,6 +144,7 @@ check() {
   linked=$(jq -c '.issues[] | select(.number == 91) | .linked' "$d.state.json")
   branch=$(jq -r '.[0] // empty' <<<"$linked")
   item() { if eval "$2"; then echo "PASS $s: $1"; else echo "FAIL $s: $1"; fi; }
+  issue() { jq -rc --argjson n "$1" ".issues[] | select(.number == \$n) | $2" "$d.state.json"; }
   told() { grep "^text" "$d.events" | grep -qiF "$1"; }
   before() { [ -n "$1" ] && { [ -z "$first_write" ] || [ "$1" -lt "$first_write" ]; }; }
   # first: the first message about #91 tells its gist.
@@ -226,19 +155,23 @@ check() {
       item 'the first message about #91 tells its gist' '[ -n "$gist" ]'
     fi
   }
+  # outcomes: the Then and Never items of A free task, for #91.
+  outcomes() {
+    first
+    if ! before "$gist" && ! before "$nline" && before "$think"; then
+      echo "SKIP $s: the gist comes before any change: only a think line comes before the change"
+    else
+      item 'the gist comes before any change' 'before "$gist"'
+    fi
+    item '#91 is assigned to the person' '[ "$assignees" = "[\"$me\"]" ]'
+    item 'a branch <type>/91-<two to four words> exists' 'grep -qE "^(feat|fix|refactor|docs|test|ci|chore)/91-[a-z0-9]+(-[a-z0-9]+){1,3}(, not from main)?\$" "$d.branches"'
+    item 'that branch is made from the default branch' '[ -n "$branch" ] && grep -qxF "$branch" "$d.branches"'
+    item 'that branch is linked to #91' '[ -n "$branch" ] && cut -d, -f1 "$d.branches" | grep -qxF "$branch"'
+    item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'
+  }
   case $2 in
     free) s='A free task'
-      first
-      if ! before "$gist" && ! before "$nline" && before "$think"; then
-        echo "SKIP $s: the gist comes before any change: only a think line comes before the change"
-      else
-        item 'the gist comes before any change' 'before "$gist"'
-      fi
-      item '#91 is assigned to the person' '[ "$assignees" = "[\"$me\"]" ]'
-      item 'a branch <type>/91-<two to four words> exists' 'grep -qE "^(feat|fix|refactor|docs|test|ci|chore)/91-[a-z0-9]+(-[a-z0-9]+){1,3}(, not from main)?\$" "$d.branches"'
-      item 'that branch is made from the default branch' '[ -n "$branch" ] && grep -qxF "$branch" "$d.branches"'
-      item 'that branch is linked to #91' '[ -n "$branch" ] && cut -d, -f1 "$d.branches" | grep -qxF "$branch"'
-      item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'
+      outcomes
       ;;
     other) s='A task that another person is assigned to'
       first
@@ -254,6 +187,24 @@ check() {
       item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
       item 'never: a branch for #91 is created' '[ "$(cat "$d.branches")" = main ] && [ "$linked" = "[]" ]'
       ;;
+    dup) s='A free duplicate'
+      # Each line of the trace, with its indent or without.
+      item 'a comment on #91 holds the stack trace of #95' 'jq -e --arg t "$trace" "(.issues[] | select(.number == 91) | .comments)
+        | any(.[]; .body as \$b | all(\$t | split(\"\\n\")[] | sub(\"^ +\"; \"\"); . as \$l | \$b | contains(\$l)))" "$d.state.json" >/dev/null'
+      item '#95 is closed as a duplicate of #91' '[ "$(issue 95 "[.state, .stateReason, .duplicateOf]")" = "[\"CLOSED\",\"DUPLICATE\",91]" ]'
+      item 'the comment on #91 comes before #95 closes' 'jq -e "(.log // []) | (index(\"comment 91\") // 1e9) < (index(\"close 95\") // -1)" "$d.state.json" >/dev/null'
+      item '#95 closes before the work starts' '[ -n "$closed" ] && { [ -z "$work" ] || [ "$closed" -lt "$work" ]; }'
+      item 'the last message names #95 as closed' 'grep -F "#95" <<<"$last" | grep -qi clos'
+      item 'never: #91 closes' '[ "$(issue 91 .state)" = OPEN ]'
+      outcomes
+      ;;
+    busy) s='A busy duplicate'
+      item '#95 stays open' '[ "$(issue 95 .state)" = OPEN ]'
+      item 'the person is told that #95 stays open because it is busy' 'grep "^text" "$d.events" | grep -F "#95" | grep -qiE "busy|assigned|$other"'
+      outcomes
+      item 'never: #95 closes' '! jq -e "(.log // []) | index(\"close 95\")" "$d.state.json" >/dev/null'
+      item 'never: the assignees of #95 change' '[ "$(issue 95 .assignees)" = "[\"$other\"]" ]'
+      ;;
     *) echo "$0: no case $2" >&2; return 2 ;;
   esac
 }
@@ -263,16 +214,16 @@ if [ "${1:-}" = --check ]; then
   for f in "$2"/*.events; do check "${f%.events}" "$(basename "$f" .events)"; done
   exit 0
 fi
-cases=${*:-free other down}
-for c in $cases; do case $c in free | other | down) ;; *) usage ;; esac; done
+cases=${*:-free other down dup busy}
+for c in $cases; do case $c in free | other | down | dup | busy) ;; *) usage ;; esac; done
 command -v claude >/dev/null || { echo "$0: no claude command" >&2; exit 2; }
 command -v jq >/dev/null || { echo "$0: no jq command" >&2; exit 2; }
 
-# run <case>: the free task goes on into the work after the take-in, so its
+# run <case>: a free task goes on into the work after the take-in, so its
 # cap is higher.
 run() {
-  local w=$runs/$1 budget=2
-  [ "$1" != free ] || budget=4
+  local w=$runs/$1 budget=4
+  [ "$1" != other ] && [ "$1" != down ] || budget=2
   setup "$w" "$1"
   (cd "$w" && PATH="$w.bin:$PATH" claude -p --model opus --setting-sources project \
     --settings '{"language":"English"}' --plugin-dir "$root" --output-format stream-json --verbose \
