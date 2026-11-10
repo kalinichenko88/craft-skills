@@ -56,8 +56,11 @@ line.
 GitHub Actions runs `make check` on each pull request and each push to `main`
 (`.github/workflows/check.yml`). It runs on Ubuntu 26.04, with its ShellCheck
 0.11.0 and with `mawk` as `awk`; `make check` on macOS runs BWK awk. A second
-job runs gitleaks on the new commits. The eval scripts below call the model, so
-they do not run there.
+job runs gitleaks on the new commits. On a pull request from this repository,
+a third job runs `tests/scenarios_text_eval.sh --changed`, below, and fails on
+a LOST item (ADR 0007). It reads the secret `CLAUDE_CODE_OAUTH_TOKEN`, which
+`claude setup-token` prints. The other eval scripts call the model, so they do
+not run there.
 
 A skill script that sets an EXIT trap under `set -u` empties `finished` before
 the trap and sets `finished=1` at each end that succeeds. Its trap turns an exit
@@ -178,15 +181,18 @@ change the verdict of one item.
 scenario file of its flow, with no live run. Each file in `scenarios/*/*.md`
 has a row in the eval: the scenario file and the files of the skill that its
 flow reads, as the four files that a take-in reads. The eval runs each row,
-or the row of the scenario file that its first argument names. Each run is
+or the row of the scenario file that its first argument names, or with
+`--changed` each row with a file that differs from the base. Each run is
 one Haiku session with no tool. It gets the scenario file and the files of
 the row, and gives for each Then and Never item the line that produces it,
 or none. The eval makes five runs on the text at the merge base with
 `origin/main` and five on the working tree, and gives LOST for each item that
 most runs on the working tree give no line for and at most half of the runs
-on the base do. The ten runs of a row cost about $0.20. Run it after a change
-to the files of a row, before a paid run of `tests/scenarios_eval.sh`. A new
-scenario file needs its row, measured as the header of the eval says.
+on the base do. The ten runs of a row cost about $0.24. CI runs it with
+`--changed` at each push to a pull request. Before a paid run of
+`tests/scenarios_eval.sh`, run the same command by hand:
+`tests/scenarios_text_eval.sh --changed`. A new scenario file needs its row, measured
+as the header of the eval says.
 `tests/scenarios_text_checks_test.sh` runs its checks in `make check`, on ten
 recorded runs in `tests/fixtures/scenarios_text/`, and runs the eval with a
 stub `claude`: it fails for a scenario file with no row.

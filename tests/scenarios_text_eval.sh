@@ -4,9 +4,11 @@
 # check but a paid run of tests/scenarios_eval.sh, which has cases for take-in
 # only. Each file in scenarios/*/*.md has a row in `rows` below: the scenario
 # file, then the files of the skill that its flow reads. The eval runs each
-# row, or the row of the scenario file that its first argument names. A
-# scenario file with no row stops the eval before a run, and so does a file of
-# a row that is missing on either side.
+# row, or the row of the scenario file that its first argument names, or with
+# --changed each row with a file that differs between the base and the working
+# tree. CI runs it with --changed on each pull request (ADR 0007). A scenario
+# file with no row stops the eval before a run, and so does a file of a row
+# that is missing on either side.
 #
 # Each run is one haiku session of `claude -p` with no tool. It gets the
 # scenario file, its Then and Never items with an id, and the files of the
@@ -31,7 +33,7 @@
 # folder of an earlier run. `make check` runs them so on
 # tests/fixtures/scenarios_text, through tests/scenarios_text_checks_test.sh.
 #
-# Usage: tests/scenarios_text_eval.sh [scenario file] [runs, default 5] [base, default the merge base with origin/main]
+# Usage: tests/scenarios_text_eval.sh [scenario file | --changed] [runs, default 5] [base, default the merge base with origin/main]
 #        tests/scenarios_text_eval.sh --check <runs folder>
 
 # shellcheck disable=SC2016 # Markdown's backticks
@@ -45,7 +47,7 @@ rows=(
   'scenarios/review-loop/review.md skills/review-loop/SKILL.md skills/github/SKILL.md skills/github/filing.md'
   'scenarios/product/worth.md rules.md skills/product/SKILL.md skills/product/reader.md skills/product/store.md skills/review-loop/SKILL.md skills/github/take-in.md'
 )
-usage() { echo "usage: $0 [scenario file] [runs] [base] | --check <runs folder>" >&2; exit 2; }
+usage() { echo "usage: $0 [scenario file | --changed] [runs] [base] | --check <runs folder>" >&2; exit 2; }
 # row_of <scenario file>: the row of that file, or a status of 1.
 row_of() {
   local r
@@ -84,10 +86,15 @@ if [ "${1:-}" = --check ]; then
   exit 0
 fi
 selected=("${rows[@]}")
+changed=
 case "${1:-}" in
 *.md)
   row=$(row_of "${1#./}") || { echo "$0: $1 has no row" >&2; exit 2; }
   selected=("$row")
+  shift
+  ;;
+--changed)
+  changed=1
   shift
   ;;
 esac
@@ -100,6 +107,14 @@ for f in "$root"/scenarios/*/*.md; do
   f=${f#"$root/"}
   row_of "$f" >/dev/null || { echo "$0: $f has no row: add one, measured as the header says" >&2; exit 2; }
 done
+if [ -n "$changed" ]; then
+  selected=()
+  for row in "${rows[@]}"; do
+    read -r -a files <<<"$row"
+    git -C "$root" diff --quiet "$base" -- "${files[@]}" || selected+=("$row")
+  done
+  [ "${#selected[@]}" -gt 0 ] || { echo "No file of a row differs from $base."; exit 0; }
+fi
 
 # items: each Then and Never item of $scenario: <scenario number>.<T or N><item
 # number>, the scenario, and the item's text with its continuation lines.

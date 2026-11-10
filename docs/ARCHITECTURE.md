@@ -263,7 +263,9 @@ hold 10. A new number needs an ADR.
   `.codex-plugin/plugin.json` and writes `CHANGELOG.md`.
   `.claude-plugin/plugin.json` carries no `version`.
 - **CI.** `make check` on Ubuntu 26.04 with mawk and ShellCheck 0.11.0, and
-  a gitleaks scan.
+  a gitleaks scan. On a pull request from this repository, a third job runs
+  `tests/scenarios_text_eval.sh --changed` with the secret
+  `CLAUDE_CODE_OAUTH_TOKEN`, and fails on a LOST item (ADR 0007).
 
 ## ADRs
 
@@ -276,3 +278,4 @@ status of an ADR that is not accepted.
 - [0004 rules.md reaches the session in two hook outputs](adr/0004-rules-in-two-hook-outputs.md)
 - [0005 A pinned tool prints the import graph for the architecture checks](adr/0005-import-graph-from-a-pinned-tool.md) — rejected
 - [0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps](adr/0006-skill-text-within-the-compaction-budget.md)
+- [0007 CI runs the text eval on the scenario rows that a pull request changes](adr/0007-text-eval-in-ci.md)

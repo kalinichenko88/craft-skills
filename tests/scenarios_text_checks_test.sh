@@ -14,6 +14,8 @@
 # row before any run, and runs with no answer; and it gives the base's text
 # and the working tree's to the two sides, the recorded items for the
 # recorded scenario file, and the scenario file of the row in its output.
+# With --changed, it runs only the rows with a file that differs from the
+# base, and none when no file does.
 
 set -eu
 
@@ -139,4 +141,21 @@ diff "$fixtures/items.tsv" "$tmp/logs/items.tsv" >/dev/null || fail 'the items o
 grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' "$tmp/logs/change.prompt" ||
   fail "the prompt of the working tree lacks the working tree's line"
 ! grep -q 'A line of the working tree only' "$tmp/logs/base.prompt" || fail "the prompt of the base has the working tree's line"
+
+# --changed runs each row with a file that differs from the base, and no
+# other: no row with no change, the take-in row alone for a change of its
+# scenario file, and each row of a shared file, so also the row of the worth
+# flow, whose files are not here.
+git -C "$repo" checkout -q -- skills/github/take-in.md
+rm -f "$tmp/called"
+out=$(PATH="$tmp/bin:$PATH" "$evalsh" --changed 1 HEAD) || fail "--changed with no change exited $?" "$out"
+[ "$out" = 'No file of a row differs from HEAD.' ] || fail '--changed with no change does not say that no file differs' "$out"
+[ ! -e "$tmp/called" ] || fail '--changed with no change called claude'
+echo 'A line of the working tree only.' >>"$repo/$take"
+refused 'no answer' --changed 1 HEAD
+[ "$(grep '^Scenario: ' "$tmp/out")" = "Scenario: $take" ] ||
+  fail '--changed does not run the take-in row alone for a change of its scenario file' "$(cat "$tmp/out")"
+git -C "$repo" checkout -q -- "$take"
+echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
+refused 'rules.md is not in the working tree or at HEAD: the row of scenarios/product/worth.md' --changed 1 HEAD
 echo 'scenarios_text_checks_test: ok'
