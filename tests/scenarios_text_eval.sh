@@ -81,8 +81,8 @@ if [ "${1:-}" = --check ]; then
 fi
 selected=("${rows[@]}")
 case "${1:-}" in
-scenarios/*)
-  row=$(row_of "$1") || { echo "$0: $1 has no row" >&2; exit 2; }
+*.md)
+  row=$(row_of "${1#./}") || { echo "$0: $1 has no row" >&2; exit 2; }
   selected=("$row")
   shift
   ;;

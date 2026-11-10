@@ -124,7 +124,7 @@ refused 'scenarios/none/none.md has no row' "$take" 1 HEAD
 rm -r "$repo/scenarios/none"
 refused 'scenarios/github/none.md has no row' scenarios/github/none.md 1 HEAD
 echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
-refused 'no answer' "$take" 1 HEAD
+refused 'no answer' "./$take" 1 HEAD
 diff "$fixtures/items.tsv" "$tmp/logs/items.tsv" >/dev/null || fail 'the items of the recorded scenario file are not the recorded items'
 grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' "$tmp/logs/change.prompt" ||
   fail "the prompt of the working tree lacks the working tree's line"
