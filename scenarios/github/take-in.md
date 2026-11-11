@@ -16,7 +16,8 @@ Not covered yet:
   reproduction shows another cause;
 - the answers to the question what to do with a branch in the workspace
   that has the name of the new branch;
-- a text after a wait that names another task.
+- a text after a wait that names another task, and a text after a stop
+  that names no task.
 
 ## A free task
 
@@ -457,7 +458,7 @@ Given:
 When: the person writes "#91"
 Then:
 - the first message about #91 tells its gist
-- the person is told that another conversation holds the work on #91
+- the person is told which other conversation holds the work on #91
 - the run stops
 Never:
 - the person is asked whether the work runs somewhere else
