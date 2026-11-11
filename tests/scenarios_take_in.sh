@@ -98,9 +98,11 @@ elsewhere() {
 }
 
 # setup <dir> <case>: the workspace <dir>, its origin <dir>.origin, the
-# tracker <dir>.state.json, and the fake gh in <dir>.bin. <dir>.given.workspace
-# and <dir>.given.branches hold the workspace and the origin's branches as the
-# Given leaves them, in the shape of snapshot.
+# tracker <dir>.state.json, and the fake gh in <dir>.bin. <dir>.given.workspace,
+# <dir>.given.branches and <dir>.given.work hold the workspace, the origin's
+# branches and the work as the Given leaves them, in the shape of snapshot. A
+# Given can also write <dir>.companion, the first text of another open
+# conversation, which the eval starts before the run.
 setup() {
   local w=$1 given=. extra=()
   known "$2"
@@ -275,6 +277,8 @@ check() {
     item 'the person is told in one line that the work on #91 continues on fix/91-typo' \
       'grep "^text" "$d.events" | grep -F fix/91-typo | grep -qi continu'
   }
+  # keeps <assignees>: the assignees of #91 are those of the Given, as JSON.
+  keeps() { item 'never: the assignees of #91 change' "[ \"\$assignees\" = '$1' ]"; }
   # oneworkspace: no worktree is made for #91.
   oneworkspace() { item 'never: a workspace of #91 is created' 'grep -qx "worktrees 1" "$d.workspace"'; }
   # part <k>: the messages to the person before answer <k> of the person and

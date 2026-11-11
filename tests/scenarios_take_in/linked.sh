@@ -7,7 +7,7 @@ linked_check() {
   item 'the person is told that fix/91-typo is linked to #91' 'told fix/91-typo'
   item 'the person is asked whose branch fix/91-typo is' 'asked "whose|yours|your (own )?branch|someone else|another person"'
   nochange 'the run waits'
-  item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+  keeps '[]'
   nobranch '["fix/91-typo"]'
 }
 linked_copies() {

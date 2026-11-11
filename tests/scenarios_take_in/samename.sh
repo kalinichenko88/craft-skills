@@ -26,7 +26,7 @@ samename_check() {
     'says "another name|other name|new name|different name|rename" && says "(delete|remove)( the| this)? (branch|fix/91-typo|it )" && says "(take|use|keep|continue)[^.]*(as|on) (the|it|fix/91-typo)"'
   nowrite 'the run waits'
   kept 'never: fix/91-typo changes'
-  item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+  keeps '[]'
   unlabelled
   item 'never: #91 gets a linked branch' '[ "$linked" = "[]" ]'
 }

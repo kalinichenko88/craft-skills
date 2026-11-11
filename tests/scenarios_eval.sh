@@ -23,8 +23,9 @@
 # sessions of this machine. Such a case runs after the other cases of its
 # round end, one at a time, so that it sees no other run. When the other
 # conversation gives a first result with no error, the log of the run starts
-# with a companion line and its first text. Its cap of $0.10 is not in the cap of a
-# round that --max-cost reads.
+# with a companion line and its first text. Its cap of $0.10 is not in the
+# cap of a round that --max-cost reads. Read the log of such a run for the
+# names of the person's other sessions before it becomes a fixture.
 #
 # With --runs k, each case runs k times, one round of the cases after
 # another. As tau-bench scores an agent, a case passes pass^k only when each
@@ -162,18 +163,20 @@ session() {
     --max-budget-usd "$(budget "$c")" ${deny[@]+"${deny[@]}"} --dangerously-skip-permissions "$@" </dev/null 7>&-) 2>&1 || true
 }
 # companion <workspace>: the open conversation of the Given, which reads its
-# texts from the pipe <workspace>.in on file descriptor 7. It has the first
-# one when its first result comes, or after a minute.
+# texts from the pipe <workspace>.in on file descriptor 7 of the run, and not
+# on one of its own, so that it reads the end of its texts when the run ends.
+# It has the first one when its first result comes, or after a minute.
 companion() {
   local w=$1 i
   mkfifo "$w.in"
   exec 7<>"$w.in"
   (cd "$w" && PATH="$w.bin:$PATH" exec claude -p --model haiku --setting-sources project --settings '{"language":"English"}' \
     --plugin-dir "$root" --input-format stream-json --output-format stream-json --verbose --tools "" --max-budget-usd 0.1 \
-    <&7 >"$w.companion.jsonl" 2>&1) &
+    <&7 7<&- >"$w.companion.jsonl" 2>&1) &
   pid=$!
+  trap 'kill "$pid" 2>/dev/null || true' EXIT
   jq -nc --arg t "$(cat "$w.companion")" '{type: "user", message: {role: "user", content: $t}}' >&7
-  for i in $(seq 60); do ! grep -q '"type":"result"' "$w.companion.jsonl" || break; sleep 1; done
+  for i in $(seq 60); do ! grep -qs '"type":"result"' "$w.companion.jsonl" || break; sleep 1; done
 }
 
 # run <round folder> <case>: the session on the message of the case, set up

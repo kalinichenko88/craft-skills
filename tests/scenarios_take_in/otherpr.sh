@@ -6,7 +6,7 @@ otherpr_check() {
   first
   item 'the person is told that #96 of another person closes #91' 'grep "^text" "$d.events" | grep -F "#96" | grep -qiF "$other"'
   nochange 'the run waits'
-  item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+  keeps '[]'
   nobranch '[]'
 }
 otherpr_copies() {

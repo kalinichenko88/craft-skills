@@ -4,7 +4,7 @@ conv_case() { line conv 2 'An earlier run works on the task in another conversat
 # The other conversation: the eval starts it on the text that <dir>.companion
 # holds, and the session title names it "#91" and the short title.
 conv_given() {
-  inws_given
+  wsbranch
   inprogress_given
   given+=' | .issues[0].linked = ["fix/91-typo"]'
   echo '#91' >"$w.companion"

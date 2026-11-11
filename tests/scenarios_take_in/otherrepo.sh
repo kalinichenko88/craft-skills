@@ -6,7 +6,7 @@ otherrepo_check() {
   first
   item 'the person is told that #91 is in another repository' 'told acme/lib'
   nochange 'the run stops'
-  item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+  keeps '[]'
   nobranch '[]'
 }
 otherrepo_copies() {

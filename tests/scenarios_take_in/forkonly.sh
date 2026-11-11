@@ -11,7 +11,7 @@ forkonly_check() {
   nowrite 'the run waits'
   nobranch '[{"name":"fix/91-typo","repo":"lee/shop"}]'
   onelinked
-  item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$me\"]" ]'
+  keeps '["kim"]'
 }
 forkonly_copies() {
   # No link told, a write to #91, a second linked branch, another assignee,

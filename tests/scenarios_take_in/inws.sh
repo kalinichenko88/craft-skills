@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016,SC2034,SC2154,SC2329 # sourced: the helpers and values are in scenarios_take_in.sh and scenarios_checks_test.sh
 inws_case() { line inws 4 "The person's work is in the workspace" '#91'; }
-# The Given of inws and moved: fix/91-typo in the workspace and on the origin.
-inws_given() {
-  git -C "$w" branch fix/91-typo
-  git -C "$w" push -q -u origin fix/91-typo
-  given='.issues[0] |= (.assignees = [$me] | .linked = ["fix/91-typo"])'
-}
+# wsbranch: fix/91-typo in the workspace and on the origin, for the cases
+# whose workspace has the linked branch.
+wsbranch() { git -C "$w" branch fix/91-typo; git -C "$w" push -q -u origin fix/91-typo; }
+inws_given() { wsbranch; given='.issues[0] |= (.assignees = [$me] | .linked = ["fix/91-typo"])'; }
 inws_check() {
   first
   continued
@@ -14,7 +12,7 @@ inws_check() {
   item 'the work goes on, on fix/91-typo' '[ -n "$(tip "$d.workspace")" ] && [ "$(tip "$d.workspace")" != "$(tip "$d.given.workspace")" ]'
   item 'never: the person is asked whether the work runs somewhere else' '! asked "$where"'
   onelinked
-  item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$me\"]" ]'
+  keeps '["kim"]'
 }
 inws_copies() {
   # No commit and no change on fix/91-typo, and a question whether the work

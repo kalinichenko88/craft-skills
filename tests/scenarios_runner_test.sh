@@ -189,7 +189,8 @@ cat >>"$tmp/stub/claude" <<'EOF'
 echo "$*" >>"$args"
 # The session of call <n> is s<n>. A session that reads its texts records the
 # first one.
-case " $* " in *" --input-format stream-json "*) head -n 1 >"$args.stdin" ;; esac
+# It notes when it holds file descriptor 7, the pipe of its own texts.
+case " $* " in *" --input-format stream-json "*) head -n 1 >"$args.stdin"; [ ! -e /dev/fd/7 ] || : >"$args.fd7" ;; esac
 echo "{\"type\":\"system\",\"subtype\":\"init\",\"session_id\":\"s$(wc -l <"$args" | tr -d ' ')\"}"
 case " $* " in
   *" --resume "*) cost=2.5
@@ -250,13 +251,16 @@ got=$(stub linkedhere)
 # The other conversation of conv starts first, on Haiku with no tools, and
 # reads "#91"; the run then has ListAgents, and the cases with no such
 # conversation do not.
-# It runs after the other cases of the round end, so that it sees no other run.
-rm -f "$tmp/stub.args.stdin"
+# It runs after the other cases of the round end, so that it sees no other run,
+# and holds no copy of the pipe of its texts, so that the end of the run ends
+# them.
+rm -f "$tmp/stub.args.stdin" "$tmp/stub.args.fd7"
 got=$(stub free conv)
 { sed -n 1p "$tmp/stub.args" | grep -qe '--disallowedTools ListAgents .* #91$' &&
   sed -n 2p "$tmp/stub.args" | grep -qe '--model haiku .*--input-format stream-json .*--tools ' &&
   [ "$(jq -r .message.content "$tmp/stub.args.stdin")" = '#91' ] && sed -n 3p "$tmp/stub.args" | grep -qe ' #91$' &&
-  ! sed -n 3p "$tmp/stub.args" | grep -qe ListAgents && grep -qxF "$(printf 'companion\t#91')" "$tmp/stub.events"; } ||
+  ! sed -n 3p "$tmp/stub.args" | grep -qe ListAgents && grep -qxF "$(printf 'companion\t#91')" "$tmp/stub.events" &&
+  [ ! -e "$tmp/stub.args.fd7" ]; } ||
   fail 'conv does not start its other conversation on #91, after the other runs, before a run with ListAgents' "$(cat "$tmp/stub.args")"
 # An other conversation that ends with an error gives no companion line, and
 # conv is not checked. A run of conv that fails does not stop the eval.

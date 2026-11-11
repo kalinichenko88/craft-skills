@@ -5,7 +5,7 @@ linkedthere_given() { linked_given; }
 linkedthere_check() {
   answered "$whose" "$where"
   nochange 'the run stops'
-  item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+  keeps '[]'
   unlabelled
   item 'never: the workspace gets fix/91-typo' '[ -z "$(tip "$d.workspace")" ]'
 }

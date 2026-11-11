@@ -6,7 +6,7 @@ there_check() {
   answered "$where"
   nochange 'the run stops'
   nobranch '[]'
-  item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$me\"]" ]'
+  keeps '["kim"]'
 }
 there_copies() {
   # #91 left with no assignee.

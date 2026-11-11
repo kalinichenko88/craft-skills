@@ -6,7 +6,7 @@ down_check() {
   item 'the person is told the error of the tracker' 'told 502'
   nochange 'the run stops'
   item 'never: a gist of #91 that the run did not read' '[ -z "$titled" ]'
-  item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+  keeps '[]'
   nobranch '[]'
 }
 down_copies() {

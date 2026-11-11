@@ -3,7 +3,7 @@
 ahead_case() { line ahead 4 "The workspace's branch has a commit that the repository does not have" '#91'; }
 # The workspace's fix/91-typo has a commit that the origin does not have.
 ahead_given() {
-  inws_given
+  wsbranch
   git -C "$w" switch -q fix/91-typo
   printf '# Changes\n\n- Fix the install command in the README.\n' >"$w/CHANGELOG.md"
   git -C "$w" add CHANGELOG.md
