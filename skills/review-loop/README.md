@@ -106,9 +106,9 @@ each task stays as that skill sets it. In place of the final review of
   API, a broken invariant cited as `I-n`, a decision with no ADR or against
   one, a passage of the architecture file, of an accepted ADR or of any
   `CLAUDE.md` or `AGENTS.md` that the change made false, also one it does
-  not touch, an edit of a settled ADR past its Status line that is not a
-  correction of a fact, with its dated line under `## Updates` and the same
-  decision, a file
+  not touch, an edit of a settled ADR past its Status line (but not the
+  correction of a fact: a dated line under `## Updates` that quotes the old
+  words, and the same decision), a file
   grown past its limit, a copy to extract, and in a TypeScript or React
   change, a breach of a rule of `craft:typescript-conventions` or
   `craft:react-conventions`. Its fixes join those of round 1. With no such

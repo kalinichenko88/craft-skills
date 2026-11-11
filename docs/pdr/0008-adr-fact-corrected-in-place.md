@@ -9,7 +9,7 @@
 We will let `craft:architecture` correct a sentence of an accepted ADR that
 a later fact made false, when the decision of the ADR is the same. The
 sentence is corrected in place, in the change that makes it false, or in the
-work on the issue that a finding outside the task files for it. A line under
+work on the issue filed for it as a finding outside the task. A line under
 `## Updates`, after the Status and Date lines, gives the date, the source of
 the fact, the section and the old words. The Status stays `accepted`. A
 change of what the decision commits to stays a new ADR that supersedes the
@@ -35,8 +35,8 @@ false.
 - Joel Parker Henderson's ADR guide reports that mutability worked better
   for its teams: they insert new information into the existing ADR, with a
   date stamp. The same guide also asks not to alter existing information.
-  This decision takes both: the sentence changes, and its old words stay in
-  a dated line. AWS, Fowler and Microsoft keep an accepted ADR immutable;
+  This decision alters the sentence, and keeps its old words in the dated
+  line. AWS, Fowler and Microsoft keep an accepted ADR immutable;
   Google Cloud allows an adjustment that keeps the previous decision and
   says why.
 - The person's choice on #343, after the panel of Fable and Codex.
