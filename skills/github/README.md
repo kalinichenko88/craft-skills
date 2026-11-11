@@ -65,12 +65,13 @@ time.
   be lost.
   Only the merge and the open questions on business logic wait for you, and
   after the merge, the drafts for the plugin's tracker.
-- **A task finishes with a true tracker.** The PR and every issue it closes
-  are assigned to you, and the label `in progress` comes off them. A PR that
-  fixes only part of an issue keeps that issue open. After the merge, the open issues on the changed code are checked
-  against the new code and against what the PR decided: a moved citation, a
-  question that the PR answered, a proposal that it ruled out, a rule or a
-  count that it changed, a defect that it removed.
+- **A task finishes with a true tracker.** The PR and every issue it closes are
+  assigned to you. The label `in progress` comes off each issue that the task
+  labelled. A PR that fixes only part of an issue keeps that issue open. After
+  the merge, the open issues on the changed code are checked against the new
+  code and against what the PR decided: a moved citation, a question that the
+  PR answered, a proposal that it ruled out, a rule or a count that it changed,
+  a defect that it removed.
 - **Commits in one shape.** `type(scope): sentence`, at most five bullets
   under it, and no `Co-Authored-By:` trailer. A merge is a squash with one
   list for the whole branch.

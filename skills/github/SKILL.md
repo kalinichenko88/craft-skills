@@ -163,9 +163,9 @@ will do.
 **Finishing.** An issue goes stale the moment the code moves under it, and
 GitHub does not notice: nothing corrects its text. So the PR closes the task,
 every ride-along and every issue the change removes; the label `in progress`
-comes off each issue that this task put it on and that has it still, closed or
-open, also a ride-along that the work dropped, with
-`gh issue edit <n> --remove-label "in progress"`; under each problem it fixed
+comes off each issue that this task labelled and that has it still, closed or
+open, with `gh issue edit <n> --remove-label "in progress"`; under each
+problem it fixed
 in an issue that stays open, it adds the line `Done in #<PR>.`; an issue
 the description says `Part of` and the merge closed anyway — `gh issue view 15
 --json state` shows it — is reopened, with a comment that names the PR; a

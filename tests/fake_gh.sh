@@ -95,6 +95,9 @@ text() { # text: the body that --body or --body-file gives
   f=$(value --body-file -F)
   if [ "$f" = - ]; then cat; elif [ -n "$f" ]; then cat "$f"; else value --body -b; fi
 }
+unknown() { # unknown <JSON list>: the first of the labels that the repository lacks
+  jq -r --argjson l "$1" '. as $s | [$l[] | select(ascii_downcase as $x | all($s.labels[]; ascii_downcase != $x))] | first // empty' "$state"
+}
 comment() { # comment <number> <body>
   save --argjson n "$1" --arg me "$me" --arg b "$2" '(.issues[] | select(.number == $n) | .comments) += [{author: $me, body: $b}]'
   logged comment "$1"
@@ -162,9 +165,11 @@ case "$1 $2" in
       | select($q == "" or ((.title + " " + .body) | ascii_downcase | contains($q | ascii_downcase)))]' | pick '.[]' | jq -sc .)"
     ;;
   'issue create')
+    l=$(labels --label -l) missing=$(unknown "$(labels --label -l)")
+    [ -z "$missing" ] || { echo "could not add label: '$missing' not found" >&2; exit 1; }
     num=$(jq '[.issues[].number] | max + 1' "$state")
     save --argjson n "$num" --arg t "$(value --title -t)" --arg b "$(text)" --arg m "$(value --milestone -m)" \
-      --argjson l "$(labels --label -l)" --arg me "$me" --arg a "$(value --assignee -a)" \
+      --argjson l "$l" --arg me "$me" --arg a "$(value --assignee -a)" \
       '.issues += [{number: $n, title: $t, body: $b, state: "OPEN", labels: $l, comments: [],
         assignees: (if $a == "" then [] elif $a == "@me" then [$me] else [$a] end),
         milestone: (if $m == "" then null else $m end)}]'
@@ -172,15 +177,16 @@ case "$1 $2" in
     echo "https://github.com/$repo/issues/$num"
     ;;
   'issue edit')
-    t=$(value --title -t) b=$(text) who=$(value --add-assignee)
+    t=$(value --title -t) b=$(text) who=$(value --add-assignee) add=$(labels --add-label) remove=$(labels --remove-label)
+    # As gh, a label that the repository lacks stops the edit before any write.
+    missing=$(unknown "$(jq -nc --argjson a "$add" --argjson r "$remove" '$a + $r')")
+    [ -z "$missing" ] || { echo "failed to update https://github.com/$repo/issues/$num: '$missing' not found" >&2; exit 1; }
     [ "$who" != @me ] || who=$me
     [ -z "$t" ] || save --argjson n "$num" --arg t "$t" '(.issues[] | select(.number == $n) | .title) = $t'
     [ -z "$b" ] || save --argjson n "$num" --arg b "$b" '(.issues[] | select(.number == $n) | .body) = $b'
     [ -z "$who" ] || save --argjson n "$num" --arg who "$who" '(.issues[] | select(.number == $n) | .assignees) |= (. + [$who] | unique)'
-    l=$(labels --add-label)
-    missing=$(jq -r --argjson l "$l" '. as $s | [$l[] | select(ascii_downcase as $x | all($s.labels[]; ascii_downcase != $x))] | first // empty' "$state")
-    [ -z "$missing" ] || { echo "failed to update https://github.com/$repo/issues/$num: '$missing' not found" >&2; exit 1; }
-    save --argjson n "$num" --argjson l "$l" '(.issues[] | select(.number == $n) | .labels) |= (. + $l | unique)'
+    save --argjson n "$num" --argjson a "$add" --argjson r "$remove" '(.issues[] | select(.number == $n) | .labels)
+      |= (. + $a | unique | map(select(ascii_downcase as $x | all($r[]; ascii_downcase != $x))))'
     logged edit "$num"
     echo "https://github.com/$repo/issues/$num"
     ;;
@@ -224,9 +230,9 @@ case "$1 $2" in
   'repo view') out "$(jq -c '{nameWithOwner: .repo, visibility, defaultBranchRef: {name: "main"}}' "$state")" ;;
   'label list') out "$(jq -c '[.labels[] | {name: .}]' "$state")" ;; # all of them: a search on GitHub matches more than the name
   'label create')
-    jq -e --arg l "${args[2]}" 'any(.labels[]; ascii_downcase == ($l | ascii_downcase))' "$state" >/dev/null &&
+    [[ $* == *--force* ]] || ! jq -e --arg l "${args[2]}" 'any(.labels[]; ascii_downcase == ($l | ascii_downcase))' "$state" >/dev/null ||
       { echo "label with name \"${args[2]}\" already exists; use \`--force\` to update its color and description" >&2; exit 1; }
-    save --arg l "${args[2]}" '.labels |= (. + [$l] | unique)'
+    save --arg l "${args[2]}" '.labels |= (if any(.[]; ascii_downcase == ($l | ascii_downcase)) then . else . + [$l] end)'
     echo "✓ Label \"${args[2]}\" created in $repo" ;;
   'auth status') echo "github.com: Logged in to github.com account $me" ;;
   *) echo "fake gh: no answer for: $*" >&2; exit 1 ;;

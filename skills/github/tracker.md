@@ -71,7 +71,7 @@ each one that is wrong, and read in full each issue before you act on it. Its
 report replaces your own search of the tracker: for a name it did not get, run
 `collect.sh filing <name>` yourself.
 
-An open issue's `status:` is `free`, or it names who works on it: `assigned to
+An open issue's `status:` is `free`, or it names who has it: `assigned to
 <login>`, `label in progress`, `branch <name>`, `PR #<n> by <login>`, with
 `you` for your own account. Any entry makes the issue **busy**, and an entry
 with `you` counts too: another session of yours, on this computer or on
@@ -86,5 +86,5 @@ has none. Each other step that takes an issue into work puts it on too, with
 `--add-label "in progress"` next to `--add-assignee @me` (`take-in.md`).
 When `gh` says that the label is not found, create it first:
 `gh label create "in progress" --description "The work on it runs" --color fbca04`.
-*Finishing* in `SKILL.md` takes it off. No step takes it off work that stopped:
-the person does.
+*Finishing* in `SKILL.md` takes it off. No step takes it off work that stops
+before a merge: the person does.

@@ -114,13 +114,14 @@ instruction a harness's worktree tool waits for. The user's message or the
 project's instructions can say otherwise — "a branch only", "stay on this
 branch" — and then they win. Each path assigns the issue to you and puts the
 label `in progress` on it (`tracker.md`), because without the label the issue
-looks free to your other sessions: "a branch only" runs `worktree.sh` with `--here`,
-which makes no worktree and works in the current checkout, and "stay on this
-branch" runs `gh issue edit 91 --add-assignee @me --add-label "in progress"`
-and touches no branch. `worktree.sh` does not assign the issue in four cases,
-below: it warns in two and stops in two. "Stay on this branch" checks the
-cases of the warning first, with `gh issue develop --list 91` and the issue's
-assignees. In that check, a branch linked in any repository counts.
+looks free to your other sessions: "a branch only" runs `worktree.sh` with
+`--here`, which makes no worktree and works in the current checkout, and "stay
+on this branch" runs
+`gh issue edit 91 --add-assignee @me --add-label "in progress"` and touches no
+branch. `worktree.sh` does not assign the issue in four cases, below: it warns
+in two and stops in two. "Stay on this branch" checks the cases of the warning
+first, with `gh issue develop --list 91` and the issue's assignees. In that
+check, a branch linked in any repository counts.
 
 The branch, and the worktree when one is made, carry one name that says what
 the work is: `<type>/<number>-<two to four words>`, the type from *Commits* in
@@ -132,14 +133,14 @@ bash <dir>/scripts/worktree.sh 91 fix/91-electron-binary-in-lanes
 ```
 
 It assigns the issue to you, puts the label `in progress` on it, branches from
-the remote's default branch, links the branch to the issue, and prints the
-path to work in as its last line. A branch linked to the issue in this
-repository wins over the name you gave. A
-linked branch already checked out is worked on where it is. A session already
-in a worktree, as one started with `claude --worktree` or `codex --worktree`,
-checks the branch out where it is, and so does `--here`. With `--local`, the
-script takes a local branch as it is, with git: it makes and links no branch,
-reads no linked branch, and does not stop on the local branch.
+the remote's default branch, links the branch to the issue, and prints the path
+to work in as its last line. A branch linked to the issue in this repository
+wins over the name you gave. A linked branch already checked out is worked on
+where it is. A session already in a worktree, as one started with
+`claude --worktree` or `codex --worktree`, checks the branch out where it is,
+and so does `--here`. With `--local`, the script takes a local branch as it is,
+with git: it makes and links no branch, reads no linked branch, and does not
+stop on the local branch.
 
 A linked branch in another repository does not win: without `--branch-repo`,
 `gh` would make a new branch with the same name here. When every linked branch

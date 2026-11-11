@@ -42,7 +42,7 @@ An entry starts with `==> #41 <title> [labels] <state>`, or
 `==> PR #42 <title> <state>` for a pull request. On an open issue, `status:`
 follows: `free`, or every one of `assigned to <login>`, `label in progress`,
 `branch <name>` and `PR #<n> by <login>` that applies, with `you` for the
-agent's own account.
+agent's own account. The agent's own assignee alone gives `free`.
 Then `also:`, the number of findings added to it.
 `closed by:` names the merged pull requests that closed an issue, and
 `duplicate of:` the issue it duplicates. The body comes next, then each
