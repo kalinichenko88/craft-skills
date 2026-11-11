@@ -74,19 +74,20 @@ message() { awk -v c="$1" '$1 == c { print $3 }' <<<"$table"; }
 answer() { awk -v c="$1" '$1 == c { $1 = $2 = $3 = ""; sub(/^ +/, ""); print }' <<<"$table"; }
 # record <dir>: <dir>.events holds the messages to the person, as text lines,
 # the answer of the person, as a person line,
-# the session's thinking that has words, as think lines, and each tool call of
-# the session and its subagents, as its tool's name, or sub and the name, and
-# its command, path or skill. Some messages that come before a tool call are
-# text lines. Another one can reach the log only as a think line, in other
-# words, without the task's id and title (#206), with
-# --include-partial-messages too. Paths of this machine become <craft>,
+# the session's other thinking that has words, as think lines, and each tool
+# call of the session and its subagents, as its tool's name, or sub and the
+# name, and its command, path or skill. A message before a tool call can
+# reach the log as a thinking block that narration_block_indexes names: the
+# API gives it in other words, and the person reads those words (ADR 0008).
+# Paths of this machine become <craft>,
 # <work> and <tmp>. Each line of a command becomes one part of a line, after
 # "; ". Then snapshot writes <dir>.branches and <dir>.workspace.
 record() {
   jq -r 'if .type == "person" then "person\t" + .text
     elif .type == "assistant" then (if .parent_tool_use_id then "sub" else "" end) as $sub
-      | .message.content[]
-      | if .type == "text" and $sub == "" then "text\t" + (.text | gsub("\n"; " "))
+      | (.narration_block_indexes // []) as $said
+      | .message.content | to_entries[] | .key as $i | .value
+      | if $sub == "" and (.type == "text" or .type == "thinking" and any($said[]; . == $i)) then "text\t" + ((.text // .thinking) | gsub("\n"; " "))
         elif .type == "thinking" and $sub == "" and (.thinking // "" | test("[a-z]")) then "think\t" + (.thinking | gsub("\n"; " "))
         elif .type == "tool_use" then $sub + .name + "\t"
           + ((.input.command // .input.file_path // .input.skill // .input.description // "") | tostring | gsub("\n"; "; "))

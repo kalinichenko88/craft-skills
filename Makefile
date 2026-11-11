@@ -7,7 +7,7 @@ check: lint invariants test
 invariants:
 	bash skills/architecture/scripts/invariants.sh
 
-# The shape of a scenario file that scenarios/README.md gives (ADR 0003): no
+# The shape of a scenario file that scenarios/README.md gives (ADR 0008): no
 # host word, a name unique in scenarios/, a When of the person or of the run,
 # and the labels Given, When, Then and Never, once each, in this order.
 scenarios:

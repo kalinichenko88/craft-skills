@@ -1,7 +1,7 @@
 Skill	craft:github
 Bash	cd <craft>/skills/github && cat take-in.md; ls scripts
 Bash	D=<craft>/skills/github; bash $D/scripts/take-in-check.sh 91; echo "exit=$?"; gh issue view 91 --json title,body,assignees,state
-think	The README's install command reads `npm instal shop`, which npm does not recognize, so the step fails. I'm changing it to `npm install shop` as the fix for issue #91.  
+text	The README's install command reads `npm instal shop`, which npm does not recognize, so the step fails. I'm changing it to `npm install shop` as the fix for issue #91.  
 Bash	D=<craft>/skills/github; cat $D/tracker.md | head -120
 Bash	D=<craft>/skills/github; gh label list; grep -n "instal" README.md; ls; bash $D/scripts/collect.sh take-in 91 bug,debt README.md install
 Bash	cat <tmp>/collect.wKGk3C

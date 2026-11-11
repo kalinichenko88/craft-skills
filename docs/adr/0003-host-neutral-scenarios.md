@@ -1,6 +1,6 @@
 # 0003 The flows are specified as host-neutral scenarios in scenarios/
 
-- Status: accepted
+- Status: superseded by 0008
 - Date: 2026-11-03
 
 ## Context

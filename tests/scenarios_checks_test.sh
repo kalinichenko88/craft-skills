@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # Runs the checks of tests/scenarios_eval.sh on recorded runs, with no model.
 # tests/fixtures/scenarios/take-in/ holds the events, the tracker, the
-# branches and the workspace of one probe run of each case: free, other and
-# down of 2026-11-03, dup and busy of 2026-11-10, and the other ten of
+# branches and the workspace of one probe run of each case: other and down
+# of 2026-11-03, dup and busy of 2026-11-10, and the other eleven of
 # 2026-11-11, which also keep the workspace and the branches of their Given.
 # In the runs of here and there, a person line gives the answer of the
 # person, after the question of the first message.
-# The runs of free, other, down, dup and busy kept none: theirs is the one
-# that setup makes now. In the runs of
-# free, dup and busy, no message about #91 comes before the branch, but think
-# lines do: the log cannot show whether a message told the gist (#206), so
-# the two gist items give SKIP; in the run of inws, the gist item does. The
+# The runs of other, down, dup and busy kept none: theirs is the one that
+# setup makes now. The events of dup, busy and inws were recorded again from
+# their logs (ADR 0008). In the runs of free, dup, busy and inws, the first
+# message about #91 is a narration with no title, before the first change,
+# so the gist items fail. The
 # run of dup carries one line of the stack trace of #95 to #91, not the trace,
 # and fails that item. Every other item passes. A copy with one change to a
 # recorded run changes the verdicts it names and no other; a read added to a
@@ -40,18 +40,21 @@ checks() {
 
 report=$("$eval" --check "$fixtures")
 out=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$report")
-[ "$(grep '^pass' <<<"$report" | grep -v ': PASS, 1 of 1 runs pass$')" = 'pass^1 dup: FAIL, 0 of 1 runs pass' ] &&
-  [ "$(grep -c '^pass' <<<"$report")" = 15 ] || fail 'the recorded runs do not give pass^1 to each of the 15 cases but dup' "$report"
+[ "$(grep '^pass' <<<"$report" | grep -v ': PASS, 1 of 1 runs pass$')" = 'pass^1 busy: FAIL, 0 of 1 runs pass
+pass^1 dup: FAIL, 0 of 1 runs pass
+pass^1 free: FAIL, 0 of 1 runs pass
+pass^1 inws: FAIL, 0 of 1 runs pass' ] &&
+  [ "$(grep -c '^pass' <<<"$report")" = 15 ] || fail 'the recorded runs do not give pass^1 to each of the 15 cases but four' "$report"
 [ "$(grep -c '^PASS ' <<<"$out")" = 87 ] || fail 'the recorded runs do not pass 87 items' "$out"
-[ "$(grep -v '^PASS ' <<<"$out")" = 'SKIP A busy duplicate: the first message about #91 tells its gist: a think line comes before it
-SKIP A busy duplicate: the gist comes before any change: only a think line comes before the change
+[ "$(grep -v '^PASS ' <<<"$out")" = 'FAIL A busy duplicate: the first message about #91 tells its gist
+FAIL A busy duplicate: the gist comes before any change
 FAIL A free duplicate: a comment on #91 holds the stack trace of #95
-SKIP A free duplicate: the first message about #91 tells its gist: a think line comes before it
-SKIP A free duplicate: the gist comes before any change: only a think line comes before the change
-SKIP A free task: the first message about #91 tells its gist: a think line comes before it
-SKIP A free task: the gist comes before any change: only a think line comes before the change
-SKIP The person'"'"'s work is in the workspace: the first message about #91 tells its gist: a think line comes before it' ] ||
-  fail 'the recorded runs do not give only the seven gist SKIPs and the FAIL of the trace' "$out"
+FAIL A free duplicate: the first message about #91 tells its gist
+FAIL A free duplicate: the gist comes before any change
+FAIL A free task: the first message about #91 tells its gist
+FAIL A free task: the gist comes before any change
+FAIL The person'"'"'s work is in the workspace: the first message about #91 tells its gist' ] ||
+  fail 'the recorded runs do not give only the seven gist FAILs and the FAIL of the trace' "$out"
 
 # coverage <scenario file>: "< heading" for each heading that no case runs and
 # the eval does not list as not run, "> name" for each name that the eval
@@ -109,22 +112,23 @@ copy
 first free $'text\t#91: README: the install command says npm instal. The README has a wrong command.'
 flips free 'the first message about #91 tells its gist' 'the gist comes before any change'
 
-# A message about #91 with no title, before the branch.
+# A think line before the first message about #91: the log cannot show
+# whether the person read it.
 copy
-first free $'text\tI take #91 now.'
-flips free 'the first message about #91 tells its gist' 'the gist comes before any change'
+first free $'think\tI read #91.'
+flips free 'the first message about #91 tells its gist'
 
-# No think line: the run told nothing about #91 before the branch.
+# The narration before the branch with no word of the typo: no message about
+# #91 comes before the last one, which tells the gist after the change.
 copy
-grep -v '^think' "$fixtures/free.events" >"$tmp/$n/free.events"
-flips free 'the first message about #91 tells its gist' 'the gist comes before any change'
+untypo() { awk '!done && /^text/ { gsub(/`npm instal shop`/, "a command"); done = 1 } 1' "$fixtures/free.events"; }
+untypo >"$tmp/$n/free.events"
+flips free 'the first message about #91 tells its gist'
 
-# A message about #91 before its gist, on another person's task.
+# Only a think line before the change, as in a log with no narration mark.
 copy
-{ head -n 4 "$fixtures/other.events"
-  printf 'text\t#91 belongs to rivera, so I stop.\n'
-  tail -n +5 "$fixtures/other.events"; } >"$tmp/$n/other.events"
-flips other 'the first message about #91 tells its gist'
+{ printf 'think\tI read #91.\n'; untypo; } >"$tmp/$n/free.events"
+flips free 'the first message about #91 tells its gist' 'the gist comes before any change'
 
 # The person added to another person's task.
 copy

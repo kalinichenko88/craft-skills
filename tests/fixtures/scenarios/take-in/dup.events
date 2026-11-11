@@ -1,12 +1,12 @@
 Skill	craft:github
 Bash	D=<craft>/skills/github; cat $D/take-in.md; ls $D/scripts
 Bash	D=<craft>/skills/github; bash $D/scripts/take-in-check.sh 91; echo "exit=$?"; gh issue view 91 --json title,body; git remote -v
-think	The README's install command reads `npm instal shop`, which fails because npm has no `instal` command. I'm changing it to `npm install shop`.  
+text	The README's install command reads `npm instal shop`, which fails because npm has no `instal` command. I'm changing it to `npm install shop`.  
 Bash	D=<craft>/skills/github; cat $D/tracker.md
 Bash	D=<craft>/skills/github; gh label list; bash $D/scripts/collect.sh take-in 91 bug,debt README.md "npm instal" install
 text	Small file; I read it myself.
 Bash	cat <tmp>/collect.YfiG4R; sed -n 1,200p <craft>/skills/github/scout.md | head -80
-think	I'm marking #95 as a duplicate of #91, since it reports the same `npm instal shop` command and adds the "Cannot find module 'shop'" error. Checking the repository's visibility before I write the comment.  
+text	I'm marking #95 as a duplicate of #91, since it reports the same `npm instal shop` command and adds the "Cannot find module 'shop'" error. Checking the repository's visibility before I write the comment.  
 Bash	gh repo view --json nameWithOwner,visibility; grep -n "instal" README.md
 Bash	gh issue comment 91 --body 'From #95: after the README command fails, an app that requires the package fails with `Error: Cannot find module '"'"'shop'"'"'`.' && gh issue close 95 --duplicate-of 91 --comment "Same report as #91; what it adds is copied there."
 Bash	D=<craft>/skills/github; bash $D/scripts/worktree.sh 91 docs/91-fix-npm-install-command

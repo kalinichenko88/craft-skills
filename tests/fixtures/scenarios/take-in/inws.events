@@ -2,7 +2,7 @@ Skill	craft:github
 Bash	D=<craft>/skills/github; cat $D/take-in.md; ls $D/scripts; cd <work> && git remote -v && gh auth status 2>&1 | head -5
 Bash	bash <craft>/skills/github/scripts/take-in-check.sh 91 2>&1; echo "exit=$?"; ls; cat README* | head -40
 Bash	gh issue view 91 --json title,body 2>&1; git branch -a; git worktree list
-think	The README's install command has a typo (`npm instal shop`) that makes it fail, so I'm changing it to `npm install shop` on the existing `fix/91-typo` branch for issue #91.  
+text	The README's install command has a typo (`npm instal shop`) that makes it fail, so I'm changing it to `npm install shop` on the existing `fix/91-typo` branch for issue #91.  
 Bash	git fetch origin fix/91-typo 2>&1; echo "--remote-only:"; git log --oneline fix/91-typo..origin/fix/91-typo; echo "--local-only:"; git log --oneline origin/fix/91-typo..fix/91-typo; gh pr list --head fix/91-typo --json number,title 2>&1
 Bash	bash <craft>/skills/github/scripts/worktree.sh 91 fix/91-typo --local 2>&1; echo "exit=$?"
 ToolSearch	

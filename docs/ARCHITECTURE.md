@@ -23,7 +23,7 @@ is the issue alone. A skill loads when its
 repository.
 
 `scenarios/` says what the flows do as seen from outside, with no word of an
-agent host (ADR 0003). No skill reads it: it is the text that craft and any
+agent host (ADR 0008). No skill reads it: it is the text that craft and any
 other implementation of the flows are checked against. It installs with the
 copy too.
 
@@ -45,7 +45,7 @@ few of its sentences.
 - `skills/<name>/` — one skill: `SKILL.md`, `README.md`, its other `.md`
   files, and `scripts/`.
 - `scenarios/` — what the flows do, as seen from outside, with no word of an
-  agent host (ADR 0003): `scenarios/<skill>/<flow>.md`, the shape in its
+  agent host (ADR 0008): `scenarios/<skill>/<flow>.md`, the shape in its
   `README.md`, the terms in `TERMS.md`, and in `check.md` the prompt that
   reads the scenarios against each other. craft is one implementation of
   them. The pictures of `docs/<skill>/` and the scenario sections of a
@@ -274,8 +274,9 @@ status of an ADR that is not accepted.
 
 - [0001 Each script prints its usage from its header](adr/0001-usage-from-the-header.md)
 - [0002 The plugin is named craft](adr/0002-plugin-name-craft.md)
-- [0003 The flows are specified as host-neutral scenarios in scenarios/](adr/0003-host-neutral-scenarios.md)
+- [0003 The flows are specified as host-neutral scenarios in scenarios/](adr/0003-host-neutral-scenarios.md) — superseded by 0008
 - [0004 rules.md reaches the session in two hook outputs](adr/0004-rules-in-two-hook-outputs.md)
 - [0005 A pinned tool prints the import graph for the architecture checks](adr/0005-import-graph-from-a-pinned-tool.md) — rejected
 - [0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps](adr/0006-skill-text-within-the-compaction-budget.md)
 - [0007 CI runs the text eval on each scenario row whose skill files a pull request changes](adr/0007-text-eval-in-ci.md)
+- [0008 The flows are specified as host-neutral scenarios, and a run is checked by the words that the person reads](adr/0008-scenarios-read-narration-as-messages.md)

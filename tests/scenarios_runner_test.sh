@@ -114,19 +114,19 @@ for list in '--head fix/91-other' '--state merged'; do
   [ "$(pr_gh pr list $list --json number)" = '[]' ] || fail "the fake gh lists #96 for pr list $list"
 done
 
-# pass^2 over the recorded runs and a copy: a second run in which free fails
-# an item and busy has no run.
+# pass^2 over the recorded runs and a copy: a second run in which other fails
+# an item and closed has no run.
 cp -R "$fixtures" "$tmp/2"
-jq '.issues[0].linked += ["fix/91-other"]' "$fixtures/free.state.json" >"$tmp/2/free.state.json"
-rm "$tmp/2"/busy.*
+jq '.issues[0].assignees += ["kim"]' "$fixtures/other.state.json" >"$tmp/2/other.state.json"
+rm "$tmp/2"/closed.*
 got=$("$eval" --check "$fixtures" "$tmp/2")
-[ "$(grep '^pass' <<<"$got" | grep -v ': PASS, 2 of 2 runs pass$')" = 'pass^2 busy: not measured, 1 run of 2
+[ "$(grep -E '^pass\^2 (closed|dup|other):' <<<"$got")" = 'pass^2 closed: not measured, 1 run of 2
 pass^2 dup: FAIL, 0 of 2 runs pass
-pass^2 free: FAIL, 1 of 2 runs pass' ] && [ "$(grep -c '^pass' <<<"$got")" = 15 ] ||
+pass^2 other: FAIL, 1 of 2 runs pass' ] && [ "$(grep -c '^pass' <<<"$got")" = 15 ] ||
   fail 'pass^2 does not count the runs of each case' "$got"
-[ "$(grep -E '^(round |busy: no run)' <<<"$got")" = "round 1 of 2
+[ "$(grep -E '^(round |closed: no run)' <<<"$got")" = "round 1 of 2
 round 2 of 2
-busy: no run: $tmp/2 has no busy.events, as when its setup fails" ] || fail 'the report does not name each round and the run that is missing' "$got"
+closed: no run: $tmp/2 has no closed.events, as when its setup fails" ] || fail 'the report does not name each round and the run that is missing' "$got"
 # A round folder of a run that kept no snapshot of its Given: the case is not
 # checked, and not measured.
 cp -R "$fixtures" "$tmp/old"
@@ -136,17 +136,23 @@ got=$("$eval" --check "$tmp/old" 2>/dev/null)
   fail 'a run with no snapshot of its Given is checked' "$got"
 
 # A stub claude records its arguments and starts session s1. A first session
-# asks whether the work runs somewhere else and costs $1.50; a resumed one
-# says that it stops, and gives $2.50, the cost of both of its messages. A
-# folder that cannot run it, or a claude function, would leave the real claude
-# in its place.
+# thinks, then asks whether the work runs somewhere else, in a thinking block
+# that narration_block_indexes names, as Claude Code gives a message before a
+# tool call (ADR 0008), and costs $1.50; a resumed one says that it stops, in
+# a text block, and gives $2.50, the cost of both of its messages. A folder
+# that cannot run it, or a claude function, would leave the real claude in its
+# place.
 mkdir "$tmp/stub"
 printf '#!/usr/bin/env bash\necho "$*" >>%q\n' "$tmp/stub.args" >"$tmp/stub/claude"
 cat >>"$tmp/stub/claude" <<'EOF'
 echo '{"type":"system","subtype":"init","session_id":"s1"}'
-text='Does the work run somewhere else?' cost=1.5
-case " $* " in *" --resume "*) text='I stop here.' cost=2.5 ;; esac
-echo "{\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"text\",\"text\":\"$text\"}]}}"
+case " $* " in
+  *" --resume "*) cost=2.5
+    echo '{"type":"assistant","message":{"content":[{"type":"text","text":"I stop here."}]}}' ;;
+  *) cost=1.5
+    echo '{"type":"assistant","thinking_display":"updates","message":{"content":[{"type":"thinking","thinking":"Where does it run?"}]}}'
+    echo '{"type":"assistant","thinking_display":"updates","narration_block_indexes":[0],"message":{"content":[{"type":"thinking","thinking":"Does the work run\nsomewhere else?"}]}}' ;;
+esac
 echo "{\"type\":\"result\",\"subtype\":\"success\",\"total_cost_usd\":$cost}"
 EOF
 chmod +x "$tmp/stub/claude"
@@ -170,14 +176,15 @@ got=$(stub free)
 got=$(stub otherrepo)
 grep -qe ' https://github.com/acme/lib/issues/91$' "$tmp/stub.args" || fail 'otherrepo does not run on the link of #91' "$(cat "$tmp/stub.args")"
 # The answer of there resumes session s1 of its first message, as the last
-# argument. The cost of the run is its last result. The log gives the answer
-# after the question of the first message, so the Given of there holds, and
-# the stub changes nothing: the case passes.
+# argument. The cost of the run is its last result. The log gives the
+# narrated question as a text line, its other thinking as a think line, and
+# the answer after the question, so the Given of there holds, and the stub
+# changes nothing: the case passes.
 got=$(stub there)
 { [ "$(wc -l <"$tmp/stub.args")" -eq 2 ] && sed -n 1p "$tmp/stub.args" | grep -qe ' #91$' &&
   sed -n 2p "$tmp/stub.args" | grep -qe '--max-budget-usd 2 .*--resume s1 It runs somewhere else\.$'; } ||
   fail 'the answer of there does not resume the session of its first message' "$(cat "$tmp/stub.args")"
-[ "$(cat "$tmp/stub.events")" = "$(printf 'text\tDoes the work run somewhere else?\nperson\tIt runs somewhere else.\ntext\tI stop here.')" ] ||
+[ "$(cat "$tmp/stub.events")" = "$(printf 'think\tWhere does it run?\ntext\tDoes the work run somewhere else?\nperson\tIt runs somewhere else.\ntext\tI stop here.')" ] ||
   fail 'the log of there does not give the answer after the question of the first message' "$(cat "$tmp/stub.events")"
 { grep -qxF "there: success, \$2.5" <<<"$got" && grep -qxF "cost: \$2.50" <<<"$got"; } ||
   fail 'the cost of a run of two messages is not its last result' "$got"
