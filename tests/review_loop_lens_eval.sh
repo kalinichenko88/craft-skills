@@ -29,7 +29,7 @@
 #
 # It calls the model, so it costs tokens and is not part of `make check`: run
 # it by hand after a change to architecture-lens.md, or to the parts of
-# skills/architecture/SKILL.md that the lens reads.
+# skills/architecture/SKILL.md and invariants.md that the lens reads.
 # It runs with this machine's other plugins and settings.
 #
 # Usage: tests/review_loop_lens_eval.sh [--codex] [runs of each case, default 1]

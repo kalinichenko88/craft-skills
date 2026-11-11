@@ -14,9 +14,9 @@ one change, at `<head>`: the state of a commit inside it is no finding.
 and run no code of the project.
 
 1. Read `<skills>/architecture/SKILL.md` for its principles: *Consistency
-   first*, *Modules and layers*, *Decomposition*, *ADRs* and
-   *`invariants.sh`*. Do none of its steps. When the range changes a `.ts`,
-   `.tsx`, `.mts` or `.cts` file, read the rules of
+   first*, *Modules and layers*, *Decomposition* and *ADRs*, and
+   `<skills>/architecture/invariants.md`. Do none of their steps. When the
+   range changes a `.ts`, `.tsx`, `.mts` or `.cts` file, read the rules of
    `<skills>/typescript-conventions/SKILL.md` too. When it changes React
    code, read the rules of `<skills>/react-conventions/SKILL.md` too.
 2. In the tree, read the architecture file and the ADRs, where *The files*
@@ -29,7 +29,7 @@ and run no code of the project.
 3. From the root of the tree, run
    `bash <skills>/architecture/scripts/invariants.sh --new-since <base> <head>`.
    Each hit marked `new` is the branch's, except in the five cases that
-   *`invariants.sh`* names: read the diff for them. A FAIL whose failing hits
+   `invariants.md` names: read the diff for them. A FAIL whose failing hits
    have no `new` mark was on the base already.
 
    On exit 2, read its lines on stderr. Each line that starts with
@@ -64,7 +64,9 @@ and run no code of the project.
 An ADR file that the range adds is under review: check it against *ADRs*, and
 its reason against the code that already does the same work. An ADR that
 exists at the base is settled: argue nothing in it, and report an edit of it
-past its Status line.
+past its Status line. The one exception is *A fact that changed* in *ADRs*:
+a sentence that is false now, corrected in place, with its line under
+`## Updates` that quotes the old words, and with the same decision.
 
 A change that follows the project's own way, where its code breaks a
 principle of *Modules and layers* everywhere, is no Second structure and no
@@ -87,11 +89,13 @@ Report:
 - **No ADR.** A decision that needs an ADR by the four reasons of *ADRs*,
   with no ADR in the range.
 - **ADR.** A change against an accepted ADR with no ADR that supersedes it,
-  an edit of an ADR at the base past its Status line, and a defect in an ADR
-  that the range adds.
-- **False doc.** A passage of the architecture file or of an instruction
-  file that the change made false, also in a file that the range does not
-  change: the change corrects it, so it is no Outside finding. Code that
+  an edit of an ADR at the base past its Status line that is not that
+  exception, and a defect in an ADR that the range adds.
+- **False doc.** A passage of the architecture file, of an instruction file
+  or of an accepted ADR that the change made false, also in a file that the
+  range does not change: the change corrects it, so it is no Outside
+  finding. In an ADR whose decision is the same, the change corrects the
+  sentence as *A fact that changed* says. Code that
   breaks a rule does not make the rule false: only a change of the fact,
   or an ADR that amends the rule, does.
 - **Size.** A `new` `debt` hit of a `lines` or `files` check, when its split

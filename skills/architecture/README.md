@@ -51,7 +51,12 @@ checks, and an ADR for each decision that needs one.
   to undo, adds a dependency or sets a pattern gets an ADR in `docs/adr/`,
   with at least two options and its costs. A second reader that does not see
   the conversation checks it first. An option you reject for a lasting reason
-  gets an ADR too, so no agent offers it again.
+  gets an ADR too, so no agent offers it again. When a later fact makes a
+  sentence of an accepted ADR false, the sentence is corrected in place, with
+  a dated line under `## Updates` that keeps the old words, and when that
+  sentence was a reason for the decision, an issue asks whether the
+  decision is still right. A changed decision gets a new ADR that
+  supersedes the old one.
 - **A first file, when you want one.** In a project with none, it offers once
   a session to write `docs/ARCHITECTURE.md` from the code as it is, and writes
   nothing without your yes. After a no, one line in `CLAUDE.md` stops the

@@ -16,12 +16,12 @@ principles and the steps.
 | A new capability starts: a screen, an endpoint, a module, an integration | The block of two answers and the report of `craft:product`, in a message before the spec or the first edit; then the decision of where its code goes | *The start of a feature* |
 | Where new code goes; a new module, layer, dependency, pattern or data store; a choice between options; a change to a file or a folder past its limit | The eight steps and the gate; for a new technology, first the question of who chooses | *The moment of a decision* |
 | A decision in a project with no architecture file | Offer to write one, once a session; write nothing without a yes | `first-file.md` |
-| An edit exists, before its commit | `invariants.sh` | *`invariants.sh`* |
+| An edit exists, before its commit | `invariants.sh` | `invariants.md` |
 | A decision may need an ADR | The four reasons and the template | *ADRs* |
 
-`first-file.md` sits next to this file, in this skill's base directory
-`<dir>`. Read all of it before its first step. `<skills>` is the directory
-above `<dir>`.
+`first-file.md` and `invariants.md` sit next to this file, in this skill's
+base directory `<dir>`. Read all of each before you use it. `<skills>` is the
+directory above `<dir>`.
 
 **The files.** The architecture file is `docs/ARCHITECTURE.md`, or
 `ARCHITECTURE.md` at the root when the project keeps it there. The ADRs are
@@ -93,8 +93,8 @@ The steps hold in every project. With no architecture file, step 1 is the
 offer and the gate has no invariant to check; the other steps are the same.
 
 1. Read the architecture file and the ADRs that it links for the area. Run
-   `invariants.sh`. With no architecture file, offer to write one
-   (`first-file.md`).
+   `invariants.sh` (`invariants.md`). With no architecture file, offer to
+   write one (`first-file.md`).
 2. Find the code that already does this kind of work, and name it with
    `path:line`. Extend it. Search once for each kind of work that the change
    does, not only for its main one: the call to the network, the format of a
@@ -171,7 +171,8 @@ consistently does otherwise, only an accepted ADR of the project overrides it.
 with the code, with the status `accepted`. The review of the pull request is
 where it is argued, and the merge makes it true. An ADR file that
 `git diff <base>..HEAD` adds is under review. One that exists at the base is
-settled: a branch changes nothing in it past its Status line. A spec or a
+settled: a branch changes only its Status line, except for the correction
+of *A fact that changed*, in *ADRs*. A spec or a
 plan names the ADR that the work will add, by its title, and does not write
 it.
 
@@ -270,14 +271,28 @@ A decision needs an ADR when:
 3. it sets a pattern that later code must follow: without the ADR, a reviewer
    would see two competing ways;
 4. it reverses or narrows an accepted ADR, or amends an invariant. Then a new
-   ADR supersedes the old one, and the old one is not edited, except its
-   Status line.
+   ADR supersedes the old one, and the old one changes only its Status line.
 
 No ADR when none of the four holds: the choice is local and cheap to undo, or
 a lint rule or a documented convention already enforces it. The four win: a
 new external dependency needs an ADR, however small. An option that the
 person rejects for a lasting reason gets an ADR with the status `rejected`,
 so that the next agent does not offer it again.
+
+**A fact that changed.** When a sentence of an accepted ADR is false now and
+its decision is the same, correct the sentence in place: in the change that
+makes it false; else in a later change, as its task or as a finding outside
+its task. Then add a line under `## Updates`, a heading right after the
+Status and Date lines:
+`- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
+The date is the day of the correction; the source is the issue, the pull
+request or the run that shows the new fact. The Status stays `accepted`. A
+later correction adds a line; no line is rewritten. The decision is the same
+when code that kept it before the correction keeps it after, and code that
+broke it still breaks it. Otherwise it is reason 4, however few words change:
+"every write goes through the service" to "a component may write to the
+store" is a new ADR. When the false sentence was a reason for the decision,
+also file an issue that asks whether the decision is still right.
 
 One decision per file, `NNNN-title.md`, numbered after the highest one in the
 folder. A file is never renamed or deleted, so a link to it does not rot. The
@@ -318,96 +333,6 @@ only".
 At least two options, one line each, and both good and bad consequences: one
 decision a file, no policy in disguise, no option with no cost. Add an
 accepted ADR to the index of the architecture file in the same commit.
-
-## `invariants.sh`
-
-```bash
-bash <dir>/scripts/invariants.sh [ref]
-bash <dir>/scripts/invariants.sh --new-since <base> [ref]
-```
-
-Run it from the project's checkout. With no ref it reads the working tree,
-with the untracked files that git does not ignore; with a ref, that commit.
-`<base>` is the base of the branch:
-`git merge-base origin/<default branch> HEAD`, or
-`git merge-base <default branch> HEAD` where there is no `origin`. With a
-ref, the ref takes the place of `HEAD`.
-It runs each `Check:` line of the architecture file (syntax: `first-file.md`)
-and prints one line per invariant:
-
-```
-I-1 FAIL
-  new src/feature/b.ts:1:fetch(v);
-  src/feature/list.ts:2:const r = fetch('/list');
-  debt src/legacy/summary.ts:12:fetch(x);
-I-2 PASS
-  new debt src/legacy/grow.ts 14
-  no longer debt src/legacy/old.ts
-I-4 review only
-```
-
-Under each invariant: the hits that break it; then `debt`, the hits under a
-path of its `debt` list; then `no longer debt`, a path of the list with no
-hit, which leaves the list. With `--new-since`, the script also runs each
-invariant at the base, by the base's own architecture file: the invariant
-with the same number and the same kind of check. `new` marks each hit that
-the base does not have with the same status, as a hit that fails or as a debt
-hit, or has with a smaller size: those are the branch's. So a hit is `new`
-also when the branch adds or widens the invariant, moves the hit out of its
-`except` paths, or moves it into or out from under a path of its `debt` list,
-by a change of the list or of the file's path. With `--new-since`, a FAIL
-whose failing hits have no `new` mark was on the base already: it is a
-finding outside the task.
-
-Five cases mark hits `new` that are not the branch's. Read the diff for them:
-
-- `grep` hits with the same status, path and text are counted, not matched
-  one to one: `new` marks the last of them in the file, as many as the file
-  has more than at the base. These can be the base's lines.
-- A file that the branch moves is compared with its old path only when git
-  sees the rename: the move is committed or staged, and the file stays at
-  least half the same. A move that git does not see makes each hit of the
-  file `new`.
-- A `files` check compares a folder by its path. So a folder that the branch
-  only renames shows its own hit as `new`: when the diff shows only the move,
-  the hit is not the branch's.
-- With no architecture file at the base, each hit is `new`, as for a branch
-  that adds the first one.
-- At a fault in a line of the base's file, each hit of each invariant that
-  the script leaves out there is `new`: `first-file.md` names them. At a
-  code fence that it cannot read, so is each hit of the invariant that
-  holds the fence and of each one after it. When the base's check of one
-  invariant cannot run, each hit of that invariant is `new`.
-
-In the last two cases, lines on stderr after `at <base>:` say so.
-
-- **Exit 0:** no invariant fails.
-- **Exit 1:** one fails. A hit of the change is a defect: fix the code, or
-  end it by the gate. On a branch, run the script with `--new-since <base>`:
-  the paragraphs above tell which hits are the branch's. An ADR never excuses
-  a FAIL: an ADR that amends an invariant changes its `Check:` line in the
-  same commit.
-- **Exit 2:** a check did not run. The lines on stderr name the causes: a
-  wrong call, no git repository, a line that the script cannot read, a
-  `Check:` or `debt` line outside an invariant, a code fence that does not
-  close, an indented code fence with a closing line 1 to 3 columns past its
-  opening line, a path with no code file outside its `except` paths, a
-  pattern or a path that git rejects, two invariants with one number, no
-  `checks.awk` beside the script, or no debt skill beside this one. Correct
-  the call, the line in the architecture file, or the install. A path with
-  no code file, or a pattern or a path that git rejects, stops only the
-  check of its own invariant: that invariant gets no line on stdout, and
-  the other checks run. A fault in the architecture file stops only the
-  checks of the invariants that `first-file.md` names for it, also at a
-  code fence that the script cannot read. Each other cause stops the run
-  before the first check. The lines of the invariants that ran count as
-  for exit 0 and 1: a hit of the change under a FAIL is a defect. In the
-  base's file, or in a check that cannot run at the base, these causes give
-  no exit 2: see the cases above.
-- `No architecture file …`, exit 0: see `first-file.md`.
-
-It needs bash, git and awk, and reads `<skills>/debt/scripts/data.ere` to
-tell code from data.
 
 ## Red flags
 
