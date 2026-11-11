@@ -175,6 +175,11 @@ done
 #   refused every later Bash call of the scout (#268). Recorded sessions
 #   show the same for a citations scout sent before the move. worktree.sh
 #   can run beside the take-in scout; the move waits for each subagent.
+# - The merge read no check of the pull request: 4 of 104 pull requests here
+#   with checks merged before `check` ended, and an agent took `--admin`
+#   right after a refusal of the ruleset, with no question (#309). The exit
+#   code of `gh pr checks` cannot decide: a cancelled check gives 0, and a
+#   pull request with no check gives 1. So the merge reads each bucket.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
@@ -200,6 +205,9 @@ rules.md|For a report of data loss or a security hole, a zero count does not sto
 skills/review-loop/SKILL.md|A zero count does not decline a finding of data loss or a security hole: an attacker can make the input, and the test of its fix uses the input of the finding.
 rules.md|With no real source to sample, the count stops nothing, and the test uses the input of the report.
 skills/review-loop/SKILL.md|With no real source to sample, the count declines nothing, and the test of the fix uses the input of the finding.
+skills/github/SKILL.md|gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
+skills/github/SKILL.md|The list decides, not the exit code of the watch: a cancelled check gives 0, and no check at all gives 1.
+skills/github/SKILL.md|Add `--admin` or `--auto` only when the person asks for it: `--admin` merges past a red check, and `--auto` leaves the pull request open when the command ends.
 skills/github/SKILL.md|Run the merge in the checkout that holds the branch, whatever directory the session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints.
 skills/github/SKILL.md|`ExitWorktree` does nothing for a session that moved there in any other way, as with `cd` after `worktree.sh`: that session runs both commands itself, each with `git -C <the main checkout>`. Only a session that started in the worktree, as with `claude --worktree` or `codex --worktree`, cannot leave it: give the person the two commands below, to run after the session ends.
 skills/review-loop/SKILL.md|When `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints nothing or the first path of `git worktree list`, the branch has no linked worktree
