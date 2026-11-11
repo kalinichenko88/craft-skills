@@ -12,6 +12,7 @@ Not covered yet:
 - a finding that no label of the repository fits, and a second finding for
   the same open task in one run;
 - an open task on the code of the finding that holds one added finding;
+- a feature on the code of an open task, which can become an added finding;
 - a finding that is a nit, which the last message names instead of a task;
 - a finding that a merged pull request fixed before, and that shows again;
 - an open pull request that changes the code of the finding;
@@ -218,17 +219,18 @@ Given:
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
 - the run read `src/report/total.ts`, the only caller of `parseRows`, and
   the work on #91 does not change it
-- `README.md` lists "a total for each currency of an order" under
-  *Planned*, and `totalOf` in `src/report/total.ts` gives one total for an
-  order
+- the run read `README.md`, which lists "an export of the report to CSV"
+  under *Planned*
+- `writeReport` in `src/report/total.ts` writes the report as text only,
+  and no task holds the export to CSV
 - the repository has the labels `bug` and `enhancement`
 When: the run meets that finding in `src/report/total.ts`
 Then:
 - one new task is created for the feature
-- the title of the new task names the work as an action
+- the title of the new task names its work as an action
 - the new task has the label `enhancement`
 - the last message names the new task with its id and its title
 Never:
-- the title of the new task states what `totalOf` does not do
+- the title of the new task states that the report has no export to CSV
 - the person is asked before the task is created
 - the pull request of #91 changes `src/report/total.ts`

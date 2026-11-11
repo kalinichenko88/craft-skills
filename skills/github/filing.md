@@ -98,11 +98,11 @@ than it closes. Per finding, the scout's groups decide:
   time, never two at once: it reads the body and writes it back whole.
 - **No free host** — file a new issue:
   - One issue per finding. The title of a defect states the problem: a bug,
-    debt, a false doc, or a test that a rule of the project asks for and
-    that is missing. The title of a new capability, or of other new work,
-    names the work as an action: `report: give a total for each currency`.
-    The body says where it is (`path:line`), how it shows up, and why it
-    was out of scope here.
+    debt, a false doc, or a missing or redundant test. The title of a new
+    capability, or of other new work, names the work as an action:
+    `Sort the search results by date`. The body says where it is or would
+    go (`path:line`), how it shows up or what it gives, and why it was out
+    of scope here.
   - Label it from the labels the repository already has — `gh label list`
     first, then `--label` with the ones that fit. Never invent a new label; if
     nothing fits, file it unlabelled. The one exception is debt: a file or a
