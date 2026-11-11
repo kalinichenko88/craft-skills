@@ -63,16 +63,18 @@ given linked "$(ahead 0)"
 given inws "$(printf '#91: assigned to you\n%s\ncontinue #91 on fix/91-typo' "$(ahead 0)")"
 given moved "$(printf '#91: assigned to you\n%s' "$(ahead 1)")"
 given otherrepo '#91 is in acme/lib, and this checkout is acme/shop: stop'
-# A git step of a Given that fails stops setup: a clone that has no place, and
-# a branch with a lock file, on the origin or in the workspace.
-for c in otherpr linked inws; do
+# A git step of a Given that fails stops setup, at that step: a clone that has
+# no place, a branch with a lock file on the origin or in the workspace, and a
+# push to a branch with a lock file on the origin.
+for c in otherpr mypr linked inws moved; do
   w=$tmp/broken/$c
   case $c in
-    otherpr) mkdir -p "$w.elsewhere/x" ;;
-    linked) mkdir -p "$w.origin/refs/heads/fix" && : >"$w.origin/refs/heads/fix/91-typo.lock" ;;
-    inws) mkdir -p "$w/.git/refs/heads/fix" && : >"$w/.git/refs/heads/fix/91-typo.lock" ;;
+    otherpr | mypr) mkdir -p "$w.elsewhere/x" && step='already exists' ;;
+    linked | moved) mkdir -p "$w.origin/refs/heads/fix" && : >"$w.origin/refs/heads/fix/91-typo.lock" && step=lock ;;
+    inws) mkdir -p "$w/.git/refs/heads/fix" && : >"$w/.git/refs/heads/fix/91-typo.lock" && step=lock ;;
   esac
-  ! bash "$take_in" setup "$w" "$c" >/dev/null 2>&1 || fail "the setup of $c goes on after a git step fails"
+  { ! err=$(bash "$take_in" setup "$w" "$c" 2>&1 >/dev/null) && grep -q "$step" <<<"$err"; } ||
+    fail "the setup of $c does not stop at its git step that fails" "$err"
 done
 # The task of another repository reads by its link, and is no task of this one.
 w=$tmp/given/otherrepo
@@ -91,6 +93,8 @@ w=$tmp/given/otherpr
 pr_gh() { (cd "$w" && PATH="$w.bin:$PATH" gh "$@"); }
 [ "$(pr_gh pr view 96 --json author --jq .author.login)" = rivera ] || fail 'the fake gh does not read #96'
 [ "$(pr_gh pr view fix/91-install --json number --jq .number)" = 96 ] || fail 'the fake gh does not read #96 by its branch'
+[ "$(pr_gh pr view fix/91-other --json number 2>&1)" = 'no pull requests found for branch "fix/91-other"' ] ||
+  fail 'the fake gh does not say that a branch has no pull request'
 [ "$(pr_gh pr list --head fix/91-install --json number)" = '[{"number":96}]' ] || fail 'the fake gh does not list #96 by its branch'
 for list in '--head fix/91-other' '--state merged'; do
   # shellcheck disable=SC2086 # the words of the flags
