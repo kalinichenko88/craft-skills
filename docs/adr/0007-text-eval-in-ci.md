@@ -3,6 +3,11 @@
 - Status: accepted
 - Date: 2026-11-11
 
+## Updates
+
+- 2026-11-11 #324: Consequences, Bad. Was: "nothing makes the merge wait for the job: `main` has no required check, and the merge of `craft:github` reads no check (#309)".
+- 2026-11-11 #335: Consequences, Bad. Was: "A LOST item can be noise of the model, though in the measure of the eval's header no item outside the cut lines was LOST at five runs: rerun the job."
+
 ## Context
 
 ADR 0003 left one gap: a change of a flow edits two texts, the skill and its
@@ -61,15 +66,16 @@ request red, with no step that a person or an agent must remember. A new
 scenario file with no row makes it red too, as the eval stops on it. A pull
 request that changes no skill file of a row costs a runner and no token.
 
-Bad: nothing makes the merge wait for the job: `main` has no required check,
-and the merge of `craft:github` reads no check (#309). The repository keeps a
+Bad: the ruleset of `main` requires the job, and the merge of `craft:github`
+waits for the checks of the pull request: a job that fails blocks the merge.
+The repository keeps a
 secret. A token that expires or is missing, or a spent limit of the
 subscription, makes the job fail; it prints the reason that the CLI gives.
 Each person with write access to the repository can read the token, with a
 branch that changes the eval. A pull request from a fork gets no secret and no
-check. A LOST item can be noise of the model, though in the measure of the
-eval's header no item outside the cut lines was LOST at five runs: rerun the
-job. A renamed file of a row gives the base no line, so no item that it
+check. A row with a LOST item gets a second set of runs, and an item stays
+LOST only when both sets lose it, so a LOST line is a confirmed loss. A
+renamed file of a row gives the base no line, so no item that it
 produces can be LOST in that pull request; no file of a row was renamed up to
 2026-11-10. A push runs every changed row again, also when it changes only a
 test.

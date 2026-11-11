@@ -171,7 +171,8 @@ consistently does otherwise, only an accepted ADR of the project overrides it.
 with the code, with the status `accepted`. The review of the pull request is
 where it is argued, and the merge makes it true. An ADR file that
 `git diff <base>..HEAD` adds is under review. One that exists at the base is
-settled: a branch changes nothing in it past its Status line. A spec or a
+settled: a branch changes in it only its Status line, and a sentence that a
+later fact made false, as *A fact that changed* in *ADRs* says. A spec or a
 plan names the ADR that the work will add, by its title, and does not write
 it.
 
@@ -270,14 +271,24 @@ A decision needs an ADR when:
 3. it sets a pattern that later code must follow: without the ADR, a reviewer
    would see two competing ways;
 4. it reverses or narrows an accepted ADR, or amends an invariant. Then a new
-   ADR supersedes the old one, and the old one is not edited, except its
-   Status line.
+   ADR supersedes the old one, and the old one changes only its Status line.
 
 No ADR when none of the four holds: the choice is local and cheap to undo, or
 a lint rule or a documented convention already enforces it. The four win: a
 new external dependency needs an ADR, however small. An option that the
 person rejects for a lasting reason gets an ADR with the status `rejected`,
 so that the next agent does not offer it again.
+
+**A fact that changed.** When a sentence of an accepted ADR is false now and
+its decision still holds, correct the sentence in place, in the pull request
+that made it false. Then add a line under `## Updates`, after the Status and
+Date lines: `- YYYY-MM-DD #<PR>: <section>. Was: "<the old words>".` The
+Status stays `accepted`. A later correction adds a line; no line is
+rewritten. The decision holds when code that kept it before the correction
+keeps it after, and code that broke it still breaks it. Otherwise it is
+reason 4, however few words change: "the check blocks the merge" to "the
+check only warns" is a new ADR. An agent reads the ADRs as context, and a
+false sentence there misleads it.
 
 One decision per file, `NNNN-title.md`, numbered after the highest one in the
 folder. A file is never renamed or deleted, so a link to it does not rot. The
