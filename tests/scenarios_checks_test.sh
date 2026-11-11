@@ -268,6 +268,11 @@ flips inws 'the work goes on, on fix/91-typo'
 copy
 add inws $'text\tDoes the work on #91 run somewhere else, or here?'
 flips inws 'never: the person is asked whether the work runs somewhere else'
+# A question about something else, after a sentence that names another
+# session.
+copy
+add inws $'text\tNo other session works on #91. Shall I open a draft PR?'
+stays
 
 # The branch that moved on: the workspace's fix/91-typo pulled.
 copy

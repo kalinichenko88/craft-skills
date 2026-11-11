@@ -99,12 +99,20 @@ comment() { # comment <number> <body>
   save --argjson n "$1" --arg me "$me" --arg b "$2" '(.issues[] | select(.number == $n) | .comments) += [{author: $me, body: $b}]'
   logged comment "$1"
 }
+# An issue command on a number that the repository has no issue of fails, as
+# on GitHub.
+case "$1 $2" in 'issue view' | 'issue edit' | 'issue comment' | 'issue close' | 'issue develop')
+  issues | jq -e --argjson n "${num:-0}" 'any(.[]; .number == $n)' >/dev/null ||
+    { echo "GraphQL: Could not resolve to an issue or pull request with the number of $num. (repository.issue)" >&2; exit 1; } ;;
+esac
 case "$1 $2" in
   'api repos/{owner}/{repo}') out "$(jq -c '{full_name: .repo, default_branch: "main", visibility: (.visibility | ascii_downcase)}' "$state")" ;;
   'api user') out "$(jq -c '{login: .me}' "$state")" ;;
   'api graphql')
     [ -n "$n" ] || n=$(grep -oE 'issue\(number: *[0-9]+' <<<"$*" | grep -oE '[0-9]+$' || true)
     if [[ $* == *'issue(number:'* ]] && [ -n "$n" ]; then # the check of take-in-check.sh and worktree.sh
+      jq -e --argjson n "$n" '. as $s | any(.issues[]; .number == $n and (.repo // $s.repo) == $s.repo)' "$state" >/dev/null ||
+        { echo "GraphQL: Could not resolve to an issue or pull request with the number of $n. (repository.issue)" >&2; exit 1; }
       origin=$(jq -r .origin "$state")
       linked=$(jq -r --argjson n "$n" '.issues[] | select(.number == $n) | (.linked // [])[]' "$state" |
         while read -r b; do
@@ -119,14 +127,14 @@ case "$1 $2" in
             headRepository: {nameWithOwner: $repo}}' <<<"$p"
         done | jq -sc .)
       out "$(jq -c --argjson n "$n" --argjson linked "$linked" --argjson closing "$closing" '. as $s
-        | ($s.issues[] | select(.number == $n)) as $i
+        | ($s.issues[] | select(.number == $n and (.repo // $s.repo) == $s.repo)) as $i
         | {data: {viewer: {login: $s.me}, repository: {nameWithOwner: $s.repo, defaultBranchRef: {name: "main"},
           issue: {state: $i.state, assignees: {nodes: [$i.assignees[] | {login: .}]}, linkedBranches: {nodes: $linked},
             closedByPullRequestsReferences: {nodes: $closing}}}}}' "$state")"
     elif [[ $* == *issueOrPullRequest* ]]; then # the entries of collect.sh, with no timeline, of issues only
       nums=$(grep -oE 'n[0-9]+: issueOrPullRequest' <<<"$*" | grep -oE '^n[0-9]+' | tr -d n | jq -sc .)
       out "$(jq -c --argjson nums "$nums" '. as $s | {data: {viewer: {login: .me}, repository: (reduce
-        (.issues[] | select(.number | IN($nums[]))) as $i ({}; .["n\($i.number)"] = {__typename: "Issue",
+        (.issues[] | select((.number | IN($nums[])) and (.repo // $s.repo) == $s.repo)) as $i ({}; .["n\($i.number)"] = {__typename: "Issue",
           number: $i.number, title: $i.title, state: $i.state, stateReason: ($i.stateReason // null), body: $i.body,
           repository: {nameWithOwner: $s.repo}, labels: {nodes: [$i.labels[] | {name: .}]},
           assignees: {nodes: [$i.assignees[] | {login: .}]}, linkedBranches: {nodes: [($i.linked // [])[] | {ref: {name: .}}]},
@@ -140,10 +148,7 @@ case "$1 $2" in
     fi
     ;;
   'issue view')
-    if ! issues | jq -e --argjson n "$num" 'any(.[]; .number == $n)' >/dev/null; then
-      echo "GraphQL: Could not resolve to an issue or pull request with the number of $num. (repository.issue)" >&2
-      exit 1
-    elif [ -n "$fields" ]; then
+    if [ -n "$fields" ]; then
       out "$(issues | jq -c --argjson n "$num" '.[] | select(.number == $n)' | pick .)"
     else
       issues | jq -r --argjson n "$num" '.[] | select(.number == $n)
@@ -201,9 +206,13 @@ case "$1 $2" in
       [[ $* != *--checkout* ]] || { git fetch -q origin "$b" && git checkout -q -b "$b" "origin/$b"; }
     fi
     ;;
-  'pr list') out "$(jq -c '.prs // []' "$state")" ;;
-  'pr view') # with --json only
-    pr=$(jq -c --argjson n "$num" '(.prs // [])[] | select(.number == $n)' "$state")
+  'pr list')
+    out "$(jq -c --arg h "$(value --head -H)" --arg s "$list_state" '(.prs // [])[] | select($h == "" or .headRefName == $h)
+      | select($s == "all" or (.state | ascii_downcase) == $s)' "$state" | pick . | jq -sc .)"
+    ;;
+  'pr view') # with --json only, by number or by branch
+    pr=$(jq -c --arg n "$num" --arg b "${args[2]:-}" '(.prs // [])[]
+      | select(if $n == "" then .headRefName == $b else .number == ($n | tonumber) end)' "$state")
     [ -n "$pr" ] || { echo "GraphQL: Could not resolve to a PullRequest with the number of $num. (repository.pullRequest)" >&2; exit 1; }
     out "$(pick . <<<"$pr")"
     ;;

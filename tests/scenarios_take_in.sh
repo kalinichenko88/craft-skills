@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # The cases of tests/scenarios_eval.sh, one for each scenario of
 # scenarios/github/take-in.md that a case runs: the Given of each case, as a
-# tracker in JSON and a workspace with a bare origin, the record of a run, and
-# the checks of the Then and Never items of its scenario. The eval runs it so:
+# tracker in JSON and a workspace with a bare origin, the snapshot of its git
+# state, and the checks of the Then and Never items of its scenario. The eval
+# runs it so:
 #
 #   scenarios_take_in.sh cases
 #   scenarios_take_in.sh not_run
 #   scenarios_take_in.sh setup <dir> <case>
-#   scenarios_take_in.sh record <dir>
+#   scenarios_take_in.sh snapshot <dir> <to>
 #   scenarios_take_in.sh check <dir> <case>
 #
 # Needs bash, jq, git and awk.
@@ -47,7 +48,7 @@ Require stack:
 # setup <dir> <case>: the workspace <dir>, its origin <dir>.origin, the
 # tracker <dir>.state.json, and the fake gh in <dir>.bin. <dir>.given.workspace
 # and <dir>.given.branches hold the workspace and the origin's branches as the
-# Given leaves them, in the shape of record.
+# Given leaves them, in the shape of snapshot.
 setup() {
   local w=$1
   # elsewhere <branch> <who>: a commit of <who> on <branch> of the origin,
@@ -69,55 +70,38 @@ setup() {
   git -C "$w" commit -qm 'docs: add the README'
   git -C "$w" remote add origin "$w.origin"
   git -C "$w" push -q -u origin main
+  # The Given: the branches of the case, and its change of a free task's tracker.
+  local given=.
   case $2 in
-    otherpr) elsewhere fix/91-install "$other" ;;
-    mypr) elsewhere fix/91-install "$me" ;;
-    linked) git -C "$w.origin" branch fix/91-typo main ;;
-    inws | moved) git -C "$w" branch fix/91-typo && git -C "$w" push -q -u origin fix/91-typo ;;
+    free) ;;
+    other) given='.issues[0].assignees = [$other]' ;;
+    down) given='.down = true' ;;
+    dup) given='.issues += [task(95; $title95; $body95 + "\n\nThen my app failed:\n\n```\n" + $trace + "\n```"; [])]' ;;
+    busy) given='.issues += [task(95; $title95; $body95; [$other])]' ;;
+    closed) given='.issues[0] |= (.state = "CLOSED" | .stateReason = "COMPLETED")' ;;
+    otherpr) elsewhere fix/91-install "$other" && given='.prs = [pr($other)]' ;;
+    mypr) elsewhere fix/91-install "$me" && given='.prs = [pr($me)]' ;;
+    assigned) given='.issues[0].assignees = [$me]' ;;
+    linked) git -C "$w.origin" branch fix/91-typo main && given='.issues[0].linked = ["fix/91-typo"]' ;;
+    inws | moved) git -C "$w" branch fix/91-typo && git -C "$w" push -q -u origin fix/91-typo
+      [ "$2" = inws ] || elsewhere fix/91-typo "$me"
+      given='.issues[0] |= (.assignees = [$me] | .linked = ["fix/91-typo"])' ;;
+    otherrepo) given='.issues[0].repo = "acme/lib"' ;;
+    *) echo "$0: no case $2" >&2; return 2 ;;
   esac
-  [ "$2" != moved ] || elsewhere fix/91-typo "$me"
-  jq -n --arg case "$2" --arg me "$me" --arg other "$other" --arg origin "$w.origin" \
-    --arg w "$w" --arg title "$title" --arg body "$body" --arg title95 "$title95" --arg body95 "$body95" --arg trace "$trace" '
+  jq -n --arg me "$me" --arg other "$other" --arg origin "$w.origin" --arg w "$w" --arg title "$title" \
+    --arg body "$body" --arg title95 "$title95" --arg body95 "$body95" --arg trace "$trace" '
     def task($n; $t; $b; $who): {number: $n, title: $t, body: $b, state: "OPEN", stateReason: null,
       assignees: $who, labels: [], comments: [], linked: []};
     def pr($who): {number: 96, title: "docs: fix the npm install command", state: "OPEN", author: {login: $who},
       headRefName: "fix/91-install", url: "https://github.com/acme/shop/pull/96", closes: [91]};
-    {me: $me, repo: "acme/shop", origin: $origin, workspace: $w, down: ($case == "down"),
-      prs: (if $case == "otherpr" then [pr($other)] elif $case == "mypr" then [pr($me)] else [] end),
-      labels: ["bug", "debt", "enhancement"], visibility: "PUBLIC",
-      issues: ([task(91; $title; $body; if $case == "other" then [$other]
-          elif $case | IN("assigned", "inws", "moved") then [$me] else [] end)
-        | if $case == "closed" then .state = "CLOSED" | .stateReason = "COMPLETED" else . end
-        | if $case | IN("linked", "inws", "moved") then .linked = ["fix/91-typo"] else . end
-        | if $case == "otherrepo" then .repo = "acme/lib" else . end]
-        + if $case == "dup" then [task(95; $title95; $body95 + "\n\nThen my app failed:\n\n```\n" + $trace + "\n```"; [])]
-          elif $case == "busy" then [task(95; $title95; $body95; [$other])] else [] end)}' >"$w.state.json"
+    {me: $me, repo: "acme/shop", origin: $origin, workspace: $w, down: false, prs: [],
+      labels: ["bug", "debt", "enhancement"], visibility: "PUBLIC", issues: [task(91; $title; $body; [])]}
+    | '"$given" >"$w.state.json"
   mkdir "$w.bin"
   printf '#!/usr/bin/env bash\nexec bash %q %q "$@"\n' "$root/tests/fake_gh.sh" "$w.state.json" >"$w.bin/gh"
   chmod +x "$w.bin/gh"
   snapshot "$w" "$w.given"
-}
-
-# record <dir>: <dir>.events holds the messages to the person, as text lines,
-# the session's thinking that has words, as think lines, and each tool call of
-# the session and its subagents, as its tool's name, or sub and the name, and
-# its command, path or skill. Some messages that come before a tool call are
-# text lines. Another one can reach the log only as a think line, in other
-# words, without the task's id and title (#206), with
-# --include-partial-messages too. Paths of this machine become <craft>,
-# <work> and <tmp>. Each line of a command becomes one part of a line, after
-# "; ". Then snapshot writes <dir>.branches and <dir>.workspace.
-record() {
-  jq -r 'select(.type == "assistant") | (if .parent_tool_use_id then "sub" else "" end) as $sub
-    | .message.content[]
-    | if .type == "text" and $sub == "" then "text\t" + (.text | gsub("\n"; " "))
-      elif .type == "thinking" and $sub == "" and (.thinking // "" | test("[a-z]")) then "think\t" + (.thinking | gsub("\n"; " "))
-      elif .type == "tool_use" then $sub + .name + "\t"
-        + ((.input.command // .input.file_path // .input.skill // .input.description // "") | tostring | gsub("\n"; "; "))
-      else empty end' "$1.jsonl" |
-    awk -v r="$root" -v w="$1" -v t="${TMPDIR:-/tmp}" '{ gsub(r, "<craft>"); gsub("(/private)?" w, "<work>")
-      gsub("(/private)?" t, "<tmp>/"); gsub("<tmp>//", "<tmp>/"); print }' >"$1.events"
-  snapshot "$1" "$1"
 }
 
 # snapshot <dir> <to>: <to>.branches holds the origin's branches, each one
@@ -153,6 +137,9 @@ snapshot() {
 # shellcheck disable=SC2034,SC2329 # the items read the values and call issue, at and told through eval
 check() {
   local d=$1 s first_write named nline gist titled think assignees linked branch same last where yours
+  # A run before 2026-11-11 kept no snapshot of its Given.
+  [ -f "$d.given.workspace" ] && [ -f "$d.given.branches" ] ||
+    { echo "$0: $d has no .given.workspace or .given.branches: its run is older than the snapshot of its Given" >&2; return 2; }
   # A write: an edit of a file, a commit, a branch, a worktree, or a write to
   # the tracker. A read, as `sed -n 1p worktree.sh` or `git merge-base`, is
   # none.
@@ -179,8 +166,8 @@ check() {
   at() { jq -e "def at(\$w): [(.log // [])[] | split(\" \")[0:2] | join(\" \") == \$w] | index(true); $1" "$d.state.json" >/dev/null; }
   told() { grep "^text" "$d.events" | grep -qiF "$1"; }
   says() { grep "^text" "$d.events" | grep -qiE "$1"; }
-  # asked <regex>: a message that holds a question and matches the regex.
-  asked() { grep "^text" "$d.events" | grep -F '?' | grep -qiE "$1"; }
+  # asked <regex>: a match and then a question mark, in one sentence of a message.
+  asked() { grep "^text" "$d.events" | grep -qiE "($1)[^.?!]*\?"; }
   # tip <snapshot>: the line of fix/91-typo in a snapshot of the workspace.
   tip() { grep '^fix/91-typo ' "$1" || true; }
   nochange() { item "$1: no change" '[ -z "$first_write" ] && eval "$same"'; }
@@ -317,6 +304,6 @@ check() {
 }
 
 case ${1:-} in
-  cases | not_run | setup | record | check) "$@" ;;
-  *) echo "usage: $0 cases | not_run | setup <dir> <case> | record <dir> | check <dir> <case>" >&2; exit 2 ;;
+  cases | not_run | setup | snapshot | check) "$@" ;;
+  *) echo "usage: $0 cases | not_run | setup <dir> <case> | snapshot <dir> <to> | check <dir> <case>" >&2; exit 2 ;;
 esac

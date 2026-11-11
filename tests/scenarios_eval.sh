@@ -63,6 +63,28 @@ table=$(take_in cases)
 # person, from the line of the case.
 budget() { awk -v c="$1" '$1 == c { print $2 }' <<<"$table"; }
 message() { awk -v c="$1" '$1 == c { print $3 }' <<<"$table"; }
+# record <dir>: <dir>.events holds the messages to the person, as text lines,
+# the session's thinking that has words, as think lines, and each tool call of
+# the session and its subagents, as its tool's name, or sub and the name, and
+# its command, path or skill. Some messages that come before a tool call are
+# text lines. Another one can reach the log only as a think line, in other
+# words, without the task's id and title (#206), with
+# --include-partial-messages too. Paths of this machine become <craft>,
+# <work> and <tmp>. Each line of a command becomes one part of a line, after
+# "; ". Then snapshot writes <dir>.branches and <dir>.workspace.
+record() {
+  jq -r 'select(.type == "assistant") | (if .parent_tool_use_id then "sub" else "" end) as $sub
+    | .message.content[]
+    | if .type == "text" and $sub == "" then "text\t" + (.text | gsub("\n"; " "))
+      elif .type == "thinking" and $sub == "" and (.thinking // "" | test("[a-z]")) then "think\t" + (.thinking | gsub("\n"; " "))
+      elif .type == "tool_use" then $sub + .name + "\t"
+        + ((.input.command // .input.file_path // .input.skill // .input.description // "") | tostring | gsub("\n"; "; "))
+      else empty end' "$1.jsonl" |
+    awk -v r="$root" -v w="$1" -v t="${TMPDIR:-/tmp}" '{ gsub(r, "<craft>"); gsub("(/private)?" w, "<work>")
+      gsub("(/private)?" t, "<tmp>/"); gsub("<tmp>//", "<tmp>/"); print }' >"$1.events"
+  take_in snapshot "$1" "$1"
+}
+
 # score <k> <round folder>...: for each round, the result and the cost of
 # each case's run when its log is there, and the lines of check; then the
 # pass^k line of each case in $cases.
@@ -76,7 +98,7 @@ score() {
       [ -f "$d/$c.events" ] || { echo "$c: no run: $d has no $c.events, as when its setup fails"; continue; }
       [ ! -f "$d/$c.jsonl" ] || printf '%s: %s\n' "$c" \
         "$(jq -Rr 'fromjson? | select(.type == "result") | "\(.subtype), $\(.total_cost_usd)"' "$d/$c.jsonl")"
-      lines=$(take_in check "$d/$c" "$c")
+      lines=$(take_in check "$d/$c" "$c") || { echo "$c: not checked, as its check says above"; continue; }
       printf '%s\n' "$lines"
       if grep -q '^FAIL ' <<<"$lines"; then tally="$tally$c 0"$'\n'; else tally="$tally$c 1"$'\n'; fi
     done
@@ -125,7 +147,7 @@ run() {
     --settings '{"language":"English"}' --plugin-dir "$root" --output-format stream-json --verbose \
     --max-budget-usd "$(budget "$2")" --disallowedTools ListAgents --dangerously-skip-permissions "$(message "$2")") \
     >"$w.jsonl" 2>&1 || true
-  take_in record "$w"
+  record "$w"
 }
 
 # spent: the cost of the runs so far, from the result line of each log.

@@ -161,9 +161,8 @@ It needs the history of the checkout down to #217. Run it after a change to
 the citations job of `skills/github/scout.md` or to *Finishing*.
 `tests/scenarios_eval.sh` runs craft on the thirteen scenarios of
 `scenarios/github/take-in.md` that the first message of the person starts,
-as a free task, a closed task, a task with a pull request, a linked branch,
-the person's branch in the workspace, a task of another repository and a
-free duplicate. Each run of a case is one run of
+from a free task and a closed task to a task of another repository and a
+busy duplicate. Each run of a case is one run of
 `claude -p` with this checkout as the only plugin, a fake `gh` first on
 `PATH` that reads and writes a JSON tracker (`tests/fake_gh.sh`), and a
 workspace with a local `origin`. It checks each Then and Never item of the

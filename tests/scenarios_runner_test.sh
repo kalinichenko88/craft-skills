@@ -67,9 +67,24 @@ given otherrepo '#91 is in acme/lib, and this checkout is acme/shop: stop'
 w=$tmp/given/otherrepo
 [ "$(cd "$w" && PATH="$w.bin:$PATH" gh issue view https://github.com/acme/lib/issues/91 --json title --jq .title)" = \
   'README: the install command says npm instal' ] || fail 'the fake gh does not read #91 of acme/lib by its link'
-! (cd "$w" && PATH="$w.bin:$PATH" gh issue view 91 --json title >/dev/null 2>&1) || fail 'the fake gh reads #91 of acme/lib as a task of acme/shop'
+for call in 'issue view 91 --json title' 'issue edit 91 --add-assignee @me' 'issue develop 91 --name fix/91-x'; do
+  # shellcheck disable=SC2086 # the words of the call
+  ! (cd "$w" && PATH="$w.bin:$PATH" gh $call >/dev/null 2>&1) || fail "the fake gh takes #91 of acme/lib as a task of acme/shop: gh $call"
+done
+[ "$(cd "$w" && PATH="$w.bin:$PATH" bash "$root/skills/github/scripts/take-in-check.sh" 91 2>&1 || true)" = \
+  'GraphQL: Could not resolve to an issue or pull request with the number of 91. (repository.issue)' ] ||
+  fail 'take-in-check.sh 91 finds #91 of acme/lib in acme/shop'
+# The pull request of another person, by number and by branch, and the lists
+# that take it or not by its branch and its state.
 w=$tmp/given/otherpr
-[ "$(cd "$w" && PATH="$w.bin:$PATH" gh pr view 96 --json author --jq .author.login)" = rivera ] || fail 'the fake gh does not read #96'
+pr_gh() { (cd "$w" && PATH="$w.bin:$PATH" gh "$@"); }
+[ "$(pr_gh pr view 96 --json author --jq .author.login)" = rivera ] || fail 'the fake gh does not read #96'
+[ "$(pr_gh pr view fix/91-install --json number --jq .number)" = 96 ] || fail 'the fake gh does not read #96 by its branch'
+[ "$(pr_gh pr list --head fix/91-install --json number)" = '[{"number":96}]' ] || fail 'the fake gh does not list #96 by its branch'
+for list in '--head fix/91-other' '--state merged'; do
+  # shellcheck disable=SC2086 # the words of the flags
+  [ "$(pr_gh pr list $list --json number)" = '[]' ] || fail "the fake gh lists #96 for pr list $list"
+done
 
 # pass^2 over the recorded runs and a copy: a second run in which free fails
 # an item and busy has no run.
@@ -84,6 +99,13 @@ pass^2 free: FAIL, 1 of 2 runs pass' ] && [ "$(grep -c '^pass' <<<"$got")" = 13 
 [ "$(grep -E '^(round |busy: no run)' <<<"$got")" = "round 1 of 2
 round 2 of 2
 busy: no run: $tmp/2 has no busy.events, as when its setup fails" ] || fail 'the report does not name each round and the run that is missing' "$got"
+# A round folder of a run that kept no snapshot of its Given: the case is not
+# checked, and not measured.
+cp -R "$fixtures" "$tmp/old"
+rm "$tmp/old"/other.given.*
+got=$("$eval" --check "$tmp/old" 2>/dev/null)
+{ grep -qxF 'other: not checked, as its check says above' <<<"$got" && grep -qxF 'pass^1 other: not measured, 0 runs of 1' <<<"$got"; } ||
+  fail 'a run with no snapshot of its Given is checked' "$got"
 
 # A stub claude records its arguments and costs $1.50 a run. A folder that
 # cannot run it, or a claude function, would leave the real claude in its place.
