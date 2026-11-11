@@ -143,7 +143,8 @@ done
 case $k in '' | *[!0-9]* | 0*) usage ;; esac
 case $cap in *[!0-9.]* | *.*.* | .) usage ;; esac
 [ -n "$model" ] || usage
-cases=${*:-$(cut -f1 <<<"$table")}
+# A case named twice runs once: two setups of one folder would collide.
+cases=$(if [ $# -gt 0 ]; then printf '%s\n' "$@"; else cut -f1 <<<"$table"; fi | awk '!seen[$0]++')
 for c in $cases; do [ -n "$(budget "$c")" ] || usage; done
 command -v claude >/dev/null || { echo "$0: no claude command" >&2; exit 2; }
 command -v jq >/dev/null || { echo "$0: no jq command" >&2; exit 2; }

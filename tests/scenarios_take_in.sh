@@ -292,8 +292,8 @@ check() {
   }
   # waited: the run made no change before the last text of the person, or the
   # Given of the case does not hold. Only a Given that says that the earlier
-  # run waited or stopped calls it: in another case of more texts, an item of
-  # the case catches such a change.
+  # run waited or stopped calls it. In another case of more texts, the case of
+  # its first message catches such a change, as inprogress does for here.
   waited() {
     local at
     at=$(grep -n '^person' "$d.events" | tail -n 1 | cut -d: -f1)
