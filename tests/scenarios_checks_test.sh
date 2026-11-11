@@ -8,12 +8,16 @@
 # items give SKIP. The run of dup carries one line of the stack trace of #95
 # to #91, not the trace, and fails that item. Every other item passes. A copy with
 # one change to a recorded run changes the verdicts it names and no other; a
-# read added to a run changes none. Each scenario that the checks name is a
-# heading of scenarios/github/take-in.md.
+# read added to a run changes none. Each heading of
+# scenarios/github/take-in.md is a scenario that the checks name or that the
+# eval lists as not run, and nothing else is. The pass^k lines count the runs
+# of each case over the folders given, and a stub claude shows that a run
+# takes --model and stops before --max-cost.
 
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
+eval=$root/tests/scenarios_eval.sh
 fixtures=$root/tests/fixtures/scenarios/take-in
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
@@ -23,9 +27,20 @@ fail() {
   [ -z "${2:-}" ] || printf '%s\n' "$2" >&2
   exit 1
 }
-checks() { "$root/tests/scenarios_eval.sh" --check "$1"; }
+# checks <folder>...: the item lines of the report.
+checks() {
+  local r
+  r=$("$eval" --check "$@") || return
+  grep -E '^(PASS|FAIL|SKIP) ' <<<"$r"
+}
 
-out=$(checks "$fixtures")
+report=$("$eval" --check "$fixtures")
+out=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$report")
+[ "$(grep '^pass' <<<"$report")" = 'pass^1 busy: PASS, 1 of 1 runs pass
+pass^1 down: PASS, 1 of 1 runs pass
+pass^1 dup: FAIL, 0 of 1 runs pass
+pass^1 free: PASS, 1 of 1 runs pass
+pass^1 other: PASS, 1 of 1 runs pass' ] || fail 'the recorded runs do not give pass^1 to each case but dup' "$report"
 [ "$(grep -c '^PASS ' <<<"$out")" = 34 ] || fail 'the recorded runs do not pass 34 items' "$out"
 [ "$(grep -v '^PASS ' <<<"$out")" = 'SKIP A busy duplicate: the first message about #91 tells its gist: a think line comes before it
 SKIP A busy duplicate: the gist comes before any change: only a think line comes before the change
@@ -36,9 +51,20 @@ SKIP A free task: the first message about #91 tells its gist: a think line comes
 SKIP A free task: the gist comes before any change: only a think line comes before the change' ] ||
   fail 'the recorded runs do not give only the six gist SKIPs and the FAIL of the trace' "$out"
 
-while IFS= read -r scenario; do
-  grep -qxF "## $scenario" "$root/scenarios/github/take-in.md" || fail "no scenario named $scenario" "$out"
-done < <(sed -E 's/^(PASS|FAIL|SKIP) ([^:]*):.*/\2/' <<<"$out" | sort -u)
+# coverage <scenario file>: "< heading" for each heading that no case runs and
+# the eval does not list as not run, "> name" for each name that the eval
+# runs or lists that is no heading, and for a name that it both runs and
+# lists.
+coverage() {
+  diff <(sed -n 's/^## //p' "$1" | sort -u) \
+    <({ sed -E 's/^(PASS|FAIL|SKIP) ([^:]*):.*/\2/' <<<"$out" | sort -u; "$eval" --not-run; } | sort) | grep '^[<>]' || true
+}
+take_in=$root/scenarios/github/take-in.md
+[ -z "$(coverage "$take_in")" ] || fail 'the eval does not cover each scenario of take-in once' "$(coverage "$take_in")"
+{ cat "$take_in"; printf '\n## A new scenario\n'; } >"$tmp/new.md"
+[ "$(coverage "$tmp/new.md")" = '< A new scenario' ] || fail 'a heading with no case passes' "$(coverage "$tmp/new.md")"
+grep -vxF '## A closed task' "$take_in" >"$tmp/gone.md"
+[ "$(coverage "$tmp/gone.md")" = '> A closed task' ] || fail 'a scenario listed as not run, with no heading, passes' "$(coverage "$tmp/gone.md")"
 
 n=0
 copy() {
@@ -216,5 +242,73 @@ fake issue comment 95 --body b
   fail 'the fake gh does not mark the writes after a change in a worktree' "$(jq -c .log "$tmp/fake.state.json")"
 [ "$(jq -c '.issues[0] | [.state, .stateReason, .duplicateOf]' "$tmp/fake.state.json")" = '["CLOSED","DUPLICATE",91]' ] ||
   fail 'the fake gh does not close #95 as a duplicate of #91' "$(jq -c .issues "$tmp/fake.state.json")"
+
+# pass^2 over the recorded runs and a copy: a second run in which free fails
+# an item and busy has no run.
+copy
+state free '.issues[0].linked += ["fix/91-other"]'
+rm "$tmp/$n"/busy.*
+got=$("$eval" --check "$fixtures" "$tmp/$n")
+[ "$(grep '^pass' <<<"$got")" = 'pass^2 busy: not measured, 1 run of 2
+pass^2 down: PASS, 2 of 2 runs pass
+pass^2 dup: FAIL, 0 of 2 runs pass
+pass^2 free: FAIL, 1 of 2 runs pass
+pass^2 other: PASS, 2 of 2 runs pass' ] || fail 'pass^2 does not count the runs of each case' "$got"
+[ "$(grep -E '^(round |busy: no run)' <<<"$got")" = "round 1 of 2
+round 2 of 2
+busy: no run: $tmp/$n has no busy.events, as when its setup fails" ] || fail 'the report does not name each round and the run that is missing' "$got"
+
+# A stub claude records its arguments and costs $1.50 a run. A folder that
+# cannot run it, or a claude function, would leave the real claude in its place.
+mkdir "$tmp/stub"
+printf '#!/usr/bin/env bash\necho "$*" >>%q\necho %q\n' "$tmp/stub.args" \
+  '{"type":"result","subtype":"success","total_cost_usd":1.5}' >"$tmp/stub/claude"
+chmod +x "$tmp/stub/claude"
+[ "$(PATH="$tmp/stub:$PATH" command -v claude || true)" = "$tmp/stub/claude" ] || fail 'claude is not the stub'
+# stub <argument>...: the report of the eval with the stub claude.
+stub() {
+  local r
+  rm -f "$tmp/stub.args"
+  r=$(PATH="$tmp/stub:$PATH" "$eval" "$@") || fail "the eval with a stub claude exits with an error: $*" "$r"
+  rm -rf "$(sed -n 's/^runs: //p' <<<"$r")"
+  printf '%s\n' "$r"
+}
+# By default, a run of free is on opus with a cap of $4.
+got=$(stub free)
+grep -qe '--model opus .*--max-budget-usd 4 ' "$tmp/stub.args" || fail 'free does not run on opus with a cap of 4 dollars' "$(cat "$tmp/stub.args")"
+# A round of other and down can cost $4: with a cap of $10, the third round
+# runs at $6.00 spent, and the fourth does not at $9.00.
+got=$(stub --runs 4 --model haiku --max-cost 10 other down)
+[ "$(grep -ce '--model haiku .*--max-budget-usd 2 ' "$tmp/stub.args")" = 6 ] ||
+  fail 'other and down do not run on --model with a cap of 2 dollars' "$(cat "$tmp/stub.args")"
+grep -qxF "other: success, \$1.5" <<<"$got" || fail 'the report does not give the result and the cost of a run' "$got"
+grep -qxF "stopped before round 4 of 4: \$9.00 spent, and a round can cost \$4.00 more, past the cap of \$10" <<<"$got" ||
+  fail 'the eval does not stop before its cap' "$got"
+grep -qxF "cost: \$9.00" <<<"$got" || fail 'the eval does not print the cost of the pass' "$got"
+[ "$(grep '^pass' <<<"$got")" = 'pass^4 other: FAIL, 0 of 3 runs pass
+pass^4 down: FAIL, 0 of 3 runs pass' ] || fail 'pass^4 does not count three runs of four' "$got"
+# A cap under the cost of one round stops the eval before its first round.
+got=$(stub --runs 2 --max-cost 3 other down)
+[ ! -e "$tmp/stub.args" ] || fail 'a cap under one round still runs' "$(cat "$tmp/stub.args")"
+grep -qxF "stopped before round 1 of 2: \$0.00 spent, and a round can cost \$4.00 more, past the cap of \$3" <<<"$got" ||
+  fail 'the eval does not stop before its first round' "$got"
+[ "$(grep '^pass' <<<"$got")" = 'pass^2 other: not measured, 0 runs of 2
+pass^2 down: not measured, 0 runs of 2' ] || fail 'a stop before the first round does not leave each case not measured' "$got"
+
+# refused <argument>...: the eval exits 2 with its usage, and calls no claude.
+# seq 0 prints 1 and 0 on macOS, so --runs 0 with no check would run twice.
+refused() {
+  local code=0 err
+  rm -f "$tmp/stub.args"
+  err=$(PATH="$tmp/stub:$PATH" "$eval" "$@" 2>&1 >/dev/null) || code=$?
+  [ "$code" = 2 ] && [ "${err#usage:}" != "$err" ] && [ ! -e "$tmp/stub.args" ] ||
+    fail "'$*' exits $code with '$err', not 2 with the usage and no run"
+}
+refused --runs 0 free
+refused --runs
+refused --max-cost 1.2.3 free
+refused --model '' free
+refused nocase
+refused --check "$tmp/stub"
 
 echo 'scenarios_checks_test: ok'
