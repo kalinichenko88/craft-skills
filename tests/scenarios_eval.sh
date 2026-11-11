@@ -3,7 +3,9 @@
 # #231. Each case builds a tracker as JSON and a workspace with a bare origin,
 # puts a gh first on PATH that runs tests/fake_gh.sh over that JSON, and runs one
 # session of `claude -p` on the person's message, on the model of --model,
-# opus by default. Then it checks the Then and Never items of the case's
+# opus by default. In a case of two messages, the person's answer to the
+# question of the first one resumes that session, with --resume and the same
+# plugin and PATH. Then it checks the Then and Never items of the case's
 # scenario against the end state of the JSON, the branches of the origin, and
 # the session's messages and tool calls. tests/scenarios_take_in.sh holds the
 # cases, their Given and their checks:
@@ -17,6 +19,8 @@
 #   otherpr    A task with another person's pull request
 #   mypr       A task with the person's pull request
 #   assigned   A task assigned to the person, with no branch
+#   here       The work on the person's task continues here, an answer
+#   there      The work on the person's task runs somewhere else, an answer
 #   linked     A linked branch with no assignee
 #   inws       The person's work is in the workspace
 #   moved      The person's branch moved on somewhere else
@@ -35,8 +39,11 @@
 # case is not measured.
 #
 # Each run costs tokens, so the eval is not part of `make check`.
-# --max-budget-usd caps each run, so a round can cost the sum of those caps,
-# and a little more: claude -p checks its cap after each turn. With
+# --max-budget-usd caps each message of a run, so a round can cost the sum
+# of those caps, and a little more: claude -p checks its cap after each turn,
+# and on the cost of that message alone. The result of a resumed session
+# gives the cost of each message of the session, so the cost of a run is the
+# last result in its log. With
 # --max-cost, the eval stops before a round that could take the cost of the
 # pass past it. The report ends with the cost of the pass. A failing check
 # is a result, not an error: it exits 0. The run folder keeps a folder for
@@ -59,11 +66,14 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 usage() { echo "usage: $0 [--runs k] [--model name] [--max-cost usd] [case ...] | --check <round folder> ... | --not-run" >&2; exit 2; }
 take_in() { bash "$root/tests/scenarios_take_in.sh" "$@"; }
 table=$(take_in cases)
-# budget <case>, message <case>: the cap of one run and the message of the
-# person, from the line of the case.
+# budget <case>, message <case>, answer <case>: the cap of one message, the
+# message of the person, and the answer after it or nothing, from the line of
+# the case.
 budget() { awk -v c="$1" '$1 == c { print $2 }' <<<"$table"; }
 message() { awk -v c="$1" '$1 == c { print $3 }' <<<"$table"; }
+answer() { awk -v c="$1" '$1 == c { $1 = $2 = $3 = ""; sub(/^ +/, ""); print }' <<<"$table"; }
 # record <dir>: <dir>.events holds the messages to the person, as text lines,
+# the answer of the person, as a person line,
 # the session's thinking that has words, as think lines, and each tool call of
 # the session and its subagents, as its tool's name, or sub and the name, and
 # its command, path or skill. Some messages that come before a tool call are
@@ -73,13 +83,15 @@ message() { awk -v c="$1" '$1 == c { print $3 }' <<<"$table"; }
 # <work> and <tmp>. Each line of a command becomes one part of a line, after
 # "; ". Then snapshot writes <dir>.branches and <dir>.workspace.
 record() {
-  jq -r 'select(.type == "assistant") | (if .parent_tool_use_id then "sub" else "" end) as $sub
-    | .message.content[]
-    | if .type == "text" and $sub == "" then "text\t" + (.text | gsub("\n"; " "))
-      elif .type == "thinking" and $sub == "" and (.thinking // "" | test("[a-z]")) then "think\t" + (.thinking | gsub("\n"; " "))
-      elif .type == "tool_use" then $sub + .name + "\t"
-        + ((.input.command // .input.file_path // .input.skill // .input.description // "") | tostring | gsub("\n"; "; "))
-      else empty end' "$1.jsonl" |
+  jq -r 'if .type == "person" then "person\t" + .text
+    elif .type == "assistant" then (if .parent_tool_use_id then "sub" else "" end) as $sub
+      | .message.content[]
+      | if .type == "text" and $sub == "" then "text\t" + (.text | gsub("\n"; " "))
+        elif .type == "thinking" and $sub == "" and (.thinking // "" | test("[a-z]")) then "think\t" + (.thinking | gsub("\n"; " "))
+        elif .type == "tool_use" then $sub + .name + "\t"
+          + ((.input.command // .input.file_path // .input.skill // .input.description // "") | tostring | gsub("\n"; "; "))
+        else empty end
+    else empty end' "$1.jsonl" |
     awk -v r="$root" -v w="$1" -v t="${TMPDIR:-/tmp}" '{ gsub(r, "<craft>"); gsub("(/private)?" w, "<work>")
       gsub("(/private)?" t, "<tmp>/"); gsub("<tmp>//", "<tmp>/"); print }' >"$1.events"
   take_in snapshot "$1" "$1"
@@ -97,7 +109,7 @@ score() {
     for c in $cases; do
       [ -f "$d/$c.events" ] || { echo "$c: no run: $d has no $c.events, as when its setup fails"; continue; }
       [ ! -f "$d/$c.jsonl" ] || printf '%s: %s\n' "$c" \
-        "$(jq -Rr 'fromjson? | select(.type == "result") | "\(.subtype), $\(.total_cost_usd)"' "$d/$c.jsonl")"
+        "$(jq -Rr 'fromjson? | select(.type == "result") | "\(.subtype), $\(.total_cost_usd)"' "$d/$c.jsonl" | tail -n 1)"
       lines=$(take_in check "$d/$c" "$c") || { echo "$c: not checked, as its check says above"; continue; }
       printf '%s\n' "$lines"
       if grep -q '^FAIL ' <<<"$lines"; then tally="$tally$c 0"$'\n'; else tally="$tally$c 1"$'\n'; fi
@@ -139,25 +151,40 @@ for c in $cases; do [ -n "$(budget "$c")" ] || usage; done
 command -v claude >/dev/null || { echo "$0: no claude command" >&2; exit 2; }
 command -v jq >/dev/null || { echo "$0: no jq command" >&2; exit 2; }
 
-# run <round folder> <case>
-run() {
-  local w=$1/$2
-  take_in setup "$w" "$2"
+# session <workspace> <case> <argument>...: one claude -p in the workspace,
+# on the message that the last argument gives.
+session() {
+  local w=$1 c=$2
+  shift 2
   (cd "$w" && PATH="$w.bin:$PATH" claude -p --model "$model" --setting-sources project \
     --settings '{"language":"English"}' --plugin-dir "$root" --output-format stream-json --verbose \
-    --max-budget-usd "$(budget "$2")" --disallowedTools ListAgents --dangerously-skip-permissions "$(message "$2")") \
-    >"$w.jsonl" 2>&1 || true
+    --max-budget-usd "$(budget "$c")" --disallowedTools ListAgents --dangerously-skip-permissions "$@") 2>&1 || true
+}
+
+# run <round folder> <case>: the session on the message of the case, and on
+# its answer, which a person line in the log comes before.
+run() {
+  local w=$1/$2 id
+  take_in setup "$w" "$2"
+  session "$w" "$2" "$(message "$2")" >"$w.jsonl"
+  if [ -n "$(answer "$2")" ]; then
+    id=$(jq -Rr 'fromjson? | select(.type == "system" and .subtype == "init") | .session_id' "$w.jsonl" | head -n 1)
+    [ -z "$id" ] || { jq -nc --arg t "$(answer "$2")" '{type: "person", text: $t}'
+      session "$w" "$2" --resume "$id" "$(answer "$2")"; } >>"$w.jsonl"
+  fi
   record "$w"
 }
 
-# spent: the cost of the runs so far, from the result line of each log.
+# spent: the cost of the runs so far, from the last result line of each log.
 spent() {
-  cat "$runs"/run*/*.jsonl 2>/dev/null | jq -Rr 'fromjson? | select(.type == "result") | .total_cost_usd' |
-    awk '{ s += $1 } END { printf "%.2f\n", s }'
+  jq -Rr 'fromjson? | select(.type == "result") | "\(input_filename) \(.total_cost_usd)"' "$runs"/run*/*.jsonl 2>/dev/null |
+    awk '{ last[$1] = $2 } END { for (f in last) s += last[f]; printf "%.2f\n", s }'
 }
+# messages <case>: the number of messages of the person in a run of the case.
+messages() { if [ -n "$(answer "$1")" ]; then echo 2; else echo 1; fi; }
 
 need=0
-for c in $cases; do need=$((need + $(budget "$c"))); done
+for c in $cases; do need=$((need + $(budget "$c") * $(messages "$c"))); done
 runs=$(mktemp -d)
 rounds=() stop=
 for i in $(seq "$k"); do

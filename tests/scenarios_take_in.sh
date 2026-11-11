@@ -17,17 +17,19 @@
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
-# cases: one line for each case, with its name, the cap of one of its runs in
-# dollars, and the message of the person. A case that goes on into the work
-# after the take-in has the higher cap.
+# cases: one line for each case, with its name, the cap of one message in
+# dollars, the message of the person, and in a case of two messages the
+# answer to the question of the first one, in the same session. A case that
+# goes on into the work after the take-in has the higher cap.
 cases() {
   printf '%s\n' 'free 4 #91' 'other 2 #91' 'down 2 #91' 'dup 4 #91' 'busy 4 #91' 'closed 2 #91' 'otherpr 2 #91' \
-    'mypr 2 #91' 'assigned 2 #91' 'linked 2 #91' 'inws 4 #91' 'moved 2 #91' 'otherrepo 2 https://github.com/acme/lib/issues/91'
+    'mypr 2 #91' 'assigned 2 #91' 'here 4 #91 It continues here.' 'there 2 #91 It runs somewhere else.' \
+    'linked 2 #91' 'inws 4 #91' 'moved 2 #91' 'otherrepo 2 https://github.com/acme/lib/issues/91'
 }
-# The scenarios of take-in that no case runs yet (#239).
+# The scenarios of take-in that no case runs yet, one on each line: none now.
 # tests/scenarios_checks_test.sh fails for a heading of the file that is
 # neither a case nor in this list, and for a name here that is no heading.
-not_run() { printf '%s\n' "The work on the person's task continues here" "The work on the person's task runs somewhere else"; }
+not_run() { :; }
 
 title='README: the install command says npm instal'
 body='The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.'
@@ -82,7 +84,7 @@ setup() {
     closed) given='.issues[0] |= (.state = "CLOSED" | .stateReason = "COMPLETED")' ;;
     otherpr) elsewhere fix/91-install "$other"; given='.prs = [pr($other)]' ;;
     mypr) elsewhere fix/91-install "$me"; given='.prs = [pr($me)]' ;;
-    assigned) given='.issues[0].assignees = [$me]' ;;
+    assigned | here | there) given='.issues[0].assignees = [$me]' ;;
     linked) git -C "$w.origin" branch fix/91-typo main; given='.issues[0].linked = ["fix/91-typo"]' ;;
     inws | moved) git -C "$w" branch fix/91-typo; git -C "$w" push -q -u origin fix/91-typo
       [ "$2" = inws ] || elsewhere fix/91-typo "$me"
@@ -134,7 +136,8 @@ snapshot() {
 # the log holds only in other words, and the log cannot show what it told.
 # "The run waits" and "the run stops" have the same check, "no change": one
 # run cannot show the difference (scenarios/README.md), so a run that stops
-# passes "the run waits".
+# passes "the run waits". With no answer after a question where the work
+# runs, a run of here or there gives no item: its Given does not hold.
 # shellcheck disable=SC2034,SC2329 # the items read the values and call issue, at and told through eval
 check() {
   local d=$1 s first_write named nline gist titled think assignees linked branch same last where yours
@@ -184,6 +187,13 @@ check() {
       item 'the first message about #91 tells its gist' '[ -n "$gist" ]'
     fi
   }
+  # branched: the items of A free task on the branch of #91.
+  branched() {
+    item 'a branch <type>/91-<two to four words> exists' 'grep -qE "^(feat|fix|refactor|docs|test|ci|chore)/91-[a-z0-9]+(-[a-z0-9]+){1,3}(, not from main)?\$" "$d.branches"'
+    item 'that branch is made from the default branch' '[ -n "$branch" ] && grep -qxF "$branch" "$d.branches"'
+    item 'that branch is linked to #91' '[ -n "$branch" ] && cut -d, -f1 "$d.branches" | grep -qxF "$branch"'
+    item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'
+  }
   # outcomes: the Then and Never items of A free task, for #91.
   outcomes() {
     first
@@ -193,11 +203,12 @@ check() {
       item 'the gist comes before any change' 'before "$gist"'
     fi
     item '#91 is assigned to the person' '[ "$assignees" = "[\"$me\"]" ]'
-    item 'a branch <type>/91-<two to four words> exists' 'grep -qE "^(feat|fix|refactor|docs|test|ci|chore)/91-[a-z0-9]+(-[a-z0-9]+){1,3}(, not from main)?\$" "$d.branches"'
-    item 'that branch is made from the default branch' '[ -n "$branch" ] && grep -qxF "$branch" "$d.branches"'
-    item 'that branch is linked to #91' '[ -n "$branch" ] && cut -d, -f1 "$d.branches" | grep -qxF "$branch"'
-    item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'
+    branched
   }
+  case $2 in
+    here | there) { grep -q '^person' "$d.events" && sed -n '/^person/q;p' "$d.events" | grep '^text' | grep -qiE "($where)[^.?!]*\?"; } ||
+      { echo "$0: $d has no answer of the person after a question whether the work runs somewhere else: the Given of its scenario does not hold" >&2; return 2; } ;;
+  esac
   case $2 in
     free) s='A free task'
       outcomes
@@ -262,6 +273,15 @@ check() {
       item 'the person is told that #91 is assigned to the person already' 'says "$yours"'
       item 'the person is asked whether the work on #91 runs somewhere else or continues here' 'asked "$where"'
       nochange 'the run waits'
+      nobranch '[]'
+      item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$me\"]" ]'
+      ;;
+    here) s="The work on the person's task continues here"
+      item '#91 stays assigned to the person' '[ "$assignees" = "[\"$me\"]" ]'
+      branched
+      ;;
+    there) s="The work on the person's task runs somewhere else"
+      nochange 'the run stops'
       nobranch '[]'
       item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$me\"]" ]'
       ;;

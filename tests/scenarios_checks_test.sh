@@ -2,8 +2,10 @@
 # Runs the checks of tests/scenarios_eval.sh on recorded runs, with no model.
 # tests/fixtures/scenarios/take-in/ holds the events, the tracker, the
 # branches and the workspace of one probe run of each case: free, other and
-# down of 2026-11-03, dup and busy of 2026-11-10, and the other eight of
+# down of 2026-11-03, dup and busy of 2026-11-10, and the other ten of
 # 2026-11-11, which also keep the workspace and the branches of their Given.
+# In the runs of here and there, a person line gives the answer of the
+# person, after the question of the first message.
 # The runs of free, other, down, dup and busy kept none: theirs is the one
 # that setup makes now. In the runs of
 # free, dup and busy, no message about #91 comes before the branch, but think
@@ -39,8 +41,8 @@ checks() {
 report=$("$eval" --check "$fixtures")
 out=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$report")
 [ "$(grep '^pass' <<<"$report" | grep -v ': PASS, 1 of 1 runs pass$')" = 'pass^1 dup: FAIL, 0 of 1 runs pass' ] &&
-  [ "$(grep -c '^pass' <<<"$report")" = 13 ] || fail 'the recorded runs do not give pass^1 to each of the 13 cases but dup' "$report"
-[ "$(grep -c '^PASS ' <<<"$out")" = 79 ] || fail 'the recorded runs do not pass 79 items' "$out"
+  [ "$(grep -c '^pass' <<<"$report")" = 15 ] || fail 'the recorded runs do not give pass^1 to each of the 15 cases but dup' "$report"
+[ "$(grep -c '^PASS ' <<<"$out")" = 87 ] || fail 'the recorded runs do not pass 87 items' "$out"
 [ "$(grep -v '^PASS ' <<<"$out")" = 'SKIP A busy duplicate: the first message about #91 tells its gist: a think line comes before it
 SKIP A busy duplicate: the gist comes before any change: only a think line comes before the change
 FAIL A free duplicate: a comment on #91 holds the stack trace of #95
@@ -65,7 +67,7 @@ take_in=$root/scenarios/github/take-in.md
 [ "$(coverage "$tmp/new.md")" = '< A new scenario' ] || fail 'a heading with no case passes' "$(coverage "$tmp/new.md")"
 grep -vxF "## The work on the person's task continues here" "$take_in" >"$tmp/gone.md"
 [ "$(coverage "$tmp/gone.md")" = "> The work on the person's task continues here" ] ||
-  fail 'a scenario listed as not run, with no heading, passes' "$(coverage "$tmp/gone.md")"
+  fail 'a case whose scenario has no heading passes' "$(coverage "$tmp/gone.md")"
 
 n=0
 copy() {
@@ -78,6 +80,7 @@ scenario() {
     down) echo 'The tracker does not answer' ;; dup) echo 'A free duplicate' ;; busy) echo 'A busy duplicate' ;;
     closed) echo 'A closed task' ;; otherpr) echo "A task with another person's pull request" ;;
     mypr) echo "A task with the person's pull request" ;; assigned) echo 'A task assigned to the person, with no branch' ;;
+    here) echo "The work on the person's task continues here" ;; there) echo "The work on the person's task runs somewhere else" ;;
     linked) echo 'A linked branch with no assignee' ;; inws) echo "The person's work is in the workspace" ;;
     moved) echo "The person's branch moved on somewhere else" ;; otherrepo) echo 'A task of another repository' ;;
   esac
@@ -252,6 +255,23 @@ flips assigned 'the person is told that #91 is assigned to the person already'
 copy
 sed -i.bak '/^text/s/?/./g' "$tmp/$n/assigned.events"
 flips assigned 'the person is asked whether the work on #91 runs somewhere else or continues here'
+
+# The answers: #91 given another assignee, and left with none.
+copy
+state here '.issues[0].assignees += ["rivera"]'
+flips here '#91 stays assigned to the person'
+copy
+state there '.issues[0].assignees = []'
+flips there 'never: the assignees of #91 change'
+# The Given of an answer does not hold, and the case is not checked: the
+# answer comes before the question, or the person gives no answer.
+notchecked() { grep -qxF "$1: not checked, as its check says above" <<<"$("$eval" --check "$tmp/$n" 2>/dev/null)" || fail "copy $n checks $1"; }
+copy
+{ grep '^person' "$fixtures/there.events"; grep -v '^person' "$fixtures/there.events"; } >"$tmp/$n/there.events"
+notchecked there
+copy
+grep -v '^person' "$fixtures/here.events" >"$tmp/$n/here.events"
+notchecked here
 
 # A linked branch: asked nothing, and a second branch linked.
 copy
