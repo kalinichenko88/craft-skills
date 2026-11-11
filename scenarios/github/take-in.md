@@ -1,12 +1,13 @@
 # Take a task into work
 
-The whole text that the person writes names one task: "#91", "take #91", or
-the link of the task. It can also say where the work runs: on a branch only,
-or on the branch that the workspace is on. The run checks whether the task is
-free, tells the person the gist of the task, closes its duplicates, and starts
-the work on a branch linked to the task, or on the branch that the workspace
-is on. A next text of the person after a run that asked or waited goes on
-with the task of that run.
+The run starts when the whole text that the person writes names one task:
+"#91", "take #91", or the link of the task. The text can also say where the
+work runs: on a branch only, or on the branch that the workspace is on. The
+run checks whether the task is free, tells the person the gist of the task,
+closes its duplicates, and starts the work on a branch linked to the task, or
+on the branch that the workspace is on. A next text of the person in the same
+conversation, after a run that asked or waited, goes on with the task of that
+run.
 
 Not covered yet:
 
@@ -15,8 +16,6 @@ Not covered yet:
   reproduction shows another cause;
 - the answers to the question what to do with a branch in the workspace
   that has the name of the new branch;
-- other pairs of states that each end the run in another way, as a closed
-  task with a busy duplicate;
 - a text after a wait that names another task.
 
 ## A free task
@@ -301,7 +300,8 @@ Given:
 When: the person writes "#91"
 Then:
 - #95 is closed as a duplicate of #91
-- a reproduction of the failure of #95 runs in the workspace of #91
+- a reproduction of the failure of #95 runs on the branch that is linked
+  to #91
 - #95 closes after that reproduction
 - the last message names #95 as closed
 - the outcomes of A free task hold for #91
@@ -398,7 +398,7 @@ Given:
   continues here
 When: the person answers that it continues here
 Then:
-- the person is told the link of `fix/91-typo` in the other repository
+- the person is told the link of `fix/91-typo`
 - the run waits
 Never:
 - a branch for #91 is created
@@ -457,7 +457,7 @@ Given:
 When: the person writes "#91"
 Then:
 - the first message about #91 tells its gist
-- the person is told which conversation holds the work on #91
+- the person is told that another conversation holds the work on #91
 - the run stops
 Never:
 - the person is asked whether the work runs somewhere else
