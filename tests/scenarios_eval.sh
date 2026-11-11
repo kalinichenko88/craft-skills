@@ -8,24 +8,8 @@
 # plugin and PATH. Then it checks the Then and Never items of the case's
 # scenario against the end state of the JSON, the branches of the origin, and
 # the session's messages and tool calls. tests/scenarios_take_in.sh holds the
-# cases, their Given and their checks:
-#
-#   free       A free task
-#   other      A task that another person is assigned to
-#   down       The tracker does not answer
-#   dup        A free duplicate
-#   busy       A busy duplicate
-#   closed     A closed task
-#   otherpr    A task with another person's pull request
-#   mypr       A task with the person's pull request
-#   assigned   A task assigned to the person, with no branch
-#   inprogress A task in progress for the person, with no branch
-#   here       The work on the person's task continues here, an answer
-#   there      The work on the person's task runs somewhere else, an answer
-#   linked     A linked branch with no assignee
-#   inws       The person's work is in the workspace
-#   moved      The person's branch moved on somewhere else
-#   otherrepo  A task of another repository
+# cases, and tests/scenarios_take_in/ a file for each case, with its scenario,
+# its Given and its checks.
 #
 # The session loads this checkout as the plugin, with --setting-sources
 # project, so no other plugin and no setting of this machine reaches it. It
@@ -70,9 +54,9 @@ table=$(take_in cases)
 # budget <case>, message <case>, answer <case>: the cap of one message, the
 # message of the person, and the answer after it or nothing, from the line of
 # the case.
-budget() { awk -v c="$1" '$1 == c { print $2 }' <<<"$table"; }
-message() { awk -v c="$1" '$1 == c { print $3 }' <<<"$table"; }
-answer() { awk -v c="$1" '$1 == c { $1 = $2 = $3 = ""; sub(/^ +/, ""); print }' <<<"$table"; }
+budget() { awk -F'\t' -v c="$1" '$1 == c { print $2 }' <<<"$table"; }
+message() { awk -F'\t' -v c="$1" '$1 == c { print $4 }' <<<"$table"; }
+answer() { awk -F'\t' -v c="$1" '$1 == c { print $5 }' <<<"$table"; }
 # record <dir>: <dir>.events holds the messages to the person, as text lines,
 # the answer of the person, as a person line,
 # the session's other thinking that has words, as think lines, and each tool
@@ -148,7 +132,7 @@ done
 case $k in '' | *[!0-9]* | 0*) usage ;; esac
 case $cap in *[!0-9.]* | *.*.* | .) usage ;; esac
 [ -n "$model" ] || usage
-cases=${*:-$(cut -d' ' -f1 <<<"$table")}
+cases=${*:-$(cut -f1 <<<"$table")}
 for c in $cases; do [ -n "$(budget "$c")" ] || usage; done
 command -v claude >/dev/null || { echo "$0: no claude command" >&2; exit 2; }
 command -v jq >/dev/null || { echo "$0: no jq command" >&2; exit 2; }

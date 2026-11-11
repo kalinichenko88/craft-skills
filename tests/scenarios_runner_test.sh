@@ -59,7 +59,7 @@ given() { # given <case> <what take-in-check.sh prints>
   mkdir -p "$tmp/given"
   bash "$take_in" setup "$w" "$1"
   got=$(cd "$w" && PATH="$w.bin:$PATH" bash "$root/skills/github/scripts/take-in-check.sh" \
-    "$(bash "$take_in" cases | awk -v c="$1" '$1 == c { print $3 }')" 2>&1 || true)
+    "$(bash "$take_in" cases | awk -F'\t' -v c="$1" '$1 == c { print $4 }')" 2>&1 || true)
   [ "$got" = "$2" ] || fail "take-in-check.sh does not read the Given of $1" "$got"
 }
 ahead() { printf '#91: branch fix/91-typo, %s commits ahead of main, last commit 2026-11-03T00:00:00Z' "$1"; }
