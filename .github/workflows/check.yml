@@ -47,6 +47,14 @@ jobs:
         with:
           node-version: 24
       - run: npm install -g @anthropic-ai/claude-code
+      - name: Show the form of the token, not its value
+        shell: bash
+        env:
+          T: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          echo "length ${#T}"
+          case $T in sk-ant-oat01-*) echo "prefix sk-ant-oat01-" ;; *) echo "another prefix" ;; esac
+          echo "other characters: [$(printf %s "$T" | tr -d A-Za-z0-9_- | od -An -c | tr -s " ")]"
       - name: Run the text eval on the changed rows; a LOST item fails the job
         shell: bash
         env:
