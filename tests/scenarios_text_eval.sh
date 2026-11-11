@@ -4,9 +4,13 @@
 # check but a paid run of tests/scenarios_eval.sh, which has cases for take-in
 # only. Each file in scenarios/*/*.md has a row in `rows` below: the scenario
 # file, then the files of the skill that its flow reads. The eval runs each
-# row, or the row of the scenario file that its first argument names. A
-# scenario file with no row stops the eval before a run, and so does a file of
-# a row that is missing on either side.
+# row, or the row of the scenario file that its first argument names, or with
+# --changed each row with a skill file that differs between the base and the
+# working tree, also an untracked one. Both sides read the scenario file of the
+# working tree, so a change of it alone gives no LOST. CI runs the eval with
+# --changed on each pull request (ADR 0007). A scenario file with no row stops
+# the eval before a run, and so does a file of a row that is missing in the
+# working tree.
 #
 # Each run is one haiku session of `claude -p` with no tool. It gets the
 # scenario file, its Then and Never items with an id, and the files of the
@@ -31,7 +35,7 @@
 # folder of an earlier run. `make check` runs them so on
 # tests/fixtures/scenarios_text, through tests/scenarios_text_checks_test.sh.
 #
-# Usage: tests/scenarios_text_eval.sh [scenario file] [runs, default 5] [base, default the merge base with origin/main]
+# Usage: tests/scenarios_text_eval.sh [scenario file | --changed] [runs, default 5] [base, default the merge base with origin/main]
 #        tests/scenarios_text_eval.sh --check <runs folder>
 
 # shellcheck disable=SC2016 # Markdown's backticks
@@ -45,7 +49,7 @@ rows=(
   'scenarios/review-loop/review.md skills/review-loop/SKILL.md skills/github/SKILL.md skills/github/filing.md'
   'scenarios/product/worth.md rules.md skills/product/SKILL.md skills/product/reader.md skills/product/store.md skills/review-loop/SKILL.md skills/github/take-in.md'
 )
-usage() { echo "usage: $0 [scenario file] [runs] [base] | --check <runs folder>" >&2; exit 2; }
+usage() { echo "usage: $0 [scenario file | --changed] [runs] [base] | --check <runs folder>" >&2; exit 2; }
 # row_of <scenario file>: the row of that file, or a status of 1.
 row_of() {
   local r
@@ -84,10 +88,15 @@ if [ "${1:-}" = --check ]; then
   exit 0
 fi
 selected=("${rows[@]}")
+changed=
 case "${1:-}" in
 *.md)
   row=$(row_of "${1#./}") || { echo "$0: $1 has no row" >&2; exit 2; }
   selected=("$row")
+  shift
+  ;;
+--changed)
+  changed=1
   shift
   ;;
 esac
@@ -100,6 +109,19 @@ for f in "$root"/scenarios/*/*.md; do
   f=${f#"$root/"}
   row_of "$f" >/dev/null || { echo "$0: $f has no row: add one, measured as the header says" >&2; exit 2; }
 done
+if [ -n "$changed" ]; then
+  selected=()
+  for row in "${rows[@]}"; do
+    read -r -a files <<<"$row"
+    files=("${files[@]:1}")
+    if ! git -C "$root" diff --quiet "$base" -- "${files[@]}" ||
+      [ -n "$(git -C "$root" ls-files --others --exclude-standard -- "${files[@]}")" ]; then
+      selected+=("$row")
+    fi
+  done
+  [ "${#selected[@]}" -gt 0 ] || { echo "No skill file of a row differs from $base."; exit 0; }
+  echo "Changed rows: ${selected[*]%% *}"
+fi
 
 # items: each Then and Never item of $scenario: <scenario number>.<T or N><item
 # number>, the scenario, and the item's text with its continuation lines.
@@ -116,11 +138,12 @@ items() {
 }
 
 # lines <side>: the skill's files on that side, each line with its path and
-# number.
+# number. A file that the base does not have, as a new one, gives the base no
+# line.
 lines() {
   local f
   for f in "${files[@]}"; do
-    if [ "$1" = base ]; then git -C "$root" show "$base:$f"; else cat "$root/$f"; fi |
+    if [ "$1" = base ]; then git -C "$root" show "$base:$f" 2>/dev/null; else cat "$root/$f"; fi |
       awk -v f="$f" '{ print f ":" FNR ": " $0 }'
   done
 }
@@ -165,32 +188,29 @@ run() {
   rm -rf "$dir"
 }
 
-# The items and the prompts of every row come first, so that a fault in any
-# row stops the eval before a run.
-folders=()
+# The files of every row are checked first, so that a fault in any row stops
+# the eval before a run. A row gets its runs folder only when its runs start.
+for row in "${selected[@]}"; do
+  read -r -a files <<<"$row"
+  for f in "${files[@]:1}"; do
+    [ -f "$root/$f" ] || { echo "$0: $f is not in the working tree: the row of ${files[0]} needs a change" >&2; exit 2; }
+  done
+done
 for row in "${selected[@]}"; do
   read -r -a files <<<"$row"
   scenario=${files[0]}
   files=("${files[@]:1}")
-  for f in "${files[@]}"; do
-    if [ ! -f "$root/$f" ] || ! git -C "$root" cat-file -e "$base:$f" 2>/dev/null; then
-      echo "$0: $f is not in the working tree or at $base: the row of $scenario needs a change" >&2
-      exit 2
-    fi
-  done
   logs=$(mktemp -d)
   items >"$logs/items.tsv"
   for side in base change; do prompt "$side" >"$logs/$side.prompt"; done
-  folders+=("$logs")
-done
-for i in "${!folders[@]}"; do
-  logs=${folders[$i]}
   for j in $(seq "$runs"); do
     run base "$j" &
     run change "$j" &
   done
   wait
-  echo "Scenario: ${selected[$i]%% *}"
+  echo "Scenario: $scenario"
   echo "Runs: $logs"
-  check "$logs"
+  # With no answer, the first run tells why, as a token that expired: the CLI
+  # puts the reason in .result.
+  check "$logs" || { echo "$0: the first run printed: $(jq -r '.result // empty' "$logs/change1.json" 2>/dev/null || head -c 300 "$logs/change1.json")" >&2; exit 2; }
 done

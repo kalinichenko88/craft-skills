@@ -30,6 +30,31 @@ jobs:
           shellcheck --version | sed -n 2p
       - run: make check
 
+  # The text eval of each scenario row whose skill files the pull request changes
+  # (ADR 0007): about $0.24 a row, on the subscription of the token. A pull
+  # request from a fork gets no secret, so it skips the job.
+  scenarios-text:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The eval reads the base from origin/main.
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm install -g @anthropic-ai/claude-code
+      - name: Run the text eval on the changed rows; a LOST item fails the job
+        shell: bash
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          tests/scenarios_text_eval.sh --changed | tee "$RUNNER_TEMP/eval.txt"
+          if grep -q '^LOST' "$RUNNER_TEMP/eval.txt"; then exit 1; fi
+
   secrets:
     runs-on: ubuntu-26.04
     permissions:

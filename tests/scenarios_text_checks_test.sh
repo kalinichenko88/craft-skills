@@ -10,10 +10,13 @@
 # base's answers on the working tree walk the limits one run at a time, with
 # five runs on each side and with four. With a stub claude, the eval refuses
 # a wrong call, a scenario file with no row, in this tree too, a file of a
-# row that is missing at the base or in the working tree, also in a later
-# row before any run, and runs with no answer; and it gives the base's text
-# and the working tree's to the two sides, the recorded items for the
-# recorded scenario file, and the scenario file of the row in its output.
+# row that is missing in the working tree, also in a later row before any
+# run, and runs with no answer; and it gives the base's text and the working
+# tree's to the two sides, no line of a file that the base does not have, the
+# recorded items for the recorded scenario file, and the scenario file of the
+# row in its output. With --changed, it runs only the rows with a skill file
+# that differs from the base, committed, changed or untracked, and none when
+# no skill file does; with no answer, it prints the reason of the first run.
 
 set -eu
 
@@ -71,9 +74,10 @@ set_none "$tmp/four/base1.txt" 1.T1
 set_none "$tmp/four/base2.txt" 1.T1
 expect four "$gist (no line in 3 of 4 runs, on the base in 2 of 4)" 'an item with no line in 3 of 4 runs, and in 2 of 4 on the base, is not lost'
 
-# A stub claude first on PATH answers nothing, and records each call.
+# A stub claude first on PATH answers with an error, as the CLI with no login
+# does, and records each call.
 mkdir "$tmp/bin"
-printf '#!/usr/bin/env bash\ntouch %q\ncat >/dev/null\necho %q\n' "$tmp/called" '{"result": ""}' >"$tmp/bin/claude"
+printf '#!/usr/bin/env bash\ntouch %q\ncat >/dev/null\necho %q\n' "$tmp/called" '{"is_error": true, "usage": {}, "result": "Not logged in"}' >"$tmp/bin/claude"
 chmod +x "$tmp/bin/claude"
 # refused <message> <argument>...: the eval exits 2 with <message> on stderr,
 # and calls claude only when the refusal names no answer. The runs folder that
@@ -83,6 +87,7 @@ refused() {
   shift
   rm -f "$tmp/called"
   err=$(PATH="$tmp/bin:$PATH" "$evalsh" "$@" 2>&1 >"$tmp/out") || code=$?
+  printf '%s\n' "$err" >"$tmp/err"
   logs=$(sed -n 's/^Runs: //p' "$tmp/out")
   [ -z "$logs" ] || { rm -rf "$tmp/logs" && mv "$logs" "$tmp/logs"; }
   [ "$code" = 2 ] && [ "${err#*"$message"}" != "$err" ] || fail "'$*' exited $code with '$err', not 2 with '$message'"
@@ -113,21 +118,28 @@ commit 'no scout.md'
 cp "$root/skills/github/scout.md" "$repo/skills/github/"
 evalsh=$repo/tests/scenarios_text_eval.sh
 take=scenarios/github/take-in.md
-refused 'skills/github/scout.md is not' "$take" 1 HEAD
 commit 'add scout.md'
 git -C "$repo" update-ref refs/remotes/origin/main HEAD~1
-refused 'skills/github/scout.md is not' "$take" 1
+# The default base is the merge base, which has no scout.md: the base side
+# gets no line of it, and the working tree's side does.
+refused 'no answer' "$take" 1
+! grep -q '^skills/github/scout\.md:' "$tmp/logs/base.prompt" || fail 'the base side has lines of a file that the base does not have'
+grep -q '^skills/github/scout\.md:' "$tmp/logs/change.prompt" || fail "the working tree's side lacks the lines of a new file"
 rm "$repo/skills/github/scout.md"
-refused 'skills/github/scout.md is not' "$take" 1 HEAD
+refused 'skills/github/scout.md is not in the working tree' "$take" 1 HEAD
 cp "$root/skills/github/scout.md" "$repo/skills/github/"
 mkdir "$repo/scenarios/none"
 cp "$fixtures/take-in.md" "$repo/scenarios/none/none.md"
 refused 'scenarios/none/none.md has no row' "$take" 1 HEAD
-# A second row after the take-in row, with a file that is missing, in place
-# of the other rows: the eval runs every row, and a fault in a later row
-# stops it before any run.
-awk -v rows="  'scenarios/" -v after="  'scenarios/github/take-in.md " -v row="  'scenarios/none/none.md skills/none/none.md'" \
-  'index($0, rows) == 1 && index($0, after) != 1 { next } 1; index($0, after) == 1 { print row }' "$root/tests/scenarios_text_eval.sh" >"$evalsh"
+# with_row <row>: the copy of the eval gets that row after the take-in row,
+# in place of the other rows.
+with_row() {
+  awk -v rows="  'scenarios/" -v after="  'scenarios/github/take-in.md " -v row="$1" \
+    'index($0, rows) == 1 && index($0, after) != 1 { next } 1; index($0, after) == 1 { print row }' "$root/tests/scenarios_text_eval.sh" >"$evalsh"
+}
+# With a file that is missing in a second row, the eval runs every row, and a
+# fault in a later row stops it before any run.
+with_row "  'scenarios/none/none.md skills/none/none.md'"
 refused 'skills/none/none.md is not' 1 HEAD
 cp "$root/tests/scenarios_text_eval.sh" "$repo/tests/"
 rm -r "$repo/scenarios/none"
@@ -139,4 +151,45 @@ diff "$fixtures/items.tsv" "$tmp/logs/items.tsv" >/dev/null || fail 'the items o
 grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' "$tmp/logs/change.prompt" ||
   fail "the prompt of the working tree lacks the working tree's line"
 ! grep -q 'A line of the working tree only' "$tmp/logs/base.prompt" || fail "the prompt of the base has the working tree's line"
+
+# --changed, on copies whose second row shares a skill file with the take-in
+# row, runs each row with a skill file that differs from the base, and no
+# other: no row with no change, nor with a change of a scenario file alone,
+# which both sides read from the working tree; the take-in row alone for a
+# committed change against the default base, as in CI; both rows for a change
+# of the shared file; and the row of an untracked skill file. A run with no
+# answer prints the reason of the first run: .result of the CLI's JSON, or
+# else the start of its output.
+git -C "$repo" checkout -q -- skills/github/take-in.md
+mkdir "$repo/scenarios/none"
+cp "$fixtures/take-in.md" "$repo/scenarios/none/none.md"
+with_row "  'scenarios/none/none.md skills/github/take-in.md'"
+# no_row <state>: in that state, --changed runs no row and calls no claude.
+no_row() {
+  rm -f "$tmp/called"
+  out=$(PATH="$tmp/bin:$PATH" "$evalsh" --changed 1 HEAD) || fail "--changed with $1 exited $?" "$out"
+  [ "$out" = 'No skill file of a row differs from HEAD.' ] || fail "--changed with $1 does not say that no skill file differs" "$out"
+  [ ! -e "$tmp/called" ] || fail "--changed with $1 called claude"
+}
+# changed_rows <scenario file>...: the rows that the last call named.
+changed_rows() { grep -qxF "Changed rows: $*" "$tmp/out" || fail "--changed did not run the rows of $*" "$(cat "$tmp/out")"; }
+no_row 'no change'
+echo 'A line of the working tree only.' >>"$repo/$take"
+no_row 'a change of a scenario file alone'
+git -C "$repo" checkout -q -- "$take"
+# The default base is the first commit, and HEAD adds scout.md.
+refused 'no answer' --changed 1
+changed_rows "$take"
+echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
+refused 'no answer' --changed 1 HEAD
+changed_rows "$take" scenarios/none/none.md
+grep -qxF "$evalsh: the first run printed: Not logged in" "$tmp/err" || fail 'a run with no answer does not print .result of the first run' "$(cat "$tmp/err")"
+git -C "$repo" checkout -q -- skills/github/take-in.md
+echo 'A line of an untracked file.' >"$repo/skills/github/new.md"
+with_row "  'scenarios/none/none.md skills/github/new.md'"
+# A CLI that prints no JSON, as for an option that it does not know.
+printf '#!/usr/bin/env bash\ntouch %q\ncat >/dev/null\necho %q\n' "$tmp/called" 'error: unknown option' >"$tmp/bin/claude"
+refused 'no answer' --changed 1 HEAD
+changed_rows scenarios/none/none.md
+grep -qxF "$evalsh: the first run printed: error: unknown option" "$tmp/err" || fail 'a run with no answer does not print the output of a CLI that prints no JSON' "$(cat "$tmp/err")"
 echo 'scenarios_text_checks_test: ok'
