@@ -3,6 +3,11 @@
 - Status: accepted
 - Date: 2026-11-06
 
+## Updates
+
+- 2026-11-11 #343: Consequences, Good. Was: "part 1 has 5,416 and part 2 has 4,585 of 10,000 characters".
+- 2026-11-11 #343: Consequences, Good. Was: "Each part is far under the Codex limit of about 2,500 tokens: about 1,300 and 1,100".
+
 ## Context
 
 `rules.md` is the base prompt. `hooks/rules.sh` gave it as one
@@ -54,9 +59,10 @@ marker with "above" or "below".
 
 ## Consequences
 
-Good: part 1 has 5,416 and part 2 has 4,585 of 10,000 characters, so a new
-rule has room in either part. No rule leaves the always-on prompt. Each part
-is far under the Codex limit of about 2,500 tokens: about 1,300 and 1,100.
+Good: each part is under the cap of 10,000 characters that
+`tests/rules_test.sh` checks, so a new rule has room in either part. No rule
+leaves the always-on prompt. Each part is under the Codex limit of about
+2,500 tokens.
 
 Bad: `hooks/hooks.json` changes, so the release is major and Codex users
 trust the hooks again. Each session and each subagent pays for each rule

@@ -55,7 +55,8 @@ checks, and an ADR for each decision that needs one.
   sentence of an accepted ADR false, the sentence is corrected in place, with
   a dated line under `## Updates` that keeps the old words, and when that
   sentence was a reason for the decision, an issue asks whether the
-  decision is still right. A changed decision gets a new ADR that supersedes the old one.
+  decision is still right. A changed decision gets a new ADR that
+  supersedes the old one.
 - **A first file, when you want one.** In a project with none, it offers once
   a session to write `docs/ARCHITECTURE.md` from the code as it is, and writes
   nothing without your yes. After a no, one line in `CLAUDE.md` stops the

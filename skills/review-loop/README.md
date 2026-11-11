@@ -108,8 +108,8 @@ each task stays as that skill sets it. In place of the final review of
   `CLAUDE.md` or `AGENTS.md` that the change made false, also one it does
   not touch, an edit of a settled ADR past its Status line (but not the
   correction of a fact: a dated line under `## Updates` that quotes the old
-  words, and the same decision), a file
-  grown past its limit, a copy to extract, and in a TypeScript or React
+  words, and the same decision), a file grown past its limit, a copy to
+  extract, and in a TypeScript or React
   change, a breach of a rule of `craft:typescript-conventions` or
   `craft:react-conventions`. Its fixes join those of round 1. With no such
   file, the summary says once that

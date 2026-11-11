@@ -65,8 +65,8 @@ skill loses its end in a compaction. The debt list holds review-loop (#283),
 which cannot grow; architecture left it with its split (#284).
 
 Bad: each sentence added to review-loop needs a cut in the same file until
-its split. The files beside `SKILL.md` and the text of a
-whole flow have no cap (#280). The number moves when Claude Code changes its
+its split. The files beside `SKILL.md` and the text of a whole flow have no
+cap (#280). The number moves when Claude Code changes its
 budget or its count of a token.
 
 ## Invariants

@@ -21,14 +21,16 @@ false.
 ## Rests on
 
 - The rule before this one left each such sentence false in this
-  repository, 4 sentences of 2 accepted ADRs: two of ADR 0003 (#236 and
-  PR #270, PR #271) and two of ADR 0007 (PR #324, PR #335). ADR 0003 was
+  repository, 6 sentences of 3 accepted ADRs: two of ADR 0003 (#236 and
+  PR #270, PR #271), two of ADR 0007 (PR #324, PR #335), and two sizes of
+  ADR 0004 that nobody reported, found in the review of #343. ADR 0003 was
   superseded later by ADR 0008, when the way to check a run changed too.
 - A stale sentence misleads a model that reads the ADR: with ADR 0007 as it
   was, beside `docs/ARCHITECTURE.md` and ADR 0008, Sonnet gave the stale
   answer to both questions in 5 of 5 runs, and Haiku the right one to both
-  in 3 of 10. Appended `## Updates` with "Was: … Now: …" and the
-  corrected form each gave 10 of 10 on Haiku and 5 of 5 on Sonnet
+  in 3 of 10. Appended `## Updates` with "Was: … Now: …", and the form of
+  this decision (the sentence corrected, with a line that keeps only the old
+  words), each gave 10 of 10 on Haiku and 5 of 5 on Sonnet
   (2026-11-11, `claude -p` with no tool, #343).
 - An agent can read an excerpt of an ADR, as a grep hit: in the appended
   form that excerpt is the stale sentence with no mark. No run measured this.

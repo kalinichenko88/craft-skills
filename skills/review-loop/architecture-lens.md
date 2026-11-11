@@ -65,8 +65,8 @@ An ADR file that the range adds is under review: check it against *ADRs*, and
 its reason against the code that already does the same work. An ADR that
 exists at the base is settled: argue nothing in it, and report an edit of it
 past its Status line. The one exception is *A fact that changed* in *ADRs*:
-a sentence corrected in place, with its line under `## Updates` that quotes
-the old words, and with the same decision.
+a sentence that is false now, corrected in place, with its line under
+`## Updates` that quotes the old words, and with the same decision.
 
 A change that follows the project's own way, where its code breaks a
 principle of *Modules and layers* everywhere, is no Second structure and no
