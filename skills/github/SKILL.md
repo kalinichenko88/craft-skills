@@ -125,8 +125,8 @@ does not show it: write both without one.
 
 **The checks come first.** Before `gh pr merge`, wait for the checks of the
 pull request, then list each one that did not pass. Run each command on its
-own. Give the watch a time limit of 10 minutes; when the shell stops it or
-moves it to the background, stop that watch, then read the list:
+own. Run the watch in the foreground, with a time limit of 10 minutes. When
+the shell moves it to the background, stop it. Then read the list:
 
 ```bash
 gh pr checks <PR> --watch --fail-fast >/dev/null
@@ -141,8 +141,8 @@ and no check at all gives 1.
   keep the worktree and the branch. The person decides: a fix, a new run of
   the check, or the merge all the same.
 - Only `pending` lines: watch once more, the same way. Still `pending`: give
-  the person each line, and wait. A check can wait for days, for a person's
-  approval or for a runner that is offline.
+  the person each line, and wait for the person's word. A check can wait
+  for days, for a person's approval or for a runner that is offline.
 - `no checks reported`: a check can start late. Read again after a minute,
   and with still none, merge.
 
