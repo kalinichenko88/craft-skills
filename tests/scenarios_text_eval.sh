@@ -18,13 +18,24 @@
 # line that produces it, or none. The eval makes k runs on the text at a base
 # commit and k on the working tree, both with the scenario file of the working
 # tree. An item is LOST when most runs on the working tree give no line for
-# it, as none or by leaving it out, and at most half of the runs on the base
-# do: a weak Never item that no line produces gets none on both texts.
+# it, as none or by leaving it out, and at most a fifth of the runs on the
+# base do: an item that the base gives no line in more runs is too weak to
+# judge, as a weak Never item that no line produces. A row with a LOST item
+# gets a second set of k runs on each side, in again/ of its runs folder, and
+# an item stays LOST only when the second set loses it too.
 #
-# Measured on two cuts of five lines of take-in.md with k = 5: 22 of the 26
-# items that the cut lines produce are LOST, and no other item. One run on each
-# text finds 107 of 130, with 11 other items over 10 pairs. With no rule
-# against a general step in the prompt, 2 of 16: Haiku gives the nearest
+# The rule before #328, one set with half of the runs on the base, failed 3 of
+# 8 runs of the CI job on pull requests, on items at 3 of 5 against 1 or 2 of 5
+# on the base that the next run did not give again. Measured on 2026-11-11
+# with k = 5: on texts equal to the base, 3 rows of filing.md and 2 of
+# worth.md, it lost an item in 2 rows, and this rule in none; on a cut of
+# lines 32 to 35 and 45 of take-in.md, this rule loses 13 items, each with a
+# line in all 10 runs on the base.
+#
+# Measured before #328 on two cuts of five lines of take-in.md with k = 5: 22
+# of the 26 items that the cut lines produce are LOST, and no other item. One
+# run on each text finds 107 of 130, with 11 other items over 10 pairs. With no
+# rule against a general step in the prompt, 2 of 16: Haiku gives the nearest
 # heading or the rule for errors. A new row counts after the same measure: one
 # cut of 3 to 5 lines that its scenarios need, 5 runs on the cut text against
 # 5 on the base, with the result in the pull request that adds the row.
@@ -58,28 +69,43 @@ row_of() {
 }
 
 # check <runs folder>: a LOST line for each item that most runs on the working
-# tree give no line for, and at most half of the runs on the base. An item
+# tree give no line for, and at most a fifth of the runs on the base. When the
+# folder holds a second set of runs in again/, an item is LOST only when each
+# set loses it, and the line gives the counts of both sets together. An item
 # that a run answers none, or leaves out, has no line in that run. A run with
 # no answer counts on neither side.
 check() {
-  awk 'FILENAME ~ /items\.tsv$/ { split($0, a, "\t"); order[++n] = a[1]; name[a[1]] = a[2] ": " a[3]; next }
+  local f=(s=1 "$1"/base*.txt "$1"/change*.txt) sets=1
+  [ ! -d "$1/again" ] || { f+=(s=2 "$1"/again/base*.txt "$1"/again/change*.txt); sets=2; }
+  awk -v sets="$sets" 'FILENAME ~ /items\.tsv$/ { split($0, a, "\t"); order[++n] = a[1]; name[a[1]] = a[2] ": " a[3]; next }
     { split($0, w, " ") }
     !(w[1] in name) { next }
-    !(FILENAME in answered) { answered[FILENAME]; side = FILENAME; sub(/.*\//, "", side); sub(/[0-9]+\.txt$/, "", side); runs[side]++ }
-    w[2] != "none" { cited[side, w[1]]++ }
+    !(FILENAME in answered) { answered[FILENAME]; side = FILENAME; sub(/.*\//, "", side); sub(/[0-9]+\.txt$/, "", side); runs[s, side]++ }
+    w[2] != "none" { cited[s, side, w[1]]++ }
     END {
-      if (!runs["change"] || !runs["base"]) { print "no answer on the working tree or on the base" > "/dev/stderr"; exit 2 }
+      for (s = 1; s <= sets; s++) {
+        if (!runs[s, "change"] || !runs[s, "base"]) { print "no answer on the working tree or on the base" > "/dev/stderr"; exit 2 }
+        rc += runs[s, "change"]
+        rb += runs[s, "base"]
+      }
       for (i = 1; i <= n; i++) {
         id = order[i]
-        c = runs["change"] - cited["change", id]
-        b = runs["base"] - cited["base", id]
-        if (2 * c > runs["change"] && 2 * b <= runs["base"]) {
+        c = b = 0
+        all = 1
+        for (s = 1; s <= sets; s++) {
+          cs = runs[s, "change"] - cited[s, "change", id]
+          bs = runs[s, "base"] - cited[s, "base", id]
+          if (2 * cs <= runs[s, "change"] || 5 * bs > runs[s, "base"]) all = 0
+          c += cs
+          b += bs
+        }
+        if (all) {
           lost++
-          printf "LOST %s %s (no line in %d of %d runs, on the base in %d of %d)\n", id, name[id], c, runs["change"], b, runs["base"]
+          printf "LOST %s %s (no line in %d of %d runs, on the base in %d of %d)\n", id, name[id], c, rc, b, rb
         }
       }
-      printf "%d of %d items lost, %d runs on the working tree and %d on the base\n", lost, n, runs["change"], runs["base"]
-    }' "$1/items.tsv" "$1"/base*.txt "$1"/change*.txt
+      printf "%d of %d items lost, %d runs on the working tree and %d on the base\n", lost, n, rc, rb
+    }' "$1/items.tsv" "${f[@]}"
 }
 
 if [ "${1:-}" = --check ]; then
@@ -175,17 +201,26 @@ EOF
   printf "\n=== The skill's files\n"
   lines "$1"
 }
-# run <side> <i>: one session in an empty folder, so that no file of a project
-# reaches it; its answer goes to <side><i>.txt. The text of a session that ends
-# in an error is no answer.
+# run <folder> <side> <i>: one session in an empty folder, so that no file of a
+# project reaches it; its answer goes to <side><i>.txt in <folder>. The text of
+# a session that ends in an error is no answer.
 run() {
   local dir
   dir=$(mktemp -d)
   (cd "$dir" && claude -p --model haiku --tools '' --setting-sources project \
     --settings '{"language":"English"}' --no-session-persistence \
-    --output-format json --max-budget-usd 1 <"$logs/$1.prompt") >"$logs/$1$2.json" 2>&1 || true
-  jq -r 'select(.is_error != true) | .result // empty' "$logs/$1$2.json" >"$logs/$1$2.txt" 2>/dev/null || true
+    --output-format json --max-budget-usd 1 <"$logs/$2.prompt") >"$1/$2$3.json" 2>&1 || true
+  jq -r 'select(.is_error != true) | .result // empty' "$1/$2$3.json" >"$1/$2$3.txt" 2>/dev/null || true
   rm -rf "$dir"
+}
+# run_set <folder>: $runs runs on each side, all at once, into <folder>.
+run_set() {
+  local j
+  for j in $(seq "$runs"); do
+    run "$1" base "$j" &
+    run "$1" change "$j" &
+  done
+  wait
 }
 
 # The files of every row are checked first, so that a fault in any row stops
@@ -203,14 +238,20 @@ for row in "${selected[@]}"; do
   logs=$(mktemp -d)
   items >"$logs/items.tsv"
   for side in base change; do prompt "$side" >"$logs/$side.prompt"; done
-  for j in $(seq "$runs"); do
-    run base "$j" &
-    run change "$j" &
-  done
-  wait
+  run_set "$logs"
   echo "Scenario: $scenario"
   echo "Runs: $logs"
-  # With no answer, the first run tells why, as a token that expired: the CLI
-  # puts the reason in .result.
-  check "$logs" || { echo "$0: the first run printed: $(jq -r '.result // empty' "$logs/change1.json" 2>/dev/null || head -c 300 "$logs/change1.json")" >&2; exit 2; }
+  # A LOST item can be noise of the model (#328): a row with one gets a second
+  # set of runs, and the check keeps only the items that both sets lose.
+  last=$logs
+  if first=$(check "$logs" 2>/dev/null) && grep -q '^LOST' <<<"$first"; then
+    echo "The first set loses $(grep -c '^LOST' <<<"$first") items, so a second set of $runs runs on each side checks them:"
+    sed -n 's/^LOST /  /p' <<<"$first"
+    last=$logs/again
+    mkdir "$last"
+    run_set "$last"
+  fi
+  # With no answer, the first run of the last set tells why, as a token that
+  # expired: the CLI puts the reason in .result.
+  check "$logs" || { echo "$0: the first run printed: $(jq -r '.result // empty' "$last/change1.json" 2>/dev/null || head -c 300 "$last/change1.json")" >&2; exit 2; }
 done
