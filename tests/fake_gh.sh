@@ -177,7 +177,10 @@ case "$1 $2" in
     [ -z "$t" ] || save --argjson n "$num" --arg t "$t" '(.issues[] | select(.number == $n) | .title) = $t'
     [ -z "$b" ] || save --argjson n "$num" --arg b "$b" '(.issues[] | select(.number == $n) | .body) = $b'
     [ -z "$who" ] || save --argjson n "$num" --arg who "$who" '(.issues[] | select(.number == $n) | .assignees) |= (. + [$who] | unique)'
-    save --argjson n "$num" --argjson l "$(labels --add-label)" '(.issues[] | select(.number == $n) | .labels) |= (. + $l | unique)'
+    l=$(labels --add-label)
+    missing=$(jq -r --argjson l "$l" '. as $s | [$l[] | select(ascii_downcase as $x | all($s.labels[]; ascii_downcase != $x))] | first // empty' "$state")
+    [ -z "$missing" ] || { echo "failed to update https://github.com/$repo/issues/$num: '$missing' not found" >&2; exit 1; }
+    save --argjson n "$num" --argjson l "$l" '(.issues[] | select(.number == $n) | .labels) |= (. + $l | unique)'
     logged edit "$num"
     echo "https://github.com/$repo/issues/$num"
     ;;
@@ -221,6 +224,8 @@ case "$1 $2" in
   'repo view') out "$(jq -c '{nameWithOwner: .repo, visibility, defaultBranchRef: {name: "main"}}' "$state")" ;;
   'label list') out "$(jq -c '[.labels[] | {name: .}]' "$state")" ;; # all of them: a search on GitHub matches more than the name
   'label create')
+    jq -e --arg l "${args[2]}" 'any(.labels[]; ascii_downcase == ($l | ascii_downcase))' "$state" >/dev/null &&
+      { echo "label with name \"${args[2]}\" already exists; use \`--force\` to update its color and description" >&2; exit 1; }
     save --arg l "${args[2]}" '.labels |= (. + [$l] | unique)'
     echo "✓ Label \"${args[2]}\" created in $repo" ;;
   'auth status') echo "github.com: Logged in to github.com account $me" ;;

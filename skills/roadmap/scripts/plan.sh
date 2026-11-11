@@ -123,18 +123,11 @@ link() {
   fi
   ids
 }
-# Joins lines of a number, a tab and a title into "#20 <title>, #21 <title>",
-# by number, so the agent can name each issue by its title. With $1, the count
-# and $1 come first.
-named() {
-  sort -n | awk -F'\t' -v after="${1:-}" '{ s = s (NR > 1 ? ", " : "") "#" $1 " " $2 }
-    END { if (NR) print (after == "" ? "" : NR after) s }'
-}
 # The open issues outside Later that would wait on issue $1 in Later, as
 # #20 <title>, #21 <title>, from $list and $issues; $2 is its new parent.
 waiting() {
   printf '%s\n%s\n' "$list" "$issues" | awk -F'\t' -v n="$1" -v parent="${2:-}" -f "$dir/graph.awk" -f "$dir/later.awk" |
-    named
+    sort -n | awk -F'\t' '{ s = s (NR > 1 ? ", " : "") "#" $1 " " $2 } END { print s }'
 }
 
 [ $# -ge 1 ] || usage
@@ -194,7 +187,7 @@ case $act in
     # A sub-issue with no milestone counts in its parent's.
     open=$(printf '%s\n%s\n' "$list" "$issues" |
       awk -F'\t' -v m="$n" -f "$dir/graph.awk" -f <(printf '%s' 'END { for (i = 1; i <= isn; i++) if (ems(islist[i]) == m) print islist[i] "\t" istitle[islist[i]] }') |
-      named ' open issues: ')
+      sort -n | awk -F'\t' '{ s = s (NR > 1 ? ", " : "") "#" $1 " " $2 } END { if (NR) print NR " open issues: " s }')
     [ -z "$open" ] || refuse "$title has $open"
     run gh api -X PATCH "repos/{owner}/{repo}/milestones/$n" -f state=closed --silent
     say "closed $title"

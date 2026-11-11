@@ -10,7 +10,8 @@
 # An issue that someone else is assigned to and you are not, or one with a
 # linked branch in this repository and no assignee, gets a warning instead: the
 # issue or the branch can be someone else's. It is not assigned and gets no
-# label.
+# label, but a repository with no such label gets it all the same, so that the
+# command of the warning works.
 #
 # A branch linked to the issue in this repository wins over a <branch> that is
 # not linked there: the first such branch that gh lists. When every linked

@@ -48,9 +48,10 @@ directory. Read all of it before the first step of that moment.
   sub-issues is never offered: its sub-issues are.
 - **Busy** means an assignee, the label `in progress`, a linked branch, or an
   open PR that closes the issue. Your own assignee alone is not busy: it says
-  who may take the issue, not that its work runs. **Free** means open, not busy, with no open blocker of its own or of
-  its parent, no open sub-issue, and not in `Later` — unless an open issue
-  outside `Later` waits on it, through any chain: then it is needed.
+  who may take the issue, not that its work runs. **Free** means open, not
+  busy, with no open blocker of its own or of its parent, no open sub-issue,
+  and not in `Later` — unless an open issue outside `Later` waits on it,
+  through any chain: then it is needed.
 - **The tracks.** The main path is the free issues without the bug label in
   the current milestones, and every free issue they wait on, wherever it is.
   Bugs are the other free issues with the bug label. Secondary is every other
@@ -97,7 +98,7 @@ Give its number, title, a few words on what it changes, its track and its
 milestone, and why it is first, as "it is in M1 · First demo and 2 issues
 wait on it". Name the top bug as the alternative, the same way. When the person
 takes a task, the `craft:github` skill's take-in starts with its bare
-number, as `#21`: it checks the task and assigns it.
+number, as `#21`: it checks the task, assigns it and marks it `in progress`.
 
 ## Parallel work
 
@@ -139,7 +140,7 @@ bash <dir>/scripts/roadmap.sh M1
 With no argument, it prints each open milestone in order: its progress
 (`current, 22 of 54 closed`, then `, due 2026-12-01` when it has a due date),
 its description, and its open issues in dependency order, each with its state
-— `free`, `blocked by #21`, `open sub-issues: 2`, or who has it. The progress
+— `free`, `blocked by #21`, `open sub-issues: 2`, or what makes it busy. The progress
 counts the milestone's issues, not its pull requests; a milestone closed while
 the script runs shows `not counted`. `Later` shows titles only. Issues with no
 milestone come last, as a count and a list of their numbers and titles: they
@@ -161,7 +162,8 @@ It opens the `Later` milestone again when it is closed, and makes it when
 there is none. A task in `Later` that an issue outside `Later` waits on is
 still offered, so the move would not put it off: the script refuses when an
 open issue outside `Later` waits on the task, through any chain — a blocked
-issue, or a parent that waits on its sub-issue — and names them with their titles. A sub-issue with no milestone of its own goes into `Later` with its
+issue, or a parent that waits on its sub-issue — and names them with their
+titles. A sub-issue with no milestone of its own goes into `Later` with its
 parent, so an issue that waits on it counts too, and `plan.sh sub` refuses
 the same for a child that goes under a parent in `Later`. Then ask the person: put those off too, or remove the link with
 `plan.sh unblock`. A task comes back from `Later` with

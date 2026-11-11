@@ -73,7 +73,7 @@ One block per candidate and per busy issue, then the overlaps:
   files: src/runner/lease.ts (renewLease), src/runner/lease.test.ts
   why: the body names renewLease; git grep finds it only in lease.ts
   ready: yes
-#22 Claim a step only once [in progress, assigned to you, label in progress]
+#22 Claim a step only once [in progress, assigned to you, PR #9 by you]
   files: src/runner/lease.ts (claimStep)
 Overlaps
 #21 × #22: src/runner/lease.ts — renewLease calls claimStep, which #22 changes
