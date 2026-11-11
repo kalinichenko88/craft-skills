@@ -185,8 +185,9 @@ When: the run ends the work on #91
 Then:
 - the pull request of #91 is open
 - the pull request of #91 closes #91
+- the pull request of #91 does not close #40
 Never:
-- the pull request of #91 closes #40
+- #40 closes
 
 ## A pull request that closes a task of another person
 
@@ -248,8 +249,9 @@ Then:
 - the person is asked whether `parseRows` keeps a line that holds only
   spaces
 - the run waits
+- the pull request of #91 does not close #91
 Never:
-- the pull request of #91 closes #91
+- #91 closes
 - the person is asked whether to merge the pull request of #91
 
 ## The answer merge only
@@ -603,8 +605,9 @@ Then:
 - the title of #30 names `src/parser/fields.ts` as the file of `splitLine`
 - the title of #30 says that `splitLine` drops the commas inside quotes
 - a comment on #30 names #96
+- the title of #30 does not name `src/parser/split.ts`
 Never:
-- the title of #30 names `src/parser/split.ts`
+- #30 closes
 
 ## A merge that changes a number that a free task gives
 
@@ -627,8 +630,9 @@ Then:
 - the text of #30 says that `src/parser/read.ts` has 395 lines
 - the text of #30 still asks that `src/parser/read.ts` be split
 - a comment on #30 names #96
+- the text of #30 does not say that `src/parser/read.ts` has 380 lines
 Never:
-- the text of #30 says that `src/parser/read.ts` has 380 lines
+- #30 closes
 
 ## A merge that removes a place in the code that a free task names
 
@@ -651,8 +655,10 @@ Then:
   `src/parser/split.ts:12`
 - the text of #30 says that #96 deleted `src/parser/legacy.ts`
 - a comment on #30 names #96
+- the text of #30 does not name `src/parser/legacy.ts:30` as a place of
+  the defect
 Never:
-- the text of #30 names `src/parser/legacy.ts:30` as a place of the defect
+- #30 closes
 
 ## A merge that moves the code that a task with two added findings names
 
@@ -723,9 +729,10 @@ Then:
 - the text of #30 still asks for a test of `parseRows` on a file with
   empty lines
 - a comment on #30 names #96
+- the text of #30 does not ask whether `parseRows` keeps the empty lines,
+  as a question that is open
 Never:
-- the text of #30 asks whether `parseRows` keeps the empty lines, as a
-  question that is open
+- #30 closes
 
 ## A merge that rules out the proposal of a free task
 
@@ -751,8 +758,10 @@ Then:
 - the text of #30 says that #96 ruled out an error from `parseRows` for a
   bad line
 - a comment on #30 names #96
+- the text of #30 does not propose that `parseRows` give an error for a
+  bad line
 Never:
-- the text of #30 proposes that `parseRows` give an error for a bad line
+- #30 closes
 
 ## A merge after the default branch moved under the branch of the task
 
