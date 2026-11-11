@@ -164,11 +164,12 @@ checks that the scout gives a sentence of #117 and the title of #205 as false,
 no sentence of #179, and the moved citation of #179.
 It needs the history of the checkout down to #217. Run it after a change to
 the citations job of `skills/github/scout.md` or to *Finishing*.
-`tests/scenarios_eval.sh` runs craft on the sixteen scenarios of
+`tests/scenarios_eval.sh` runs craft on sixteen scenarios of
 `scenarios/github/take-in.md`: fourteen that the first message of the person
 starts, from a free task and a closed task to a task of another repository
 and a busy duplicate, and two that the answer of the person to a question of
-the first message starts. Each run of a case is one session of
+the first message starts. `--not-run` prints the other scenarios of the
+file, which no case runs yet. Each run of a case is one session of
 `claude -p` with this checkout as the only plugin, a fake `gh` first on
 `PATH` that reads and writes a JSON tracker (`tests/fake_gh.sh`), and a
 workspace with a local `origin`. The answer resumes that session with

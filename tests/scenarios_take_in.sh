@@ -26,10 +26,33 @@ cases() {
     'mypr 2 #91' 'assigned 4 #91' 'inprogress 2 #91' 'here 4 #91 It continues here.' 'there 2 #91 It runs somewhere else.' \
     'linked 2 #91' 'inws 4 #91' 'moved 2 #91' 'otherrepo 2 https://github.com/acme/lib/issues/91'
 }
-# The scenarios of take-in that no case runs yet, one on each line: none now.
-# tests/scenarios_checks_test.sh fails for a heading of the file that is
-# neither a case nor in this list, and for a name here that is no heading.
-not_run() { :; }
+# The scenarios of take-in that no case runs yet, one on each line: those of
+# #246, which #320 gives cases. tests/scenarios_checks_test.sh fails for a
+# heading of the file that is neither a case nor in this list, and for a name
+# here that is no heading.
+not_run() {
+  printf '%s\n' \
+    'A settled bug on the code of the task' \
+    'A duplicate that tells only what was seen' \
+    'A task that names a line that moved' \
+    'A task that holds an added finding' \
+    'A branch only' \
+    'Stay on the branch of the workspace' \
+    "The person's pull request is in the workspace" \
+    'A linked branch of another repository only' \
+    'A branch in the workspace with the name of the new branch' \
+    'The text of the task cannot be read' \
+    'An earlier run works on the task in another conversation' \
+    'A closed task with a free duplicate' \
+    "Another person's task whose linked branch the workspace has" \
+    "The workspace's branch has a commit that the repository does not have" \
+    "The linked branch is another person's" \
+    "The linked branch is the person's" \
+    'The work on the linked branch continues here' \
+    'The work on the linked branch runs somewhere else' \
+    'A text after a wait that names no task' \
+    'A text after a stop that names the task again'
+}
 
 title='README: the install command says npm instal'
 body='The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.'
