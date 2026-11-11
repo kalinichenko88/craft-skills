@@ -8,11 +8,7 @@ false, closes the duplicates that it left for a reproduction, asks whether
 to report a defect of the implementation that the work showed, and removes
 the workspace of the task when the person asked for it.
 
-Not covered yet:
-
-- the language of the title of the pull request and of the commit that the
-  merge adds, when the pull requests of the repository are not in English:
-  the implementation does not decide it yet.
+Not covered yet: none.
 
 ## The pull request of a task
 
@@ -225,6 +221,8 @@ Given:
   German
 When: the run ends the work on #91
 Then:
+- the title of the pull request of #91 starts with a type
+- the title of the pull request of #91 is in German after its type
 - the text of the pull request of #91 is in German
 Never:
 - the person is asked in which language to write the pull request of #91
@@ -270,7 +268,7 @@ Then:
 - #96 is merged
 - the merge adds one commit to the default branch
 - that commit holds every change of #96
-- the subject of that commit starts with the title of #96
+- the subject of that commit is the title of #96 in English, then `(#96)`
 - #91 is closed
 - #91 does not have the label `in progress`
 - the repository has no branch `fix/91-parse-rows`
@@ -278,6 +276,32 @@ Never:
 - the workspace of #91 is removed
 - the workspace loses `fix/91-parse-rows`
 - a task other than #91 closes
+
+## The answer merge only for a pull request in another language
+
+Given:
+- task #91 is open, assigned to the person, with the label `in progress`
+- the workspace of #91 is on branch `fix/91-parse-rows`
+- `fix/91-parse-rows` has two commits that the default branch does not
+  have, and the same last commit in the repository and in the workspace
+- the titles and the texts of the last ten merged pull requests of the
+  repository are in German, after the type at the start of each title
+- pull request #96 of the person is open, merges `fix/91-parse-rows` into
+  the default branch, and closes #91; its title is in German after the type
+  at its start, and its text is in German
+- an earlier run asked whether to merge #96, with three answers: merge and
+  remove the workspace of #91, merge only, and do not merge
+When: the person answers merge only
+Then:
+- #96 is merged
+- the merge adds one commit to the default branch
+- the subject of that commit starts with the type at the start of the
+  title of #96
+- the subject of that commit is in English after its type
+- the subject of that commit ends with `(#96)`
+- the text of that commit under its subject is in English
+Never:
+- the person is asked in which language to write the commit
 
 ## The answer merge and remove the workspace
 

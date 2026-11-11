@@ -16,7 +16,7 @@ there.
 | --- | --- | --- |
 | Writing a commit message | `type: one sentence`, at most 5 bullets under it, no `Co-Authored-By:` | *Commits* below |
 | `gh pr create` | `--assignee @me`; assign every issue it closes too; `Part of #15`: `keep-open.sh` after it; then read what it closes | *Pull requests* below |
-| Merging | Wait for the PR's checks first: a failed or cancelled one, one still running after two watches, or a refusal, stops the merge, and `--admin` or `--auto` only on the person's word. `gh pr merge --squash --delete-branch --body` with one bullet list for the whole branch, run in the checkout that holds the branch; then *Finishing*, and *Cleanup* when the person asks for it | *Pull requests* below |
+| Merging | Wait for the PR's checks first: a failed or cancelled one, one still running after two watches, or a refusal, stops the merge, and `--admin` or `--auto` only on the person's word. `gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch, run in the checkout that holds the branch; then *Finishing*, and *Cleanup* when the person asks for it | *Pull requests* below |
 | Finding something out of scope | In the task's module, clear and smaller than the task: fix it in this PR, list it in the description under **Also fixed**. Otherwise add it to an open issue on the same code with `add-finding.sh`, or file a new one. A nit: one line in the final report, no issue | `filing.md` |
 | A rule, a skill or a script of this plugin is wrong | Search `kalinichenko88/craft-skills`; show the person the issue, with nothing from their project; file it only after a yes. A step the person had to point out: do it at once, and *Finishing* drafts it. In a checkout of `craft-skills`: the row above | `filing.md` |
 | Filing next to an existing issue | Name the relation, and correct the other side | `filing.md` |
@@ -112,16 +112,17 @@ The title and description follow the language the project already uses — read
 the recent merged PRs and issues before writing, and match them. English is the
 default only where there is nothing to match.
 
-Merging is always `gh pr merge --squash --delete-branch`, with `--body` set to
-one list in the *Commits* shape — at most five bullets — that sums up every
-commit on the branch, not just the first: without it GitHub fills the squash
-commit from a repository setting, by default every branch commit's full message
-in turn. One commit per PR keeps `main` readable, and the branch has nothing
-left to say once it is in. Its subject is the PR title — by default a
-one-commit branch gives that commit's subject instead — so both take the same
-`type: sentence` shape. A closing word before a number in the title or the
-`--body` closes that issue when the commit lands, and `closingIssuesReferences`
-does not show it: write both without one.
+Merging is always `gh pr merge --squash --delete-branch`, with `--subject` and
+`--body` in English, as every commit message is, also when the PR is in another
+language. `--subject` is the PR title in English, then ` (#<PR>)`, so the title
+takes the same `type: sentence` shape. Without it, GitHub takes the title, or a
+one-commit branch's subject, as it is. `--body` is one list in the *Commits* shape — at most five bullets —
+that sums up every commit on the branch, not just the first: without it GitHub
+fills the squash commit from a repository setting, by default every branch
+commit's full message in turn. One commit per PR keeps `main` readable, and the
+branch has nothing left to say once it is in. A closing word before a number in
+the subject or the `--body` closes that issue when the commit lands, and
+`closingIssuesReferences` does not show it: write both without one.
 
 **The checks come first.** Before `gh pr merge`, wait for the checks of the
 pull request, then list each one that did not pass. Run each command on its

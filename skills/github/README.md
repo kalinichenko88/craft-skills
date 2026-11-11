@@ -74,7 +74,8 @@ time.
   a defect that it removed.
 - **Commits in one shape.** `type(scope): sentence`, at most five bullets
   under it, and no `Co-Authored-By:` trailer. A merge is a squash with one
-  list for the whole branch.
+  list for the whole branch. Its subject and its list are in English, also
+  when the pull request is in another language.
 - **Nothing private in a public repository.** Before an issue, a comment, a
   PR, a branch or a commit goes out, the agent reads the visibility of the
   repository that gets it. In a public one, a case from a private source — a

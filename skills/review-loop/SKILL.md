@@ -485,7 +485,7 @@ is a list. With no person and a verdict of `craft:product` other than
 summary is not the turn's last message, the report starts that message too.
 
 - **Change:** what the branch changed as a whole, for a person who did not
-  follow the session: one to five bullets, the list that the merge takes as
+  follow the session: one to five bullets. In English, they are the merge's
   `--body` in *Pull requests* of the `craft:github` skill.
 - **Rounds:** the verdict of *Worth first*, or why it did not run.
   `ponytail-review`'s lines saved, or why it did not run. The walk: its
