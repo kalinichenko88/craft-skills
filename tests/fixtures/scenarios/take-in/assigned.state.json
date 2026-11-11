@@ -8,7 +8,8 @@
   "labels": [
     "bug",
     "debt",
-    "enhancement"
+    "enhancement",
+    "in progress"
   ],
   "visibility": "PUBLIC",
   "issues": [
@@ -21,9 +22,18 @@
       "assignees": [
         "kim"
       ],
-      "labels": [],
+      "labels": [
+        "in progress"
+      ],
       "comments": [],
-      "linked": []
+      "linked": [
+        "docs/91-fix-npm-install-command"
+      ]
     }
+  ],
+  "log": [
+    "edit 91",
+    "develop 91",
+    "edit 91 +changes"
   ]
 }

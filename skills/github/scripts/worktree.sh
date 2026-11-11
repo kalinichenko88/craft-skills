@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
-# Assigns an issue to you, checks out its branch in a worktree of its own (or,
-# with --here, in the current checkout), links the branch to the issue (not
-# with --local, below), and prints the path to work in as its last line.
+# Assigns an issue to you and puts the label in progress on it, checks out its
+# branch in a worktree of its own (or, with --here, in the current checkout),
+# links the branch to the issue (not with --local, below), and prints the path
+# to work in as its last line. The label says that the work on the issue runs:
+# an assignee alone does not. A repository with no such label gets it.
 #
 #   worktree.sh <n> <branch> [--here] [--local]
 #
 # An issue that someone else is assigned to and you are not, or one with a
 # linked branch in this repository and no assignee, gets a warning instead: the
-# issue or the branch can be someone else's.
+# issue or the branch can be someone else's. It is not assigned and gets no
+# label, but a repository with no such label gets it all the same, so that the
+# command of the warning works.
 #
 # A branch linked to the issue in this repository wins over a <branch> that is
 # not linked there: the first such branch that gh lists. When every linked
@@ -93,11 +97,16 @@ case " $assignees " in
   *" $me "*) warning='' ;;
   *) warning="#$n is assigned to $assignees: it is theirs." ;;
 esac
+# The search of the labels matches more than the name, and a label's name has
+# no case on GitHub.
+label='in progress'
+have=$(gh label list --search "$label" --json name --jq ".[] | select(.name | ascii_downcase == \"$label\") | .name")
+[ -n "$have" ] || run gh label create "$label" --description 'The work on it runs' --color fbca04
 if [ -n "$warning" ]; then
   echo "warning: $warning"
-  echo "It is not assigned to you. If the work is yours: gh issue edit $n --add-assignee @me"
+  echo "It is not assigned to you. If the work is yours: gh issue edit $n --add-assignee @me --add-label '$label'"
 else
-  run gh issue edit "$n" --add-assignee @me
+  run gh issue edit "$n" --add-assignee @me --add-label "$label"
 fi
 
 if [ -n "$path" ]; then

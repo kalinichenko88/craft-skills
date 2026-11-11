@@ -19,6 +19,7 @@
 #   otherpr    A task with another person's pull request
 #   mypr       A task with the person's pull request
 #   assigned   A task assigned to the person, with no branch
+#   inprogress A task in progress for the person, with no branch
 #   here       The work on the person's task continues here, an answer
 #   there      The work on the person's task runs somewhere else, an answer
 #   linked     A linked branch with no assignee

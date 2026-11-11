@@ -2,12 +2,14 @@
   "me": "kim",
   "repo": "acme/shop",
   "origin": "<work>.origin",
+  "workspace": null,
   "down": false,
   "prs": [],
   "labels": [
     "bug",
     "debt",
-    "enhancement"
+    "enhancement",
+    "in progress"
   ],
   "visibility": "PUBLIC",
   "issues": [
@@ -20,10 +22,12 @@
       "assignees": [
         "kim"
       ],
-      "labels": [],
+      "labels": [
+        "in progress"
+      ],
       "comments": [],
       "linked": [
-        "docs/91-fix-npm-install-typo"
+        "docs/91-fix-npm-install-command"
       ]
     },
     {

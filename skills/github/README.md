@@ -22,7 +22,11 @@ time.
   issue's number and a short form of its title as its name: the number and
   the title's first part, whole up to 50 characters, else cut to 40. Its
   duplicates close before the work starts. The work gets a worktree
-  named for what it does, as `fix/91-what-it-does`. Every open bug and debt
+  named for what it does, as `fix/91-what-it-does`. The issue is assigned to
+  you and gets the label `in progress`, which the agent creates when the
+  repository has none: an assignee says who may take an issue, and the label
+  says that its work runs. An issue assigned to you, with no label
+  `in progress`, branch or pull request, is taken with no question. Every open bug and debt
   issue in the same area is checked, so one PR can close them with the task.
   Name an issue of yours again, as after you closed the terminal: when the
   branch it has on GitHub is here with its last commit, the work goes on
@@ -61,12 +65,13 @@ time.
   be lost.
   Only the merge and the open questions on business logic wait for you, and
   after the merge, the drafts for the plugin's tracker.
-- **A task finishes with a true tracker.** The PR and every issue it closes
-  are assigned to you. A PR that fixes only part of an issue keeps that issue
-  open. After the merge, the open issues on the changed code are checked
-  against the new code and against what the PR decided: a moved citation, a
-  question that the PR answered, a proposal that it ruled out, a rule or a
-  count that it changed, a defect that it removed.
+- **A task finishes with a true tracker.** The PR and every issue it closes are
+  assigned to you. The label `in progress` comes off each issue that the task
+  labelled. A PR that fixes only part of an issue keeps that issue open. After
+  the merge, the open issues on the changed code are checked against the new
+  code and against what the PR decided: a moved citation, a question that the
+  PR answered, a proposal that it ruled out, a rule or a count that it changed,
+  a defect that it removed.
 - **Commits in one shape.** `type(scope): sentence`, at most five bullets
   under it, and no `Co-Authored-By:` trailer. A merge is a squash with one
   list for the whole branch.

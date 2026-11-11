@@ -2,12 +2,14 @@
   "me": "kim",
   "repo": "acme/shop",
   "origin": "<work>.origin",
+  "workspace": null,
   "down": false,
   "prs": [],
   "labels": [
     "bug",
     "debt",
-    "enhancement"
+    "enhancement",
+    "in progress"
   ],
   "visibility": "PUBLIC",
   "issues": [
@@ -20,15 +22,17 @@
       "assignees": [
         "kim"
       ],
-      "labels": [],
+      "labels": [
+        "in progress"
+      ],
       "comments": [
         {
           "author": "kim",
-          "body": "From #95: after the README command fails, an app that requires the package fails with `Error: Cannot find module 'shop'`."
+          "body": "From #95, a duplicate: after `npm instal shop` fails, the app fails with:\n\n```\nError: Cannot find module 'shop'\nRequire stack:\n- /home/lee/app/index.js\n```"
         }
       ],
       "linked": [
-        "docs/91-fix-npm-install-command"
+        "docs/91-fix-install-command"
       ]
     },
     {

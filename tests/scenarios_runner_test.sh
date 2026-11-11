@@ -40,6 +40,16 @@ fake issue comment 95 --body b
   fail 'the fake gh does not mark the writes after a change in a worktree' "$(jq -c .log "$tmp/fake.state.json")"
 [ "$(jq -c '.issues[0] | [.state, .stateReason, .duplicateOf]' "$tmp/fake.state.json")" = '["CLOSED","DUPLICATE",91]' ] ||
   fail 'the fake gh does not close #95 as a duplicate of #91' "$(jq -c .issues "$tmp/fake.state.json")"
+# As gh: a label that the repository lacks stops an edit before any write, a
+# label that it has stops a create, and a label of another case is the same.
+fake issue edit 95 --add-assignee rivera --add-label 'in progress' 2>/dev/null && fail 'the fake gh adds a label that the repository lacks'
+[ "$(jq -c '.issues[0].assignees' "$tmp/fake.state.json")" = '["kim"]' ] || fail 'a failed edit of the fake gh writes'
+fake label create 'in progress'
+fake label create 'In Progress' 2>/dev/null && fail 'the fake gh creates a label that the repository has'
+fake issue edit 95 --add-label 'In Progress'
+fake issue edit 95 --remove-label 'in progress'
+[ "$(jq -c '[.labels, .issues[0].labels]' "$tmp/fake.state.json")" = '[["in progress"],[]]' ] ||
+  fail 'the fake gh does not add and remove a label' "$(jq -c '[.labels, .issues[0].labels]' "$tmp/fake.state.json")"
 
 # The Given of each case, as take-in-check.sh reads it through the fake gh on
 # the message of the case.
@@ -53,13 +63,13 @@ given() { # given <case> <what take-in-check.sh prints>
   [ "$got" = "$2" ] || fail "take-in-check.sh does not read the Given of $1" "$got"
 }
 ahead() { printf '#91: branch fix/91-typo, %s commits ahead of main, last commit 2026-11-03T00:00:00Z' "$1"; }
-for c in free dup busy; do given $c 'take #91'; done
+for c in free dup busy assigned; do given $c 'take #91'; done
 given other '#91: assigned to rivera'
 given down 'HTTP 502: Bad Gateway (https://api.github.com/graphql)'
 given closed '#91: closed'
 given otherpr '#91: PR #96 by rivera is open and closes it'
 given mypr '#91: PR #96 by you is open and closes it'
-for c in assigned here there; do given $c '#91: assigned to you'; done
+for c in inprogress here there; do given $c "$(printf '#91: assigned to you\n#91: label in progress')"; done
 given linked "$(ahead 0)"
 given inws "$(printf '#91: assigned to you\n%s\ncontinue #91 on fix/91-typo' "$(ahead 0)")"
 given moved "$(printf '#91: assigned to you\n%s' "$(ahead 1)")"
@@ -122,7 +132,7 @@ rm "$tmp/2"/closed.*
 got=$("$eval" --check "$fixtures" "$tmp/2")
 [ "$(grep -E '^pass\^2 (closed|dup|other):' <<<"$got")" = 'pass^2 closed: not measured, 1 run of 2
 pass^2 dup: FAIL, 0 of 2 runs pass
-pass^2 other: FAIL, 1 of 2 runs pass' ] && [ "$(grep -c '^pass' <<<"$got")" = 15 ] ||
+pass^2 other: FAIL, 1 of 2 runs pass' ] && [ "$(grep -c '^pass' <<<"$got")" = 16 ] ||
   fail 'pass^2 does not count the runs of each case' "$got"
 [ "$(grep -E '^(round |closed: no run)' <<<"$got")" = "round 1 of 2
 round 2 of 2

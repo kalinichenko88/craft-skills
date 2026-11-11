@@ -80,11 +80,14 @@ def prs:
       | select(.__typename == "PullRequest" and .state == "OPEN")) ]
   | unique_by(.number)[] | {number, author: (.author.login // "ghost")};
 def who($me): if . == $me then "you" else . end;
+# An assignee says who may take the issue, not that its work runs: your own
+# assignee alone leaves it free. The label in progress says that it runs.
 def status($me):
   [ (.assignees.nodes[] | "assigned to \(.login | who($me))"),
+    (select(any(.labels.nodes[]; .name | ascii_downcase == "in progress")) | "label in progress"),
     (.linkedBranches.nodes[] | select(.ref) | "branch \(.ref.name)"),
     (prs | "PR #\(.number) by \(.author | who($me))") ]
-  | if length > 0 then join(", ") else "free" end;
+  | if . == [] or . == ["assigned to you"] then "free" else join(", ") end;
 def also: [.body | split("\n")[] | select(startswith("## Also:"))] | length;
 def text: if . == "" then "(empty)" else gsub("\r"; "") end;
 def entry($me):

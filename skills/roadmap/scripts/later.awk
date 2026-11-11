@@ -1,6 +1,7 @@
-# Prints, one per line, the open issues outside Later that wait, through any
-# chain, on issue n or on a sub-issue that goes into Later with it, from the
-# records of read.sh, after graph.awk:
+# Prints, one per line, the number and the title, with a tab between them, of
+# the open issues outside Later that wait, through any chain, on issue n or on
+# a sub-issue that goes into Later with it, from the records of read.sh, after
+# graph.awk:
 #
 #   awk -F'\t' -v n=<n> [-v parent=<p>] -f graph.awk -f later.awk
 #
@@ -35,6 +36,6 @@ END {
   }
   for (i = 1; i <= isn; i++) {
     j = islist[i]
-    if ((j in seen) && !(j in going) && !mslater[ems(j)]) print j
+    if ((j in seen) && !(j in going) && !mslater[ems(j)]) print j "\t" istitle[j]
   }
 }

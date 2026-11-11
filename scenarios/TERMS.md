@@ -25,7 +25,7 @@ column gives the name that a person who reads Russian sees.
 | linked pull request | A pull request that a task records as its own: whoever opens the task sees it. When the pull request of a linked branch opens, the task records the pull request in place of the branch. | связанный pull request | |
 | the pull request of a task | The pull request that brings the work of a task to the default branch: "the pull request of #91". | pull request задачи | |
 | assignee | An account that a task or a pull request names as the one who does it. A task or a pull request is assigned to the person when the person's account is an assignee. | исполнитель | owner |
-| busy | A task with an assignee, a linked branch or an open pull request that closes it. | занята | taken, claimed |
+| busy | A task with an assignee, the label `in progress`, a linked branch or an open pull request that closes it. A task whose one mark is the person as its assignee is not busy: an assignee says who may take the task, not that the work on it runs. | занята | taken, claimed |
 | free | An open task that is not busy. | свободна | available |
 | duplicate | A task that reports the same thing as another task, about the same place, in the same words or not. When it closes, it closes as a duplicate of the other task, and the other task stays open or closed, as it was. | дубликат | copy |
 | closed as not planned | The state of a task that closed because its work will not be done, not because the work is done. | закрыта как незапланированная | rejected, wontfix |

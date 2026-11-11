@@ -2,15 +2,17 @@
 # Runs the checks of tests/scenarios_eval.sh on recorded runs, with no model.
 # tests/fixtures/scenarios/take-in/ holds the events, the tracker, the
 # branches and the workspace of one probe run of each case: other and down
-# of 2026-11-03, dup and busy of 2026-11-10, and the other eleven of
-# 2026-11-11, which also keep the workspace and the branches of their Given.
+# of 2026-11-03, and the other fourteen of 2026-11-11, which also keep the
+# workspace and the branches of their Given. The runs of free, dup, busy,
+# assigned, inprogress, here and there were recorded again on 2026-11-11 for
+# the label in progress (#285).
 # In the runs of here and there, a person line gives the answer of the
 # person, after the question of the first message.
-# The runs of other, down, dup and busy kept none: theirs is the one that
-# setup makes now. The events of dup, busy and inws were recorded again from
-# their logs (ADR 0008). In the runs of free, dup, busy and inws, the first
-# message about #91 is a narration with no title, before the first change,
-# so the gist items fail. The
+# The runs of other and down kept none: theirs is the one that setup makes
+# now. The events of inws were recorded again from its log (ADR 0008). In the
+# runs of free, dup, busy, assigned and inws, the first message about #91 is
+# a narration with no title, before the first change, so the gist items
+# fail (#317). The
 # run of dup carries one line of the stack trace of #95 to #91, not the trace,
 # and fails that item. Every other item passes. A copy with one change to a
 # recorded run changes the verdicts it names and no other; a read added to a
@@ -40,13 +42,15 @@ checks() {
 
 report=$("$eval" --check "$fixtures")
 out=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$report")
-[ "$(grep '^pass' <<<"$report" | grep -v ': PASS, 1 of 1 runs pass$')" = 'pass^1 busy: FAIL, 0 of 1 runs pass
+[ "$(grep '^pass' <<<"$report" | grep -v ': PASS, 1 of 1 runs pass$')" = 'pass^1 assigned: FAIL, 0 of 1 runs pass
+pass^1 busy: FAIL, 0 of 1 runs pass
 pass^1 dup: FAIL, 0 of 1 runs pass
 pass^1 free: FAIL, 0 of 1 runs pass
 pass^1 inws: FAIL, 0 of 1 runs pass' ] &&
-  [ "$(grep -c '^pass' <<<"$report")" = 15 ] || fail 'the recorded runs do not give pass^1 to each of the 15 cases but four' "$report"
-[ "$(grep -c '^PASS ' <<<"$out")" = 87 ] || fail 'the recorded runs do not pass 87 items' "$out"
-[ "$(grep -v '^PASS ' <<<"$out")" = 'FAIL A busy duplicate: the first message about #91 tells its gist
+  [ "$(grep -c '^pass' <<<"$report")" = 16 ] || fail 'the recorded runs do not give pass^1 to each of the 16 cases but five' "$report"
+[ "$(grep -c '^PASS ' <<<"$out")" = 97 ] || fail 'the recorded runs do not pass 97 items' "$out"
+[ "$(grep -v '^PASS ' <<<"$out")" = 'FAIL A task assigned to the person, with no branch: the first message about #91 tells its gist
+FAIL A busy duplicate: the first message about #91 tells its gist
 FAIL A busy duplicate: the gist comes before any change
 FAIL A free duplicate: a comment on #91 holds the stack trace of #95
 FAIL A free duplicate: the first message about #91 tells its gist
@@ -54,7 +58,7 @@ FAIL A free duplicate: the gist comes before any change
 FAIL A free task: the first message about #91 tells its gist
 FAIL A free task: the gist comes before any change
 FAIL The person'"'"'s work is in the workspace: the first message about #91 tells its gist' ] ||
-  fail 'the recorded runs do not give only the seven gist FAILs and the FAIL of the trace' "$out"
+  fail 'the recorded runs do not give only the eight gist FAILs and the FAIL of the trace' "$out"
 
 # coverage <scenario file>: "< heading" for each heading that no case runs and
 # the eval does not list as not run, "> name" for each name that the eval
@@ -83,6 +87,7 @@ scenario() {
     down) echo 'The tracker does not answer' ;; dup) echo 'A free duplicate' ;; busy) echo 'A busy duplicate' ;;
     closed) echo 'A closed task' ;; otherpr) echo "A task with another person's pull request" ;;
     mypr) echo "A task with the person's pull request" ;; assigned) echo 'A task assigned to the person, with no branch' ;;
+    inprogress) echo 'A task in progress for the person, with no branch' ;;
     here) echo "The work on the person's task continues here" ;; there) echo "The work on the person's task runs somewhere else" ;;
     linked) echo 'A linked branch with no assignee' ;; inws) echo "The person's work is in the workspace" ;;
     moved) echo "The person's branch moved on somewhere else" ;; otherrepo) echo 'A task of another repository' ;;
@@ -138,7 +143,8 @@ flips other 'never: the assignees of #91 change'
 # Writes on another person's task: to the tracker, in the shell, with git -C,
 # and on the second line of a command.
 for write in 'gh issue edit 91 --add-assignee @me' "sed -i '' s/instal/install/ README.md" \
-  'git -C <work> commit -qam fix' 'cd <work>; bash <craft>/skills/github/scripts/worktree.sh 91 docs/91-x'; do
+  'git -C <work> commit -qam fix' 'cd <work>; bash <craft>/skills/github/scripts/worktree.sh 91 docs/91-x' \
+  'gh label create "in progress" --color fbca04'; do
   copy
   add other "$(printf 'Bash\t%s' "$write")"
   flips other 'the run waits: no change'
@@ -251,14 +257,22 @@ copy
 echo fix/91-new >>"$tmp/$n/mypr.branches"
 flips mypr 'never: a branch for #91 is created'
 
-# The person's task: told it is theirs with no word of an assignee, and asked
-# nothing.
+# The person's task with no work on it: no label, and a question whether the
+# work runs somewhere else.
 copy
-sed -i.bak '/^text/s/assigned to you/yours/g' "$tmp/$n/assigned.events"
-flips assigned 'the person is told that #91 is assigned to the person already'
+state assigned '.issues[0].labels = []'
+flips assigned '#91 has the label in progress'
 copy
-sed -i.bak '/^text/s/?/./g' "$tmp/$n/assigned.events"
-flips assigned 'the person is asked whether the work on #91 runs somewhere else or continues here'
+add assigned $'text\tDoes the work on #91 run somewhere else, or here?'
+flips assigned 'never: the person is asked whether the work on #91 runs somewhere else'
+
+# The person's task in progress: told with no word of it, and asked nothing.
+copy
+sed -i.bak '/^text/s/in[ -]progress/started/g' "$tmp/$n/inprogress.events"
+flips inprogress 'the person is told that #91 is in progress already'
+copy
+sed -i.bak '/^text/s/?/./g' "$tmp/$n/inprogress.events"
+flips inprogress 'the person is asked whether the work on #91 runs somewhere else or continues here'
 
 # The answers: #91 given another assignee, and left with none.
 copy

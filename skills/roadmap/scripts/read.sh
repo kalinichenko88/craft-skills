@@ -19,9 +19,11 @@
 #   md    <n> <description line>
 #   pr    <n> <author|you> <closed issues|-> <files|-> <file count>
 #
-# Busy is in collect.sh's words: "assigned to <login>", "branch <name>", "PR #<n>
-# by <login>", with you for the account gh is logged in as. A blocker or a
-# parent in another repository is written <owner/repo>#<n>, and its parent as 0.
+# Busy is in collect.sh's words: "assigned to <login>", "label in progress",
+# "branch <name>", "PR #<n> by <login>", with you for the account gh is logged
+# in as. Your own assignee alone is not busy: an assignee says who may take an
+# issue, not that its work runs. A blocker or a parent in another repository is
+# written <owner/repo>#<n>, and its parent as 0.
 # The order of a milestone is <k> for a title M<k>, with the M in any case, so
 # m2 is M2 as in milestone and in plan.sh. It is 100000 + its number for
 # another title, and 1000000000 for Later. A milestone is current when a line
@@ -85,9 +87,10 @@ case $1 in
       (["repo", $repo] | tsv),
       (.data.repository.issues.nodes[] | . as $i
         | ([(.assignees.nodes[] | "assigned to " + (. | who)),
+            (select(any(.labels.nodes[]; .name | ascii_downcase == "in progress")) | "label in progress"),
             (.linkedBranches.nodes[] | select(.ref) | "branch " + .ref.name),
             (.closedByPullRequestsReferences.nodes[] | select(.state == "OPEN") | "PR #\(.number) by " + (.author | who))]
-           | join(", ") | dash) as $busy
+           | if . == ["assigned to you"] then [] else . end | join(", ") | dash) as $busy
         | ([.blockedBy.nodes[] | select(.state == "OPEN")
             | (if .repository.nameWithOwner == $repo then "" else .repository.nameWithOwner end) + "#\(.number)"]
            | join(",") | dash) as $blockers

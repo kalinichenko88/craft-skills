@@ -8,7 +8,8 @@
   "labels": [
     "bug",
     "debt",
-    "enhancement"
+    "enhancement",
+    "in progress"
   ],
   "visibility": "PUBLIC",
   "issues": [
@@ -21,10 +22,12 @@
       "assignees": [
         "kim"
       ],
-      "labels": [],
+      "labels": [
+        "in progress"
+      ],
       "comments": [],
       "linked": [
-        "fix/91-npm-install-typo"
+        "fix/91-readme-install-command"
       ]
     }
   ],

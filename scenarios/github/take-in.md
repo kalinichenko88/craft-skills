@@ -41,6 +41,7 @@ Then:
 - the first message about #91 tells its gist
 - the gist comes before any change to the tracker or the workspace
 - #91 is assigned to the person
+- #91 has the label `in progress`
 - a branch `<type>/91-<two to four words>` exists, where `<type>` is one of
   feat, fix, refactor, docs, test, ci, chore
 - that branch is made from the default branch
@@ -106,12 +107,29 @@ Never:
 ## A task assigned to the person, with no branch
 
 Given:
-- task #91 is open, assigned to the person, with no linked branch and no
-  pull request
+- task #91 is open, assigned to the person, without the label
+  `in progress`, with no linked branch and no pull request
 When: the person writes "#91"
 Then:
 - the first message about #91 tells its gist
-- the person is told that #91 is assigned to the person already
+- #91 stays assigned to the person
+- #91 has the label `in progress`
+- a branch for #91 exists, as in A free task
+- that branch is made from the default branch
+- that branch is linked to #91
+Never:
+- the person is asked whether the work on #91 runs somewhere else
+- #91 gets a second linked branch
+
+## A task in progress for the person, with no branch
+
+Given:
+- task #91 is open, assigned to the person, with the label `in progress`,
+  no linked branch and no pull request
+When: the person writes "#91"
+Then:
+- the first message about #91 tells its gist
+- the person is told that #91 is in progress already
 - the person is asked whether the work on #91 runs somewhere else or
   continues here
 - the run waits
@@ -122,8 +140,8 @@ Never:
 ## The work on the person's task continues here
 
 Given:
-- task #91 is open, assigned to the person, with no linked branch and no
-  pull request
+- task #91 is open, assigned to the person, with the label `in progress`,
+  no linked branch and no pull request
 - an earlier run asked whether the work on #91 runs somewhere else or
   continues here
 When: the person answers that it continues here
@@ -138,8 +156,8 @@ Never:
 ## The work on the person's task runs somewhere else
 
 Given:
-- task #91 is open, assigned to the person, with no linked branch and no
-  pull request
+- task #91 is open, assigned to the person, with the label `in progress`,
+  no linked branch and no pull request
 - an earlier run asked whether the work on #91 runs somewhere else or
   continues here
 When: the person answers that it runs somewhere else

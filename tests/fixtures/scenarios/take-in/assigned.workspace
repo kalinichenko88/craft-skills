@@ -1,5 +1,6 @@
+docs/91-fix-npm-install-command c38f4ddc32ed6bef2df2d6f210f104d2b6153007
 main
-worktrees 1
+worktrees 2
 head main
 main 1
 stash 0

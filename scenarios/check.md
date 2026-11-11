@@ -57,14 +57,14 @@ examples in the code fences of the README are not scenarios.
    nothing more changed. For a When of the run, report a Given that does
    not bring each correct run to that point.
 5. **The coverage.** For each scenario file, find the axes: each part of the
-   state that its Givens change from one scenario to another, with each of
-   its values, as for the take-in: the task open or closed; its assignee
-   none, the person or another person; a duplicate none, free or busy; a
-   branch none, linked, or in the workspace. Give each value of each axis a
-   cell. Then give a cell to each pair of values of two axes when each value
-   alone ends the run in another way, as one waits and the other stops: the
-   cell asks which end wins. Each cell names the scenario whose
-   Given holds it, or the line of the file's "Not covered yet" list that
+   state that its Givens change from one scenario to another, with each of its
+   values, as for the take-in: the task open or closed; its assignee none, the
+   person or another person; the label `in progress` on it or not; a duplicate
+   none, free or busy; a branch none, linked, or in the workspace. Give each
+   value of each axis a cell. Then give a cell to each pair of values of two
+   axes when each value alone ends the run in another way, as one waits and the
+   other stops: the cell asks which end wins. Each cell names the scenario
+   whose Given holds it, or the line of the file's "Not covered yet" list that
    names it, or it is a gap.
 
 ## Your answer

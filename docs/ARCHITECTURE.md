@@ -96,7 +96,7 @@ module too: the text that the flows are checked against.
 | architecture | `skills/architecture/` | `tests/architecture_scripts_test.sh`, `tests/architecture_since_test.sh`, `tests/architecture_fences_test.sh`, `tests/architecture_eval.sh`, `tests/architecture_checks_test.sh`, `tests/fixtures/architecture/` |
 | product | `skills/product/` | `tests/product_eval.sh`, `tests/product_checks_test.sh`, `tests/fixtures/product/` |
 | docker, typescript-conventions, react-conventions | `skills/<name>/` | text only; `tests/skill_load_eval.sh`, `tests/skill_load_checks_test.sh` and `tests/fixtures/skill_load/` count the loads of the two conventions |
-| scenarios | `scenarios/` | `tests/scenarios_eval.sh`, which runs craft on fifteen take-in scenarios with the fake `gh` of `tests/fake_gh.sh`, and `tests/scenarios_take_in.sh`, its cases: the Given, the snapshot of the git state and the checks of each; `tests/scenarios_checks_test.sh`, which also reads the headings of `scenarios/github/take-in.md`, and `tests/scenarios_runner_test.sh`, which runs the eval with no model; `tests/scenarios_text_eval.sh`, which reads the text of a skill against the scenario file of its flow on Haiku, with a row for each file in `scenarios/*/*.md`, and `tests/scenarios_text_checks_test.sh`; `tests/fixtures/scenarios/`, `tests/fixtures/scenarios_text/`; the `scenarios` target of the `Makefile`, which checks the shape and the host words of each scenario file, and which `tests/makefile_test.sh` tests |
+| scenarios | `scenarios/` | `tests/scenarios_eval.sh`, which runs craft on sixteen take-in scenarios with the fake `gh` of `tests/fake_gh.sh`, and `tests/scenarios_take_in.sh`, its cases: the Given, the snapshot of the git state and the checks of each; `tests/scenarios_checks_test.sh`, which also reads the headings of `scenarios/github/take-in.md`, and `tests/scenarios_runner_test.sh`, which runs the eval with no model; `tests/scenarios_text_eval.sh`, which reads the text of a skill against the scenario file of its flow on Haiku, with a row for each file in `scenarios/*/*.md`, and `tests/scenarios_text_checks_test.sh`; `tests/fixtures/scenarios/`, `tests/fixtures/scenarios_text/`; the `scenarios` target of the `Makefile`, which checks the shape and the host words of each scenario file, and which `tests/makefile_test.sh` tests |
 | sessions | `.claude/skills/sessions/` | `tests/sessions_scripts_test.sh`, `tests/fixtures/sessions/` |
 | release, infographic | `.claude/skills/<name>/` | none |
 | plugin | `.claude-plugin/`, `.codex-plugin/`, `Makefile`, `.github/` | `tests/makefile_test.sh` |
@@ -226,7 +226,7 @@ has 330 lines; 8 folders hold code files of their own, and the largest two
 hold 10. A new number needs an ADR.
 
 - **I-8.** A code file MUST have at most 330 lines.
-  Check: lines 330 in `.` debt `tests/github_scripts_test.sh` `tests/roadmap_scripts_test.sh`.
+  Check: lines 330 in `.` debt `tests/github_scripts_test.sh` `tests/roadmap_scripts_test.sh` `tests/scenarios_take_in.sh` `tests/scenarios_checks_test.sh`.
 - **I-9.** A folder MUST hold at most 10 code files of its own. `tests/` is
   out of the check: its test scripts stay at its top, because the Makefile
   finds a test only as `tests/<name>_test.sh`.

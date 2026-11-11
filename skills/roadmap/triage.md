@@ -124,8 +124,8 @@ git worktree add --detach <the mktemp path> origin/<the default branch>
 ```
 
 Remove it after with `git worktree remove --force <the mktemp path>`. Do not
-use the github skill's `worktree.sh`: it assigns the issue, and the issue then
-shows as busy.
+use the github skill's `worktree.sh`: it assigns the issue and puts the label
+`in progress` on it, and the issue then shows as busy.
 
 ## Label and milestone
 
