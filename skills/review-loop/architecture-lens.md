@@ -15,8 +15,8 @@ and run no code of the project.
 
 1. Read `<skills>/architecture/SKILL.md` for its principles: *Consistency
    first*, *Modules and layers*, *Decomposition* and *ADRs*, and
-   `<skills>/architecture/invariants.md`. Do none of their steps. When the range changes a `.ts`,
-   `.tsx`, `.mts` or `.cts` file, read the rules of
+   `<skills>/architecture/invariants.md`. Do none of their steps. When the
+   range changes a `.ts`, `.tsx`, `.mts` or `.cts` file, read the rules of
    `<skills>/typescript-conventions/SKILL.md` too. When it changes React
    code, read the rules of `<skills>/react-conventions/SKILL.md` too.
 2. In the tree, read the architecture file and the ADRs, where *The files*
@@ -94,8 +94,8 @@ Report:
 - **False doc.** A passage of the architecture file, of an instruction file
   or of an accepted ADR that the change made false, also in a file that the
   range does not change: the change corrects it, so it is no Outside
-  finding. In an ADR whose decision still holds, it corrects it as *A fact
-  that changed* says. Code that
+  finding. In an ADR whose decision still holds, the change corrects the
+  sentence as *A fact that changed* says. Code that
   breaks a rule does not make the rule false: only a change of the fact,
   or an ADR that amends the rule, does.
 - **Size.** A `new` `debt` hit of a `lines` or `files` check, when its split

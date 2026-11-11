@@ -20,8 +20,8 @@ principles and the steps.
 | A decision may need an ADR | The four reasons and the template | *ADRs* |
 
 `first-file.md` and `invariants.md` sit next to this file, in this skill's
-base directory `<dir>`. Read all of each before its first step. `<skills>` is the directory
-above `<dir>`.
+base directory `<dir>`. Read all of each before you use it. `<skills>` is the
+directory above `<dir>`.
 
 **The files.** The architecture file is `docs/ARCHITECTURE.md`, or
 `ARCHITECTURE.md` at the root when the project keeps it there. The ADRs are
@@ -93,8 +93,8 @@ The steps hold in every project. With no architecture file, step 1 is the
 offer and the gate has no invariant to check; the other steps are the same.
 
 1. Read the architecture file and the ADRs that it links for the area. Run
-   `invariants.sh`. With no architecture file, offer to write one
-   (`first-file.md`).
+   `invariants.sh` (`invariants.md`). With no architecture file, offer to
+   write one (`first-file.md`).
 2. Find the code that already does this kind of work, and name it with
    `path:line`. Extend it. Search once for each kind of work that the change
    does, not only for its main one: the call to the network, the format of a
@@ -171,8 +171,8 @@ consistently does otherwise, only an accepted ADR of the project overrides it.
 with the code, with the status `accepted`. The review of the pull request is
 where it is argued, and the merge makes it true. An ADR file that
 `git diff <base>..HEAD` adds is under review. One that exists at the base is
-settled: a branch changes in it only its Status line, and a sentence that a
-later fact made false, as *A fact that changed* in *ADRs* says. A spec or a
+settled: a branch changes only its Status line, except for the correction
+of *A fact that changed*, in *ADRs*. A spec or a
 plan names the ADR that the work will add, by its title, and does not write
 it.
 
@@ -280,15 +280,19 @@ person rejects for a lasting reason gets an ADR with the status `rejected`,
 so that the next agent does not offer it again.
 
 **A fact that changed.** When a sentence of an accepted ADR is false now and
-its decision still holds, correct the sentence in place, in the pull request
-that made it false. Then add a line under `## Updates`, after the Status and
-Date lines: `- YYYY-MM-DD #<PR>: <section>. Was: "<the old words>".` The
-Status stays `accepted`. A later correction adds a line; no line is
-rewritten. The decision holds when code that kept it before the correction
-keeps it after, and code that broke it still breaks it. Otherwise it is
-reason 4, however few words change: "the check blocks the merge" to "the
-check only warns" is a new ADR. An agent reads the ADRs as context, and a
-false sentence there misleads it.
+its decision still holds, correct the sentence in place, in the change that
+makes it false or in the first one that finds it. Then add a line under
+`## Updates`, a heading right after the Status and Date lines:
+`- YYYY-MM-DD <source>: <section>. Was: "<the old words>".` The date is the
+day of the correction; the source is the issue, the pull request or the run
+that shows the new fact. The Status stays `accepted`. A later correction adds
+a line; no line is rewritten. The decision holds when code that kept it
+before the correction keeps it after, and code that broke it still breaks
+it. Otherwise it is reason 4, however few words change: "every write goes
+through the service" to "a component may write to the store" is a new ADR.
+When the false sentence was a reason for the decision, also file an issue
+that asks whether the decision still holds. An agent reads the ADRs as
+context, and a false sentence there misleads it.
 
 One decision per file, `NNNN-title.md`, numbered after the highest one in the
 folder. A file is never renamed or deleted, so a link to it does not rot. The

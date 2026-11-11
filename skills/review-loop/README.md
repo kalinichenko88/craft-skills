@@ -104,8 +104,10 @@ each task stays as that skill sets it. In place of the final review of
   `craft:architecture` and `clones.sh` of `craft:debt`. It finds
   a second structure beside an existing one, a module used past its public
   API, a broken invariant cited as `I-n`, a decision with no ADR or against
-  one, a passage of the architecture file or of any `CLAUDE.md` or
-  `AGENTS.md` that the change made false, also one it does not touch, a file
+  one, a passage of the architecture file, of an accepted ADR or of any
+  `CLAUDE.md` or `AGENTS.md` that the change made false, also one it does
+  not touch, an edit of a settled ADR past its Status line with no dated
+  line under `## Updates`, a file
   grown past its limit, a copy to extract, and in a TypeScript or React
   change, a breach of a rule of `craft:typescript-conventions` or
   `craft:react-conventions`. Its fixes join those of round 1. With no such

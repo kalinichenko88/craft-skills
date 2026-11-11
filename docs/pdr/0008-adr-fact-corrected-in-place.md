@@ -8,18 +8,21 @@
 
 We will let `craft:architecture` correct a sentence of an accepted ADR that
 a later fact made false, when the decision of the ADR still holds. The
-sentence is corrected in place, and a line under `## Updates`, after the
-Status and Date lines, gives the date, the pull request, the section and the
-old words. The Status stays `accepted`. A change of what the decision
-commits to stays a new ADR that supersedes the old one, however few words it
-changes. The review lens accepts the correction, and reports an ADR that a
-change made false.
+sentence is corrected in place, in the change that makes it false or in the
+first one that finds it, and a line under `## Updates`, after the Status and
+Date lines, gives the date, the source of the fact, the section and the old
+words. The Status stays `accepted`. A change of what the decision commits to
+stays a new ADR that supersedes the old one, however few words it changes.
+When the false sentence was a reason for the decision, an issue asks whether
+the decision still holds. The review lens accepts the correction, and
+reports an ADR that a change made false.
 
 ## Rests on
 
-- The rule before this one left 3 of 3 such sentences false in this
-  repository: ADR 0003 (#236, PR #270, PR #271) and ADR 0007 (PR #324,
-  PR #335). Nobody wrote a superseding ADR for a fact.
+- The rule before this one left each such sentence false in this
+  repository, 4 sentences of 2 accepted ADRs: two of ADR 0003 (#236 and
+  PR #270, PR #271) and two of ADR 0007 (PR #324, PR #335). ADR 0003 was
+  superseded later by ADR 0008, when the way to check a run changed too.
 - A stale sentence misleads a model that reads the ADR: with ADR 0007 as it
   was, beside `docs/ARCHITECTURE.md` and ADR 0008, Sonnet gave the stale
   answer to both questions in 5 of 5 runs, and Haiku the right one to both
@@ -28,10 +31,11 @@ change made false.
   (2026-11-11, `claude -p` with no tool, #343).
 - An agent can read an excerpt of an ADR, as a grep hit: in the appended
   form that excerpt is the stale sentence with no mark. No run measured this.
-- Joel Parker Henderson's ADR guide: "Don't alter existing information in an
-  ADR. Instead, amend the ADR by adding new information", with a date.
-  AWS, Fowler and Microsoft keep an accepted ADR immutable; Google Cloud
-  allows an adjustment that keeps the previous decision and says why.
+- Joel Parker Henderson's ADR guide asks to amend an ADR by adding dated
+  new information rather than to alter what it says, and reports that
+  mutable ADRs worked better for its teams. AWS, Fowler and Microsoft keep
+  an accepted ADR immutable; Google Cloud allows an adjustment that keeps
+  the previous decision and says why.
 - The person's choice on #343, after the panel of Fable and Codex.
 
 ## Revisit when
