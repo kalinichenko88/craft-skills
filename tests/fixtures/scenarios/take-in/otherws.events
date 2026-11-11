@@ -1,0 +1,5 @@
+Skill	craft:github
+Bash	cat <craft>/skills/github/take-in.md; ls <craft>/skills/github/scripts
+Bash	git remote -v; bash <craft>/skills/github/scripts/take-in-check.sh 91
+Bash	gh issue view 91 --json title,body 2>&1 | head -40
+text	**#91 README: the install command says npm instal**  The README tells the reader to run `npm instal shop`. npm has no `instal` command, so this command fails. The task is done when the README says `npm install shop`.  I did not start the work. The take-in check shows that the issue belongs to someone else:  - #91 is assigned to **rivera**. - A branch `fix/91-typo` already exists. It has 0 commits ahead of `main`, and its last commit is from 2026-11-03.  rivera may be working on it now, so I made no worktree and no branch, and I did not assign the issue to you. Tell me how to go on:  - Wait for rivera, or ask rivera about it. - Take it over. I would assign the issue to you, then do the fix on the existing branch or on a new one.

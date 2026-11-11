@@ -1,0 +1,112 @@
+branch fix/91-csv-empty-fields
+commit 9636cf2e3489324ed7448539296526cf1b666e7a test(parser): check that parseRows keeps the empty last field
+commit b498e45fae2b5ed5c607e24237a5a54b7284dcca docs(parser): say that parseRows skips empty lines in the module comment
+commit 1f39150a3ae9d693706a3e9e3a5fbc784cc7ac9c fix(parser): skip empty lines and keep the empty last field
+diff --git a/src/import-table.ts b/src/import-table.ts
+index 1f6b858..cad4508 100644
+--- a/src/import-table.ts
++++ b/src/import-table.ts
+@@ -1,6 +1,11 @@
+ import { splitLine } from './parser/split.ts';
+ 
+-// importTable: the table of a CSV file, one row for each line.
++// importTable: the table of a CSV file, one row for each line that is not
++// empty.
+ export function importTable(text: string): string[][] {
+-  return text.split('\n').map(splitLine);
++  const lines = text.split('\n').filter((line) => {
++    return line !== '';
++  });
++
++  return lines.map(splitLine);
+ }
+diff --git a/src/parser/read.ts b/src/parser/read.ts
+index 51f3640..6642e66 100644
+--- a/src/parser/read.ts
++++ b/src/parser/read.ts
+@@ -1,5 +1,5 @@
+-// The rows of a CSV text, one for each line. A row holds the fields of
+-// its line, in order.
++// The rows of a CSV text, one for each line that is not empty. A row holds
++// the fields of its line, in order.
+ 
+ export type Row = string[];
+ 
+@@ -53,10 +53,14 @@ export function isEmpty(row: Row): boolean {
+   });
+ }
+ 
+-// parseRows: the rows of a CSV text, one for each line.
++// parseRows: the rows of a CSV text, one for each line that is not empty.
+ export function parseRows(text: string): Row[] {
+   const rows: Row[] = [];
+   for (const line of text.split('\n')) {
++    if (line === '') {
++      continue;
++    }
++
+     rows.push(line.split(/[,\t]/).map(unquote));
+   }
+ 
+diff --git a/src/parser/split.ts b/src/parser/split.ts
+index db12cd0..918c563 100644
+--- a/src/parser/split.ts
++++ b/src/parser/split.ts
+@@ -1,9 +1,5 @@
+-// splitLine: the fields of one line of a CSV text.
++// splitLine: the fields of one line of a CSV text. A line that ends with a
++// comma has an empty last field.
+ export function splitLine(line: string): string[] {
+-  const fields = line.split(',');
+-  if (fields[fields.length - 1] === '') {
+-    fields.pop();
+-  }
+-
+-  return fields;
++  return line.split(',');
+ }
+diff --git a/test/parser.test.ts b/test/parser.test.ts
+new file mode 100644
+index 0000000..3f4eb36
+--- /dev/null
++++ b/test/parser.test.ts
+@@ -0,0 +1,39 @@
++import assert from 'node:assert/strict';
++import { test } from 'node:test';
++
++import { importTable } from '../src/import-table.ts';
++import { parseRows } from '../src/parser/read.ts';
++import { splitLine } from '../src/parser/split.ts';
++
++test('parseRows gives no row for an empty line', () => {
++  assert.deepEqual(parseRows('a,b\n\nc,d'), [
++    ['a', 'b'],
++    ['c', 'd'],
++  ]);
++});
++
++test('parseRows gives no last row for a text that ends with a line break', () => {
++  assert.deepEqual(parseRows('a,b\nc,d\n'), [
++    ['a', 'b'],
++    ['c', 'd'],
++  ]);
++});
++
++test('parseRows keeps the last field of a line that ends with a comma', () => {
++  assert.deepEqual(parseRows('a,b,'), [['a', 'b', '']]);
++});
++
++test('importTable gives no row for an empty line', () => {
++  assert.deepEqual(importTable('a,b\n\nc,d\n'), [
++    ['a', 'b'],
++    ['c', 'd'],
++  ]);
++});
++
++test('splitLine keeps the last field of a line that ends with a comma', () => {
++  assert.deepEqual(splitLine('a,b,'), ['a', 'b', '']);
++});
++
++test('importTable keeps the last field of a line that ends with a comma', () => {
++  assert.deepEqual(importTable('a,b,'), [['a', 'b', '']]);
++});

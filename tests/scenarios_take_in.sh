@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The cases of tests/scenarios_eval.sh, one for each scenario of
 # scenarios/github/take-in.md that a case runs. tests/scenarios_take_in/ holds
-# a file for each case, <case>.sh, which defines four functions:
+# a file for each case, <case>.sh, which defines five functions:
 #
 #   <case>_case    the line of the case, by line: its name, the cap of one
 #                  message in dollars, its scenario, the message of the
@@ -11,12 +11,14 @@
 #   <case>_given   the steps of its Given after the base that setup makes:
 #                  its branches and files, its change of the tracker in
 #                  $given, jq, and the jq arguments of that change in $extra
+#   <case>_check   the checks of the Then and Never items of its scenario
+#   <case>_fails   each item that its recorded run does not pass, as
+#                  "FAIL <item>" or "SKIP <item>", with why
+#   <case>_copies  the changed copies of its recorded run, each one made with
+#                  "copy <case>", which tests/scenarios_checks_test.sh checks
 #
 # A case file can also define <case>_task, which gives #91 another title,
 # body and typo than the base, before setup and before check.
-#   <case>_check   the checks of the Then and Never items of its scenario
-#   <case>_copies  the changed copies of its recorded run, which
-#                  tests/scenarios_checks_test.sh checks
 #
 # This file holds what the cases share: the task, the workspace with a bare
 # origin and the tracker in JSON that each Given starts from, the snapshot of
@@ -43,33 +45,10 @@ line() { local IFS=$'\t'; echo "$*"; }
 cases() { for f in "$root"/tests/scenarios_take_in/*.sh; do f=${f##*/}; "${f%.sh}_case"; done; }
 # known <case>: the case has a file.
 known() { declare -F "$1_case" >/dev/null || { echo "$0: no case $1" >&2; return 2; }; }
-# The scenarios of take-in that no case runs yet, one on each line: those of
-# #246, which #320 gives cases. tests/scenarios_checks_test.sh fails for a
-# heading of the file that is neither a case nor in this list, and for a name
-# here that is no heading.
-not_run() {
-  printf '%s\n' \
-    'A settled bug on the code of the task' \
-    'A duplicate that tells only what was seen' \
-    'A task that names a line that moved' \
-    'A task that holds an added finding' \
-    'A branch only' \
-    'Stay on the branch of the workspace' \
-    "The person's pull request is in the workspace" \
-    'A linked branch of another repository only' \
-    'A branch in the workspace with the name of the new branch' \
-    'The text of the task cannot be read' \
-    'An earlier run works on the task in another conversation' \
-    'A closed task with a free duplicate' \
-    "Another person's task whose linked branch the workspace has" \
-    "The workspace's branch has a commit that the repository does not have" \
-    "The linked branch is another person's" \
-    "The linked branch is the person's" \
-    'The work on the linked branch continues here' \
-    'The work on the linked branch runs somewhere else' \
-    'A text after a wait that names no task' \
-    'A text after a stop that names the task again'
-}
+# The scenarios of take-in that no case runs yet, one on each line: none now.
+# tests/scenarios_checks_test.sh fails for a heading of the file that is
+# neither a case nor in this list, and for a name here that is no heading.
+not_run() { :; }
 
 title='README: the install command says npm instal'
 body='The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.'

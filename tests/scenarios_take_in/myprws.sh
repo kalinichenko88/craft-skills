@@ -24,4 +24,33 @@ myprws_check() {
   nobranch '[]'
   item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$me\"]" ]'
 }
-myprws_copies() { :; }
+myprws_copies() {
+  # No new commit on fix/91-typo, a question whether the work runs somewhere
+  # else, a try to open another pull request, a new branch, and another
+  # assignee; and the line that says that the work continues.
+  copy myprws
+  cp "$fixtures/myprws.given.workspace" "$tmp/$n/myprws.workspace"
+  cp "$fixtures/myprws.given.work" "$tmp/$n/myprws.work"
+  flips myprws 'the work goes on, on fix/91-typo'
+  copy myprws
+  add myprws $'text\tDoes the work on #91 run somewhere else, or here?'
+  flips myprws 'never: the person is asked whether the work runs somewhere else'
+  copy myprws
+  add myprws $'Bash\tgh pr create --title "docs: fix the install command" --body "Closes #91"'
+  flips myprws 'never: a pull request other than #96 closes #91'
+  copy myprws
+  echo fix/91-new >>"$tmp/$n/myprws.branches"
+  flips myprws 'never: a branch for #91 is created'
+  copy myprws
+  state myprws '.issues[0].assignees += ["rivera"]'
+  flips myprws 'never: the assignees of #91 change'
+  copy myprws
+  add myprws $'text\tThe work on #91 continues on fix/91-typo.'
+  flips myprws 'the person is told in one line that the work on #91 continues on fix/91-typo'
+}
+myprws_fails() {
+  # The first message about #91 is a narration with no title (#317), and the
+  # line that names fix/91-typo says what the run fixes there, not that the
+  # work goes on (#349).
+  printf '%s\n' 'FAIL the first message about #91 tells its gist' 'FAIL the person is told in one line that the work on #91 continues on fix/91-typo'
+}

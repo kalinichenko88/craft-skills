@@ -158,7 +158,7 @@ rm "$tmp/2"/closed.*
 got=$("$eval" --check "$fixtures" "$tmp/2")
 [ "$(grep -E '^pass\^2 (closed|dup|other):' <<<"$got")" = 'pass^2 closed: not measured, 1 run of 2
 pass^2 dup: FAIL, 0 of 2 runs pass
-pass^2 other: FAIL, 1 of 2 runs pass' ] && [ "$(grep -c '^pass' <<<"$got")" = 16 ] ||
+pass^2 other: FAIL, 1 of 2 runs pass' ] && [ "$(grep -c '^pass' <<<"$got")" = "$(bash "$take_in" cases | grep -c .)" ] ||
   fail 'pass^2 does not count the runs of each case' "$got"
 [ "$(grep -E '^(round |closed: no run)' <<<"$got")" = "round 1 of 2
 round 2 of 2
@@ -210,7 +210,7 @@ stub() {
 }
 # By default, a run of free is on opus with a cap of $4.
 got=$(stub free)
-{ grep -qe '--model opus .*--max-budget-usd 4 ' "$tmp/stub.args" && grep -qe '--disallowedTools ListAgents ' "$tmp/stub.args"; } ||
+{ grep -qe '--model opus .*--max-budget-usd 4 ' "$tmp/stub.args" && grep -qe '--disallowedTools ListAgents --' "$tmp/stub.args"; } ||
   fail 'free does not run on opus with a cap of 4 dollars and no ListAgents' "$(cat "$tmp/stub.args")"
 # The message of a case is the last argument.
 got=$(stub otherrepo)

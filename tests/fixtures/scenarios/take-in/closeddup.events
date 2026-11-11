@@ -1,0 +1,6 @@
+Skill	craft:github
+Bash	cat <craft>/skills/github/take-in.md; ls <craft>/skills/github/scripts
+Bash	bash <craft>/skills/github/scripts/take-in-check.sh 91; echo "exit=$?"
+Bash	gh issue view 91 --json title,body,state,stateReason,closedAt
+Bash	grep -n "npm instal" README.md
+text	I didn't start work on #91 README: the install command says npm instal, because the issue is closed. GitHub marks it "completed".  The issue reports that the README tells readers to run `npm instal shop`. npm has no `instal` command, so that fails. The issue is done when the README says `npm install shop`.  The fix never landed, though. `README.md:3` still says ``Install it with `npm instal shop`.`` So the issue was closed as completed, but the typo is still there.  I made no changes. Do you want me to reopen #91 and fix it, or fix it under a new issue?

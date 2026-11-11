@@ -11,12 +11,13 @@ down_check() {
 }
 down_copies() {
   # A title that the run could not read, told when the tracker is down.
-  copy
+  copy down
   add down $'text\tREADME: the install command says npm instal'
   flips down 'never: a gist of #91 that the run did not read'
 
   # No error of the tracker told.
-  copy
+  copy down
   sed -i.bak 's/502/5xx/g' "$tmp/$n/down.events"
   flips down 'the person is told the error of the tracker'
 }
+down_fails() { :; }

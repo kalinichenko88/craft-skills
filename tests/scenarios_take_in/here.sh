@@ -9,12 +9,13 @@ here_check() {
 }
 here_copies() {
   # #91 given another assignee.
-  copy
+  copy here
   state here '.issues[0].assignees += ["rivera"]'
   flips here '#91 stays assigned to the person'
   # The person gives no answer: the Given does not hold, and the case is not
   # checked.
-  copy
+  copy here
   grep -v '^person' "$fixtures/here.events" >"$tmp/$n/here.events"
   notchecked here
 }
+here_fails() { :; }

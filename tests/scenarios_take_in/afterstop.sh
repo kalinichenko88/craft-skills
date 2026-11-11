@@ -17,4 +17,29 @@ afterstop_check() {
   inprogress_check
   rm -rf "$t"
 }
-afterstop_copies() { :; }
+afterstop_copies() {
+  # After the second text: no title, no word of the label, no question, a
+  # write, a new branch and another assignee; and no second text.
+  copy afterstop
+  awk '/^person/ { p++ } p >= 2 && /^text/ { gsub(/README: the install command says npm instal/, "the README task") } 1' "$fixtures/afterstop.events" >"$tmp/$n/afterstop.events"
+  flips afterstop 'the first message about #91 tells its gist'
+  copy afterstop
+  awk '/^person/ { p++ } p >= 2 && /^text/ { gsub(/in[ -]progress/, "started") } 1' "$fixtures/afterstop.events" >"$tmp/$n/afterstop.events"
+  flips afterstop 'the person is told that #91 is in progress already'
+  copy afterstop
+  awk '/^person/ { p++ } p >= 2 && /^text/ { gsub(/\?/, ".") } 1' "$fixtures/afterstop.events" >"$tmp/$n/afterstop.events"
+  flips afterstop 'the person is asked whether the work on #91 runs somewhere else or continues here'
+  copy afterstop
+  add afterstop $'Bash\tgh issue edit 91 --add-assignee @me'
+  flips afterstop 'the run waits: no change'
+  copy afterstop
+  echo fix/91-new >>"$tmp/$n/afterstop.branches"
+  flips afterstop 'never: a branch for #91 is created'
+  copy afterstop
+  state afterstop '.issues[0].assignees += ["rivera"]'
+  flips afterstop 'never: the assignees of #91 change'
+  copy afterstop
+  awk '/^person/ && ++p == 2 { next } 1' "$fixtures/afterstop.events" >"$tmp/$n/afterstop.events"
+  notchecked afterstop
+}
+afterstop_fails() { :; }

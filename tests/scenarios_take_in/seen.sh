@@ -27,4 +27,26 @@ seen_check() {
   outcomes
   item 'never: #91 closes' '[ "$(issue 91 .state)" = OPEN ]'
 }
-seen_copies() { :; }
+seen_copies() {
+  # #95 closed as done, no run of the code, the close before the
+  # reproduction, a last message with no word of #95, and #91 closed.
+  copy seen
+  state seen '(.issues[] | select(.number == 95)) |= (.stateReason = "COMPLETED" | .duplicateOf = null)'
+  flips seen '#95 is closed as a duplicate of #91'
+  copy seen
+  sed -i.bak -E '/^Bash/s/([[:space:];&|(])node /\1cat /g' "$tmp/$n/seen.events"
+  flips seen 'a reproduction of the failure of #95 runs on the branch that is linked to #91' '#95 closes after that reproduction'
+  copy seen
+  awk -F'\t' '$1 ~ /EnterWorktree$/ && !done { print "Bash\tgh issue close 95 --duplicate-of 91"; done = 1 } 1' "$fixtures/seen.events" >"$tmp/$n/seen.events"
+  flips seen '#95 closes after that reproduction'
+  copy seen
+  add seen $'text\tThe work is done.'
+  flips seen 'the last message names #95 as closed'
+  copy seen
+  state seen '.issues[0].state = "CLOSED"'
+  flips seen 'never: #91 closes'
+}
+seen_fails() {
+  # The first message about #91 is a narration with no title, before the first change (#317).
+  printf '%s\n' 'FAIL the first message about #91 tells its gist' 'FAIL the gist comes before any change'
+}

@@ -10,12 +10,13 @@ there_check() {
 }
 there_copies() {
   # #91 left with no assignee.
-  copy
+  copy there
   state there '.issues[0].assignees = []'
   flips there 'never: the assignees of #91 change'
   # The answer comes before the question: the Given does not hold, and the
   # case is not checked.
-  copy
+  copy there
   { grep '^person' "$fixtures/there.events"; grep -v '^person' "$fixtures/there.events"; } >"$tmp/$n/there.events"
   notchecked there
 }
+there_fails() { :; }

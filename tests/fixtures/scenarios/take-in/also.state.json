@@ -1,0 +1,70 @@
+{
+  "me": "kim",
+  "repo": "acme/shop",
+  "origin": "<work>.origin",
+  "workspace": null,
+  "down": false,
+  "prs": [],
+  "labels": [
+    "bug",
+    "debt",
+    "enhancement",
+    "in progress"
+  ],
+  "visibility": "PUBLIC",
+  "issues": [
+    {
+      "number": 91,
+      "title": "parser: parseRows turns an empty line into a row with one empty field",
+      "body": "`parseRows` in `src/parser/read.ts` turns an empty line into a row with one empty field, so a text that ends with a line break gets an empty last row. Done when `parseRows` gives no row for an empty line.\n\n## Also: `splitLine` drops the last field of a line that ends with a comma\n\nWhere: `src/parser/split.ts`, in `splitLine`. How it shows up: `a,b,` gives two fields, not three.",
+      "state": "OPEN",
+      "stateReason": null,
+      "assignees": [
+        "kim"
+      ],
+      "labels": [
+        "in progress"
+      ],
+      "comments": [
+        {
+          "author": "kim",
+          "body": "Related: #92 parser: CRLF line endings leave a carriage return in the last field and in blank lines."
+        }
+      ],
+      "linked": [
+        "fix/91-csv-empty-fields"
+      ]
+    },
+    {
+      "number": 92,
+      "title": "parser: CRLF line endings leave a carriage return in the last field and in blank lines",
+      "body": "`parseRows` in `src/parser/read.ts:57` and `importTable` in `src/import-table.ts:4` split the text on a bare `\\n`. A text with CRLF line endings keeps a `\\r` at the end of each line:\n\n- `parseRows('a,b\\r\\n\\r\\nc,d\\r\\n')` gives `[[\"a\",\"b\\r\"],[\"\\r\"],[\"c\",\"d\\r\"]]`: the last field of each row ends with `\\r`, and the blank line gives a row.\n- `importTable('a,b,\\r\\n')` gives `[[\"a\",\"b\",\"\\r\"]]`: the empty last field is `\\r`, not `''`.\n\nOut of scope in the fix of #91, which skips only lines that are exactly empty. Related to #91.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 93,
+      "title": "README: the install command says npm instal, which fails",
+      "body": "`README.md:3` gives the install command as `npm instal shop`. npm has no `instal` command. The command is `npm install shop`.\n\nFound during the work on #91. Out of scope there: the README is outside the parser module.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    }
+  ],
+  "log": [
+    "edit 91",
+    "develop 91",
+    "create 92 +changes",
+    "create 93 +changes",
+    "comment 91 +changes"
+  ]
+}

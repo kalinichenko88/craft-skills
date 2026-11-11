@@ -1,0 +1,147 @@
+branch fix/91-skip-empty-lines
+commit 4b9352ae8a5d332fd0b0560e6c4e21e0d4918824 test(parser): pin that a line of spaces still gives a row
+commit ffc47a462d148c40fcfa3ecf086fddc48bc14c38 fix(parser): give no row for an empty line in a CRLF text
+commit 07cc50bf020e908ff5c7a8cc2421a58ef15b4cf7 fix(parser): give no row for an empty line
+diff --git a/src/import-table.test.ts b/src/import-table.test.ts
+new file mode 100644
+index 0000000..556a954
+--- /dev/null
++++ b/src/import-table.test.ts
+@@ -0,0 +1,39 @@
++import assert from 'node:assert/strict';
++import { describe, it } from 'node:test';
++
++import { importTable } from './import-table.ts';
++
++describe('importTable', () => {
++  it('gives no row for the line break at the end of the text', () => {
++    assert.deepEqual(importTable('a,b\nc,d\n'), [
++      ['a', 'b'],
++      ['c', 'd'],
++    ]);
++  });
++
++  it('gives no row for an empty line between two rows', () => {
++    assert.deepEqual(importTable('a,b\n\nc,d'), [
++      ['a', 'b'],
++      ['c', 'd'],
++    ]);
++  });
++
++  it('gives a row for a line of spaces, which is not empty', () => {
++    assert.deepEqual(importTable('a,b\n \nc,d'), [
++      ['a', 'b'],
++      [' '],
++      ['c', 'd'],
++    ]);
++  });
++
++  it('gives no row for an empty line in a text with CRLF line ends', () => {
++    assert.deepEqual(importTable('a,b\r\n\r\nc,d\r\n'), [
++      ['a', 'b'],
++      ['c', 'd'],
++    ]);
++  });
++
++  it('gives no row for an empty text', () => {
++    assert.deepEqual(importTable(''), []);
++  });
++});
+diff --git a/src/import-table.ts b/src/import-table.ts
+index 1f6b858..2d93dd3 100644
+--- a/src/import-table.ts
++++ b/src/import-table.ts
+@@ -1,6 +1,11 @@
+ import { splitLine } from './parser/split.ts';
+ 
+-// importTable: the table of a CSV file, one row for each line.
++// importTable: the table of a CSV file, one row for each line that is not
++// empty.
+ export function importTable(text: string): string[][] {
+-  return text.split('\n').map(splitLine);
++  const lines = text.split(/\r?\n/).filter((line) => {
++    return line !== '';
++  });
++
++  return lines.map(splitLine);
+ }
+diff --git a/src/parser/read.test.ts b/src/parser/read.test.ts
+new file mode 100644
+index 0000000..53c068d
+--- /dev/null
++++ b/src/parser/read.test.ts
+@@ -0,0 +1,43 @@
++import assert from 'node:assert/strict';
++import { describe, it } from 'node:test';
++
++import { parseRows } from './read.ts';
++
++describe('parseRows', () => {
++  it('gives no row for the line break at the end of the text', () => {
++    assert.deepEqual(parseRows('a,b\nc,d\n'), [
++      ['a', 'b'],
++      ['c', 'd'],
++    ]);
++  });
++
++  it('gives no row for an empty line between two rows', () => {
++    assert.deepEqual(parseRows('a,b\n\nc,d'), [
++      ['a', 'b'],
++      ['c', 'd'],
++    ]);
++  });
++
++  it('gives a row for a line of spaces, which is not empty', () => {
++    assert.deepEqual(parseRows('a,b\n \nc,d'), [
++      ['a', 'b'],
++      [' '],
++      ['c', 'd'],
++    ]);
++  });
++
++  it('gives no row for an empty line in a text with CRLF line ends', () => {
++    assert.deepEqual(parseRows('a,b\r\n\r\nc,d\r\n'), [
++      ['a', 'b'],
++      ['c', 'd'],
++    ]);
++  });
++
++  it('gives no row for an empty text', () => {
++    assert.deepEqual(parseRows(''), []);
++  });
++
++  it('keeps a tab inside a field', () => {
++    assert.deepEqual(parseRows('a\tb,c'), [['a\tb', 'c']]);
++  });
++});
+diff --git a/src/parser/read.ts b/src/parser/read.ts
+index 51f3640..19953a7 100644
+--- a/src/parser/read.ts
++++ b/src/parser/read.ts
+@@ -1,5 +1,5 @@
+-// The rows of a CSV text, one for each line. A row holds the fields of
+-// its line, in order.
++// The rows of a CSV text, one for each line that is not empty. A row holds
++// the fields of its line, in order.
+ 
+ export type Row = string[];
+ 
+@@ -53,11 +53,15 @@ export function isEmpty(row: Row): boolean {
+   });
+ }
+ 
+-// parseRows: the rows of a CSV text, one for each line.
++// parseRows: the rows of a CSV text, one for each line that is not empty.
+ export function parseRows(text: string): Row[] {
+   const rows: Row[] = [];
+-  for (const line of text.split('\n')) {
+-    rows.push(line.split(/[,\t]/).map(unquote));
++  for (const line of text.split(/\r?\n/)) {
++    if (line === '') {
++      continue;
++    }
++
++    rows.push(line.split(',').map(unquote));
+   }
+ 
+   return rows;

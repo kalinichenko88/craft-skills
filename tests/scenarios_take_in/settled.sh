@@ -18,4 +18,26 @@ settled_check() {
   item 'the work on #91 fixes the defect of #12' 'grep -q "^-.*split(/\[,\\\\t\]/)" "$d.work" && ! grep -qE "^\+.*split\(.*\\\\t" "$d.work"'
   item 'never: #12 closes' '[ "$(issue 12 .state)" = OPEN ]'
 }
-settled_copies() { :; }
+settled_copies() {
+  # #12 not assigned, without the label, assigned after the work started, a
+  # tab still split in the work, and closed.
+  copy settled
+  state settled '(.issues[] | select(.number == 12) | .assignees) = []'
+  flips settled '#12 is assigned to the person'
+  copy settled
+  state settled '(.issues[] | select(.number == 12) | .labels) = ["bug"]'
+  flips settled '#12 has the label in progress'
+  copy settled
+  state settled '.log |= map(if . == "edit 12" then "edit 12 +changes" else . end)'
+  flips settled '#12 is assigned to the person before the work starts'
+  copy settled
+  printf '%s\n' '+    rows.push(line.split(/[,\t]/));' >>"$tmp/$n/settled.work"
+  flips settled 'the work on #91 fixes the defect of #12'
+  copy settled
+  state settled '(.issues[] | select(.number == 12) | .state) = "CLOSED"'
+  flips settled 'never: #12 closes'
+}
+settled_fails() {
+  # The first message about #91 is a narration with no title, before the first change (#317).
+  printf '%s\n' 'FAIL the first message about #91 tells its gist' 'FAIL the gist comes before any change'
+}

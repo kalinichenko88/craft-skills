@@ -146,12 +146,13 @@ command -v jq >/dev/null || { echo "$0: no jq command" >&2; exit 2; }
 # on the message that the last argument gives. It reads no input, and does
 # not hold the pipe of the open conversation.
 session() {
-  local w=$1 c=$2
+  local w=$1 c=$2 deny=()
   shift 2
-  [ -f "$w.companion" ] || set -- --disallowedTools ListAgents "$@"
+  # --disallowedTools takes a list: a flag after it ends the list.
+  [ -f "$w.companion" ] || deny=(--disallowedTools ListAgents)
   (cd "$w" && PATH="$w.bin:$PATH" claude -p --model "$model" --setting-sources project \
     --settings '{"language":"English"}' --plugin-dir "$root" --output-format stream-json --verbose \
-    --max-budget-usd "$(budget "$c")" --dangerously-skip-permissions "$@" </dev/null 7>&-) 2>&1 || true
+    --max-budget-usd "$(budget "$c")" ${deny[@]+"${deny[@]}"} --dangerously-skip-permissions "$@" </dev/null 7>&-) 2>&1 || true
 }
 # companion <workspace>: the open conversation of the Given, which reads its
 # texts from the pipe <workspace>.in on file descriptor 7. It has the first

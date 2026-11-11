@@ -11,10 +11,11 @@ otherrepo_check() {
 }
 otherrepo_copies() {
   # Told with no name of the other repository, and assigned.
-  copy
+  copy otherrepo
   sed -i.bak '/^text/s#acme/lib#there#g' "$tmp/$n/otherrepo.events"
   flips otherrepo 'the person is told that #91 is in another repository'
-  copy
+  copy otherrepo
   state otherrepo '.issues[0].assignees += ["kim"]'
   flips otherrepo 'never: the assignees of #91 change'
 }
+otherrepo_fails() { :; }

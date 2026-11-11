@@ -1,0 +1,21 @@
+branch fix/91-typo
+commit aaa47cfadeb5f89afdab7e9ce7a2423fe97d391d docs: fix the npm install command in the README
+commit 0c5657885eba8f5315796e16eb24c8a638be44be docs: start the fix of the install command
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+new file mode 100644
+index 0000000..8188ccf
+--- /dev/null
++++ b/CHANGELOG.md
+@@ -0,0 +1,3 @@
++# Changes
++
++- Fix the install command in the README.
+diff --git a/README.md b/README.md
+index 67808fb..8841e3c 100644
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,3 @@
+ # shop
+ 
+-Install it with `npm instal shop`.
++Install it with `npm install shop`.

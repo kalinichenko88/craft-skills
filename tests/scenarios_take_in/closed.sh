@@ -12,10 +12,11 @@ closed_check() {
 }
 closed_copies() {
   # A closed task reopened, and told with no word that it is closed.
-  copy
+  copy closed
   state closed '.issues[0].state = "OPEN"'
   flips closed 'never: the state of #91 changes'
-  copy
+  copy closed
   sed -i.bak '/^text/{s/closed/done/g; s/Closed/Done/g;}' "$tmp/$n/closed.events"
   flips closed 'the person is told that #91 is closed'
 }
+closed_fails() { :; }

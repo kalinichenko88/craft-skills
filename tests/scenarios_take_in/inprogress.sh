@@ -13,10 +13,11 @@ inprogress_check() {
 }
 inprogress_copies() {
   # The person's task in progress: told with no word of it, and asked nothing.
-  copy
+  copy inprogress
   sed -i.bak '/^text/s/in[ -]progress/started/g' "$tmp/$n/inprogress.events"
   flips inprogress 'the person is told that #91 is in progress already'
-  copy
+  copy inprogress
   sed -i.bak '/^text/s/?/./g' "$tmp/$n/inprogress.events"
   flips inprogress 'the person is asked whether the work on #91 runs somewhere else or continues here'
 }
+inprogress_fails() { :; }

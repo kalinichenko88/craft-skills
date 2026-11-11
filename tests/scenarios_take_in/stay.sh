@@ -14,4 +14,26 @@ stay_check() {
   item 'never: #91 gets a linked branch' '[ "$linked" = "[]" ]'
   oneworkspace
 }
-stay_copies() { :; }
+stay_copies() {
+  # #91 not assigned, the workspace on main, a local branch for #91, a linked
+  # branch, and a worktree.
+  copy stay
+  state stay '.issues[0].assignees = []'
+  flips stay '#91 is assigned to the person'
+  copy stay
+  sed -i.bak 's/^head .*/head main/' "$tmp/$n/stay.workspace"
+  flips stay 'the workspace stays on fix/rows'
+  copy stay
+  { echo 'fix/91-readme 0000000000000000000000000000000000000000'; cat "$fixtures/stay.workspace"; } >"$tmp/$n/stay.workspace"
+  flips stay 'never: a branch for #91 is created'
+  copy stay
+  state stay '.issues[0].linked = ["fix/91-readme"]'
+  flips stay 'never: #91 gets a linked branch'
+  copy stay
+  sed -i.bak 's/^worktrees 1$/worktrees 2/' "$tmp/$n/stay.workspace"
+  flips stay 'never: a workspace of #91 is created'
+}
+stay_fails() {
+  # The first message about #91 is a narration with no title, before the first change (#317).
+  printf '%s\n' 'FAIL the first message about #91 tells its gist' 'FAIL the gist comes before any change'
+}

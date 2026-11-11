@@ -10,4 +10,27 @@ linkedhere_check() {
   nobranch '["fix/91-typo"]'
   item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'
 }
-linkedhere_copies() { :; }
+linkedhere_copies() {
+  # #91 not assigned, without the label, no work on fix/91-typo, a new branch,
+  # a second linked branch, and no second answer.
+  copy linkedhere
+  state linkedhere '.issues[0].assignees = []'
+  flips linkedhere '#91 is assigned to the person'
+  copy linkedhere
+  state linkedhere '.issues[0].labels = []'
+  flips linkedhere '#91 has the label in progress'
+  copy linkedhere
+  cp "$fixtures/linkedhere.given.workspace" "$tmp/$n/linkedhere.workspace"
+  cp "$fixtures/linkedhere.given.work" "$tmp/$n/linkedhere.work"
+  flips linkedhere 'the work goes on, on fix/91-typo'
+  copy linkedhere
+  echo fix/91-new >>"$tmp/$n/linkedhere.branches"
+  flips linkedhere 'never: a branch for #91 is created'
+  copy linkedhere
+  state linkedhere '.issues[0].linked += ["fix/91-new"]'
+  flips linkedhere 'never: #91 gets a second linked branch' 'never: a branch for #91 is created'
+  copy linkedhere
+  awk '/^person/ && ++p == 2 { next } 1' "$fixtures/linkedhere.events" >"$tmp/$n/linkedhere.events"
+  notchecked linkedhere
+}
+linkedhere_fails() { :; }

@@ -164,16 +164,19 @@ checks that the scout gives a sentence of #117 and the title of #205 as false,
 no sentence of #179, and the moved citation of #179.
 It needs the history of the checkout down to #217. Run it after a change to
 the citations job of `skills/github/scout.md` or to *Finishing*.
-`tests/scenarios_eval.sh` runs craft on sixteen scenarios of
-`scenarios/github/take-in.md`: fourteen that the first message of the person
+`tests/scenarios_eval.sh` runs craft on each of the 36 scenarios of
+`scenarios/github/take-in.md`: those that the first message of the person
 starts, from a free task and a closed task to a task of another repository
-and a busy duplicate, and two that the answer of the person to a question of
-the first message starts. `--not-run` prints the other scenarios of the
-file, which no case runs yet. Each run of a case is one session of
-`claude -p` with this checkout as the only plugin, a fake `gh` first on
-`PATH` that reads and writes a JSON tracker (`tests/fake_gh.sh`), and a
-workspace with a local `origin`. The answer resumes that session with
-`--resume`, and the same plugin and `PATH`. It checks each Then and Never
+and a busy duplicate, and those that an answer of the person, or a next
+text after a run that waited or stopped, starts. `--not-run` prints the
+scenarios of the file that no case runs yet, none now. Each run of a case
+is one session of `claude -p` with this checkout as the only plugin, a fake
+`gh` first on `PATH` that reads and writes a JSON tracker
+(`tests/fake_gh.sh`), and a workspace with a local `origin`. Each answer
+resumes that session with `--resume`, and the same plugin and `PATH`. The
+case of another open conversation starts that conversation first: a session
+of Haiku with no tools, on the text "#91", which the run sees through
+`ListAgents`. It checks each Then and Never
 item of the scenarios against the tracker, the branches, the workspace, and
 the session's messages and tool calls, and prints PASS, FAIL or SKIP for
 each. A message is a text block, or a thinking block that Claude Code marks
@@ -185,18 +188,19 @@ ends with the cost of the pass, and `--max-cost` stops the eval before a
 round of the cases that could take the cost past it, by the sum of the caps
 of its messages. Run it after a change to `skills/github/take-in.md` or to
 the scripts of the github skill. Each case is a file in
-`tests/scenarios_take_in/`, with its scenario, its Given, its checks and the
-changed copies of its recorded run; `tests/scenarios_take_in.sh` holds what
+`tests/scenarios_take_in/`, with its scenario, its Given, its checks, the
+verdicts of its recorded run that are not PASS, and the changed copies of
+that run; `tests/scenarios_take_in.sh` holds what
 the cases share.
 `tests/scenarios_checks_test.sh` runs its checks in `make check`, on one
-recorded run of each case in `tests/fixtures/scenarios/`, and on copies that
-change the verdict of one item. It fails for a scenario of take-in that has
+recorded run of each case in `tests/fixtures/scenarios/`, and on copies of
+the files of one case that change the verdict of one item. It fails for a scenario of take-in that has
 no case and is not in the eval's `--not-run` list.
 `tests/scenarios_runner_test.sh` sets up the Given of each case and checks
 what `take-in-check.sh` reads in it through the fake `gh`. It counts pass^2
 over the recorded runs and a copy, and runs the eval with a stub `claude` to
-check `--model`, the answer that resumes the session of the first message,
-and the stop before `--max-cost`.
+check `--model`, the answers that resume the session of the message before
+each, the other conversation of a Given, and the stop before `--max-cost`.
 `tests/scenarios_text_eval.sh` reads the text of a skill against the
 scenario file of its flow, with no live run. Each file in `scenarios/*/*.md`
 has a row in the eval: the scenario file and the files of the skill that its

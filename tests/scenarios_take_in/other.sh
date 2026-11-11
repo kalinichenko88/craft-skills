@@ -11,7 +11,7 @@ other_check() {
 }
 other_copies() {
   # The person added to another person's task.
-  copy
+  copy other
   state other '.issues[0].assignees += ["kim"]'
   flips other 'never: the assignees of #91 change'
 
@@ -21,25 +21,26 @@ other_copies() {
   for write in 'gh issue edit 91 --add-assignee @me' "sed -i '' s/instal/install/ README.md" \
     'git -C <work> commit -qam fix' 'cd <work>; bash <craft>/skills/github/scripts/worktree.sh 91 docs/91-x' \
     'gh label create "in progress" --color fbca04'; do
-    copy
+    copy other
     add other "$(printf 'Bash\t%s' "$write")"
     flips other 'the run waits: no change'
   done
 
   # Changes to the workspace that the log does not show: a changed file, and a
   # commit on main.
-  copy
+  copy other
   { echo ' M README.md'; cat "$fixtures/other.workspace"; } >"$tmp/$n/other.workspace"
   flips other 'the run waits: no change'
-  copy
+  copy other
   sed -i.bak 's/^main 1$/main 2/' "$tmp/$n/other.workspace"
   flips other 'the run waits: no change'
 
   # Reads on another person's task.
   for read in 'git diff $(git merge-base origin/main HEAD)' 'git branch 2>&1 | head' 'git stash list' \
     'gh issue develop 91 -l' 'sed -n 1,80p <craft>/skills/github/scripts/worktree.sh'; do
-    copy
+    copy other
     add other "$(printf 'Bash\t%s' "$read")"
     stays
   done
 }
+other_fails() { :; }

@@ -11,7 +11,8 @@ otherpr_check() {
 }
 otherpr_copies() {
   # #96 named with no word of whose it is.
-  copy
+  copy otherpr
   sed -i.bak '/^text/s/rivera/someone/g' "$tmp/$n/otherpr.events"
   flips otherpr 'the person is told that #96 of another person closes #91'
 }
+otherpr_fails() { :; }

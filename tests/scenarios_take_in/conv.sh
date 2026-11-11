@@ -16,4 +16,26 @@ conv_check() {
   kept "never: the workspace's fix/91-typo changes"
   oneworkspace
 }
-conv_copies() { :; }
+conv_copies() {
+  # No name of the other conversation, a write, a question whether the work
+  # runs somewhere else, the branch moved, and a worktree made.
+  copy conv
+  sed -i.bak '/^text/s/#91 the install command says npm instal/#91 another one/g' "$tmp/$n/conv.events"
+  flips conv 'the person is told which other conversation holds the work on #91'
+  copy conv
+  add conv $'Bash\tgh issue edit 91 --add-assignee @me'
+  flips conv 'the run stops: no change'
+  copy conv
+  add conv $'text\tDoes the work on #91 run somewhere else, or here?'
+  flips conv 'never: the person is asked whether the work runs somewhere else'
+  copy conv
+  sed -i.bak 's/^fix\/91-typo .*/fix\/91-typo 0000000000000000000000000000000000000000/' "$tmp/$n/conv.workspace"
+  flips conv "never: the workspace's fix/91-typo changes" 'the run stops: no change'
+  copy conv
+  sed -i.bak 's/^worktrees 1$/worktrees 2/' "$tmp/$n/conv.workspace"
+  flips conv 'never: a workspace of #91 is created' 'the run stops: no change'
+}
+conv_fails() {
+  # The first message about #91 is a narration with no title (#317).
+  printf '%s\n' 'FAIL the first message about #91 tells its gist'
+}

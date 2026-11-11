@@ -13,11 +13,12 @@ moved_check() {
 }
 moved_copies() {
   # Told with no name of the linked branch.
-  copy
+  copy moved
   sed -i.bak '/^text/s#fix/91-typo#the branch#g' "$tmp/$n/moved.events"
   flips moved 'the person is told that fix/91-typo is linked to #91'
   # The workspace's fix/91-typo pulled.
-  copy
+  copy moved
   sed -i.bak 's/^fix\/91-typo .*/fix\/91-typo 0000000000000000000000000000000000000000/' "$tmp/$n/moved.workspace"
   flips moved "never: the workspace's fix/91-typo changes" 'the run waits: no change'
 }
+moved_fails() { :; }

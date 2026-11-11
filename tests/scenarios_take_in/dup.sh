@@ -16,34 +16,40 @@ dup_check() {
 }
 dup_copies() {
   # The stack trace of #95 in a comment on #91, its indent lost.
-  copy
+  copy dup
   state dup '(.issues[] | select(.number == 91) | .comments) +=
     [{author: "kim", body: (.issues[] | select(.number == 95) | .body | split("```")[1] | gsub("\n +"; "\n"))}]'
   flips dup 'a comment on #91 holds the stack trace of #95'
 
   # #95 closed, but not as a duplicate.
-  copy
+  copy dup
   state dup '(.issues[] | select(.number == 95)) |= (.stateReason = "COMPLETED" | .duplicateOf = null)'
   flips dup '#95 is closed as a duplicate of #91'
 
   # #95 closed before the comment on #91.
-  copy
+  copy dup
   state dup '.log = ["close 95"] + (.log - ["close 95"])'
   flips dup 'the comment on #91 comes before #95 closes'
 
   # #95 closed after the work started: the fake gh marks the close.
-  copy
+  copy dup
   state dup '.log |= map(if . == "close 95" then "close 95 +changes" else . end)'
   flips dup '#95 closes before the work starts'
 
   # A last message that names #95, and a close of something else in another
   # sentence.
-  copy
+  copy dup
   add dup $'text\t#95 reports the same typo. I closed the worktree.'
   flips dup 'the last message names #95 as closed'
 
   # #91 closed.
-  copy
+  copy dup
   state dup '(.issues[] | select(.number == 91) | .state) = "CLOSED"'
   flips dup 'never: #91 closes'
+}
+dup_fails() {
+  # One line of the stack trace of #95 reaches #91, not the trace (#296); the
+  # first message about #91 is a narration with no title, before the first
+  # change (#317).
+  printf '%s\n' 'FAIL a comment on #91 holds the stack trace of #95' 'FAIL the first message about #91 tells its gist' 'FAIL the gist comes before any change'
 }

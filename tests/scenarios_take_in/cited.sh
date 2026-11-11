@@ -15,4 +15,23 @@ cited_check() {
   outcomes
   item 'never: the text of #91 names src/parser/read.ts:42' '! issue 91 .body | grep -qF read.ts:42'
 }
-cited_copies() { :; }
+cited_copies() {
+  # The line of parseRows gone from the text of #91, a sentence added to it,
+  # the text changed after the work started, and the old line put back.
+  copy cited
+  state cited '.issues[0].body |= sub("read\\.ts:57"; "read.ts")'
+  flips cited 'the text of #91 names src/parser/read.ts:57 as the line of parseRows' 'the rest of the text of #91 stays as it was'
+  copy cited
+  state cited '.issues[0].body += " See also the README."'
+  flips cited 'the rest of the text of #91 stays as it was'
+  copy cited
+  state cited '.log |= map(if . == "edit 91 body" then "edit 91 body +changes" else . end)'
+  flips cited 'the text of #91 changes before the work starts'
+  copy cited
+  state cited '.issues[0].body += " It was src/parser/read.ts:42."'
+  flips cited 'never: the text of #91 names src/parser/read.ts:42' 'the rest of the text of #91 stays as it was'
+}
+cited_fails() {
+  # The first message about #91 is a narration with no title, before the first change (#317).
+  printf '%s\n' 'FAIL the first message about #91 tells its gist' 'FAIL the gist comes before any change'
+}

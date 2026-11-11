@@ -11,4 +11,23 @@ unread_check() {
   item 'that branch is linked to #91' '[ -n "$branch" ] && cut -d, -f1 "$d.branches" | grep -qxF "$branch"'
   item 'never: the person is told a gist of #91 that the run did not read' '[ -z "$titled" ]'
 }
-unread_copies() { :; }
+unread_copies() {
+  # No error told, a write before it, and a gist told; and #91 assigned.
+  copy unread
+  sed -i.bak '/^text/s/502/5xx/g' "$tmp/$n/unread.events"
+  flips unread 'the person is told that the text of #91 could not be read, with its error' 'that message comes before any change'
+  copy unread
+  first unread $'Bash\tgh issue edit 91 --add-assignee @me'
+  flips unread 'that message comes before any change'
+  copy unread
+  add unread $'text\t#91 README: the install command says npm instal'
+  flips unread 'never: the person is told a gist of #91 that the run did not read'
+  copy unread
+  state unread '.issues[0].assignees = ["kim"]'
+  flips unread '#91 is assigned to the person'
+}
+unread_fails() {
+  # The run stops after it tells the error of the read (#348).
+  printf '%s\n' 'FAIL #91 is assigned to the person' 'FAIL #91 has the label in progress' \
+    'FAIL a branch for #91 is made from the default branch' 'FAIL that branch is linked to #91'
+}

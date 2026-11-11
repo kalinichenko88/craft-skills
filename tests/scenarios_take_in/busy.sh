@@ -12,16 +12,20 @@ busy_check() {
 busy_copies() {
   # #95 closed in the tracker, closed in the log, given a second assignee, and
   # named with no word of why it stays open.
-  copy
+  copy busy
   state busy '(.issues[] | select(.number == 95) | .state) = "CLOSED"'
   flips busy '#95 stays open'
-  copy
+  copy busy
   state busy '.log += ["close 95"]'
   flips busy 'never: #95 closes'
-  copy
+  copy busy
   state busy '(.issues[] | select(.number == 95) | .assignees) += ["kim"]'
   flips busy 'never: the assignees of #95 change'
-  copy
+  copy busy
   sed -i.bak '/^text.*#95/{s/busy/taken/g; s/rivera/someone/g;}' "$tmp/$n/busy.events"
   flips busy 'the person is told that #95 stays open because it is busy'
+}
+busy_fails() {
+  # The first message about #91 is a narration with no title, before the first change (#317).
+  printf '%s\n' 'FAIL the first message about #91 tells its gist' 'FAIL the gist comes before any change'
 }

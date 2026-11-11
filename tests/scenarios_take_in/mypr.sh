@@ -11,12 +11,13 @@ mypr_check() {
 }
 mypr_copies() {
   # A new branch on the origin.
-  copy
+  copy mypr
   echo fix/91-new >>"$tmp/$n/mypr.branches"
   flips mypr 'never: a branch for #91 is created'
 
   # Told with no number of the pull request.
-  copy
+  copy mypr
   sed -i.bak '/^text/s/#96/the pull request/g' "$tmp/$n/mypr.events"
   flips mypr 'the person is told that the work on #91 has pull request #96'
 }
+mypr_fails() { :; }

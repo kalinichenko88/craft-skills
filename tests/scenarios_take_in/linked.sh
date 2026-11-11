@@ -12,14 +12,15 @@ linked_check() {
 }
 linked_copies() {
   # Asked nothing, and a second branch linked.
-  copy
+  copy linked
   sed -i.bak '/^text/s/?/./g' "$tmp/$n/linked.events"
   flips linked 'the person is asked whose branch fix/91-typo is'
-  copy
+  copy linked
   state linked '.issues[0].linked += ["fix/91-other"]'
   flips linked 'never: a branch for #91 is created'
   # Told with no name of the linked branch.
-  copy
+  copy linked
   sed -i.bak '/^text/s#fix/91-typo#the branch#g' "$tmp/$n/linked.events"
   flips linked 'the person is told that fix/91-typo is linked to #91'
 }
+linked_fails() { :; }
