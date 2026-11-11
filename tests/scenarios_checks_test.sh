@@ -4,7 +4,8 @@
 # branches and the workspace of one probe run of each case: free, other and
 # down of 2026-11-03, dup and busy of 2026-11-10, and the other eight of
 # 2026-11-11, which also keep the workspace and the branches of their Given.
-# The Given of other and down is the one that setup makes now. In the runs of
+# The runs of free, other, down, dup and busy kept none: theirs is the one
+# that setup makes now. In the runs of
 # free, dup and busy, no message about #91 comes before the branch, but think
 # lines do: the log cannot show whether a message told the gist (#206), so
 # the two gist items give SKIP; in the run of inws, the gist item does. The
@@ -268,11 +269,25 @@ flips inws 'the work goes on, on fix/91-typo'
 copy
 add inws $'text\tDoes the work on #91 run somewhere else, or here?'
 flips inws 'never: the person is asked whether the work runs somewhere else'
+copy
+sed -i.bak '/^text/s/continu/kept/g' "$tmp/$n/inws.events"
+flips inws 'the person is told in one line that the work on #91 continues on fix/91-typo'
 # A question about something else, after a sentence that names another
 # session.
 copy
 add inws $'text\tNo other session works on #91. Shall I open a draft PR?'
 stays
+
+# Told with no number of the pull request, and with no name of the linked
+# branch.
+copy
+sed -i.bak '/^text/s/#96/the pull request/g' "$tmp/$n/mypr.events"
+flips mypr 'the person is told that the work on #91 has pull request #96'
+for c in linked moved; do
+  copy
+  sed -i.bak '/^text/s#fix/91-typo#the branch#g' "$tmp/$n/$c.events"
+  flips $c 'the person is told that fix/91-typo is linked to #91'
+done
 
 # The branch that moved on: the workspace's fix/91-typo pulled.
 copy

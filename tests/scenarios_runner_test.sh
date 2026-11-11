@@ -65,21 +65,33 @@ given moved "$(printf '#91: assigned to you\n%s' "$(ahead 1)")"
 given otherrepo '#91 is in acme/lib, and this checkout is acme/shop: stop'
 # A git step of a Given that fails stops setup, at that step: a clone that has
 # no place, a branch with a lock file on the origin or in the workspace, and a
-# push to a branch with a lock file on the origin.
-for c in otherpr mypr linked inws moved; do
-  w=$tmp/broken/$c
-  case $c in
-    otherpr | mypr) mkdir -p "$w.elsewhere/x" && step='already exists' ;;
-    linked | moved) mkdir -p "$w.origin/refs/heads/fix" && : >"$w.origin/refs/heads/fix/91-typo.lock" && step=lock ;;
-    inws) mkdir -p "$w/.git/refs/heads/fix" && : >"$w/.git/refs/heads/fix/91-typo.lock" && step=lock ;;
+# push to a branch with a lock file on the origin. A step before the clone
+# stops setup before it, so no clone is left.
+for t in otherpr:clone mypr:clone linked:origin inws:workspace moved:origin moved:clone; do
+  c=${t%%:*} w=$tmp/broken/${t%%:*}-${t#*:}
+  case ${t#*:} in
+    clone) mkdir -p "$w.elsewhere/x" && step='already exists' ;;
+    origin) mkdir -p "$w.origin/refs/heads/fix" && : >"$w.origin/refs/heads/fix/91-typo.lock" && step=lock ;;
+    workspace) mkdir -p "$w/.git/refs/heads/fix" && : >"$w/.git/refs/heads/fix/91-typo.lock" && step=lock ;;
   esac
   { ! err=$(bash "$take_in" setup "$w" "$c" 2>&1 >/dev/null) && grep -q "$step" <<<"$err"; } ||
-    fail "the setup of $c does not stop at its git step that fails" "$err"
+    fail "the setup of $c does not stop at its git step that fails: $t" "$err"
+  [ "${t#*:}" = clone ] || [ ! -e "$w.elsewhere" ] || fail "the setup of $c goes on to the clone after its git step fails: $t"
 done
+# The snapshot gives the last commit of a branch, and marks a branch whose
+# worktree has a changed file.
+w=$tmp/given/inws
+git -C "$w" worktree add -q "$w.wt" fix/91-typo
+echo x >>"$w.wt/README.md"
+bash "$take_in" snapshot "$w" "$tmp/snap"
+[ "$(grep '^fix/91-typo ' "$tmp/snap.workspace")" = "fix/91-typo $(git -C "$w" rev-parse fix/91-typo) changed" ] ||
+  fail 'the snapshot does not give the last commit and the change of fix/91-typo' "$(cat "$tmp/snap.workspace")"
 # The task of another repository reads by its link, and is no task of this one.
 w=$tmp/given/otherrepo
 [ "$(cd "$w" && PATH="$w.bin:$PATH" gh issue view https://github.com/acme/lib/issues/91 --json title --jq .title)" = \
   'README: the install command says npm instal' ] || fail 'the fake gh does not read #91 of acme/lib by its link'
+[ "$(cd "$w" && PATH="$w.bin:$PATH" gh issue view 91 --repo acme/lib --json title --jq .title)" = \
+  'README: the install command says npm instal' ] || fail 'the fake gh does not read #91 of acme/lib by --repo'
 for call in 'issue view 91 --json title' 'issue edit 91 --add-assignee @me' 'issue develop 91 --name fix/91-x'; do
   # shellcheck disable=SC2086 # the words of the call
   ! (cd "$w" && PATH="$w.bin:$PATH" gh $call >/dev/null 2>&1) || fail "the fake gh takes #91 of acme/lib as a task of acme/shop: gh $call"
@@ -139,8 +151,11 @@ stub() {
 }
 # By default, a run of free is on opus with a cap of $4.
 got=$(stub free)
-grep -qe '--model opus .*--max-budget-usd 4 --disallowedTools ListAgents ' "$tmp/stub.args" ||
+{ grep -qe '--model opus .*--max-budget-usd 4 ' "$tmp/stub.args" && grep -qe '--disallowedTools ListAgents ' "$tmp/stub.args"; } ||
   fail 'free does not run on opus with a cap of 4 dollars and no ListAgents' "$(cat "$tmp/stub.args")"
+# The message of a case is the last argument.
+got=$(stub otherrepo)
+grep -qe ' https://github.com/acme/lib/issues/91$' "$tmp/stub.args" || fail 'otherrepo does not run on the link of #91' "$(cat "$tmp/stub.args")"
 # A round of other and down can cost $4: with a cap of $10, the third round
 # runs at $6.00 spent, and the fourth does not at $9.00.
 got=$(stub --runs 4 --model haiku --max-cost 10 other down)
