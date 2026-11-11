@@ -24,9 +24,11 @@ prefix outside the history, the migration guide and the transcripts of
 In each file `scenarios/<skill>/<flow>.md`, it fails on a host word
 (`subagent`, the word `gh`, `/code-review`, `Claude Code`, `Codex`), on a
 scenario name that another scenario has, on a When that starts with neither
-"the person" nor "the run", and on a scenario whose labels are not Given,
-When, Then and Never, once each, in this order. The review reads for the other
-words of a host or a command.
+"the person" nor "the run", on a scenario whose labels are not Given, When,
+Then and Never, once each, in this order, and on an item that builds on a
+scenario name that no heading has: "the outcomes of <name> hold", or "as in
+<name>" at its end. The review reads for the other words of a host or a
+command.
 Outside the history and the Makefile, it fails on a line that holds
 `gh auth refresh` and no `-h github.com` or `--hostname github.com`: with no
 terminal, as under `!` in Claude Code, `gh` needs the host. It
