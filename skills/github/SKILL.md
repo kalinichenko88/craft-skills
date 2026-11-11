@@ -16,7 +16,7 @@ there.
 | --- | --- | --- |
 | Writing a commit message | `type: one sentence`, at most 5 bullets under it, no `Co-Authored-By:` | *Commits* below |
 | `gh pr create` | `--assignee @me`; assign every issue it closes too; `Part of #15`: `keep-open.sh` after it; then read what it closes | *Pull requests* below |
-| Merging | Wait for the PR's checks first: a failed or cancelled one, or a refusal, stops the merge, and `--admin` only on the person's word. `gh pr merge --squash --delete-branch --body` with one bullet list for the whole branch, run in the checkout that holds the branch; then *Finishing*, and *Cleanup* when the person asks for it | *Pull requests* below |
+| Merging | Wait for the PR's checks first: a failed or cancelled one, or a refusal, stops the merge, and `--admin` or `--auto` only on the person's word. `gh pr merge --squash --delete-branch --body` with one bullet list for the whole branch, run in the checkout that holds the branch; then *Finishing*, and *Cleanup* when the person asks for it | *Pull requests* below |
 | Finding something out of scope | In the task's module, clear and smaller than the task: fix it in this PR, list it in the description under **Also fixed**. Otherwise add it to an open issue on the same code with `add-finding.sh`, or file a new one. A nit: one line in the final report, no issue | `filing.md` |
 | A rule, a skill or a script of this plugin is wrong | Search `kalinichenko88/craft-skills`; show the person the issue, with nothing from their project; file it only after a yes. A step the person had to point out: do it at once, and *Finishing* drafts it. In a checkout of `craft-skills`: the row above | `filing.md` |
 | Filing next to an existing issue | Name the relation, and correct the other side | `filing.md` |
@@ -124,29 +124,34 @@ one-commit branch gives that commit's subject instead — so both take the same
 does not show it: write both without one.
 
 **The checks come first.** Before `gh pr merge`, wait for the checks of the
-pull request, then list each one that did not pass:
+pull request, then list each one that did not pass. Run each command on its
+own, the watch with the longest time limit that the shell allows:
 
 ```bash
-gh pr checks <PR> --watch --fail-fast
+gh pr checks <PR> --watch --fail-fast >/dev/null
 gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
 ```
 
 The list decides, not the exit code of the watch: a cancelled check gives 0,
 and no check at all gives 1.
 
-- The list is empty: merge.
+- The list is empty, and the command printed no error: merge.
 - A `fail` or `cancel` line: do not merge. Give the person each line, and
   keep the worktree and the branch. The person decides: a fix, a new run of
-  the check, or the merge all the same.
+  the check, or the merge all the same, with `--admin` when a rule of the
+  repository requires that check.
 - Only `pending` lines, as after a watch that the time limit of the shell
-  stopped: watch again.
+  stopped: watch once more. Still `pending`: give the person each line, and
+  wait. A check can wait for a person's approval or for a runner that is
+  offline, and then it never ends.
 - `no checks reported`: a check can start late. Read again after a minute,
   and with still none, merge.
 
-When a command fails, or GitHub refuses the merge, as for a rule of the
-branch that the pull request does not meet, give the error. Add `--admin` or
-`--auto` only when the person asks for it: `--admin` merges past a red check,
-and `--auto` leaves the pull request open when the command ends.
+When the list command fails with another error, or GitHub refuses the merge,
+as for a rule of the branch that the pull request does not meet, give the
+error, and do not merge. Add `--admin` or `--auto` only when the person asks
+for it: `--admin` merges past a red check, and `--auto` leaves the pull
+request open when the command ends.
 
 Run the merge in the checkout that holds the branch, whatever directory the
 session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what

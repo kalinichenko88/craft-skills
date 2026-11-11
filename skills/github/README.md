@@ -56,8 +56,8 @@ time.
   the PR's checks: a failed or cancelled check stops it, and so does a
   refusal of GitHub, which it passes with `--admin` only when you ask. After
   a stop at round 3, more rounds is one more answer. Clean up removes the
-  worktree
-  and the local branch after the merge, when nothing in them would be lost.
+  worktree and the local branch after the merge, when nothing in them would
+  be lost.
   Only the merge and the open questions on business logic wait for you, and
   after the merge, the drafts for the plugin's tracker.
 - **A task finishes with a true tracker.** The PR and every issue it closes

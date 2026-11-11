@@ -17,8 +17,8 @@ Not covered yet:
   of the commit that the merge adds;
 - the answer do not merge, and a merge that fails for another reason than a
   rule of the repository;
-- a pull request check that is cancelled, and one that starts only after
-  the run reads the pull request checks;
+- a pull request check that is cancelled, one that does not end, and one
+  that starts only after the run reads the pull request checks;
 - the merge of a branch that no workspace of its task has;
 - a duplicate that closes only after a reproduction of the failure, after
   the merge;
@@ -224,7 +224,7 @@ Given:
 When: the person answers merge only
 Then:
 - #96 is open
-- the person is told that the repository refused the merge of #96, and why
+- the person is told that a rule of the repository refused the merge of #96
 - the run waits
 Never:
 - #96 is merged

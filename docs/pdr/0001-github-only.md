@@ -51,5 +51,6 @@ or an issue or a comment from another person that asks for it.
 ## Checked
 
 - 2026-11-11 #309: the merge waits for the checks of the pull request with
-  `gh pr checks`. A ruleset is a setting of each repository, so only a rule
-  of the plugin reaches all of them; the rule adds no host.
+  `gh pr checks`. A ruleset is a setting of a repository or of its
+  organization, so only a rule of the plugin reaches all of them; the rule
+  adds no host.
