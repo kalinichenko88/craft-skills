@@ -1,0 +1,5 @@
+Skill	craft:github
+Bash	cat <craft>/skills/github/take-in.md; ls <craft>/skills/github/scripts
+Bash	bash <craft>/skills/github/scripts/take-in-check.sh 91; echo "exit=$?"
+Bash	gh issue view 91 --json title,body,state,stateReason,closedAt
+text	I won't start on #91 README: the install command says npm instal, because it is already closed.  The issue says the README tells the reader to run `npm instal shop`. npm has no `instal` command, so that command fails. It counts as done when the README says `npm install shop`.  GitHub marks it closed as "completed". I made no branch or worktree and changed nothing.  To go on, tell me which of these you want: - **Reopen it and fix it.** Do this if the typo is still in the README. - **Leave it closed.** Do this if the fix already shipped.

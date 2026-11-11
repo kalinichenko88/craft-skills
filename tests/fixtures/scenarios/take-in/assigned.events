@@ -1,0 +1,5 @@
+Skill	craft:github
+Bash	D=<craft>/skills/github; cat $D/take-in.md; ls $D/scripts
+Bash	D=<craft>/skills/github; cd <work>; git remote -v; bash $D/scripts/take-in-check.sh 91; echo "exit=$?"
+Bash	cd <work>; gh issue view 91 --json title,body,assignees 2>&1
+text	**#91 README: the install command says npm instal**  The README tells the reader to run `npm instal shop`. npm has no `instal` command, so that command fails. The work is done when the README says `npm install shop`.  The take-in check printed this:  ``` #91: assigned to you ```  The issue is already assigned to you, but no branch or pull request for it exists here. Another session of yours, on this computer or on another one, could be working on it.  **Is the work on #91 running somewhere else, or should it continue here?** If it continues here, I'll make the worktree `fix/91-readme-install-command`, fix the README, run the check and the review, and then open the pull request.

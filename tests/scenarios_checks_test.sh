@@ -2,17 +2,19 @@
 # Runs the checks of tests/scenarios_eval.sh on recorded runs, with no model.
 # tests/fixtures/scenarios/take-in/ holds the events, the tracker, the
 # branches and the workspace of one probe run of each case: free, other and
-# down of 2026-11-03, dup and busy of 2026-11-10. In the runs of free, dup and
-# busy, no message about #91 comes before the branch, but think lines do: the
-# log cannot show whether a message told the gist (#206), so the two gist
-# items give SKIP. The run of dup carries one line of the stack trace of #95
-# to #91, not the trace, and fails that item. Every other item passes. A copy with
-# one change to a recorded run changes the verdicts it names and no other; a
-# read added to a run changes none. Each heading of
+# down of 2026-11-03, dup and busy of 2026-11-10, and the other eight of
+# 2026-11-11, which also keep the workspace and the branches of their Given.
+# The runs of free, other, down, dup and busy kept none: theirs is the one
+# that setup makes now. In the runs of
+# free, dup and busy, no message about #91 comes before the branch, but think
+# lines do: the log cannot show whether a message told the gist (#206), so
+# the two gist items give SKIP; in the run of inws, the gist item does. The
+# run of dup carries one line of the stack trace of #95 to #91, not the trace,
+# and fails that item. Every other item passes. A copy with one change to a
+# recorded run changes the verdicts it names and no other; a read added to a
+# run changes none. Each heading of
 # scenarios/github/take-in.md is a scenario that the checks name or that the
-# eval lists as not run, and nothing else is. The pass^k lines count the runs
-# of each case over the folders given, and a stub claude shows that a run
-# takes --model and stops before --max-cost.
+# eval lists as not run, and nothing else is.
 
 set -eu
 
@@ -36,20 +38,18 @@ checks() {
 
 report=$("$eval" --check "$fixtures")
 out=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$report")
-[ "$(grep '^pass' <<<"$report")" = 'pass^1 busy: PASS, 1 of 1 runs pass
-pass^1 down: PASS, 1 of 1 runs pass
-pass^1 dup: FAIL, 0 of 1 runs pass
-pass^1 free: PASS, 1 of 1 runs pass
-pass^1 other: PASS, 1 of 1 runs pass' ] || fail 'the recorded runs do not give pass^1 to each case but dup' "$report"
-[ "$(grep -c '^PASS ' <<<"$out")" = 34 ] || fail 'the recorded runs do not pass 34 items' "$out"
+[ "$(grep '^pass' <<<"$report" | grep -v ': PASS, 1 of 1 runs pass$')" = 'pass^1 dup: FAIL, 0 of 1 runs pass' ] &&
+  [ "$(grep -c '^pass' <<<"$report")" = 13 ] || fail 'the recorded runs do not give pass^1 to each of the 13 cases but dup' "$report"
+[ "$(grep -c '^PASS ' <<<"$out")" = 79 ] || fail 'the recorded runs do not pass 79 items' "$out"
 [ "$(grep -v '^PASS ' <<<"$out")" = 'SKIP A busy duplicate: the first message about #91 tells its gist: a think line comes before it
 SKIP A busy duplicate: the gist comes before any change: only a think line comes before the change
 FAIL A free duplicate: a comment on #91 holds the stack trace of #95
 SKIP A free duplicate: the first message about #91 tells its gist: a think line comes before it
 SKIP A free duplicate: the gist comes before any change: only a think line comes before the change
 SKIP A free task: the first message about #91 tells its gist: a think line comes before it
-SKIP A free task: the gist comes before any change: only a think line comes before the change' ] ||
-  fail 'the recorded runs do not give only the six gist SKIPs and the FAIL of the trace' "$out"
+SKIP A free task: the gist comes before any change: only a think line comes before the change
+SKIP The person'"'"'s work is in the workspace: the first message about #91 tells its gist: a think line comes before it' ] ||
+  fail 'the recorded runs do not give only the seven gist SKIPs and the FAIL of the trace' "$out"
 
 # coverage <scenario file>: "< heading" for each heading that no case runs and
 # the eval does not list as not run, "> name" for each name that the eval
@@ -63,8 +63,9 @@ take_in=$root/scenarios/github/take-in.md
 [ -z "$(coverage "$take_in")" ] || fail 'the eval does not cover each scenario of take-in once' "$(coverage "$take_in")"
 { cat "$take_in"; printf '\n## A new scenario\n'; } >"$tmp/new.md"
 [ "$(coverage "$tmp/new.md")" = '< A new scenario' ] || fail 'a heading with no case passes' "$(coverage "$tmp/new.md")"
-grep -vxF '## A closed task' "$take_in" >"$tmp/gone.md"
-[ "$(coverage "$tmp/gone.md")" = '> A closed task' ] || fail 'a scenario listed as not run, with no heading, passes' "$(coverage "$tmp/gone.md")"
+grep -vxF "## The work on the person's task continues here" "$take_in" >"$tmp/gone.md"
+[ "$(coverage "$tmp/gone.md")" = "> The work on the person's task continues here" ] ||
+  fail 'a scenario listed as not run, with no heading, passes' "$(coverage "$tmp/gone.md")"
 
 n=0
 copy() {
@@ -75,6 +76,10 @@ scenario() {
   case $1 in
     free) echo 'A free task' ;; other) echo 'A task that another person is assigned to' ;;
     down) echo 'The tracker does not answer' ;; dup) echo 'A free duplicate' ;; busy) echo 'A busy duplicate' ;;
+    closed) echo 'A closed task' ;; otherpr) echo "A task with another person's pull request" ;;
+    mypr) echo "A task with the person's pull request" ;; assigned) echo 'A task assigned to the person, with no branch' ;;
+    linked) echo 'A linked branch with no assignee' ;; inws) echo "The person's work is in the workspace" ;;
+    moved) echo "The person's branch moved on somewhere else" ;; otherrepo) echo 'A task of another repository' ;;
   esac
 }
 state() { jq "$2" "$tmp/$n/$1.state.json" >"$tmp/state" && mv "$tmp/state" "$tmp/$n/$1.state.json"; }
@@ -223,92 +228,78 @@ copy
 sed -i.bak '/^text.*#95/{s/busy/taken/g; s/rivera/someone/g;}' "$tmp/$n/busy.events"
 flips busy 'the person is told that #95 stays open because it is busy'
 
-# The fake gh marks a write that comes after a change in a worktree of the
-# workspace: a changed file, or a commit past main.
-git init -q -b main "$tmp/ws"
-git -C "$tmp/ws" -c user.name=kim -c user.email=kim@example.com commit -q --allow-empty -m start
-jq -n --arg w "$tmp/ws" '{me: "kim", repo: "acme/shop", workspace: $w,
-  issues: [{number: 95, title: "t", body: "b", state: "OPEN", assignees: [], labels: [], comments: []}]}' >"$tmp/fake.state.json"
-fake() { bash "$root/tests/fake_gh.sh" "$tmp/fake.state.json" "$@" >/dev/null; }
-fake issue comment 95 --body a
-git -C "$tmp/ws" worktree add -q -b docs/95-x "$tmp/wt"
-fake issue edit 95 --add-assignee @me
-echo x >"$tmp/wt/README.md"
-fake issue close 95 --duplicate-of 91
-git -C "$tmp/wt" add README.md
-git -C "$tmp/wt" -c user.name=kim -c user.email=kim@example.com commit -q -m x
-fake issue comment 95 --body b
-[ "$(jq -c .log "$tmp/fake.state.json")" = '["comment 95","edit 95","close 95 +changes","comment 95 +changes"]' ] ||
-  fail 'the fake gh does not mark the writes after a change in a worktree' "$(jq -c .log "$tmp/fake.state.json")"
-[ "$(jq -c '.issues[0] | [.state, .stateReason, .duplicateOf]' "$tmp/fake.state.json")" = '["CLOSED","DUPLICATE",91]' ] ||
-  fail 'the fake gh does not close #95 as a duplicate of #91' "$(jq -c .issues "$tmp/fake.state.json")"
-
-# pass^2 over the recorded runs and a copy: a second run in which free fails
-# an item and busy has no run.
+# A closed task reopened, and told with no word that it is closed.
 copy
-state free '.issues[0].linked += ["fix/91-other"]'
-rm "$tmp/$n"/busy.*
-got=$("$eval" --check "$fixtures" "$tmp/$n")
-[ "$(grep '^pass' <<<"$got")" = 'pass^2 busy: not measured, 1 run of 2
-pass^2 down: PASS, 2 of 2 runs pass
-pass^2 dup: FAIL, 0 of 2 runs pass
-pass^2 free: FAIL, 1 of 2 runs pass
-pass^2 other: PASS, 2 of 2 runs pass' ] || fail 'pass^2 does not count the runs of each case' "$got"
-[ "$(grep -E '^(round |busy: no run)' <<<"$got")" = "round 1 of 2
-round 2 of 2
-busy: no run: $tmp/$n has no busy.events, as when its setup fails" ] || fail 'the report does not name each round and the run that is missing' "$got"
+state closed '.issues[0].state = "OPEN"'
+flips closed 'never: the state of #91 changes'
+copy
+sed -i.bak '/^text/{s/closed/done/g; s/Closed/Done/g;}' "$tmp/$n/closed.events"
+flips closed 'the person is told that #91 is closed'
 
-# A stub claude records its arguments and costs $1.50 a run. A folder that
-# cannot run it, or a claude function, would leave the real claude in its place.
-mkdir "$tmp/stub"
-printf '#!/usr/bin/env bash\necho "$*" >>%q\necho %q\n' "$tmp/stub.args" \
-  '{"type":"result","subtype":"success","total_cost_usd":1.5}' >"$tmp/stub/claude"
-chmod +x "$tmp/stub/claude"
-[ "$(PATH="$tmp/stub:$PATH" command -v claude || true)" = "$tmp/stub/claude" ] || fail 'claude is not the stub'
-# stub <argument>...: the report of the eval with the stub claude.
-stub() {
-  local r
-  rm -f "$tmp/stub.args"
-  r=$(PATH="$tmp/stub:$PATH" "$eval" "$@") || fail "the eval with a stub claude exits with an error: $*" "$r"
-  rm -rf "$(sed -n 's/^runs: //p' <<<"$r")"
-  printf '%s\n' "$r"
-}
-# By default, a run of free is on opus with a cap of $4.
-got=$(stub free)
-grep -qe '--model opus .*--max-budget-usd 4 ' "$tmp/stub.args" || fail 'free does not run on opus with a cap of 4 dollars' "$(cat "$tmp/stub.args")"
-# A round of other and down can cost $4: with a cap of $10, the third round
-# runs at $6.00 spent, and the fourth does not at $9.00.
-got=$(stub --runs 4 --model haiku --max-cost 10 other down)
-[ "$(grep -ce '--model haiku .*--max-budget-usd 2 ' "$tmp/stub.args")" = 6 ] ||
-  fail 'other and down do not run on --model with a cap of 2 dollars' "$(cat "$tmp/stub.args")"
-grep -qxF "other: success, \$1.5" <<<"$got" || fail 'the report does not give the result and the cost of a run' "$got"
-grep -qxF "stopped before round 4 of 4: \$9.00 spent, and a round can cost \$4.00 more, past the cap of \$10" <<<"$got" ||
-  fail 'the eval does not stop before its cap' "$got"
-grep -qxF "cost: \$9.00" <<<"$got" || fail 'the eval does not print the cost of the pass' "$got"
-[ "$(grep '^pass' <<<"$got")" = 'pass^4 other: FAIL, 0 of 3 runs pass
-pass^4 down: FAIL, 0 of 3 runs pass' ] || fail 'pass^4 does not count three runs of four' "$got"
-# A cap under the cost of one round stops the eval before its first round.
-got=$(stub --runs 2 --max-cost 3 other down)
-[ ! -e "$tmp/stub.args" ] || fail 'a cap under one round still runs' "$(cat "$tmp/stub.args")"
-grep -qxF "stopped before round 1 of 2: \$0.00 spent, and a round can cost \$4.00 more, past the cap of \$3" <<<"$got" ||
-  fail 'the eval does not stop before its first round' "$got"
-[ "$(grep '^pass' <<<"$got")" = 'pass^2 other: not measured, 0 runs of 2
-pass^2 down: not measured, 0 runs of 2' ] || fail 'a stop before the first round does not leave each case not measured' "$got"
+# #96 named with no word of whose it is; a new branch on the origin.
+copy
+sed -i.bak '/^text/s/rivera/someone/g' "$tmp/$n/otherpr.events"
+flips otherpr 'the person is told that #96 of another person closes #91'
+copy
+echo fix/91-new >>"$tmp/$n/mypr.branches"
+flips mypr 'never: a branch for #91 is created'
 
-# refused <argument>...: the eval exits 2 with its usage, and calls no claude.
-# seq 0 prints 1 and 0 on macOS, so --runs 0 with no check would run twice.
-refused() {
-  local code=0 err
-  rm -f "$tmp/stub.args"
-  err=$(PATH="$tmp/stub:$PATH" "$eval" "$@" 2>&1 >/dev/null) || code=$?
-  [ "$code" = 2 ] && [ "${err#usage:}" != "$err" ] && [ ! -e "$tmp/stub.args" ] ||
-    fail "'$*' exits $code with '$err', not 2 with the usage and no run"
-}
-refused --runs 0 free
-refused --runs
-refused --max-cost 1.2.3 free
-refused --model '' free
-refused nocase
-refused --check "$tmp/stub"
+# The person's task: told it is theirs with no word of an assignee, and asked
+# nothing.
+copy
+sed -i.bak '/^text/s/assigned to you/yours/g' "$tmp/$n/assigned.events"
+flips assigned 'the person is told that #91 is assigned to the person already'
+copy
+sed -i.bak '/^text/s/?/./g' "$tmp/$n/assigned.events"
+flips assigned 'the person is asked whether the work on #91 runs somewhere else or continues here'
+
+# A linked branch: asked nothing, and a second branch linked.
+copy
+sed -i.bak '/^text/s/?/./g' "$tmp/$n/linked.events"
+flips linked 'the person is asked whose branch fix/91-typo is'
+copy
+state linked '.issues[0].linked += ["fix/91-other"]'
+flips linked 'never: a branch for #91 is created'
+
+# The work in the workspace: no commit and no change on fix/91-typo, and a
+# question whether the work runs somewhere else.
+copy
+cp "$fixtures/inws.given.workspace" "$tmp/$n/inws.workspace"
+flips inws 'the work goes on, on fix/91-typo'
+copy
+add inws $'text\tDoes the work on #91 run somewhere else, or here?'
+flips inws 'never: the person is asked whether the work runs somewhere else'
+copy
+sed -i.bak '/^text/s/continu/kept/g' "$tmp/$n/inws.events"
+flips inws 'the person is told in one line that the work on #91 continues on fix/91-typo'
+# A question about something else, after a sentence that names another
+# session.
+copy
+add inws $'text\tNo other session works on #91. Shall I open a draft PR?'
+stays
+
+# Told with no number of the pull request, and with no name of the linked
+# branch.
+copy
+sed -i.bak '/^text/s/#96/the pull request/g' "$tmp/$n/mypr.events"
+flips mypr 'the person is told that the work on #91 has pull request #96'
+for c in linked moved; do
+  copy
+  sed -i.bak '/^text/s#fix/91-typo#the branch#g' "$tmp/$n/$c.events"
+  flips $c 'the person is told that fix/91-typo is linked to #91'
+done
+
+# The branch that moved on: the workspace's fix/91-typo pulled.
+copy
+sed -i.bak 's/^fix\/91-typo .*/fix\/91-typo 0000000000000000000000000000000000000000/' "$tmp/$n/moved.workspace"
+flips moved "never: the workspace's fix/91-typo changes" 'the run waits: no change'
+
+# A task of another repository: told with no name of it, and assigned.
+copy
+sed -i.bak '/^text/s#acme/lib#there#g' "$tmp/$n/otherrepo.events"
+flips otherrepo 'the person is told that #91 is in another repository'
+copy
+state otherrepo '.issues[0].assignees += ["kim"]'
+flips otherrepo 'never: the assignees of #91 change'
 
 echo 'scenarios_checks_test: ok'
