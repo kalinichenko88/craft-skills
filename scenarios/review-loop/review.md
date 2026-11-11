@@ -27,7 +27,6 @@ Not covered yet:
 - a defect in round 1 and in round 2, and none in round 3;
 - the answers merge and remove the workspace, and do not merge, after a
   defect in round 3;
-- a push that fails;
 - the answer to an open question on business logic;
 - the person's request for a pull request with no task;
 - the review of a spec and of a plan.
