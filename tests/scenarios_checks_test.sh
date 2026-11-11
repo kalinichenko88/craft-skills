@@ -143,7 +143,8 @@ flips other 'never: the assignees of #91 change'
 # Writes on another person's task: to the tracker, in the shell, with git -C,
 # and on the second line of a command.
 for write in 'gh issue edit 91 --add-assignee @me' "sed -i '' s/instal/install/ README.md" \
-  'git -C <work> commit -qam fix' 'cd <work>; bash <craft>/skills/github/scripts/worktree.sh 91 docs/91-x'; do
+  'git -C <work> commit -qam fix' 'cd <work>; bash <craft>/skills/github/scripts/worktree.sh 91 docs/91-x' \
+  'gh label create "in progress" --color fbca04'; do
   copy
   add other "$(printf 'Bash\t%s' "$write")"
   flips other 'the run waits: no change'

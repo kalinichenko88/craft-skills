@@ -82,7 +82,7 @@ reasons=$(gh api graphql -f owner="${repo%/*}" -f name="${repo#*/}" -F n="$n" -f
     | (if any(.assignees.nodes[]; .login == $me) then "you" else "other" end) as $mine
     | [ (select(.state != "OPEN") | "closed\tother"),
       (.assignees.nodes[] | "assigned to \(.login | who)\t\(if .login == $me then "you" else "other" end)"),
-      (select(any(.labels.nodes[]?; .name | ascii_downcase == "in progress")) | "label in progress\t\($mine)"),
+      (select(any(.labels.nodes[]; .name | ascii_downcase == "in progress")) | "label in progress\t\($mine)"),
       (.linkedBranches.nodes[].ref
         | "branch \(.name), \(.compare.behindBy) commits ahead of \($main), last commit \(.target.committedDate)\t"
           + (if .repository.nameWithOwner == $repo then "branch\t\(.name)\t\(.target.oid)" else "other" end)),

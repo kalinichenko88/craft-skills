@@ -162,16 +162,17 @@ will do.
 
 **Finishing.** An issue goes stale the moment the code moves under it, and
 GitHub does not notice: nothing corrects its text. So the PR closes the task,
-every ride-along and every issue the change removes; the label `in progress`
-comes off each issue that this task labelled and that has it still, closed or
-open, with `gh issue edit <n> --remove-label "in progress"`; under each
-problem it fixed
-in an issue that stays open, it adds the line `Done in #<PR>.`; an issue
-the description says `Part of` and the merge closed anyway — `gh issue view 15
---json state` shows it — is reopened, with a comment that names the PR; a
-duplicate still held for the reproduction is closed or commented on, by *Its
-duplicates close first* in `take-in.md`; and the same pass updates every
-open issue on the changed code whose text the change just falsified.
+every ride-along and every issue the change removes; first, before the pass
+below reads the tracker, the label `in progress` comes off each issue that this
+task labelled, in this session or an earlier one, and that has it still, closed
+or open, with `gh issue edit <n> --remove-label "in progress"`; under each
+problem it fixed in an issue that stays open, it adds the line
+`Done in #<PR>.`; an issue the description says `Part of` and the merge closed
+anyway — `gh issue view 15 --json state` shows it — is reopened, with a
+comment that names the PR; a duplicate still held for the reproduction is
+closed or commented on, by *Its duplicates close first* in `take-in.md`; and
+the same pass updates every open issue on the changed code whose text the
+change just falsified.
 
 *Finishing* reads the merged code in a new checkout, outside every checkout.
 The branch's worktree is not the merged code when the default branch moved

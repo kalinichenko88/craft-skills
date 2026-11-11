@@ -18,8 +18,8 @@ run in parallel, and what is left to close a milestone.
 
 ## What you get
 
-- **One task, and why.** Only free tasks: open, with nobody on them and no
-  open blocker. The main path comes first, then bugs, then the rest. The
+- **One task, and why.** Only free tasks: open, not in progress, not someone
+  else's, and with no open blocker. The main path comes first, then bugs, then the rest. The
   answer gives the task with its title, its milestone, and why it is first:
   "it is in M1 · First demo and 2 issues wait on it".
 - **Parallel work that does not collide.** No task in the set changes the same

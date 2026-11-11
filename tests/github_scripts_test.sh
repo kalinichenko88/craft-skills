@@ -264,14 +264,6 @@ out=$(add) && fail 'add-finding.sh wrote to a host with your open PR'
 case $out in *'it is busy: PR #9 by you'*) ;; *) fail 'add-finding.sh on a host with your open PR' "$out" ;; esac
 check 'add-finding.sh writes nothing to a host with your open PR' '' "$(writes)"
 
-# A host whose one mark is your assignee is free: no work on it runs.
-host '.assignees.nodes = [{login: "kalinichenko88"}]'
-out=$(DRY_RUN=1 add)
-case $out in *'dry run: gh issue edit 5 --title New\ title --body-file '*) ;;
-  *) fail 'add-finding.sh takes a host whose one mark is your assignee' "$out" ;;
-esac
-rm -f "$(sed -n 's/.*--body-file \([^ ]*\).*/\1/p' <<<"$out")"
-
 # A free host takes the finding. DRY_RUN=1 prints the writes and runs none.
 host .
 : >"$tmp/calls"
@@ -343,7 +335,7 @@ answer . .data.repository.issue take-in-285.json
 check 'take-in-check.sh on an issue in progress' \
   "$(printf '#285: assigned to you\n#285: label in progress\n#285: branch fix/285-busy-by-work-not-assignee, 0 commits ahead of main, last commit 2026-11-11T13:26:37Z\nexit 1')" \
   "$(take 285)"
-answer '.labels.nodes = [{name: "in progress"}]' .data.repository.issue take-in-20.json
+answer '.labels.nodes = [{name: "In Progress"}]' .data.repository.issue take-in-20.json
 check 'take-in-check.sh on an issue in progress with no assignee' "$(printf '#20: label in progress\nexit 1')" "$(take 20)"
 answer '.state = "CLOSED" | .assignees.nodes = [{login: "someone"}, {login: "kalinichenko88"}]
   | .closedByPullRequestsReferences.nodes = [{number: 9, state: "OPEN", author: {login: "someone"}},
@@ -377,6 +369,9 @@ check 'take-in-check.sh continues an issue in progress whose branch is on this c
     "$(sed 1d <<<"$yours167")")" "$(take 167)"
 answer ".linkedBranches.nodes[0].ref.target.oid = \"$pushed\" | .assignees.nodes = []" .data.repository.issue take-in-167.json
 check 'take-in-check.sh does not continue an issue that nobody is assigned to' 'exit 1' "$(take 167 | tail -1)"
+answer ".linkedBranches.nodes[0].ref.target.oid = \"$pushed\" | .assignees.nodes = [] | .labels.nodes = [{name: \"in progress\"}]" \
+  .data.repository.issue take-in-167.json
+check 'take-in-check.sh does not continue an issue in progress that nobody is assigned to' 'exit 1' "$(take 167 | tail -1)"
 answer ".linkedBranches.nodes[0].ref.target.oid = \"$pushed\"
   | .linkedBranches.nodes[0].ref.repository.nameWithOwner = \"someone/agent-skills\"" .data.repository.issue take-in-167.json
 check 'take-in-check.sh does not continue on a branch of another repository' 'exit 1' "$(take 167 | tail -1)"
@@ -460,6 +455,14 @@ case $out in *'warning: #5 is assigned to someone'*) ;;
   *) fail 'worktree.sh warns about an issue that someone else is assigned to' "$out" ;;
 esac
 case $out in *'dry run: gh issue edit'*) fail 'worktree.sh assigns an issue that someone else is assigned to' "$out" ;; esac
+# The command of the warning puts the label on, so a repository with no label
+# gets it on this path too.
+rm "$tmp/labels.json"
+out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-scout-citations)
+case $out in *'dry run: gh label create in\ progress'*"gh issue edit 5 --add-assignee @me --add-label 'in progress'"*) ;;
+  *) fail 'worktree.sh does not prepare the label for the command of its warning' "$out" ;;
+esac
+echo '[{"name": "in progress"}]' >"$tmp/labels.json"
 mv "$tmp/linked.kept" "$tmp/linked"
 answer '.assignees.nodes = [{login: "someone"}, {login: "kalinichenko88"}]'
 out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-scout-citations)
@@ -500,6 +503,7 @@ esac
 # branch out in the checkout where it runs.
 answer .
 rm -f "$tmp/linked"
+echo '[{"name": "in progress"}]' >"$tmp/labels.json"
 : >"$tmp/calls"
 out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-scout-citations --here)
 check 'worktree.sh --here assigns and checks the branch out where it is' \

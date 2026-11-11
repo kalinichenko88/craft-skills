@@ -152,7 +152,7 @@ put '19 20 21'
 # take an issue, not that its work runs (#285).
 edit 19 '.blockedBy.nodes = [{number: 116, state: "CLOSED", repository: {nameWithOwner: "kalinichenko88/agent-skills"}}]
   | .assignees.nodes = [{login: "kalinichenko88"}]'
-edit 20 '.assignees.nodes = [{login: "kalinichenko88"}] | .labels.nodes = [{name: "in progress"}] | .linkedBranches.nodes = [{ref: {name: "fix/20-x"}}]
+edit 20 '.assignees.nodes = [{login: "kalinichenko88"}] | .labels.nodes = [{name: "In Progress"}] | .linkedBranches.nodes = [{ref: {name: "fix/20-x"}}]
   | .closedByPullRequestsReferences.nodes = [{number: 9, state: "OPEN", author: {login: "someone"}}, {number: 8, state: "MERGED", author: {login: "someone"}}]'
 blocks 21 19
 edit 21 '.blockedBy.nodes += [{number: 3, state: "OPEN", repository: {nameWithOwner: "other/repo"}}] | .labels.nodes = [{name: "bug"}]

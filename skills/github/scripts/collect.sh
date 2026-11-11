@@ -84,7 +84,7 @@ def who($me): if . == $me then "you" else . end;
 # assignee alone leaves it free. The label in progress says that it runs.
 def status($me):
   [ (.assignees.nodes[] | "assigned to \(.login | who($me))"),
-    (select(any(.labels.nodes[]?; .name | ascii_downcase == "in progress")) | "label in progress"),
+    (select(any(.labels.nodes[]; .name | ascii_downcase == "in progress")) | "label in progress"),
     (.linkedBranches.nodes[] | select(.ref) | "branch \(.ref.name)"),
     (prs | "PR #\(.number) by \(.author | who($me))") ]
   | if . == [] or . == ["assigned to you"] then "free" else join(", ") end;

@@ -126,7 +126,7 @@ Never:
 ## The answer merge only
 
 Given:
-- task #91 is open, assigned to the person
+- task #91 is open, assigned to the person, with the label `in progress`
 - the workspace of #91 is on branch `fix/91-parse-rows`
 - `fix/91-parse-rows` has two commits that the default branch does not
   have, and the same last commit in the repository and in the workspace
@@ -141,6 +141,7 @@ Then:
 - that commit holds every change of #96
 - the subject of that commit starts with the title of #96
 - #91 is closed
+- #91 does not have the label `in progress`
 - the repository has no branch `fix/91-parse-rows`
 Never:
 - the workspace of #91 is removed

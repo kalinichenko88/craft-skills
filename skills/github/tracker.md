@@ -71,8 +71,8 @@ each one that is wrong, and read in full each issue before you act on it. Its
 report replaces your own search of the tracker: for a name it did not get, run
 `collect.sh filing <name>` yourself.
 
-An open issue's `status:` is `free`, or it names who has it: `assigned to
-<login>`, `label in progress`, `branch <name>`, `PR #<n> by <login>`, with
+An open issue's `status:` is `free`, or it lists what makes it busy: `assigned
+to <login>`, `label in progress`, `branch <name>`, `PR #<n> by <login>`, with
 `you` for your own account. Any entry makes the issue **busy**, and an entry
 with `you` counts too: another session of yours, on this computer or on
 another one, can work on the issue. `take-in-check.sh` stops on your own

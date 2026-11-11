@@ -40,6 +40,16 @@ fake issue comment 95 --body b
   fail 'the fake gh does not mark the writes after a change in a worktree' "$(jq -c .log "$tmp/fake.state.json")"
 [ "$(jq -c '.issues[0] | [.state, .stateReason, .duplicateOf]' "$tmp/fake.state.json")" = '["CLOSED","DUPLICATE",91]' ] ||
   fail 'the fake gh does not close #95 as a duplicate of #91' "$(jq -c .issues "$tmp/fake.state.json")"
+# As gh: a label that the repository lacks stops an edit before any write, a
+# label that it has stops a create, and a label of another case is the same.
+fake issue edit 95 --add-assignee rivera --add-label 'in progress' 2>/dev/null && fail 'the fake gh adds a label that the repository lacks'
+[ "$(jq -c '.issues[0].assignees' "$tmp/fake.state.json")" = '["kim"]' ] || fail 'a failed edit of the fake gh writes'
+fake label create 'in progress'
+fake label create 'In Progress' 2>/dev/null && fail 'the fake gh creates a label that the repository has'
+fake issue edit 95 --add-label 'In Progress'
+fake issue edit 95 --remove-label 'in progress'
+[ "$(jq -c '[.labels, .issues[0].labels]' "$tmp/fake.state.json")" = '[["in progress"],[]]' ] ||
+  fail 'the fake gh does not add and remove a label' "$(jq -c '[.labels, .issues[0].labels]' "$tmp/fake.state.json")"
 
 # The Given of each case, as take-in-check.sh reads it through the fake gh on
 # the message of the case.
