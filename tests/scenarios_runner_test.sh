@@ -63,6 +63,17 @@ given linked "$(ahead 0)"
 given inws "$(printf '#91: assigned to you\n%s\ncontinue #91 on fix/91-typo' "$(ahead 0)")"
 given moved "$(printf '#91: assigned to you\n%s' "$(ahead 1)")"
 given otherrepo '#91 is in acme/lib, and this checkout is acme/shop: stop'
+# A git step of a Given that fails stops setup: a clone that has no place, and
+# a branch with a lock file, on the origin or in the workspace.
+for c in otherpr linked inws; do
+  w=$tmp/broken/$c
+  case $c in
+    otherpr) mkdir -p "$w.elsewhere/x" ;;
+    linked) mkdir -p "$w.origin/refs/heads/fix" && : >"$w.origin/refs/heads/fix/91-typo.lock" ;;
+    inws) mkdir -p "$w/.git/refs/heads/fix" && : >"$w/.git/refs/heads/fix/91-typo.lock" ;;
+  esac
+  ! bash "$take_in" setup "$w" "$c" >/dev/null 2>&1 || fail "the setup of $c goes on after a git step fails"
+done
 # The task of another repository reads by its link, and is no task of this one.
 w=$tmp/given/otherrepo
 [ "$(cd "$w" && PATH="$w.bin:$PATH" gh issue view https://github.com/acme/lib/issues/91 --json title --jq .title)" = \

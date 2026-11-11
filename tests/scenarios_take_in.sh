@@ -71,6 +71,7 @@ setup() {
   git -C "$w" remote add origin "$w.origin"
   git -C "$w" push -q -u origin main
   # The Given: the branches of the case, and its change of a free task's tracker.
+  # No step is on the left of && or ||, where set -e does not stop a failure.
   local given=.
   case $2 in
     free) ;;
@@ -79,11 +80,11 @@ setup() {
     dup) given='.issues += [task(95; $title95; $body95 + "\n\nThen my app failed:\n\n```\n" + $trace + "\n```"; [])]' ;;
     busy) given='.issues += [task(95; $title95; $body95; [$other])]' ;;
     closed) given='.issues[0] |= (.state = "CLOSED" | .stateReason = "COMPLETED")' ;;
-    otherpr) elsewhere fix/91-install "$other" && given='.prs = [pr($other)]' ;;
-    mypr) elsewhere fix/91-install "$me" && given='.prs = [pr($me)]' ;;
+    otherpr) elsewhere fix/91-install "$other"; given='.prs = [pr($other)]' ;;
+    mypr) elsewhere fix/91-install "$me"; given='.prs = [pr($me)]' ;;
     assigned) given='.issues[0].assignees = [$me]' ;;
-    linked) git -C "$w.origin" branch fix/91-typo main && given='.issues[0].linked = ["fix/91-typo"]' ;;
-    inws | moved) git -C "$w" branch fix/91-typo && git -C "$w" push -q -u origin fix/91-typo
+    linked) git -C "$w.origin" branch fix/91-typo main; given='.issues[0].linked = ["fix/91-typo"]' ;;
+    inws | moved) git -C "$w" branch fix/91-typo; git -C "$w" push -q -u origin fix/91-typo
       [ "$2" = inws ] || elsewhere fix/91-typo "$me"
       given='.issues[0] |= (.assignees = [$me] | .linked = ["fix/91-typo"])' ;;
     otherrepo) given='.issues[0].repo = "acme/lib"' ;;

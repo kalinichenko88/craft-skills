@@ -213,6 +213,7 @@ case "$1 $2" in
   'pr view') # with --json only, by number or by branch
     pr=$(jq -c --arg n "$num" --arg b "${args[2]:-}" '(.prs // [])[]
       | select(if $n == "" then .headRefName == $b else .number == ($n | tonumber) end)' "$state")
+    [ -n "$pr" ] || [ -n "$num" ] || { echo "no pull requests found for branch \"${args[2]:-}\"" >&2; exit 1; }
     [ -n "$pr" ] || { echo "GraphQL: Could not resolve to a PullRequest with the number of $num. (repository.pullRequest)" >&2; exit 1; }
     out "$(pick . <<<"$pr")"
     ;;
