@@ -53,13 +53,13 @@ given() { # given <case> <what take-in-check.sh prints>
   [ "$got" = "$2" ] || fail "take-in-check.sh does not read the Given of $1" "$got"
 }
 ahead() { printf '#91: branch fix/91-typo, %s commits ahead of main, last commit 2026-11-03T00:00:00Z' "$1"; }
-for c in free dup busy; do given $c 'take #91'; done
+for c in free dup busy assigned; do given $c 'take #91'; done
 given other '#91: assigned to rivera'
 given down 'HTTP 502: Bad Gateway (https://api.github.com/graphql)'
 given closed '#91: closed'
 given otherpr '#91: PR #96 by rivera is open and closes it'
 given mypr '#91: PR #96 by you is open and closes it'
-for c in assigned here there; do given $c '#91: assigned to you'; done
+for c in inprogress here there; do given $c "$(printf '#91: assigned to you\n#91: label in progress')"; done
 given linked "$(ahead 0)"
 given inws "$(printf '#91: assigned to you\n%s\ncontinue #91 on fix/91-typo' "$(ahead 0)")"
 given moved "$(printf '#91: assigned to you\n%s' "$(ahead 1)")"
@@ -122,7 +122,7 @@ rm "$tmp/2"/closed.*
 got=$("$eval" --check "$fixtures" "$tmp/2")
 [ "$(grep -E '^pass\^2 (closed|dup|other):' <<<"$got")" = 'pass^2 closed: not measured, 1 run of 2
 pass^2 dup: FAIL, 0 of 2 runs pass
-pass^2 other: FAIL, 1 of 2 runs pass' ] && [ "$(grep -c '^pass' <<<"$got")" = 15 ] ||
+pass^2 other: FAIL, 1 of 2 runs pass' ] && [ "$(grep -c '^pass' <<<"$got")" = 16 ] ||
   fail 'pass^2 does not count the runs of each case' "$got"
 [ "$(grep -E '^(round |closed: no run)' <<<"$got")" = "round 1 of 2
 round 2 of 2

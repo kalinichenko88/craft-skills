@@ -162,8 +162,10 @@ will do.
 
 **Finishing.** An issue goes stale the moment the code moves under it, and
 GitHub does not notice: nothing corrects its text. So the PR closes the task,
-every ride-along and every issue the change removes; under each problem it
-fixed in an issue that stays open, it adds the line `Done in #<PR>.`; an issue
+every ride-along and every issue the change removes; the label `in progress`
+comes off each of them and off each `Part of` issue, with
+`gh issue edit <n> --remove-label "in progress"`; under each problem it fixed
+in an issue that stays open, it adds the line `Done in #<PR>.`; an issue
 the description says `Part of` and the merge closed anyway — `gh issue view 15
 --json state` shows it — is reopened, with a comment that names the PR; a
 duplicate still held for the reproduction is closed or commented on, by *Its
@@ -209,10 +211,8 @@ marked `Done in #<PR>.` needs no other correction, and an issue with a problem
 left in it stays open. A question that the PR answered is marked answered. A
 proposal that it ruled out is rewritten. An issue whose premise is gone closes
 with a comment that names the PR. A busy issue gets only the one-line comment
-and stays open, as *Filing one next to an existing issue* says. An issue that
-this task took in, took along or removes (`take-in.md`), and whose `status:`
-has no entry but `assigned to you`, is not busy here. The limit of two added
-findings does not stop a correction: it is for added findings.
+and stays open, as *Filing one next to an existing issue* says. The limit of
+two added findings does not stop a correction: it is for added findings.
 
 The last step reads the session for defects in this plugin: *The session at
 the end* in `filing.md`.

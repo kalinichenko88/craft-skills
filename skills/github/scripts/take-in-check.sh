@@ -6,9 +6,11 @@
 #   take-in-check.sh <n or URL>
 #
 # The reasons: an issue in another repository than this checkout's, a closed
-# issue, an assignee, a linked branch, and an open pull request that closes the
-# issue. Your own login prints as "you": another session of yours, on this
-# computer or on another one, can work on the issue.
+# issue, an assignee, the label in progress, a linked branch, and an open pull
+# request that closes the issue. Your own login prints as "you": another
+# session of yours, on this computer or on another one, can work on the issue.
+# Your own assignee alone is no reason: an assignee says who may take the
+# issue, not that its work runs.
 #
 # When every reason is your own work on this computer, it prints them, then
 # "continue #<n> on <branch>", and exits 0. That is: the issue is assigned to
@@ -48,7 +50,8 @@ esac
 # Each line is a reason, a tab, and whose it is: "you", "other", or, for a
 # branch of yours in this repository, "branch", its name and its last commit on
 # GitHub. When a pull request opens, GitHub moves the branch's link to it, so
-# the branch of your open pull request counts as the issue's branch.
+# the branch of your open pull request counts as the issue's branch. The label
+# in progress is yours when the issue is assigned to you.
 # shellcheck disable=SC2016 # GraphQL and jq, not shell
 reasons=$(gh api graphql -f owner="${repo%/*}" -f name="${repo#*/}" -F n="$n" -f query='
   query($owner: String!, $name: String!, $n: Int!) {
@@ -59,6 +62,7 @@ reasons=$(gh api graphql -f owner="${repo%/*}" -f name="${repo#*/}" -F n="$n" -f
       issue(number: $n) {
         state
         assignees(first: 10) { nodes { login } }
+        labels(first: 20) { nodes { name } }
         linkedBranches(first: 10) { nodes { ref {
           name
           repository { nameWithOwner }
@@ -75,15 +79,18 @@ reasons=$(gh api graphql -f owner="${repo%/*}" -f name="${repo#*/}" -F n="$n" -f
     | .data.repository.defaultBranchRef.name as $main
     | def who: if . == $me then "you" else . // "ghost" end;
     .data.repository.issue
-    | (select(.state != "OPEN") | "closed\tother"),
+    | (if any(.assignees.nodes[]; .login == $me) then "you" else "other" end) as $mine
+    | [ (select(.state != "OPEN") | "closed\tother"),
       (.assignees.nodes[] | "assigned to \(.login | who)\t\(if .login == $me then "you" else "other" end)"),
+      (select(any(.labels.nodes[]?; .name | ascii_downcase == "in progress")) | "label in progress\t\($mine)"),
       (.linkedBranches.nodes[].ref
         | "branch \(.name), \(.compare.behindBy) commits ahead of \($main), last commit \(.target.committedDate)\t"
           + (if .repository.nameWithOwner == $repo then "branch\t\(.name)\t\(.target.oid)" else "other" end)),
       (.closedByPullRequestsReferences.nodes[] | select(.state == "OPEN")
         | "PR #\(.number) by \(.author.login | who) is open and closes it\t"
           + (if .author.login == $me and .headRepository.nameWithOwner == $repo
-            then "branch\t\(.headRefName)\t\(.headRefOid)" else "other" end))')
+            then "branch\t\(.headRefName)\t\(.headRefOid)" else "other" end)) ]
+    | if . == ["assigned to you\tyou"] then empty else .[] end')
 
 if [ -z "$reasons" ]; then
   echo "take #$n"

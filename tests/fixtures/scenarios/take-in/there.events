@@ -1,7 +1,7 @@
 Skill	craft:github
-Bash	cd <work>; cat <craft>/skills/github/take-in.md | head -80; ls <craft>/skills/github/scripts; git remote -v; gh auth status 2>&1 | head -3
-Bash	cd <work>; bash <craft>/skills/github/scripts/take-in-check.sh 91 2>&1; ls; cat README* | head -40
-Bash	cd <work>; gh issue view 91 --json title,body,state,assignees,url 2>&1
-text	**#91 README: the install command says npm instal**  The README tells the reader to run `npm instal shop`. npm has no `instal` command, so the command fails. The work is done when the README says `npm install shop`.  Before I start, one question. The take-in check printed:  ``` #91: assigned to you ```  So the issue is already assigned to you, but this computer has no branch or pull request for it. Another session of yours, here or on a different computer, may already be working on it.  **Is the work happening somewhere else, or should I do it here?** If it's somewhere else, I'll stop. If it's here, I'll make a `fix/91-...` worktree, fix the typo, run the check and the review, and open the PR.
+Bash	cat <craft>/skills/github/take-in.md; ls <craft>/skills/github/scripts; cd <work>; git remote -v; gh auth status 2>&1 | head -5
+Bash	cd <work>; bash <craft>/skills/github/scripts/take-in-check.sh 91 2>&1; echo "exit=$?"; ls; cat README* | head -40
+Bash	cd <work>; gh issue view 91 --json title,body,assignees,labels 2>&1
+text	**#91 README: the install command says npm instal**  The README tells the reader to run `npm instal shop`. npm has no `instal` command, so that command fails. The work is done when the README says `npm install shop`.  The take-in check did not clear the issue. It printed:  ``` #91: assigned to you #91: label in progress ```  So the issue is already yours and already marked `in progress`, but no branch or pull request for it exists here. Another session of yours, on this computer or another one, may be working on it.  Is that work running somewhere else, or should I continue it here? If here, I'll make the branch `docs/91-fix-install-command` and fix the README.
 person	It runs somewhere else.
-text	I'll stop here. I won't make a branch or worktree for #91 README: the install command says npm instal, and I changed nothing in this checkout.
+text	Then I'll stop here and leave #91 README: the install command says npm instal alone. I made no branch, no worktree and no edits, and the issue is still assigned to you with its `in progress` label.

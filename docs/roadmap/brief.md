@@ -43,7 +43,7 @@ Result box: "YOU GET: a plan you agreed to, kept in GitHub where it cannot go st
 Canvas: portrait, the largest portrait size the tool offers (at least 1024x1536).
 Header: label "SCENARIO 2 OF 4", title "Pick the next task".
 Trigger box: "WHEN: you ask \"What can I take now?\" or what can run in parallel." (keep the double quotation marks around the question)
-1. "Only free tasks" — THE AGENT sorts blank tickets: tickets with a small padlock or a name tag go to one side, plain ones stay in front. Caption: "Not assigned, no open PR, not blocked by an open issue. Other people's work is never offered."
+1. "Only free tasks" — THE AGENT sorts blank tickets: tickets with a small padlock or a small "in progress" tag go to one side, plain ones stay in front. Caption: "Not in progress and not blocked by an open issue. Other people's work is never offered."
 2. "Main path first" — THE AGENT lines up blank tickets in a row, the first one the largest. Caption: "The current milestone comes first. Then the tasks that more issues wait on, then the oldest."
 3. "One task and why" — THE AGENT hands YOU ticket "#21" with a small tag "M1"; a smaller ticket "#18" with a small insect on it waits beside. Caption: "#21 CSV export is in M1 · First demo, and two issues wait on it. The top bug, #18 Login fails, is the alternative."
 4. "What can run in parallel?" — THE AGENT puts ticket "#21" and ticket "#25" on two separate small desks, with clear space between them. Caption: "The agent reads the code and picks tasks that do not change the same functions."

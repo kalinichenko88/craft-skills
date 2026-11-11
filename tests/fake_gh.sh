@@ -25,9 +25,9 @@
 #   workspace    the checkout of the eval, whose worktrees the log reads
 #   down         true: each call but --version fails with a 502
 #
-# Each write adds "<command> <number>" to .log, as "comment 91": the
-# order of the writes. The entry ends in " +changes" when a worktree of the
-# workspace has a changed file or a commit past main at that moment: the
+# Each write to an issue adds "<command> <number>" to .log, as "comment 91":
+# the order of the writes. The entry ends in " +changes" when a worktree of
+# the workspace has a changed file or a commit past main at that moment: the
 # write came after the work started.
 #
 # Needs bash, jq and git.
@@ -129,7 +129,8 @@ case "$1 $2" in
       out "$(jq -c --argjson n "$n" --argjson linked "$linked" --argjson closing "$closing" '. as $s
         | ($s.issues[] | select(.number == $n and (.repo // $s.repo) == $s.repo)) as $i
         | {data: {viewer: {login: $s.me}, repository: {nameWithOwner: $s.repo, defaultBranchRef: {name: "main"},
-          issue: {state: $i.state, assignees: {nodes: [$i.assignees[] | {login: .}]}, linkedBranches: {nodes: $linked},
+          issue: {state: $i.state, assignees: {nodes: [$i.assignees[] | {login: .}]},
+            labels: {nodes: [$i.labels[] | {name: .}]}, linkedBranches: {nodes: $linked},
             closedByPullRequestsReferences: {nodes: $closing}}}}}' "$state")"
     elif [[ $* == *issueOrPullRequest* ]]; then # the entries of collect.sh, with no timeline, of issues only
       nums=$(grep -oE 'n[0-9]+: issueOrPullRequest' <<<"$*" | grep -oE '^n[0-9]+' | tr -d n | jq -sc .)
@@ -218,7 +219,10 @@ case "$1 $2" in
     out "$(pick . <<<"$pr")"
     ;;
   'repo view') out "$(jq -c '{nameWithOwner: .repo, visibility, defaultBranchRef: {name: "main"}}' "$state")" ;;
-  'label list') out "$(jq -c '[.labels[] | {name: .}]' "$state")" ;;
+  'label list') out "$(jq -c '[.labels[] | {name: .}]' "$state")" ;; # all of them: a search on GitHub matches more than the name
+  'label create')
+    save --arg l "${args[2]}" '.labels |= (. + [$l] | unique)'
+    echo "✓ Label \"${args[2]}\" created in $repo" ;;
   'auth status') echo "github.com: Logged in to github.com account $me" ;;
   *) echo "fake gh: no answer for: $*" >&2; exit 1 ;;
 esac

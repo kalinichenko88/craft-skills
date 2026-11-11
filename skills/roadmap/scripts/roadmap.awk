@@ -19,10 +19,10 @@ END {
   for (i = 1; i <= isn; i++) if (!ems(islist[i])) none[++c] = islist[i] + 0
   if (c) {
     sortnum(none, c)
-    s = "#" none[1]
-    for (i = 2; i <= c; i++) s = s ", #" none[i]
     print "## No milestone"
-    print c " open: " s
+    print c " open"
+    print ""
+    for (i = 1; i <= c; i++) print "- #" none[i] " " istitle[none[i]]
   }
 }
 

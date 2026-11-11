@@ -8,7 +8,8 @@
   "labels": [
     "bug",
     "debt",
-    "enhancement"
+    "enhancement",
+    "in progress"
   ],
   "visibility": "PUBLIC",
   "issues": [
@@ -21,7 +22,9 @@
       "assignees": [
         "kim"
       ],
-      "labels": [],
+      "labels": [
+        "in progress"
+      ],
       "comments": [],
       "linked": []
     }

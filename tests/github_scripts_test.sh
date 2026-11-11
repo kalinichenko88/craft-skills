@@ -47,6 +47,7 @@ case "$1 $2" in
   'issue view')
     jq ".data.repository.n$3 | {body, assignees: [.assignees.nodes[]?]}" "$FAKE/graphql.json" | jq -r "$filter" ;;
   'issue edit') while [ $# -gt 0 ] && [ "$1" != --body-file ]; do shift; done; [ $# = 0 ] || cp "$2" "$FAKE/body" ;;
+  'label list') if [ -f "$FAKE/labels.json" ]; then jq -r "$filter" "$FAKE/labels.json"; fi ;;
   'issue comment') ;;
   'issue develop')
     case $3 in
@@ -81,6 +82,16 @@ check 'status takes the number with its #' "$(bash "$scripts/collect.sh" status 
 answer '.timelineItems.nodes = []'
 check 'status of a free issue' "$(printf 'state: open\nstatus: free\nalso: 0')" \
   "$(bash "$scripts/collect.sh" status 5)"
+
+# An assignee says who may take an issue, not that its work runs (#285): your
+# own assignee alone leaves it free. The label in progress, in any case, makes
+# it busy.
+answer '.timelineItems.nodes = [] | .assignees.nodes = [{login: "kalinichenko88"}]'
+check 'status of an issue whose one mark is your assignee' "$(printf 'state: open\nstatus: free\nalso: 0')" \
+  "$(bash "$scripts/collect.sh" status 5)"
+answer '.timelineItems.nodes = [] | .assignees.nodes = [{login: "kalinichenko88"}] | .labels.nodes += [{name: "In Progress"}]'
+check 'status of an issue in progress' 'status: assigned to you, label in progress' \
+  "$(bash "$scripts/collect.sh" status 5 | sed -n '/^status: /p')"
 
 answer '.assignees.nodes = [{login: "someone"}]
   | .linkedBranches.nodes = [{ref: {name: "fix/5-citations"}}, {ref: null}]
@@ -235,6 +246,7 @@ host() { answer ".timelineItems.nodes = [] | $1"; }
 # it, as #119 was while a session worked on it.
 for case in 'yours|. + {assignees: {nodes: [{login: "kalinichenko88"}]}, linkedBranches: {nodes: [{ref: {name: "fix/5-citations"}}]}}|it is busy: assigned to you, branch fix/5-citations' \
   'busy|.assignees.nodes = [{login: "someone"}]|it is busy: assigned to someone' \
+  'in progress|.labels.nodes += [{name: "in progress"}]|it is busy: label in progress' \
   'full|.body += "\n## Also: one\n## Also: two\n"|it holds 2 added findings already' \
   'closed|.state = "CLOSED"|it is closed' \
   'pull request|{__typename: "PullRequest", number: 5, title: "t", state: "OPEN", body: ""}|it is a pull request'; do
@@ -251,6 +263,14 @@ answer .
 out=$(add) && fail 'add-finding.sh wrote to a host with your open PR'
 case $out in *'it is busy: PR #9 by you'*) ;; *) fail 'add-finding.sh on a host with your open PR' "$out" ;; esac
 check 'add-finding.sh writes nothing to a host with your open PR' '' "$(writes)"
+
+# A host whose one mark is your assignee is free: no work on it runs.
+host '.assignees.nodes = [{login: "kalinichenko88"}]'
+out=$(DRY_RUN=1 add)
+case $out in *'dry run: gh issue edit 5 --title New\ title --body-file '*) ;;
+  *) fail 'add-finding.sh takes a host whose one mark is your assignee' "$out" ;;
+esac
+rm -f "$(sed -n 's/.*--body-file \([^ ]*\).*/\1/p' <<<"$out")"
 
 # A free host takes the finding. DRY_RUN=1 prints the writes and runs none.
 host .
@@ -314,6 +334,17 @@ git init -q "$tmp/repo"
 take() { (cd "$tmp/repo" && bash "$scripts/take-in-check.sh" "$@" 2>&1) || echo "exit $?"; }
 answer . .data.repository.issue take-in-20.json
 check 'take-in-check.sh on a free issue' 'take #20' "$(take 20)"
+# As recorded, #231 is assigned to you and has nothing else: an assignee says
+# who may take an issue, not that its work runs (#285). #285 is assigned to
+# you, with the label in progress and a linked branch.
+answer . .data.repository.issue take-in-231.json
+check 'take-in-check.sh on an issue whose one mark is your assignee' 'take #231' "$(take 231)"
+answer . .data.repository.issue take-in-285.json
+check 'take-in-check.sh on an issue in progress' \
+  "$(printf '#285: assigned to you\n#285: label in progress\n#285: branch fix/285-busy-by-work-not-assignee, 0 commits ahead of main, last commit 2026-11-11T13:26:37Z\nexit 1')" \
+  "$(take 285)"
+answer '.labels.nodes = [{name: "in progress"}]' .data.repository.issue take-in-20.json
+check 'take-in-check.sh on an issue in progress with no assignee' "$(printf '#20: label in progress\nexit 1')" "$(take 20)"
 answer '.state = "CLOSED" | .assignees.nodes = [{login: "someone"}, {login: "kalinichenko88"}]
   | .closedByPullRequestsReferences.nodes = [{number: 9, state: "OPEN", author: {login: "someone"}},
       {number: 10, state: "OPEN", author: {login: "kalinichenko88"}}]' .data.repository.issue take-in-20.json
@@ -339,6 +370,11 @@ check 'take-in-check.sh on an issue whose local branch lacks the remote commit' 
 answer ".linkedBranches.nodes[0].ref.target.oid = \"$pushed\"" .data.repository.issue take-in-167.json
 check 'take-in-check.sh continues an issue whose branch is on this computer' \
   "$(printf '%s\ncontinue #167 on fix/167-architecture-lens-exit2' "$yours167")" "$(take 167)"
+answer ".linkedBranches.nodes[0].ref.target.oid = \"$pushed\" | .labels.nodes = [{name: \"in progress\"}]" \
+  .data.repository.issue take-in-167.json
+check 'take-in-check.sh continues an issue in progress whose branch is on this computer' \
+  "$(printf '#167: assigned to you\n#167: label in progress\n%s\ncontinue #167 on fix/167-architecture-lens-exit2' \
+    "$(sed 1d <<<"$yours167")")" "$(take 167)"
 answer ".linkedBranches.nodes[0].ref.target.oid = \"$pushed\" | .assignees.nodes = []" .data.repository.issue take-in-167.json
 check 'take-in-check.sh does not continue an issue that nobody is assigned to' 'exit 1' "$(take 167 | tail -1)"
 answer ".linkedBranches.nodes[0].ref.target.oid = \"$pushed\"
@@ -374,10 +410,19 @@ top=$(git -C "$tmp/repo" rev-parse --show-toplevel)
 : >"$tmp/calls"
 out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-scout-citations)
 check 'worktree.sh with DRY_RUN=1 prints its writes and the path' \
-  "$(printf 'dry run: gh issue edit 5 --add-assignee @me\ndry run: gh issue develop 5 --name feat/5-scout-citations --checkout --worktree %s\ndry run: echo .claude/worktrees/ >>%s\n%s' \
+  "$(printf 'dry run: gh label create in\\ progress --description The\\ work\\ on\\ it\\ runs --color fbca04\ndry run: gh issue edit 5 --add-assignee @me --add-label in\\ progress\ndry run: gh issue develop 5 --name feat/5-scout-citations --checkout --worktree %s\ndry run: echo .claude/worktrees/ >>%s\n%s' \
     "$top/.claude/worktrees/feat/5-scout-citations" "$top/.git/info/exclude" "$top/.claude/worktrees/feat/5-scout-citations")" "$out"
 check 'worktree.sh with DRY_RUN=1 runs no write' '' "$(writes)"
 grep -q .claude/worktrees/ "$top/.git/info/exclude" && fail 'worktree.sh with DRY_RUN=1 wrote info/exclude'
+# A repository that has the label already, in any case, gets no new one. A
+# search of the labels finds more than the name: "in progress" finds invalid.
+echo '[{"name": "invalid"}, {"name": "In Progress"}]' >"$tmp/labels.json"
+out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-scout-citations)
+case $out in *'label create'*) fail 'worktree.sh creates a label that the repository has' "$out" ;; esac
+echo '[{"name": "invalid"}]' >"$tmp/labels.json"
+out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-scout-citations)
+case $out in *'dry run: gh label create in\ progress'*) ;; *) fail 'worktree.sh takes another label for in progress' "$out" ;; esac
+echo '[{"name": "in progress"}]' >"$tmp/labels.json"
 
 printf 'feat/5-linked\thttps://github.com/kalinichenko88/agent-skills/tree/feat/5-linked\n' >"$tmp/linked"
 out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-scout-citations)
@@ -458,7 +503,7 @@ rm -f "$tmp/linked"
 : >"$tmp/calls"
 out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-scout-citations --here)
 check 'worktree.sh --here assigns and checks the branch out where it is' \
-  "$(printf 'dry run: gh issue edit 5 --add-assignee @me\ndry run: gh issue develop 5 --name feat/5-scout-citations --checkout\n%s' "$top")" "$out"
+  "$(printf 'dry run: gh issue edit 5 --add-assignee @me --add-label in\\ progress\ndry run: gh issue develop 5 --name feat/5-scout-citations --checkout\n%s' "$top")" "$out"
 (cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 b --there >/dev/null 2>&1) && fail 'worktree.sh takes an unknown third argument'
 
 # A local branch of the name that no worktree holds, on an issue with no linked

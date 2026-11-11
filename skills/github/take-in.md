@@ -33,11 +33,13 @@ Then act on what the check printed:
   win over the lines below.
 - `PR #<n> by you`, with no `continue` line: the work has a pull request
   already. Say so and stop.
-- Only an `assigned to you` line, `branch` lines, or both: another session of
-  yours can work on the issue, on this computer or on another one. Show the
-  person what the script printed, and ask one at a time, in this order:
-  1. With no `assigned to you` line: whose is the branch? GitHub does not say
-     whose a branch is. Someone else's: say so and wait, and do not ask 2.
+- Only `assigned to you`, `label in progress` and `branch` lines, or some of
+  them: another session of yours can work on the issue, on this computer or on
+  another one. Show the person what the script printed, and ask one at a time,
+  in this order:
+  1. With no `assigned to you` line: whose is the work? GitHub does not say
+     whose a branch or a label is. Someone else's: say so and wait, and do not
+     ask 2.
   2. Does the work run somewhere else, or does it continue here? Somewhere
      else: stop. Here: go on with the steps below.
 - An issue of another repository than this checkout's: say so and stop.
@@ -79,8 +81,8 @@ and the merge question. Without a pull request, run *The tracker is read
 next* and *Its duplicates close first*, then go on from "Then read what
 points at it", below, and skip the check of the issue's citations: the first
 take-in did it, and the worktree holds the work. In *Taking neighbours
-along*, an issue that is busy only because it is assigned to you was taken
-along by the first session: give it its verdict, as to a free issue.
+along*, an issue whose `status:` is `assigned to you, label in progress` was
+taken along by the first session: give it its verdict, as to a free issue.
 
 **The tracker is read next.** Run `collect.sh take-in` (`tracker.md`) with the
 issue's number and the names it gives. While a subagent reads the file, you can
@@ -110,10 +112,11 @@ The same defect on another surface is not a duplicate: it is the task, and
 **The work then starts in a worktree**, by default — this line is the explicit
 instruction a harness's worktree tool waits for. The user's message or the
 project's instructions can say otherwise — "a branch only", "stay on this
-branch" — and then they win. Each path assigns the issue to you, because an
-unassigned issue looks free to everyone else: "a branch only" runs
-`worktree.sh` with `--here`, which makes no worktree and works in the current
-checkout, and "stay on this branch" runs `gh issue edit 91 --add-assignee @me`
+branch" — and then they win. Each path assigns the issue to you and puts the
+label `in progress` on it (`tracker.md`), because without the label the issue
+looks free to everyone else: "a branch only" runs `worktree.sh` with `--here`,
+which makes no worktree and works in the current checkout, and "stay on this
+branch" runs `gh issue edit 91 --add-assignee @me --add-label "in progress"`
 and touches no branch. `worktree.sh` does not assign the issue in four cases,
 below: it warns in two and stops in two. "Stay on this branch" checks the
 cases of the warning first, with `gh issue develop --list 91` and the issue's
@@ -128,8 +131,9 @@ the whole title.
 bash <dir>/scripts/worktree.sh 91 fix/91-electron-binary-in-lanes
 ```
 
-It assigns the issue to you, branches from the remote's default branch, links
-the branch to the issue, and prints the path to work in as its last line. A
+It assigns the issue to you, puts the label `in progress` on it, branches from
+the remote's default branch, links the branch to the issue, and prints the
+path to work in as its last line. A
 branch linked to the issue in this repository wins over the name you gave. A
 linked branch already checked out is worked on where it is. A session already
 in a worktree, as one started with `claude --worktree` or `codex --worktree`,
@@ -254,11 +258,12 @@ Nothing passes: ship the task alone — that is the usual case, not a failure to
 look. Every issue the PR closes beside the task — a ride-along, or a bug or
 debt the change removes — is a whole issue, not a Boy Scout fix: a bug brings
 its own test, and the PR closes it under **Also closes** (*Pull requests* in
-`SKILL.md`). Assign it to you as soon as it gets that verdict, as the task is
-at take-in, so nobody else takes it while the work runs:
+`SKILL.md`). Assign it to you and put the label `in progress` on it as soon as
+it gets that verdict, as the task is at take-in, so nobody else takes it while
+the work runs:
 
 ```bash
-gh issue edit 15 --add-assignee @me
+gh issue edit 15 --add-assignee @me --add-label "in progress"
 ```
 
 An issue with `## Also:` sections closes only when every problem in it is

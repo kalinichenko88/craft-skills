@@ -148,16 +148,19 @@ pages 150
 check 'issues reads every page' 150 "$(bash "$scripts/read.sh" issues | grep -c '^is	')"
 reset
 put '19 20 21'
-edit 19 '.blockedBy.nodes = [{number: 116, state: "CLOSED", repository: {nameWithOwner: "kalinichenko88/agent-skills"}}]'
-edit 20 '.assignees.nodes = [{login: "kalinichenko88"}] | .linkedBranches.nodes = [{ref: {name: "fix/20-x"}}]
+# Your own assignee alone does not make #19 busy: an assignee says who may
+# take an issue, not that its work runs (#285).
+edit 19 '.blockedBy.nodes = [{number: 116, state: "CLOSED", repository: {nameWithOwner: "kalinichenko88/agent-skills"}}]
+  | .assignees.nodes = [{login: "kalinichenko88"}]'
+edit 20 '.assignees.nodes = [{login: "kalinichenko88"}] | .labels.nodes = [{name: "in progress"}] | .linkedBranches.nodes = [{ref: {name: "fix/20-x"}}]
   | .closedByPullRequestsReferences.nodes = [{number: 9, state: "OPEN", author: {login: "someone"}}, {number: 8, state: "MERGED", author: {login: "someone"}}]'
 blocks 21 19
 edit 21 '.blockedBy.nodes += [{number: 3, state: "OPEN", repository: {nameWithOwner: "other/repo"}}] | .labels.nodes = [{name: "bug"}]
   | .parent = {number: 19, milestone: {number: 7}, repository: {nameWithOwner: "kalinichenko88/agent-skills"}} | .subIssuesSummary = {total: 3, completed: 1}'
 out=$(bash "$scripts/read.sh" issues)
 m1=$(msno M1)
-check 'a closed blocker is not listed' "$(printf 'is\t19\t%s\t0\t-\t-\t0\t0\t0\tIssue 19' "$m1")" "$(grep '^is	19	' <<<"$out")"
-check 'busy in collect.sh words' 'assigned to you, branch fix/20-x, PR #9 by someone' \
+check 'a closed blocker is not listed, and your assignee alone is not busy' "$(printf 'is\t19\t%s\t0\t-\t-\t0\t0\t0\tIssue 19' "$m1")" "$(grep '^is	19	' <<<"$out")"
+check 'busy in collect.sh words' 'assigned to you, label in progress, branch fix/20-x, PR #9 by someone' \
   "$(awk -F'\t' '$1=="is" && $2==20 {print $5}' <<<"$out")"
 check 'linked branch' "$(printf 'br\t20\tfix/20-x')" "$(grep '^br	' <<<"$out")"
 check 'blockers, bug, parent, its milestone, open sub-issues' \
@@ -218,11 +221,11 @@ reset
 mark M1
 put '19 20 21 22 23 42:Later 50:M2'
 blocks 20 21
-edit 22 '.assignees.nodes = [{login: "kalinichenko88"}]'
+edit 22 '.assignees.nodes = [{login: "kalinichenko88"}] | .labels.nodes = [{name: "in progress"}]'
 edit 23 '.blockedBy.nodes = [{number: 3, state: "OPEN", repository: {nameWithOwner: "other/repo"}}]'
 out=$(bash "$scripts/roadmap.sh")
 check 'dependency order and states' \
-  "$(printf -- '- #19 Issue 19: free\n- #21 Issue 21: free\n- #20 Issue 20: blocked by #21\n- #22 Issue 22: assigned to you\n- #23 Issue 23: blocked by other/repo#3')" \
+  "$(printf -- '- #19 Issue 19: free\n- #21 Issue 21: free\n- #20 Issue 20: blocked by #21\n- #22 Issue 22: assigned to you, label in progress\n- #23 Issue 23: blocked by other/repo#3')" \
   "$(sed -n '/^## M1 /,/^## /p' <<<"$out" | grep '^- ')"
 progress() {
   jq -r --argjson n "$(msno "$1")" '.data.repository.milestones.nodes[] | select(.number == $n)
@@ -267,7 +270,10 @@ check 'one milestone has one section' 1 "$(bash "$scripts/roadmap.sh" M1 | grep 
 reset
 put '19 24'
 edit 24 '.milestone = {number: 999999}'
-check 'an issue in a closed milestone' '1 open: #24' "$(bash "$scripts/roadmap.sh" | sed -n '/^## No milestone/{n;p;}')"
+# Each issue with no milestone comes with its title, so the agent can name it
+# to the person by its title (#277).
+check 'an issue in a closed milestone' "$(printf '1 open\n\n- #24 Issue 24')" \
+  "$(bash "$scripts/roadmap.sh" | sed -n '/^## No milestone/,$p' | sed 1d)"
 
 # No milestones at all, as in a new project.
 reset
@@ -445,7 +451,7 @@ check 'Later is never current' 'refused: Later is never current' "$(bash "$scrip
 check 'create refuses an existing title in any case' 'refused: m1 · stage 1 exists' "$(bash "$scripts/plan.sh" create 'm1 · stage 1' /dev/null 2>&1 || true)"
 ms '. + [{number: 999, title: "C:\\new", description: "", state: "open", open_issues: 0, closed_issues: 0}]'
 check 'create refuses an existing title with a backslash' 'refused: C:\new exists' "$(bash "$scripts/plan.sh" create 'C:\new' /dev/null 2>&1 || true)"
-check 'close refuses open issues' 'refused: M1 · Stage 1 has 3 open issues: #19, #20, #21' "$(bash "$scripts/plan.sh" close M1 2>&1 || true)"
+check 'close refuses open issues' 'refused: M1 · Stage 1 has 3 open issues: #19 Issue 19, #20 Issue 20, #21 Issue 21' "$(bash "$scripts/plan.sh" close M1 2>&1 || true)"
 printf 'New goal.\n' >"$tmp/goal"
 out=$(DRY_RUN=1 bash "$scripts/plan.sh" describe M1 "$tmp/goal")
 check 'describe keeps the mark' "$(printf 'New goal.\n\nCurrent.')" "$(cat "$(sed -n 's/.*description=@\([^ ]*\).*/\1/p' <<<"$out")")"
@@ -497,7 +503,7 @@ check 'due refuses February 29 of 2100' 2 "$(bash "$scripts/plan.sh" due M1 2100
 reset
 put '11:-'
 edit 11 ".parent = {number: 10, milestone: {number: $(msno M1)}, repository: {nameWithOwner: \"kalinichenko88/agent-skills\"}}"
-check 'close counts a sub-issue in the milestone of its parent' 'refused: M1 · Stage 1 has 1 open issues: #11' \
+check 'close counts a sub-issue in the milestone of its parent' 'refused: M1 · Stage 1 has 1 open issues: #11 Issue 11' \
   "$(bash "$scripts/plan.sh" close M1 2>&1 || true)"
 # plan.sh later puts a task off, unless an issue outside Later waits on it:
 # a task in Later is never offered, so that issue would wait for good.
@@ -505,7 +511,7 @@ reset
 put '19 20 21 42:Later'
 blocks 20 21
 blocks 42 19
-check 'later refuses a task that a blocked issue waits on' 'refused: these wait on it outside Later: #20' \
+check 'later refuses a task that a blocked issue waits on' 'refused: these wait on it outside Later: #20 Issue 20' \
   "$(bash "$scripts/plan.sh" later 21 2>&1 || true)"
 out=$(DRY_RUN=1 bash "$scripts/plan.sh" later 19)
 case $out in *'dry run: gh issue edit 19 --milestone Later'*) ;; *) fail 'later moves a task that only Later waits on' "$out" ;; esac
@@ -513,14 +519,14 @@ check 'later on a task in Later' '#42 is in Later already' "$(bash "$scripts/pla
 reset
 put '10 11'
 edit 11 '.parent = {number: 10, milestone: null, repository: {nameWithOwner: "kalinichenko88/agent-skills"}}'
-check 'later refuses a sub-issue whose parent waits on it' 'refused: these wait on it outside Later: #10' \
+check 'later refuses a sub-issue whose parent waits on it' 'refused: these wait on it outside Later: #10 Issue 10' \
   "$(bash "$scripts/plan.sh" later 11 2>&1 || true)"
 # A sub-issue with no milestone goes into Later with its parent.
 reset
 put '10 11:- 20'
 edit 11 ".parent = {number: 10, milestone: {number: $(msno M1)}, repository: {nameWithOwner: \"kalinichenko88/agent-skills\"}}"
 blocks 20 11
-check 'later refuses a task whose sub-issue an issue waits on' 'refused: these wait on it outside Later: #20' \
+check 'later refuses a task whose sub-issue an issue waits on' 'refused: these wait on it outside Later: #20 Issue 20' \
   "$(bash "$scripts/plan.sh" later 10 2>&1 || true)"
 # A wait through a task in Later counts too: #19 waits on #42, which waits on #50.
 reset
@@ -528,12 +534,12 @@ mark M1
 put '19 42:Later 50:M2'
 blocks 19 42
 blocks 42 50
-check 'later refuses a task that an issue waits on through Later' 'refused: these wait on it outside Later: #19' \
+check 'later refuses a task that an issue waits on through Later' 'refused: these wait on it outside Later: #19 Issue 19' \
   "$(bash "$scripts/plan.sh" later 50 2>&1 || true)"
 reset
 put '10:Later 11:- 20'
 blocks 20 11
-check 'sub refuses a child that goes into Later' 'refused: #11 goes into Later with #10, and these wait on it outside Later: #20' \
+check 'sub refuses a child that goes into Later' 'refused: #11 goes into Later with #10, and these wait on it outside Later: #20 Issue 20' \
   "$(bash "$scripts/plan.sh" sub 10 11 2>&1 || true)"
 # No Later milestone yet: it is made first.
 reset

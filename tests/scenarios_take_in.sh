@@ -23,7 +23,7 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 # goes on into the work after the take-in has the higher cap.
 cases() {
   printf '%s\n' 'free 4 #91' 'other 2 #91' 'down 2 #91' 'dup 4 #91' 'busy 4 #91' 'closed 2 #91' 'otherpr 2 #91' \
-    'mypr 2 #91' 'assigned 2 #91' 'here 4 #91 It continues here.' 'there 2 #91 It runs somewhere else.' \
+    'mypr 2 #91' 'assigned 4 #91' 'inprogress 2 #91' 'here 4 #91 It continues here.' 'there 2 #91 It runs somewhere else.' \
     'linked 2 #91' 'inws 4 #91' 'moved 2 #91' 'otherrepo 2 https://github.com/acme/lib/issues/91'
 }
 # The scenarios of take-in that no case runs yet, one on each line: none now.
@@ -85,7 +85,8 @@ setup() {
     closed) given='.issues[0] |= (.state = "CLOSED" | .stateReason = "COMPLETED")' ;;
     otherpr) elsewhere fix/91-install "$other"; given='.prs = [pr($other)]' ;;
     mypr) elsewhere fix/91-install "$me"; given='.prs = [pr($me)]' ;;
-    assigned | here | there) given='.issues[0].assignees = [$me]' ;;
+    assigned) given='.issues[0].assignees = [$me]' ;;
+    inprogress | here | there) given='.issues[0] |= (.assignees = [$me] | .labels = ["in progress"]) | .labels += ["in progress"]' ;;
     linked) git -C "$w.origin" branch fix/91-typo main; given='.issues[0].linked = ["fix/91-typo"]' ;;
     inws | moved) git -C "$w" branch fix/91-typo; git -C "$w" push -q -u origin fix/91-typo
       [ "$2" = inws ] || elsewhere fix/91-typo "$me"
@@ -147,7 +148,7 @@ check() {
   # A write: an edit of a file, a commit, a branch, a worktree, or a write to
   # the tracker. A read, as `sed -n 1p worktree.sh` or `git merge-base`, is
   # none.
-  first_write=$(W='(^|[;&|(] *)(bash |sh )?[^ ;&|]*(worktree|add-finding)\.sh|gh issue (edit|close|comment|create|reopen)|gh pr (create|merge|edit|close|comment)|gh api .*(-X|--method) *(POST|PATCH|PUT|DELETE)|gh api graphql.*mutation|git( +-[Cc] +[^ ]+)* +((commit|push|switch|checkout|worktree +add|merge|rebase|reset|cherry-pick|stash +(push|pop|apply|drop|save))([ ;&|)]|$)|stash *([;&|)]|$)|branch +[A-Za-z])|sed -i|perl -[a-z]*i' \
+  first_write=$(W='(^|[;&|(] *)(bash |sh )?[^ ;&|]*(worktree|add-finding)\.sh|gh issue (edit|close|comment|create|reopen)|gh pr (create|merge|edit|close|comment)|gh api .*(-X|--method) *(POST|PATCH|PUT|DELETE)|gh api graphql.*mutation|gh label (create|edit|delete)|git( +-[Cc] +[^ ]+)* +((commit|push|switch|checkout|worktree +add|merge|rebase|reset|cherry-pick|stash +(push|pop|apply|drop|save))([ ;&|)]|$)|stash *([;&|)]|$)|branch +[A-Za-z])|sed -i|perl -[a-z]*i' \
     awk -F'\t' '$1 ~ /^(sub)?(Edit|Write|NotebookEdit|EnterWorktree)$/ ||
       $1 ~ /^(sub)?Bash$/ && ($2 ~ ENVIRON["W"] || $2 ~ /gh issue develop/ && $2 !~ /(--list|--help| -l| -h)( |$)/) { print NR; exit }' "$d.events")
   named=$(grep -n "^text" "$d.events" | grep -F -e '#91' -e "$title" -e "$typo" | head -n 1)
@@ -203,8 +204,10 @@ check() {
       item 'the gist comes before any change' 'before "$gist"'
     fi
     item '#91 is assigned to the person' '[ "$assignees" = "[\"$me\"]" ]'
+    labelled
     branched
   }
+  labelled() { item '#91 has the label in progress' '[ "$(issue 91 "any(.labels[]; ascii_downcase == \"in progress\")")" = true ]'; }
   case $2 in
     here | there) { grep -q '^person' "$d.events" && sed -n '/^person/q;p' "$d.events" | grep '^text' | grep -qiE "($where)[^.?!]*\?"; } ||
       { echo "$0: $d has no answer of the person after a question whether the work runs somewhere else: the Given of its scenario does not hold" >&2; return 2; } ;;
@@ -270,7 +273,14 @@ check() {
       ;;
     assigned) s='A task assigned to the person, with no branch'
       first
-      item 'the person is told that #91 is assigned to the person already' 'says "$yours"'
+      item '#91 stays assigned to the person' '[ "$assignees" = "[\"$me\"]" ]'
+      labelled
+      branched
+      item 'never: the person is asked whether the work on #91 runs somewhere else' '! asked "$where"'
+      ;;
+    inprogress) s='A task in progress for the person, with no branch'
+      first
+      item 'the person is told that #91 is in progress already' 'says "in[ -]progress"'
       item 'the person is asked whether the work on #91 runs somewhere else or continues here' 'asked "$where"'
       nochange 'the run waits'
       nobranch '[]'
