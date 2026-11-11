@@ -16,8 +16,11 @@ until the person approves the whole plan. One approval covers the whole list.
 3. **Propose, in the chat, before any write:**
    - the milestones in order, each with its goal, its `Done when` and a due
      date if the person wants one, plus `Later`;
-   - per milestone, its tasks: a title, and a body that says what and why and
-     cites the document it came from. Each task fits one PR. A larger one is a
+   - per milestone, its tasks: a title that names the work as an action, as
+     `blog: write a post about the release`, and a body that says what and
+     why and cites the document it came from. A task that fixes a defect
+     keeps a title that states the problem, as `filing.md` of the
+     `craft:github` skill says. Each task fits one PR. A larger one is a
      parent with sub-issues;
    - the "blocked by" links: which task waits on which;
    - which milestones are current.

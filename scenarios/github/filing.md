@@ -210,3 +210,25 @@ Never:
 - the title or the text of the new task holds `/srv/acme/orders.csv`
 - the text of the pull request of #91 holds `Acme Ltd`
 - the text of the pull request of #91 holds `/srv/acme/orders.csv`
+
+## A feature outside the task, with no task on its code
+
+Given:
+- the outcomes of A free task hold for #91
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- the run read `src/report/total.ts`, the only caller of `parseRows`, and
+  the work on #91 does not change it
+- `README.md` lists "a total for each currency of an order" under
+  *Planned*, and `totalOf` in `src/report/total.ts` gives one total for an
+  order
+- the repository has the labels `bug` and `enhancement`
+When: the run meets that finding in `src/report/total.ts`
+Then:
+- one new task is created for the feature
+- the title of the new task names the work as an action
+- the new task has the label `enhancement`
+- the last message names the new task with its id and its title
+Never:
+- the title of the new task states what `totalOf` does not do
+- the person is asked before the task is created
+- the pull request of #91 changes `src/report/total.ts`
