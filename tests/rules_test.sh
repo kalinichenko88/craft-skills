@@ -218,7 +218,7 @@ skills/review-loop/SKILL.md|With no real source to sample, the count declines no
 skills/github/SKILL.md|gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
 skills/github/SKILL.md|The list decides, not the exit code of the watch: a cancelled check gives 0, and no check at all gives 1.
 skills/github/SKILL.md|with `--subject` and `--body` in English, as every commit message is, also when the PR is in another language. `--subject` is the PR title in English, then ` (#<PR>)`
-skills/github/SKILL.md|`gh pr merge --squash --delete-branch --subject --body`, in English: the PR title and one bullet list for the whole branch
+skills/github/SKILL.md|`gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch
 skills/github/SKILL.md|Add `--admin` or `--auto` only when the person asks for it: `--admin` merges past a red check, and `--auto` leaves the pull request open when the command ends.
 skills/github/SKILL.md|Run the merge in the checkout that holds the branch, whatever directory the session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints.
 skills/github/SKILL.md|`ExitWorktree` does nothing for a session that moved there in any other way, as with `cd` after `worktree.sh`: that session runs both commands itself, each with `git -C <the main checkout>`. Only a session that started in the worktree, as with `claude --worktree` or `codex --worktree`, cannot leave it: give the person the two commands below, to run after the session ends.

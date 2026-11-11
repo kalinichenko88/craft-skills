@@ -221,8 +221,8 @@ Given:
   German
 When: the run ends the work on #91
 Then:
-- the title of the pull request of #91 starts with a type, and is in German
-  after it
+- the title of the pull request of #91 starts with a type
+- the title of the pull request of #91 is in German after its type
 - the text of the pull request of #91 is in German
 Never:
 - the person is asked in which language to write the pull request of #91
@@ -296,10 +296,11 @@ Then:
 - #96 is merged
 - the merge adds one commit to the default branch
 - the subject of that commit starts with the type at the start of the
-  title of #96, and is in English after it
+  title of #96
+- the subject of that commit is in English after its type
+- the subject of that commit ends with `(#96)`
 - the text of that commit under its subject is in English
 Never:
-- the subject of that commit is in German
 - the person is asked in which language to write the commit
 
 ## The answer merge and remove the workspace
