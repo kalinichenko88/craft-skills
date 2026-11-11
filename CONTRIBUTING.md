@@ -174,13 +174,16 @@ case passes pass^k only when no item fails in any of its k runs. `--model`
 sets the model, Opus by default. The report ends with the cost of the pass,
 and `--max-cost` stops the eval before a round of the cases that could take
 the cost past it, by the sum of the caps of its runs. Run it after a change to
-`skills/github/take-in.md` or to the scripts of the github skill.
+`skills/github/take-in.md` or to the scripts of the github skill. The
+cases, with the Given and the checks of each, are in
+`tests/scenarios_take_in.sh`.
 `tests/scenarios_checks_test.sh` runs its checks in `make check`, on one
 recorded run of each case in `tests/fixtures/scenarios/`, and on copies that
-change the verdict of one item. It counts pass^2 over the recorded runs and a
-copy, runs the eval with a stub `claude` to check `--model` and the stop
-before `--max-cost`, and fails for a scenario of take-in that has no case and
-is not in the eval's `--not-run` list.
+change the verdict of one item. It fails for a scenario of take-in that has
+no case and is not in the eval's `--not-run` list.
+`tests/scenarios_runner_test.sh` counts pass^2 over the recorded runs and a
+copy, and runs the eval with a stub `claude` to check `--model` and the stop
+before `--max-cost`.
 `tests/scenarios_text_eval.sh` reads the text of a skill against the
 scenario file of its flow, with no live run. Each file in `scenarios/*/*.md`
 has a row in the eval: the scenario file and the files of the skill that its
