@@ -6,8 +6,7 @@ work runs: on a branch only, or on the branch that the workspace is on. The
 run checks whether the task is free, tells the person the gist of the task,
 closes its duplicates, and starts the work on a branch linked to the task, or
 on the branch that the workspace is on. A next text of the person in the same
-conversation, after a run that asked or waited, goes on with the task of that
-run.
+conversation, after a run that waited, goes on with the task of that run.
 
 Not covered yet:
 
@@ -15,7 +14,14 @@ Not covered yet:
 - a duplicate that tells only the failure that was seen, when the
   reproduction shows another cause;
 - the answers to the question what to do with a branch in the workspace
-  that has the name of the new branch;
+  that has the name of the new branch, and such a branch with no commit
+  that the repository does not have;
+- the first message, and the answer that the work runs somewhere else, when
+  the one linked branch of the task is a branch of another repository;
+- the answers to the question where the work runs, when the repository's
+  linked branch has a commit that the workspace's branch does not have;
+- the person's own open pull request on a task assigned to the person,
+  when the workspace does not have its branch;
 - a text after a wait that names another task, and a text after a stop
   that names no task.
 
@@ -361,6 +367,7 @@ Given:
 When: the person writes "#91, stay on this branch"
 Then:
 - the first message about #91 tells its gist
+- the gist comes before any change to the tracker or the workspace
 - #91 is assigned to the person
 - #91 has the label `in progress`
 - the workspace stays on `fix/rows`
@@ -600,7 +607,6 @@ Then:
 - that branch is made from the default branch
 - that branch is linked to #91
 Never:
-- the other person stops being an assignee of #91
 - the person is asked whose the work on #91 is
 
 ## A text after a stop that names the task again
