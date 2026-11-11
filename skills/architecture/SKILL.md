@@ -280,19 +280,19 @@ person rejects for a lasting reason gets an ADR with the status `rejected`,
 so that the next agent does not offer it again.
 
 **A fact that changed.** When a sentence of an accepted ADR is false now and
-its decision still holds, correct the sentence in place, in the change that
-makes it false or in the first one that finds it. Then add a line under
-`## Updates`, a heading right after the Status and Date lines:
-`- YYYY-MM-DD <source>: <section>. Was: "<the old words>".` The date is the
-day of the correction; the source is the issue, the pull request or the run
-that shows the new fact. The Status stays `accepted`. A later correction adds
-a line; no line is rewritten. The decision holds when code that kept it
-before the correction keeps it after, and code that broke it still breaks
-it. Otherwise it is reason 4, however few words change: "every write goes
-through the service" to "a component may write to the store" is a new ADR.
-When the false sentence was a reason for the decision, also file an issue
-that asks whether the decision still holds. An agent reads the ADRs as
-context, and a false sentence there misleads it.
+its decision is the same, correct the sentence in place: in the change that
+makes it false, or in the work on the issue that a finding outside the task
+files for it. Then add a line under `## Updates`, a heading right after the
+Status and Date lines:
+`- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
+The date is the day of the correction; the source is the issue, the pull
+request or the run that shows the new fact. The Status stays `accepted`. A
+later correction adds a line; no line is rewritten. The decision is the same
+when code that kept it before the correction keeps it after, and code that
+broke it still breaks it. Otherwise it is reason 4, however few words change:
+"every write goes through the service" to "a component may write to the
+store" is a new ADR. When the false sentence was a reason for the decision,
+also file an issue that asks whether the decision is still right.
 
 One decision per file, `NNNN-title.md`, numbered after the highest one in the
 folder. A file is never renamed or deleted, so a link to it does not rot. The

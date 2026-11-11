@@ -7,15 +7,16 @@
 ## Decision
 
 We will let `craft:architecture` correct a sentence of an accepted ADR that
-a later fact made false, when the decision of the ADR still holds. The
-sentence is corrected in place, in the change that makes it false or in the
-first one that finds it, and a line under `## Updates`, after the Status and
-Date lines, gives the date, the source of the fact, the section and the old
-words. The Status stays `accepted`. A change of what the decision commits to
-stays a new ADR that supersedes the old one, however few words it changes.
-When the false sentence was a reason for the decision, an issue asks whether
-the decision still holds. The review lens accepts the correction, and
-reports an ADR that a change made false.
+a later fact made false, when the decision of the ADR is the same. The
+sentence is corrected in place, in the change that makes it false, or in the
+work on the issue that a finding outside the task files for it. A line under
+`## Updates`, after the Status and Date lines, gives the date, the source of
+the fact, the section and the old words. The Status stays `accepted`. A
+change of what the decision commits to stays a new ADR that supersedes the
+old one, however few words it changes. When the false sentence was a reason
+for the decision, an issue asks whether the decision is still right. The
+review lens accepts the correction, and reports an ADR that a change made
+false.
 
 ## Rests on
 
@@ -31,11 +32,13 @@ reports an ADR that a change made false.
   (2026-11-11, `claude -p` with no tool, #343).
 - An agent can read an excerpt of an ADR, as a grep hit: in the appended
   form that excerpt is the stale sentence with no mark. No run measured this.
-- Joel Parker Henderson's ADR guide asks to amend an ADR by adding dated
-  new information rather than to alter what it says, and reports that
-  mutable ADRs worked better for its teams. AWS, Fowler and Microsoft keep
-  an accepted ADR immutable; Google Cloud allows an adjustment that keeps
-  the previous decision and says why.
+- Joel Parker Henderson's ADR guide reports that mutability worked better
+  for its teams: they insert new information into the existing ADR, with a
+  date stamp. The same guide also asks not to alter existing information.
+  This decision takes both: the sentence changes, and its old words stay in
+  a dated line. AWS, Fowler and Microsoft keep an accepted ADR immutable;
+  Google Cloud allows an adjustment that keeps the previous decision and
+  says why.
 - The person's choice on #343, after the panel of Fable and Codex.
 
 ## Revisit when
@@ -61,5 +64,5 @@ old words of an `## Updates` line as the current fact.
 
 ## Links
 
-#343, #267, #284, ADR 0007, `skills/architecture/SKILL.md`,
+#343, #267, #284, ADR 0006, ADR 0007, `skills/architecture/SKILL.md`,
 `skills/review-loop/architecture-lens.md`, `skills/product/store.md`

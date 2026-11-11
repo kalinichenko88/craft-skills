@@ -181,8 +181,8 @@ done
 #   code of `gh pr checks` cannot decide: a cancelled check gives 0, and a
 #   pull request with no check gives 1. So the merge reads each bucket.
 # - A settled ADR took no edit past its Status line, so 4 sentences of 2
-#   ADRs that a later fact made false stayed false, and Sonnet gave their
-#   stale answers in 5 of 5 runs (#343). The skill corrects such a sentence in
+#   ADRs that a later fact made false stayed false; on the two of ADR 0007,
+#   Sonnet gave the stale answers in 5 of 5 runs (#343). The skill corrects such a sentence in
 #   place with a dated line under `## Updates`, and the lens accepts it.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
@@ -227,7 +227,7 @@ rules.md|`craft:react-conventions` too. A subagent invokes them itself. No patte
 rules.md|A read-only subagent, as a review or an `Explore` subagent, files nothing, whatever the rules below say.
 skills/github/take-in.md|While a subagent reads the file, you can run `worktree.sh` below:
 skills/github/take-in.md|Claude Code: wait until each subagent that you sent returns. Then call `EnterWorktree`
-skills/architecture/SKILL.md|correct the sentence in place, in the change that makes it false or in the first one that finds it. Then add a line under `## Updates`, a heading right after the Status and Date lines:
+skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false, or in the work on the issue that a finding outside the task files for it. Then add a line under `## Updates`, a heading right after the Status and Date lines:
 skills/review-loop/architecture-lens.md|The one exception is *A fact that changed* in *ADRs*: a sentence corrected in place, with its line under `## Updates` that quotes the old words, and with the same decision.
 EOF
 # After a compaction Claude Code attaches each skill again, but counts 4
