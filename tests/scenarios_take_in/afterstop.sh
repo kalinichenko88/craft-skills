@@ -9,6 +9,7 @@ afterstop_check() {
   [ "$(grep -c '^person' "$d.events")" -ge 2 ] ||
     { echo "$0: $d has no second text of the person: the Given of its scenario does not hold" >&2; return 2; }
   answered "$where"
+  waited
   t=$(mktemp -d)
   for f in state.json branches workspace work given.workspace given.branches given.work; do [ ! -f "$d.$f" ] || cp "$d.$f" "$t/run.$f"; done
   awk '/^person/ { p++; next } p >= 2' "$d.events" >"$t/run.events"

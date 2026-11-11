@@ -18,5 +18,10 @@ there_copies() {
   copy there
   { grep '^person' "$fixtures/there.events"; grep -v '^person' "$fixtures/there.events"; } >"$tmp/$n/there.events"
   notchecked there
+  # A write before the answer: the Given holds, and the run did not stop with
+  # no change.
+  copy there
+  awk '/^person/ { print "Bash\tgh issue edit 91 --add-assignee @me" } 1' "$fixtures/there.events" >"$tmp/$n/there.events"
+  flips there 'the run stops: no change'
 }
 there_fails() { :; }

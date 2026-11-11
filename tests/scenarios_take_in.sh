@@ -281,8 +281,7 @@ check() {
   # after the one before it; with no answer <k>, after the last one.
   part() { awk -v k="$1" '/^person/ { p++; next } p == k - 1 && /^text/' "$d.events"; }
   # answered <regex>...: answer <k> of the person comes after a question that
-  # regex <k> matches, in part <k>, and the run waited before the last
-  # answer, or the Given of the case does not hold.
+  # regex <k> matches, in part <k>, or the Given of the case does not hold.
   answered() {
     local k=0 r
     for r; do
@@ -290,10 +289,11 @@ check() {
       { [ "$(grep -c '^person' "$d.events")" -ge "$k" ] && part "$k" | grep -qiE "($r)[^.?!]*\?"; } ||
         { echo "$0: $d has no answer $k of the person after a question that matches $r: the Given of its scenario does not hold" >&2; return 2; }
     done
-    waited
   }
   # waited: the run made no change before the last text of the person, or the
-  # Given of the case, a run that waited or stopped, does not hold.
+  # Given of the case does not hold. Only a Given that says that the earlier
+  # run waited or stopped calls it: in another case of more texts, an item of
+  # the case catches such a change.
   waited() {
     local at
     at=$(grep -n '^person' "$d.events" | tail -n 1 | cut -d: -f1)

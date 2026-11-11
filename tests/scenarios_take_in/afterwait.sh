@@ -29,5 +29,10 @@ afterwait_copies() {
   copy afterwait
   awk '/^person/ { p++ } !p && /^text/ { gsub(/rivera/, "someone") } 1' "$fixtures/afterwait.events" >"$tmp/$n/afterwait.events"
   notchecked afterwait
+  # A change before the answer: the run did not wait, and the Given does not
+  # hold.
+  copy afterwait
+  awk '/^person/ { print "Bash\tgh issue edit 91 --add-assignee @me" } 1' "$fixtures/afterwait.events" >"$tmp/$n/afterwait.events"
+  notchecked afterwait
 }
 afterwait_fails() { :; }

@@ -198,7 +198,14 @@ case " $* " in
     echo '{"type":"assistant","thinking_display":"updates","message":{"content":[{"type":"thinking","thinking":"Where does it run?"}]}}'
     echo '{"type":"assistant","thinking_display":"updates","narration_block_indexes":[0],"message":{"content":[{"type":"thinking","thinking":"Does the work run\nsomewhere else?"}]}}' ;;
 esac
-echo "{\"type\":\"result\",\"subtype\":\"success\",\"total_cost_usd\":$cost}"
+# STUB_COMPANION gives the result of the other conversation, and STUB_BREAK
+# breaks the workspace of a run that has one.
+sub=success
+case " $* " in
+  *" --input-format stream-json "*) sub=${STUB_COMPANION:-success} ;;
+  *) [ -z "${STUB_BREAK:-}" ] || [ ! -f "$PWD.companion" ] || rm -rf .git ;;
+esac
+echo "{\"type\":\"result\",\"subtype\":\"$sub\",\"total_cost_usd\":$cost}"
 EOF
 chmod +x "$tmp/stub/claude"
 [ "$(PATH="$tmp/stub:$PATH" command -v claude || true)" = "$tmp/stub/claude" ] || fail 'claude is not the stub'
@@ -251,6 +258,13 @@ got=$(stub free conv)
   [ "$(jq -r .message.content "$tmp/stub.args.stdin")" = '#91' ] && sed -n 3p "$tmp/stub.args" | grep -qe ' #91$' &&
   ! sed -n 3p "$tmp/stub.args" | grep -qe ListAgents && grep -qxF "$(printf 'companion\t#91')" "$tmp/stub.events"; } ||
   fail 'conv does not start its other conversation on #91, after the other runs, before a run with ListAgents' "$(cat "$tmp/stub.args")"
+# An other conversation that ends with an error gives no companion line, and
+# conv is not checked. A run of conv that fails does not stop the eval.
+got=$(STUB_COMPANION=error_max_budget_usd stub conv)
+{ ! grep -q '^companion' "$tmp/stub.events" && grep -qxF 'conv: not checked, as its check says above' <<<"$got"; } ||
+  fail 'an other conversation that ends with an error holds the Given of conv' "$got"
+got=$(STUB_BREAK=1 stub free conv)
+{ grep -q '^pass^1 free: ' <<<"$got" && grep -q '^runs: ' <<<"$got"; } || fail 'a run of conv that fails stops the eval' "$got"
 # A round of here can cost $8, a cap of $4 for each of its two messages.
 got=$(stub --max-cost 7 here)
 { [ ! -e "$tmp/stub.args" ] && grep -qxF "stopped before round 1 of 1: \$0.00 spent, and a round can cost \$8.00 more, past the cap of \$7" <<<"$got"; } ||

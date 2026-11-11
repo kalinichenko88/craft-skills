@@ -22,8 +22,8 @@
 # the run ends. The run then has ListAgents, and sees it as one of the
 # sessions of this machine. Such a case runs after the other cases of its
 # round end, one at a time, so that it sees no other run. When the other
-# conversation gives its first result, the log of the run starts with a
-# companion line and its first text. Its cap of $0.10 is not in the cap of a
+# conversation gives a first result with no error, the log of the run starts
+# with a companion line and its first text. Its cap of $0.10 is not in the cap of a
 # round that --max-cost reads.
 #
 # With --runs k, each case runs k times, one round of the cases after
@@ -77,7 +77,8 @@ answers() { awk -F'\t' -v c="$1" '$1 == c { for (i = 5; i <= NF; i++) print $i }
 # <work> and <tmp>. Each line of a command becomes one part of a line, after
 # "; ". Then snapshot writes <dir>.branches and <dir>.workspace.
 record() {
-  { [ ! -f "$1.companion.jsonl" ] || ! grep -q '"type":"result"' "$1.companion.jsonl" || printf 'companion\t%s\n' "$(cat "$1.companion")"
+  { [ ! -f "$1.companion.jsonl" ] || [ "$(jq -Rr 'fromjson? | select(.type == "result") | .subtype' "$1.companion.jsonl" | head -n 1)" != success ] ||
+    printf 'companion\t%s\n' "$(cat "$1.companion")"
   jq -r 'if .type == "person" then "person\t" + .text
     elif .type == "assistant" then (if .parent_tool_use_id then "sub" else "" end) as $sub
       | (.narration_block_indexes // []) as $said
@@ -211,11 +212,13 @@ for i in $(seq "$k"); do
   fi
   mkdir "$runs/run$i"
   rounds+=("$runs/run$i")
-  # A case whose setup fails gets no run.
-  for c in $cases; do take_in setup "$runs/run$i/$c" "$c" || rm -f "$runs/run$i/$c.state.json"; done
+  # A case whose setup fails gets no run. A run that fails ends alone, as a
+  # job of its own.
+  for c in $cases; do { take_in setup "$runs/run$i/$c" "$c" || rm -f "$runs/run$i/$c.state.json"; } & done
+  wait
   for c in $cases; do [ -f "$runs/run$i/$c.companion" ] || run "$runs/run$i" "$c" & done
   wait
-  for c in $cases; do [ ! -f "$runs/run$i/$c.companion" ] || run "$runs/run$i" "$c"; done
+  for c in $cases; do [ ! -f "$runs/run$i/$c.companion" ] || { run "$runs/run$i" "$c" & wait "$!" || true; }; done
 done
 score "$k" ${rounds[@]+"${rounds[@]}"}
 [ -z "$stop" ] || echo "$stop"
