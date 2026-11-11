@@ -268,7 +268,7 @@ Then:
 - #96 is merged
 - the merge adds one commit to the default branch
 - that commit holds every change of #96
-- the subject of that commit starts with the title of #96
+- the subject of that commit is the title of #96 in English, then `(#96)`
 - #91 is closed
 - #91 does not have the label `in progress`
 - the repository has no branch `fix/91-parse-rows`
