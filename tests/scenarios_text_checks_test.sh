@@ -10,9 +10,10 @@
 # base's answers on the working tree walk the limits one run at a time, with
 # five runs on each side and with four: most runs on the working tree, and at
 # most a fifth on the base. A second set of runs in again/ keeps an item LOST
-# only when it loses the item too. With a stub claude, the eval gives a second
-# set only to a row with a LOST item. It refuses a wrong call, a scenario file
-# with no row, in this tree too, a file of a
+# only when it loses the item too, on both sides. With a stub claude, the eval
+# gives a second set only to a row with a LOST item, and a second set with no
+# answer stops it with the reason of that set. It refuses a wrong call, a
+# scenario file with no row, in this tree too, a file of a
 # row that is missing in the working tree, also in a later row before any
 # run, and runs with no answer; and it gives the base's text and the working
 # tree's to the two sides, no line of a file that the base does not have, the
@@ -87,6 +88,11 @@ out=$(checks "$tmp/twice")
   fail 'two sets of the recorded runs do not lose the 15 items of the cut lines' "$out"
 [ "$(tail -n 1 <<<"$out")" = '15 of 83 items lost, 10 runs on the working tree and 10 on the base' ] ||
   fail 'the last line does not count the runs of both sets' "$out"
+set_none "$tmp/twice/again/base1.txt" 2.T2
+set_none "$tmp/twice/again/base2.txt" 2.T2
+out=$(checks "$tmp/twice")
+[ "$(sed -n 's/^LOST \([^ ]*\) .*/\1/p' <<<"$out" | tr '\n' ' ')" = '2.T3 2.N1 2.N2 2.N3 4.T3 4.N1 4.N2 5.T2 5.T3 5.N1 12.T2 12.T3 12.N1 12.N2 ' ] ||
+  fail 'an item with no line in 2 of 5 runs on the base of the second set is lost' "$out"
 for i in 1 2 3 4 5; do cp "$fixtures/base$i.txt" "$tmp/twice/again/change$i.txt"; done
 expect twice '' 'an item that the second set does not lose is lost'
 mkdir -p "$tmp/later/again"
@@ -223,10 +229,16 @@ grep -qxF "$evalsh: the first run printed: error: unknown option" "$tmp/err" || 
 
 # A stub claude that gives each item a line, and none when the prompt has the
 # line of the working tree only. A row with no LOST item gets one set of runs;
-# a row with one gets a second set in again/, and both sets count.
+# a row with one gets a second set in again/, and both sets count. With a
+# file limit beside it, each call after the first two ends in an error.
 cat >"$tmp/bin/claude" <<'EOF'
 #!/usr/bin/env bash
-echo >>"$(dirname "$0")/calls"
+d=$(dirname "$0")
+echo >>"$d/calls"
+if [ -e "$d/limit" ] && [ "$(grep -c '' "$d/calls")" -gt 2 ]; then
+  echo '{"is_error": true, "result": "Limit reached"}'
+  exit 1
+fi
 p=$(cat)
 a='x:1 "y"'
 case $p in *'A line of the working tree only.'*) a=none ;; esac
@@ -245,4 +257,12 @@ sets() {
 sets 2 '0 of 83 items lost, 1 runs on the working tree and 1 on the base' 'a row with no LOST item gets a second set'
 echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
 sets 4 '83 of 83 items lost, 2 runs on the working tree and 2 on the base' 'a row with a LOST item gets no second set'
+touch "$tmp/bin/limit"
+rm -f "$tmp/bin/calls"
+code=0
+PATH="$tmp/bin:$PATH" "$evalsh" "$take" 1 HEAD >"$tmp/out" 2>"$tmp/err" || code=$?
+rm -rf "$(sed -n 's/^Runs: //p' "$tmp/out")"
+[ "$code" = 2 ] || fail "a second set with no answer exited $code, not 2" "$(cat "$tmp/err")"
+grep -qxF "$evalsh: the first run printed: Limit reached" "$tmp/err" ||
+  fail 'a second set with no answer does not print the reason of its first run' "$(cat "$tmp/err")"
 echo 'scenarios_text_checks_test: ok'

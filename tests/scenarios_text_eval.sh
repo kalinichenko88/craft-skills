@@ -27,10 +27,11 @@
 # The rule before #328, one set with half of the runs on the base, failed 3 of
 # 8 runs of the CI job on pull requests, on items at 3 of 5 against 1 or 2 of 5
 # on the base that the next run did not give again. Measured on 2026-11-11
-# with k = 5: on texts equal to the base, 3 rows of filing.md and 2 of
-# worth.md, it lost an item in 2 rows, and this rule in none; on a cut of
-# lines 32 to 35 and 45 of take-in.md, this rule loses 13 items, each with a
-# line in all 10 runs on the base.
+# with k = 5, on texts equal to the base, 3 rows of filing.md and 2 of
+# worth.md: that rule lost an item in 2 rows, the second set alone or the
+# fifth alone in 1, and both in none. On a cut of lines 32 to 35 and 45 of
+# take-in.md, this rule loses 13 of the 17 items that the cut lines produce,
+# 16 in the first set, each with a line in all runs on the base.
 #
 # Measured before #328 on two cuts of five lines of take-in.md with k = 5: 22
 # of the 26 items that the cut lines produce are LOST, and no other item. One
