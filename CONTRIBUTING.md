@@ -59,8 +59,10 @@ GitHub Actions runs `make check` on each pull request and each push to `main`
 job runs gitleaks on the new commits. On a pull request from this repository,
 a third job runs `tests/scenarios_text_eval.sh --changed`, below, and fails on
 a LOST item (ADR 0007). It reads the secret `CLAUDE_CODE_OAUTH_TOKEN`, which
-`claude setup-token` prints. The other eval scripts call the model, so they do
-not run there.
+`claude setup-token` prints. The token is 108 characters, and the terminal can
+wrap it: a secret with its first line only gives `401 OAuth access token is
+invalid`, so join the lines, as with `pbpaste | tr -d '[:space:]'`. The other
+eval scripts call the model, so they do not run there.
 
 A skill script that sets an EXIT trap under `set -u` empties `finished` before
 the trap and sets `finished=1` at each end that succeeds. Its trap turns an exit
