@@ -52,8 +52,11 @@ time.
   repository's check on the final branch. When it passes and the branch is
   not the default branch, the agent pushes, opens the PR and shows the exact
   merge command, in the same turn. In a worktree, it asks one question: merge
-  and clean up, merge only, or do not merge. After a stop at round 3, more
-  rounds is one more answer. Clean up removes the worktree
+  and clean up, merge only, or do not merge. Before the merge, it waits for
+  the PR's checks: a failed or cancelled check stops it, and so does a
+  refusal of GitHub, which it passes with `--admin` only when you ask. After
+  a stop at round 3, more rounds is one more answer. Clean up removes the
+  worktree
   and the local branch after the merge, when nothing in them would be lost.
   Only the merge and the open questions on business logic wait for you, and
   after the merge, the drafts for the plugin's tracker.

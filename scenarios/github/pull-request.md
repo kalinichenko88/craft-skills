@@ -15,7 +15,10 @@ Not covered yet:
   to;
 - the language of the title and the text of the pull request, and the text
   of the commit that the merge adds;
-- the answer do not merge, and a merge that fails;
+- the answer do not merge, and a merge that fails for another reason than a
+  rule of the repository;
+- a pull request check that is cancelled, and one that starts only after
+  the run reads the pull request checks;
 - the merge of a branch that no workspace of its task has;
 - a duplicate that closes only after a reproduction of the failure, after
   the merge;
@@ -167,6 +170,64 @@ Then:
   up
 Never:
 - the workspace of #91 is removed before #96 is merged
+
+## The answer merge only while a pull request check runs
+
+Given:
+- task #91 is open, assigned to the person
+- the workspace of #91 is on branch `fix/91-parse-rows`
+- pull request #96 of the person is open, merges `fix/91-parse-rows` into
+  the default branch, and closes #91
+- the pull request check `test` of #96 runs, and passes three minutes later
+- an earlier run asked whether to merge #96, with three answers: merge and
+  remove the workspace of #91, merge only, and do not merge
+When: the person answers merge only
+Then:
+- #96 is merged
+- #91 is closed
+Never:
+- #96 is merged while `test` runs
+
+## The answer merge after a pull request check failed
+
+Given:
+- task #91 is open, assigned to the person
+- the workspace of #91 is on branch `fix/91-parse-rows`
+- pull request #96 of the person is open, merges `fix/91-parse-rows` into
+  the default branch, and closes #91
+- the pull request check `test` of #96 failed
+- an earlier run asked whether to merge #96, with three answers: merge and
+  remove the workspace of #91, merge only, and do not merge
+When: the person answers merge and remove the workspace of #91
+Then:
+- #96 is open
+- #91 is open
+- the person is told that `test` of #96 failed
+- the workspace of #91 is on `fix/91-parse-rows`
+- the run waits
+Never:
+- #96 is merged
+- the workspace of #91 is removed
+
+## A merge that a rule of the repository refuses
+
+Given:
+- task #91 is open, assigned to the person
+- the workspace of #91 is on branch `fix/91-parse-rows`
+- pull request #96 of the person is open, merges `fix/91-parse-rows` into
+  the default branch, and closes #91
+- a rule of the repository refuses the merge of a pull request that no
+  other person approved, and no other person approved #96
+- the account of the person may merge past that rule
+- an earlier run asked whether to merge #96, with three answers: merge and
+  remove the workspace of #91, merge only, and do not merge
+When: the person answers merge only
+Then:
+- #96 is open
+- the person is told that the repository refused the merge of #96, and why
+- the run waits
+Never:
+- #96 is merged
 
 ## A merge that fixes an added finding of another task
 

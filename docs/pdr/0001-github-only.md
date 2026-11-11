@@ -47,3 +47,9 @@ or an issue or a comment from another person that asks for it.
 ## Links
 
 #185, ADR 0002, `docs/ARCHITECTURE.md` I-6, I-7, I-8
+
+## Checked
+
+- 2026-11-11 #309: the merge waits for the checks of the pull request with
+  `gh pr checks`. A ruleset is a setting of each repository, so only a rule
+  of the plugin reaches all of them; the rule adds no host.
