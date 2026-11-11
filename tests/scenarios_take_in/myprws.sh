@@ -10,12 +10,12 @@ myprws_given() {
   git -C "$w" commit -qm 'docs: start the fix of the install command'
   git -C "$w" push -q -u origin fix/91-typo
   git -C "$w" switch -q main
-  given='.issues[0] |= (.assignees = [$me] | .labels = ["in progress"]) | .labels += ["in progress"] | .prs = [pr($me; "fix/91-typo")]'
+  inprogress_given
+  given+=' | .prs = [pr($me; "fix/91-typo")]'
 }
 myprws_check() {
   first
-  item 'the person is told in one line that the work on #91 continues on fix/91-typo' \
-    'grep "^text" "$d.events" | grep -F fix/91-typo | grep -qi continu'
+  continued
   item 'the work goes on, on fix/91-typo' 'worked fix/91-typo'
   item 'never: the person is asked whether the work runs somewhere else' '! asked "$where"'
   # The fake gh opens no pull request, so a try to open one counts.

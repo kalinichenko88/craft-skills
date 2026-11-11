@@ -17,5 +17,10 @@ here_copies() {
   copy here
   grep -v '^person' "$fixtures/here.events" >"$tmp/$n/here.events"
   notchecked here
+  # A change before the answer: the run did not wait, and the Given does not
+  # hold.
+  copy here
+  awk '/^person/ { print "Edit\t<work>/README.md" } 1' "$fixtures/here.events" >"$tmp/$n/here.events"
+  notchecked here
 }
 here_fails() { :; }

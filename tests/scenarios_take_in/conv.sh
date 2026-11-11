@@ -5,10 +5,13 @@ conv_case() { line conv 2 'An earlier run works on the task in another conversat
 # holds, and the session title names it "#91" and the short title.
 conv_given() {
   inws_given
-  given='.issues[0] |= (.assignees = [$me] | .labels = ["in progress"] | .linked = ["fix/91-typo"]) | .labels += ["in progress"]'
+  inprogress_given
+  given+=' | .issues[0].linked = ["fix/91-typo"]'
   echo '#91' >"$w.companion"
 }
 conv_check() {
+  grep -q '^companion' "$d.events" ||
+    { echo "$0: $d has no other conversation that gave a result: the Given of its scenario does not hold" >&2; return 2; }
   first
   item 'the person is told which other conversation holds the work on #91' 'told "#91 the install command says npm instal"'
   nochange 'the run stops'
@@ -34,6 +37,10 @@ conv_copies() {
   copy conv
   sed -i.bak 's/^worktrees 1$/worktrees 2/' "$tmp/$n/conv.workspace"
   flips conv 'never: a workspace of #91 is created' 'the run stops: no change'
+  # The other conversation gave no result: the Given does not hold.
+  copy conv
+  grep -v '^companion' "$fixtures/conv.events" >"$tmp/$n/conv.events"
+  notchecked conv
 }
 conv_fails() {
   # The first message about #91 is a narration with no title (#317).

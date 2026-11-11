@@ -245,7 +245,7 @@ check() {
     item 'a branch <type>/91-<two to four words> exists' 'grep -qE "^(feat|fix|refactor|docs|test|ci|chore)/91-[a-z0-9]+(-[a-z0-9]+){1,3}(, not from main)?\$" "$d.branches"'
     item 'that branch is made from the default branch' '[ -n "$branch" ] && grep -qxF "$branch" "$d.branches"'
     item 'that branch is linked to #91' '[ -n "$branch" ] && cut -d, -f1 "$d.branches" | grep -qxF "$branch"'
-    item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'
+    onelinked
   }
   # gisted: the gist comes before any change.
   gisted() {
@@ -268,13 +268,21 @@ check() {
   unlabelled() { item 'never: #91 gets the label in progress' "[ $progress = false ]"; }
   # kept <item>: the workspace's fix/91-typo has the last commit of the Given.
   kept() { item "$1" '[ "$(tip "$d.workspace" | cut -d" " -f2)" = "$(tip "$d.given.workspace" | cut -d" " -f2)" ]'; }
+  onelinked() { item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'; }
+  # continued: the line that names fix/91-typo says that the work continues
+  # there; the log keeps no line break of a message.
+  continued() {
+    item 'the person is told in one line that the work on #91 continues on fix/91-typo' \
+      'grep "^text" "$d.events" | grep -F fix/91-typo | grep -qi continu'
+  }
   # oneworkspace: no worktree is made for #91.
   oneworkspace() { item 'never: a workspace of #91 is created' 'grep -qx "worktrees 1" "$d.workspace"'; }
   # part <k>: the messages to the person before answer <k> of the person and
   # after the one before it; with no answer <k>, after the last one.
   part() { awk -v k="$1" '/^person/ { p++; next } p == k - 1 && /^text/' "$d.events"; }
   # answered <regex>...: answer <k> of the person comes after a question that
-  # regex <k> matches, in part <k>, or the Given of the case does not hold.
+  # regex <k> matches, in part <k>, and the run waited before the last
+  # answer, or the Given of the case does not hold.
   answered() {
     local k=0 r
     for r; do
@@ -282,6 +290,15 @@ check() {
       { [ "$(grep -c '^person' "$d.events")" -ge "$k" ] && part "$k" | grep -qiE "($r)[^.?!]*\?"; } ||
         { echo "$0: $d has no answer $k of the person after a question that matches $r: the Given of its scenario does not hold" >&2; return 2; }
     done
+    waited
+  }
+  # waited: the run made no change before the last text of the person, or the
+  # Given of the case, a run that waited or stopped, does not hold.
+  waited() {
+    local at
+    at=$(grep -n '^person' "$d.events" | tail -n 1 | cut -d: -f1)
+    [ -z "$first_write" ] || [ "$first_write" -gt "${at:-0}" ] ||
+      { echo "$0: $d has a change before the last text of the person: the Given of its scenario does not hold" >&2; return 2; }
   }
   "$2_check"
 }

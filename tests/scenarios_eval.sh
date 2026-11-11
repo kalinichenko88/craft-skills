@@ -7,9 +7,9 @@
 # resumes that session, with --resume and the same plugin and PATH. Then it
 # checks the Then and Never items of the case's
 # scenario against the end state of the JSON, the branches of the origin, and
-# the session's messages and tool calls. tests/scenarios_take_in.sh holds the
-# cases, and tests/scenarios_take_in/ a file for each case, with its scenario,
-# its Given and its checks.
+# the session's messages and tool calls. tests/scenarios_take_in/ holds a
+# file for each case, with its scenario, its Given and its checks, and
+# tests/scenarios_take_in.sh what the cases share.
 #
 # The session loads this checkout as the plugin, with --setting-sources
 # project, so no other plugin and no setting of this machine reaches it. It
@@ -20,7 +20,11 @@
 # gives: a session of Haiku with no tools starts on the first text of that
 # conversation, which the file holds, before the run, and stays open until
 # the run ends. The run then has ListAgents, and sees it as one of the
-# sessions of this machine.
+# sessions of this machine. Such a case runs after the other cases of its
+# round end, one at a time, so that it sees no other run. When the other
+# conversation gives its first result, the log of the run starts with a
+# companion line and its first text. Its cap of $0.10 is not in the cap of a
+# round that --max-cost reads.
 #
 # With --runs k, each case runs k times, one round of the cases after
 # another. As tau-bench scores an agent, a case passes pass^k only when each
@@ -73,6 +77,7 @@ answers() { awk -F'\t' -v c="$1" '$1 == c { for (i = 5; i <= NF; i++) print $i }
 # <work> and <tmp>. Each line of a command becomes one part of a line, after
 # "; ". Then snapshot writes <dir>.branches and <dir>.workspace.
 record() {
+  { [ ! -f "$1.companion.jsonl" ] || ! grep -q '"type":"result"' "$1.companion.jsonl" || printf 'companion\t%s\n' "$(cat "$1.companion")"
   jq -r 'if .type == "person" then "person\t" + .text
     elif .type == "assistant" then (if .parent_tool_use_id then "sub" else "" end) as $sub
       | (.narration_block_indexes // []) as $said
@@ -82,7 +87,7 @@ record() {
         elif .type == "tool_use" then $sub + .name + "\t"
           + ((.input.command // .input.file_path // .input.skill // .input.description // "") | tostring | gsub("\n"; "; "))
         else empty end
-    else empty end' "$1.jsonl" |
+    else empty end' "$1.jsonl"; } |
     awk -v r="$root" -v w="$1" -v t="${TMPDIR:-/tmp}" '{ gsub(r, "<craft>"); gsub("(/private)?" w, "<work>")
       gsub("(/private)?" t, "<tmp>/"); gsub("<tmp>//", "<tmp>/"); print }' >"$1.events"
   take_in snapshot "$1" "$1"
@@ -162,19 +167,19 @@ companion() {
   mkfifo "$w.in"
   exec 7<>"$w.in"
   (cd "$w" && PATH="$w.bin:$PATH" exec claude -p --model haiku --setting-sources project --settings '{"language":"English"}' \
-    --plugin-dir "$root" --input-format stream-json --output-format stream-json --verbose --tools "" --max-budget-usd 0.5 \
+    --plugin-dir "$root" --input-format stream-json --output-format stream-json --verbose --tools "" --max-budget-usd 0.1 \
     <&7 >"$w.companion.jsonl" 2>&1) &
   pid=$!
   jq -nc --arg t "$(cat "$w.companion")" '{type: "user", message: {role: "user", content: $t}}' >&7
   for i in $(seq 60); do ! grep -q '"type":"result"' "$w.companion.jsonl" || break; sleep 1; done
 }
 
-# run <round folder> <case>: the session on the message of the case, and on
-# each of its answers, which a person line in the log comes before; each
-# answer resumes the session of the message before it.
+# run <round folder> <case>: the session on the message of the case, set up
+# before, and on each of its answers, which a person line in the log comes
+# before; each answer resumes the session of the message before it.
 run() {
   local w=$1/$2 id a pid=
-  take_in setup "$w" "$2"
+  [ -f "$w.state.json" ] || return 0
   [ ! -f "$w.companion" ] || companion "$w"
   session "$w" "$2" "$(message "$2")" >"$w.jsonl"
   answers "$2" | while IFS= read -r a; do
@@ -206,8 +211,11 @@ for i in $(seq "$k"); do
   fi
   mkdir "$runs/run$i"
   rounds+=("$runs/run$i")
-  for c in $cases; do run "$runs/run$i" "$c" & done
+  # A case whose setup fails gets no run.
+  for c in $cases; do take_in setup "$runs/run$i/$c" "$c" || rm -f "$runs/run$i/$c.state.json"; done
+  for c in $cases; do [ -f "$runs/run$i/$c.companion" ] || run "$runs/run$i" "$c" & done
   wait
+  for c in $cases; do [ ! -f "$runs/run$i/$c.companion" ] || run "$runs/run$i" "$c"; done
 done
 score "$k" ${rounds[@]+"${rounds[@]}"}
 [ -z "$stop" ] || echo "$stop"

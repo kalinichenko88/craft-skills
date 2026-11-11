@@ -8,7 +8,7 @@ linkedhere_check() {
   labelled
   item 'the work goes on, on fix/91-typo' 'worked fix/91-typo'
   nobranch '["fix/91-typo"]'
-  item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'
+  onelinked
 }
 linkedhere_copies() {
   # #91 not assigned, without the label, no work on fix/91-typo, a new branch,

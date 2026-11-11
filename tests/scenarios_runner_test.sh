@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Runs tests/scenarios_eval.sh with no model: the fake gh of tests/fake_gh.sh
 # marks the writes that come after the work started, take-in-check.sh reads
-# the Given of each case of tests/scenarios_take_in.sh through the fake gh as
+# the Given of each case of tests/scenarios_take_in/ through the fake gh as
 # the scenario of the case gives it, the pass^k lines count
 # the runs of each case over the folders given, and a stub claude shows that a
 # run takes --model, that the answer of a case of two messages resumes the
@@ -136,6 +136,11 @@ was=$(git -C "$w.origin" rev-parse fix/91-typo)
 (cd "$w" && PATH="$w.bin:$PATH" gh issue develop 91 --name fix/91-typo >/dev/null)
 { [ "$(git -C "$w.origin" rev-parse fix/91-typo)" = "$was" ] && [ "$(jq -c '.issues[0].linked' "$w.state.json")" = '["fix/91-typo"]' ]; } ||
   fail 'the fake gh makes again a branch that the origin has, or links it twice'
+# A task that the fake gh made has no list of linked branches: a branch of it
+# is linked all the same.
+(cd "$w" && PATH="$w.bin:$PATH" gh issue create --title x >/dev/null && PATH="$w.bin:$PATH" gh issue develop 92 --name fix/92-x >/dev/null)
+[ "$(jq -c '.issues[] | select(.number == 92) | .linked' "$w.state.json")" = '["fix/92-x"]' ] ||
+  fail 'the fake gh links no branch to a task that it made'
 # The pull request of another person, by number and by branch, and the lists
 # that take it or not by its branch and its state.
 w=$tmp/given/otherpr
@@ -238,12 +243,14 @@ got=$(stub linkedhere)
 # The other conversation of conv starts first, on Haiku with no tools, and
 # reads "#91"; the run then has ListAgents, and the cases with no such
 # conversation do not.
+# It runs after the other cases of the round end, so that it sees no other run.
 rm -f "$tmp/stub.args.stdin"
-got=$(stub conv)
-{ sed -n 1p "$tmp/stub.args" | grep -qe '--model haiku .*--input-format stream-json .*--tools ' &&
-  [ "$(jq -r .message.content "$tmp/stub.args.stdin")" = '#91' ] && sed -n 2p "$tmp/stub.args" | grep -qe ' #91$' &&
-  ! sed -n 2p "$tmp/stub.args" | grep -qe ListAgents; } ||
-  fail 'conv does not start its other conversation on #91 before a run with ListAgents' "$(cat "$tmp/stub.args")"
+got=$(stub free conv)
+{ sed -n 1p "$tmp/stub.args" | grep -qe '--disallowedTools ListAgents .* #91$' &&
+  sed -n 2p "$tmp/stub.args" | grep -qe '--model haiku .*--input-format stream-json .*--tools ' &&
+  [ "$(jq -r .message.content "$tmp/stub.args.stdin")" = '#91' ] && sed -n 3p "$tmp/stub.args" | grep -qe ' #91$' &&
+  ! sed -n 3p "$tmp/stub.args" | grep -qe ListAgents && grep -qxF "$(printf 'companion\t#91')" "$tmp/stub.events"; } ||
+  fail 'conv does not start its other conversation on #91, after the other runs, before a run with ListAgents' "$(cat "$tmp/stub.args")"
 # A round of here can cost $8, a cap of $4 for each of its two messages.
 got=$(stub --max-cost 7 here)
 { [ ! -e "$tmp/stub.args" ] && grep -qxF "stopped before round 1 of 1: \$0.00 spent, and a round can cost \$8.00 more, past the cap of \$7" <<<"$got"; } ||

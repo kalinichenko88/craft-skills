@@ -5,6 +5,7 @@ afterwait_given() { other_given; }
 afterwait_check() {
   { grep -q '^person' "$d.events" && part 1 | grep -qiF "$other"; } ||
     { echo "$0: $d has no answer of the person after a message that #91 is assigned to $other: the Given of its scenario does not hold" >&2; return 2; }
+  waited
   item '#91 is assigned to the person' 'jq -e --arg me "$me" "index(\$me) != null" <<<"$assignees" >/dev/null'
   labelled
   branched

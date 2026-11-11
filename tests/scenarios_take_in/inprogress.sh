@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016,SC2034,SC2154,SC2329 # sourced: the helpers and values are in scenarios_take_in.sh and scenarios_checks_test.sh
 inprogress_case() { line inprogress 2 'A task in progress for the person, with no branch' '#91'; }
-# The Given of inprogress, here and there.
+# The Given of inprogress, and with more of the cases whose task is in progress
+# for the person.
 inprogress_given() { given='.issues[0] |= (.assignees = [$me] | .labels = ["in progress"]) | .labels += ["in progress"]'; }
 inprogress_check() {
   first

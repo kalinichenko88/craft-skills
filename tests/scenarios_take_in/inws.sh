@@ -9,13 +9,11 @@ inws_given() {
 }
 inws_check() {
   first
-  # What the message says: the log keeps no line break of a message.
-  item 'the person is told in one line that the work on #91 continues on fix/91-typo' \
-    'grep "^text" "$d.events" | grep -F fix/91-typo | grep -qi continu'
+  continued
   # A commit on fix/91-typo, or a changed file in its worktree.
   item 'the work goes on, on fix/91-typo' '[ -n "$(tip "$d.workspace")" ] && [ "$(tip "$d.workspace")" != "$(tip "$d.given.workspace")" ]'
   item 'never: the person is asked whether the work runs somewhere else' '! asked "$where"'
-  item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'
+  onelinked
   item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$me\"]" ]'
 }
 inws_copies() {

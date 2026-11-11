@@ -6,9 +6,9 @@ afterstop_given() { inprogress_given; }
 # text of the person.
 afterstop_check() {
   local t f
-  answered "$where"
   [ "$(grep -c '^person' "$d.events")" -ge 2 ] ||
     { echo "$0: $d has no second text of the person: the Given of its scenario does not hold" >&2; return 2; }
+  answered "$where"
   t=$(mktemp -d)
   for f in state.json branches workspace work given.workspace given.branches given.work; do [ ! -f "$d.$f" ] || cp "$d.$f" "$t/run.$f"; done
   awk '/^person/ { p++; next } p >= 2' "$d.events" >"$t/run.events"
@@ -40,6 +40,11 @@ afterstop_copies() {
   flips afterstop 'never: the assignees of #91 change'
   copy afterstop
   awk '/^person/ && ++p == 2 { next } 1' "$fixtures/afterstop.events" >"$tmp/$n/afterstop.events"
+  notchecked afterstop
+  # A write before the second text: the run did not stop, and the Given does
+  # not hold.
+  copy afterstop
+  awk '/^person/ && ++p == 2 { print "Bash\tgh issue comment 91 --body x" } 1' "$fixtures/afterstop.events" >"$tmp/$n/afterstop.events"
   notchecked afterstop
 }
 afterstop_fails() { :; }

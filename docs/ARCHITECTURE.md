@@ -227,9 +227,10 @@ hold 10. A new number needs an ADR.
 
 - **I-8.** A code file MUST have at most 330 lines.
   Check: lines 330 in `.` debt `tests/github_scripts_test.sh` `tests/roadmap_scripts_test.sh`.
-- **I-9.** A folder MUST hold at most 10 code files of its own. `tests/` is
-  out of the check: its test scripts stay at its top, because the Makefile
-  finds a test only as `tests/<name>_test.sh`.
+- **I-9.** A folder MUST hold at most 10 code files of its own. `tests/` and
+  its folders are out of the check: its test scripts stay at its top,
+  because the Makefile finds a test only as `tests/<name>_test.sh`, and
+  `tests/scenarios_take_in/` holds one file for each case of the eval.
   Check: files 10 in `.` except `tests`.
 
 ## Cross-cutting concerns

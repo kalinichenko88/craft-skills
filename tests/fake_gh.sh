@@ -227,7 +227,7 @@ case "$1 $2" in
       # A branch that the origin has already stays as it is, and is linked once.
       b=$(value --name) origin=$(jq -r .origin "$state")
       git -C "$origin" show-ref -q --verify "refs/heads/$b" || git -C "$origin" branch "$b" main
-      save --argjson n "$num" --arg b "$b" '(.issues[] | select(.number == $n) | .linked) |= (if any(.[]; . == $b) then . else . + [$b] end)'
+      save --argjson n "$num" --arg b "$b" '(.issues[] | select(.number == $n) | .linked) |= ((. // []) | if any(.[]; . == $b) then . else . + [$b] end)'
       logged develop "$num"
       echo "github.com/$repo/tree/$b"
       [[ $* != *--checkout* ]] || { git fetch -q origin "$b" && git checkout -q -b "$b" "origin/$b"; }
