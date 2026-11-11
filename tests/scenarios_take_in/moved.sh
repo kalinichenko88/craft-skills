@@ -9,7 +9,7 @@ moved_check() {
   item 'the person is asked whether the work on #91 runs somewhere else or continues here' 'asked "$where"'
   nochange 'the run waits'
   nobranch '["fix/91-typo"]'
-  item "never: the workspace's fix/91-typo changes" '[ "$(tip "$d.workspace" | cut -d" " -f2)" = "$(tip "$d.given.workspace" | cut -d" " -f2)" ]'
+  kept "never: the workspace's fix/91-typo changes"
 }
 moved_copies() {
   # Told with no name of the linked branch.

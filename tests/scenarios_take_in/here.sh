@@ -3,7 +3,7 @@
 here_case() { line here 4 "The work on the person's task continues here" '#91' 'It continues here.'; }
 here_given() { inprogress_given; }
 here_check() {
-  answered
+  answered "$where"
   item '#91 stays assigned to the person' '[ "$assignees" = "[\"$me\"]" ]'
   branched
 }

@@ -3,9 +3,9 @@
 # #231. Each case builds a tracker as JSON and a workspace with a bare origin,
 # puts a gh first on PATH that runs tests/fake_gh.sh over that JSON, and runs one
 # session of `claude -p` on the person's message, on the model of --model,
-# opus by default. In a case of two messages, the person's answer to the
-# question of the first one resumes that session, with --resume and the same
-# plugin and PATH. Then it checks the Then and Never items of the case's
+# opus by default. In a case of more messages, each answer of the person
+# resumes that session, with --resume and the same plugin and PATH. Then it
+# checks the Then and Never items of the case's
 # scenario against the end state of the JSON, the branches of the origin, and
 # the session's messages and tool calls. tests/scenarios_take_in.sh holds the
 # cases, and tests/scenarios_take_in/ a file for each case, with its scenario,
@@ -15,7 +15,12 @@
 # project, so no other plugin and no setting of this machine reaches it. It
 # runs with no ListAgents: that tool lists every session of this machine, so
 # the runs of a round see each other as open sessions on #91, and the log
-# would hold the names of the person's other sessions.
+# would hold the names of the person's other sessions. The one exception is a
+# case whose Given has another open conversation, as <dir>.companion of setup
+# gives: a session of Haiku with no tools starts on the first text of that
+# conversation, which the file holds, before the run, and stays open until
+# the run ends. The run then has ListAgents, and sees it as one of the
+# sessions of this machine.
 #
 # With --runs k, each case runs k times, one round of the cases after
 # another. As tau-bench scores an agent, a case passes pass^k only when each
@@ -51,12 +56,12 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 usage() { echo "usage: $0 [--runs k] [--model name] [--max-cost usd] [case ...] | --check <round folder> ... | --not-run" >&2; exit 2; }
 take_in() { bash "$root/tests/scenarios_take_in.sh" "$@"; }
 table=$(take_in cases)
-# budget <case>, message <case>, answer <case>: the cap of one message, the
-# message of the person, and the answer after it or nothing, from the line of
-# the case.
+# budget <case>, message <case>, answers <case>: the cap of one message, the
+# message of the person, and each answer after it, one on each line, from the
+# line of the case.
 budget() { awk -F'\t' -v c="$1" '$1 == c { print $2 }' <<<"$table"; }
 message() { awk -F'\t' -v c="$1" '$1 == c { print $4 }' <<<"$table"; }
-answer() { awk -F'\t' -v c="$1" '$1 == c { print $5 }' <<<"$table"; }
+answers() { awk -F'\t' -v c="$1" '$1 == c { for (i = 5; i <= NF; i++) print $i }' <<<"$table"; }
 # record <dir>: <dir>.events holds the messages to the person, as text lines,
 # the answer of the person, as a person line,
 # the session's other thinking that has words, as think lines, and each tool
@@ -138,26 +143,45 @@ command -v claude >/dev/null || { echo "$0: no claude command" >&2; exit 2; }
 command -v jq >/dev/null || { echo "$0: no jq command" >&2; exit 2; }
 
 # session <workspace> <case> <argument>...: one claude -p in the workspace,
-# on the message that the last argument gives.
+# on the message that the last argument gives. It reads no input, and does
+# not hold the pipe of the open conversation.
 session() {
   local w=$1 c=$2
   shift 2
+  [ -f "$w.companion" ] || set -- --disallowedTools ListAgents "$@"
   (cd "$w" && PATH="$w.bin:$PATH" claude -p --model "$model" --setting-sources project \
     --settings '{"language":"English"}' --plugin-dir "$root" --output-format stream-json --verbose \
-    --max-budget-usd "$(budget "$c")" --disallowedTools ListAgents --dangerously-skip-permissions "$@") 2>&1 || true
+    --max-budget-usd "$(budget "$c")" --dangerously-skip-permissions "$@" </dev/null 7>&-) 2>&1 || true
+}
+# companion <workspace>: the open conversation of the Given, which reads its
+# texts from the pipe <workspace>.in on file descriptor 7. It has the first
+# one when its first result comes, or after a minute.
+companion() {
+  local w=$1 i
+  mkfifo "$w.in"
+  exec 7<>"$w.in"
+  (cd "$w" && PATH="$w.bin:$PATH" exec claude -p --model haiku --setting-sources project --settings '{"language":"English"}' \
+    --plugin-dir "$root" --input-format stream-json --output-format stream-json --verbose --tools "" --max-budget-usd 0.5 \
+    <&7 >"$w.companion.jsonl" 2>&1) &
+  pid=$!
+  jq -nc --arg t "$(cat "$w.companion")" '{type: "user", message: {role: "user", content: $t}}' >&7
+  for i in $(seq 60); do ! grep -q '"type":"result"' "$w.companion.jsonl" || break; sleep 1; done
 }
 
 # run <round folder> <case>: the session on the message of the case, and on
-# its answer, which a person line in the log comes before.
+# each of its answers, which a person line in the log comes before; each
+# answer resumes the session of the message before it.
 run() {
-  local w=$1/$2 id
+  local w=$1/$2 id a pid=
   take_in setup "$w" "$2"
+  [ ! -f "$w.companion" ] || companion "$w"
   session "$w" "$2" "$(message "$2")" >"$w.jsonl"
-  if [ -n "$(answer "$2")" ]; then
-    id=$(jq -Rr 'fromjson? | select(.type == "system" and .subtype == "init") | .session_id' "$w.jsonl" | head -n 1)
-    [ -z "$id" ] || { jq -nc --arg t "$(answer "$2")" '{type: "person", text: $t}'
-      session "$w" "$2" --resume "$id" "$(answer "$2")"; } >>"$w.jsonl"
-  fi
+  answers "$2" | while IFS= read -r a; do
+    id=$(jq -Rr 'fromjson? | select(.type == "system" and .subtype == "init") | .session_id' "$w.jsonl" | tail -n 1)
+    [ -n "$id" ] || break
+    { jq -nc --arg t "$a" '{type: "person", text: $t}'; session "$w" "$2" --resume "$id" "$a"; } >>"$w.jsonl"
+  done
+  [ -z "$pid" ] || { exec 7>&-; kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; }
   record "$w"
 }
 
@@ -167,7 +191,7 @@ spent() {
     awk '{ last[$1] = $2 } END { for (f in last) s += last[f]; printf "%.2f\n", s }'
 }
 # messages <case>: the number of messages of the person in a run of the case.
-messages() { if [ -n "$(answer "$1")" ]; then echo 2; else echo 1; fi; }
+messages() { echo $((1 + $(answers "$1" | grep -c .))); }
 
 need=0
 for c in $cases; do need=$((need + $(budget "$c") * $(messages "$c"))); done

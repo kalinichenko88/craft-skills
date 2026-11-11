@@ -5,12 +5,15 @@
 #
 #   <case>_case    the line of the case, by line: its name, the cap of one
 #                  message in dollars, its scenario, the message of the
-#                  person, and in a case of two messages the answer to the
-#                  question of the first one, in the same session. A case
-#                  that goes on into the work after the take-in has the
-#                  higher cap.
+#                  person, and in a case of more messages each answer after
+#                  it, in the same session. A case that goes on into the work
+#                  after the take-in has the higher cap.
 #   <case>_given   the steps of its Given after the base that setup makes:
-#                  its branches, and its change of the tracker in $given, jq
+#                  its branches and files, its change of the tracker in
+#                  $given, jq, and the jq arguments of that change in $extra
+#
+# A case file can also define <case>_task, which gives #91 another title,
+# body and typo than the base, before setup and before check.
 #   <case>_check   the checks of the Then and Never items of its scenario
 #   <case>_copies  the changed copies of its recorded run, which
 #                  tests/scenarios_checks_test.sh checks
@@ -85,6 +88,25 @@ Require stack:
     at require (node:internal/modules/helpers:179:18)
     at Object.<anonymous> (/home/lee/app/index.js:1:14)"
 
+# parser: the CSV parser of tests/fixtures/scenarios/parser/ on main, for the
+# tasks that name its code. In src/parser/read.ts, parseRows starts at line
+# 57, and line 42 is in countRows. parseRows turns an empty line into a row
+# with one empty field, and reads a tab as a field separator. In
+# src/parser/split.ts, splitLine drops the last field of a line that ends
+# with a comma, and importTable in src/import-table.ts reads a table with it.
+parser() {
+  cp -R "$root/tests/fixtures/scenarios/parser/." "$w/"
+  git -C "$w" add src
+  git -C "$w" commit -qm 'feat: read CSV files'
+  git -C "$w" push -q origin main
+}
+# parsertask: #91 reports the empty line of parseRows.
+parsertask() {
+  title='parser: parseRows turns an empty line into a row with one empty field'
+  body='`parseRows` in `src/parser/read.ts` turns an empty line into a row with one empty field, so a text that ends with a line break gets an empty last row. Done when `parseRows` gives no row for an empty line.'
+  typo='empty line'
+}
+
 # elsewhere <branch> <who>: a commit of <who> on <branch> of the origin of
 # the workspace $w of setup, from another clone: the fix of #91.
 elsewhere() {
@@ -101,8 +123,9 @@ elsewhere() {
 # and <dir>.given.branches hold the workspace and the origin's branches as the
 # Given leaves them, in the shape of snapshot.
 setup() {
-  local w=$1 given=.
+  local w=$1 given=. extra=()
   known "$2"
+  if declare -F "$2_task" >/dev/null; then "$2_task"; fi
   git init -q --bare -b main "$w.origin"
   git init -q -b main "$w"
   git -C "$w" config user.name "$me"
@@ -117,11 +140,12 @@ setup() {
   # failure.
   "$2_given"
   jq -n --arg me "$me" --arg other "$other" --arg origin "$w.origin" --arg w "$w" --arg title "$title" \
-    --arg body "$body" --arg title95 "$title95" --arg body95 "$body95" --arg trace "$trace" '
+    --arg body "$body" --arg title95 "$title95" --arg body95 "$body95" --arg trace "$trace" ${extra[@]+"${extra[@]}"} '
     def task($n; $t; $b; $who): {number: $n, title: $t, body: $b, state: "OPEN", stateReason: null,
       assignees: $who, labels: [], comments: [], linked: []};
-    def pr($who): {number: 96, title: "docs: fix the npm install command", state: "OPEN", author: {login: $who},
-      headRefName: "fix/91-install", url: "https://github.com/acme/shop/pull/96", closes: [91]};
+    def pr($who; $branch): {number: 96, title: "docs: fix the npm install command", state: "OPEN", author: {login: $who},
+      headRefName: $branch, url: "https://github.com/acme/shop/pull/96", closes: [91]};
+    def pr($who): pr($who; "fix/91-install");
     {me: $me, repo: "acme/shop", origin: $origin, workspace: $w, down: false, prs: [],
       labels: ["bug", "debt", "enhancement"], visibility: "PUBLIC", issues: [task(91; $title; $body; [])]}
     | '"$given" >"$w.state.json"
@@ -136,8 +160,17 @@ setup() {
 # files, the local branches, the worktrees, the branch of HEAD, the commits
 # on main and the stash entries of the workspace. Each local branch but main
 # gives its last commit, and "changed" when its worktree has a changed file.
+# <to>.work holds the work on each local branch but main: a branch line, a
+# line for each of its commits past main, and the diff of its tracked files
+# from main, in its worktree when it has one.
 snapshot() {
   local b c t
+  git -C "$1" for-each-ref --format='%(refname:short) %(worktreepath)' refs/heads | while read -r b t; do
+    [ "$b" != main ] || continue
+    echo "branch $b"
+    git -C "$1" log --format='commit %H %s' "main..$b"
+    if [ -n "$t" ]; then git -C "$t" diff main; else git -C "$1" diff main "$b"; fi
+  done >"$2.work"
   git -C "$1.origin" for-each-ref --format='%(refname:short)' refs/heads | while read -r b; do
     if git -C "$1.origin" merge-base --is-ancestor main "$b"; then echo "$b"; else echo "$b, not from main"; fi
   done >"$2.branches"
@@ -164,30 +197,37 @@ snapshot() {
 # exits 2.
 # shellcheck disable=SC2034,SC2329 # the items read the values and call issue, at and told through eval
 check() {
-  local d=$1 s first_write named nline gist titled think assignees linked branch same last where yours
+  local progress d=$1 s first_write named nline gist titled think assignees linked branch same last where whose yours
   known "$2"
   # A run before 2026-11-11 kept no snapshot of its Given.
   [ -f "$d.given.workspace" ] && [ -f "$d.given.branches" ] ||
     { echo "$0: $d has no .given.workspace or .given.branches: its run is older than the snapshot of its Given" >&2; return 2; }
   s=$(cases | awk -F'\t' -v c="$2" '$1 == c { print $3 }')
-  # A write: an edit of a file, a commit, a branch, a worktree, or a write to
-  # the tracker. A read, as `sed -n 1p worktree.sh` or `git merge-base`, is
-  # none.
-  first_write=$(W='(^|[;&|(] *)(bash |sh )?[^ ;&|]*(worktree|add-finding)\.sh|gh issue (edit|close|comment|create|reopen)|gh pr (create|merge|edit|close|comment)|gh api .*(-X|--method) *(POST|PATCH|PUT|DELETE)|gh api graphql.*mutation|gh label (create|edit|delete)|git( +-[Cc] +[^ ]+)* +((commit|push|switch|checkout|worktree +add|merge|rebase|reset|cherry-pick|stash +(push|pop|apply|drop|save))([ ;&|)]|$)|stash *([;&|)]|$)|branch +[A-Za-z])|sed -i|perl -[a-z]*i' \
-    awk -F'\t' '$1 ~ /^(sub)?(Edit|Write|NotebookEdit|EnterWorktree)$/ ||
-      $1 ~ /^(sub)?Bash$/ && ($2 ~ ENVIRON["W"] || $2 ~ /gh issue develop/ && $2 !~ /(--list|--help| -l| -h)( |$)/) { print NR; exit }' "$d.events")
-  named=$(grep -n "^text" "$d.events" | grep -F -e '#91' -e "$title" -e "$typo" | head -n 1)
-  nline=${named%%:*}
-  gist=$(grep -F "$title" <<<"$named" | cut -d: -f1 || true)
-  titled=$(grep -n "^text" "$d.events" | grep -F "$title" | head -n 1 | cut -d: -f1)
-  think=$(grep -n "^think" "$d.events" | head -n 1 | cut -d: -f1)
-  last=$(awk -F'\t' '$1 == "text" { last = $2 } END { print last }' "$d.events")
-  # The workspace as the Given leaves it.
-  same='cmp -s "$d.given.workspace" "$d.workspace"'
-  where='somewhere else|elsewhere|(another|other) (session|machine|computer)' yours="assigned to (you|$me)"
-  assignees=$(jq -c '.issues[] | select(.number == 91) | .assignees' "$d.state.json")
-  linked=$(jq -c '.issues[] | select(.number == 91) | .linked' "$d.state.json")
-  branch=$(jq -r '.[0] // empty' <<<"$linked")
+  if declare -F "$2_task" >/dev/null; then "$2_task"; fi
+  # read_run: the values of the run in $d that the items read. A case can
+  # give $d the part of a run after an answer, and read it again.
+  read_run() {
+    # A write: an edit of a file, a commit, a branch, a worktree, or a write to
+    # the tracker. A read, as `sed -n 1p worktree.sh` or `git merge-base`, is
+    # none.
+    first_write=$(W='(^|[;&|(] *)(bash |sh )?[^ ;&|]*(worktree|add-finding)\.sh|gh issue (edit|close|comment|create|reopen)|gh pr (create|merge|edit|close|comment)|gh api .*(-X|--method) *(POST|PATCH|PUT|DELETE)|gh api graphql.*mutation|gh label (create|edit|delete)|git( +-[Cc] +[^ ]+)* +((commit|push|switch|checkout|worktree +add|merge|rebase|reset|cherry-pick|stash +(push|pop|apply|drop|save))([ ;&|)]|$)|stash *([;&|)]|$)|branch +[A-Za-z])|sed -i|perl -[a-z]*i' \
+      awk -F'\t' '$1 ~ /^(sub)?(Edit|Write|NotebookEdit|EnterWorktree)$/ ||
+        $1 ~ /^(sub)?Bash$/ && ($2 ~ ENVIRON["W"] || $2 ~ /gh issue develop/ && $2 !~ /(--list|--help| -l| -h)( |$)/) { print NR; exit }' "$d.events")
+    named=$(grep -n "^text" "$d.events" | grep -F -e '#91' -e "$title" -e "$typo" | head -n 1)
+    nline=${named%%:*}
+    gist=$(grep -F "$title" <<<"$named" | cut -d: -f1 || true)
+    titled=$(grep -n "^text" "$d.events" | grep -F "$title" | head -n 1 | cut -d: -f1)
+    think=$(grep -n "^think" "$d.events" | head -n 1 | cut -d: -f1)
+    last=$(awk -F'\t' '$1 == "text" { last = $2 } END { print last }' "$d.events")
+    # The workspace as the Given leaves it.
+    same='cmp -s "$d.given.workspace" "$d.workspace"'
+    where='somewhere else|elsewhere|(another|other) (session|machine|computer)' yours="assigned to (you|$me)"
+    whose='whose|yours|your (own )?branch|someone else|another person'
+    assignees=$(jq -c '.issues[] | select(.number == 91) | .assignees' "$d.state.json")
+    linked=$(jq -c '.issues[] | select(.number == 91) | .linked' "$d.state.json")
+    branch=$(jq -r '.[0] // empty' <<<"$linked")
+  }
+  read_run
   item() { if eval "$2"; then echo "PASS $s: $1"; else echo "FAIL $s: $1"; fi; }
   issue() { jq -rc --argjson n "$1" ".issues[] | select(.number == \$n) | $2" "$d.state.json"; }
   # at <jq test>: the test holds on the tracker. In it, at("close 95") is the
@@ -201,6 +241,14 @@ check() {
   # tip <snapshot>: the line of fix/91-typo in a snapshot of the workspace.
   tip() { grep '^fix/91-typo ' "$1" || true; }
   nochange() { item "$1: no change" '[ -z "$first_write" ] && eval "$same"'; }
+  # nowrite: as nochange, for a run that calls a script that stops before it
+  # writes: the fake gh logs no write, and the workspace and the origin's
+  # branches are as the Given leaves them.
+  nowrite() { item "$1: no change" '[ "$(jq -c ".log // []" "$d.state.json")" = "[]" ] && eval "$same" && cmp -s "$d.given.branches" "$d.branches"'; }
+  # worked <branch>: the work goes on, on <branch> of the workspace: a commit
+  # on it that the Given does not have, or a changed file in its worktree.
+  commits() { awk -v b="$1" '/^branch / { on = $2 == b } on && /^commit / { print $2 }' "$2" 2>/dev/null | sort; }
+  worked() { grep -q "^$1 .* changed\$" "$d.workspace" || [ -n "$(comm -13 <(commits "$1" "$d.given.work") <(commits "$1" "$d.work"))" ]; }
   # nobranch <linked>: the origin has the branches of the Given, and #91 has
   # the linked branches <linked>, as JSON.
   nobranch() { item 'never: a branch for #91 is created' "cmp -s \"\$d.given.branches\" \"\$d.branches\" && [ \"\$linked\" = '$1' ]"; }
@@ -220,24 +268,41 @@ check() {
     item 'that branch is linked to #91' '[ -n "$branch" ] && cut -d, -f1 "$d.branches" | grep -qxF "$branch"'
     item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'
   }
-  # outcomes: the Then and Never items of A free task, for #91.
-  outcomes() {
-    first
+  # gisted: the gist comes before any change.
+  gisted() {
     if ! before "$gist" && ! before "$nline" && before "$think"; then
       echo "SKIP $s: the gist comes before any change: only a think line comes before the change"
     else
       item 'the gist comes before any change' 'before "$gist"'
     fi
+  }
+  # outcomes: the Then and Never items of A free task, for #91.
+  outcomes() {
+    first
+    gisted
     item '#91 is assigned to the person' '[ "$assignees" = "[\"$me\"]" ]'
     labelled
     branched
   }
-  labelled() { item '#91 has the label in progress' '[ "$(issue 91 "any(.labels[]; ascii_downcase == \"in progress\")")" = true ]'; }
-  # answered: the person answers after a question whether the work runs
-  # somewhere else, or the Given of the case does not hold.
+  progress='"$(issue 91 "any(.labels[]; ascii_downcase == \"in progress\")")"'
+  labelled() { item '#91 has the label in progress' "[ $progress = true ]"; }
+  unlabelled() { item 'never: #91 gets the label in progress' "[ $progress = false ]"; }
+  # kept <item>: the workspace's fix/91-typo has the last commit of the Given.
+  kept() { item "$1" '[ "$(tip "$d.workspace" | cut -d" " -f2)" = "$(tip "$d.given.workspace" | cut -d" " -f2)" ]'; }
+  # oneworkspace: no worktree is made for #91.
+  oneworkspace() { item 'never: a workspace of #91 is created' 'grep -qx "worktrees 1" "$d.workspace"'; }
+  # part <k>: the messages to the person before answer <k> of the person and
+  # after the one before it; with no answer <k>, after the last one.
+  part() { awk -v k="$1" '/^person/ { p++; next } p == k - 1 && /^text/' "$d.events"; }
+  # answered <regex>...: answer <k> of the person comes after a question that
+  # regex <k> matches, in part <k>, or the Given of the case does not hold.
   answered() {
-    { grep -q '^person' "$d.events" && sed -n '/^person/q;p' "$d.events" | grep '^text' | grep -qiE "($where)[^.?!]*\?"; } ||
-      { echo "$0: $d has no answer of the person after a question whether the work runs somewhere else: the Given of its scenario does not hold" >&2; return 2; }
+    local k=0 r
+    for r; do
+      k=$((k + 1))
+      { [ "$(grep -c '^person' "$d.events")" -ge "$k" ] && part "$k" | grep -qiE "($r)[^.?!]*\?"; } ||
+        { echo "$0: $d has no answer $k of the person after a question that matches $r: the Given of its scenario does not hold" >&2; return 2; }
+    done
   }
   "$2_check"
 }

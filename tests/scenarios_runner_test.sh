@@ -50,28 +50,36 @@ fake issue edit 95 --add-label 'In Progress'
 fake issue edit 95 --remove-label 'in progress'
 [ "$(jq -c '[.labels, .issues[0].labels]' "$tmp/fake.state.json")" = '[["in progress"],[]]' ] ||
   fail 'the fake gh does not add and remove a label' "$(jq -c '[.labels, .issues[0].labels]' "$tmp/fake.state.json")"
+fake issue edit 95 --body c
+[ "$(jq -r '.log[-1]' "$tmp/fake.state.json")" = 'edit 95 body +changes' ] || fail 'the fake gh does not log an edit of the body' "$(jq -c .log "$tmp/fake.state.json")"
 
 # The Given of each case, as take-in-check.sh reads it through the fake gh on
 # the message of the case.
 take_in=$root/tests/scenarios_take_in.sh
 given() { # given <case> <what take-in-check.sh prints>
-  local w=$tmp/given/$1 got
+  local w=$tmp/given/$1 got m
   mkdir -p "$tmp/given"
   bash "$take_in" setup "$w" "$1"
-  got=$(cd "$w" && PATH="$w.bin:$PATH" bash "$root/skills/github/scripts/take-in-check.sh" \
-    "$(bash "$take_in" cases | awk -F'\t' -v c="$1" '$1 == c { print $4 }')" 2>&1 || true)
+  # The task of the message: "#91, a branch only" names #91.
+  m=$(bash "$take_in" cases | awk -F'\t' -v c="$1" '$1 == c { print $4 }')
+  got=$(cd "$w" && PATH="$w.bin:$PATH" bash "$root/skills/github/scripts/take-in-check.sh" "${m%%,*}" 2>&1 || true)
   [ "$got" = "$2" ] || fail "take-in-check.sh does not read the Given of $1" "$got"
 }
 ahead() { printf '#91: branch fix/91-typo, %s commits ahead of main, last commit 2026-11-03T00:00:00Z' "$1"; }
-for c in free dup busy assigned; do given $c 'take #91'; done
-given other '#91: assigned to rivera'
+for c in free dup busy assigned settled seen cited also branchonly stay samename unread; do given $c 'take #91'; done
+for c in other afterwait; do given $c '#91: assigned to rivera'; done
 given down 'HTTP 502: Bad Gateway (https://api.github.com/graphql)'
-given closed '#91: closed'
+for c in closed closeddup; do given $c '#91: closed'; done
 given otherpr '#91: PR #96 by rivera is open and closes it'
 given mypr '#91: PR #96 by you is open and closes it'
-for c in inprogress here there; do given $c "$(printf '#91: assigned to you\n#91: label in progress')"; done
-given linked "$(ahead 0)"
+mine=$(printf '#91: assigned to you\n#91: label in progress')
+for c in inprogress here there afterstop; do given $c "$mine"; done
+for c in linked linkedother linkedmine linkedhere linkedthere; do given $c "$(ahead 0)"; done
 given inws "$(printf '#91: assigned to you\n%s\ncontinue #91 on fix/91-typo' "$(ahead 0)")"
+for c in conv ahead; do given $c "$(printf '%s\n%s\ncontinue #91 on fix/91-typo' "$mine" "$(ahead 0)")"; done
+given myprws "$(printf '%s\n#91: PR #96 by you is open and closes it\ncontinue #91 on fix/91-typo' "$mine")"
+given forkonly "$(printf '%s\n%s' "$mine" "$(ahead 0)")"
+given otherws "$(printf '#91: assigned to rivera\n%s' "$(ahead 0)")"
 given moved "$(printf '#91: assigned to you\n%s' "$(ahead 1)")"
 given otherrepo '#91 is in acme/lib, and this checkout is acme/shop: stop'
 # A git step of a Given that fails stops setup, at that step: a clone that has
@@ -110,6 +118,24 @@ done
 [ "$(cd "$w" && PATH="$w.bin:$PATH" bash "$root/skills/github/scripts/take-in-check.sh" 91 2>&1 || true)" = \
   'GraphQL: Could not resolve to an issue or pull request with the number of 91. (repository.issue)' ] ||
   fail 'take-in-check.sh 91 finds #91 of acme/lib in acme/shop'
+# A task whose title and body no read gives: a view of either fails with a
+# 502, a view of another field does not, and a list leaves the task out.
+w=$tmp/given/unread
+un_gh() { (cd "$w" && PATH="$w.bin:$PATH" gh "$@" 2>&1); }
+{ [ "$(un_gh issue view 91 --json title,body || true)" = 'HTTP 502: Bad Gateway (https://api.github.com/graphql)' ] &&
+  [ "$(un_gh issue view 91 --json assignees)" = '{"assignees":[]}' ] && [ "$(un_gh issue list --json number)" = '[]' ]; } ||
+  fail 'the fake gh gives the title or the body of a task that no read gives, or no other field of it'
+# A linked branch of another repository: its link names that repository.
+w=$tmp/given/forkonly
+[ "$(cd "$w" && PATH="$w.bin:$PATH" gh issue develop --list 91)" = "$(printf 'fix/91-typo\thttps://github.com/lee/shop/tree/fix/91-typo')" ] ||
+  fail 'the fake gh does not list the linked branch of another repository by its link'
+# A branch that the origin has, made for #91 again: it stays as it is, and is
+# linked once.
+w=$tmp/given/linkedhere
+was=$(git -C "$w.origin" rev-parse fix/91-typo)
+(cd "$w" && PATH="$w.bin:$PATH" gh issue develop 91 --name fix/91-typo >/dev/null)
+{ [ "$(git -C "$w.origin" rev-parse fix/91-typo)" = "$was" ] && [ "$(jq -c '.issues[0].linked' "$w.state.json")" = '["fix/91-typo"]' ]; } ||
+  fail 'the fake gh makes again a branch that the origin has, or links it twice'
 # The pull request of another person, by number and by branch, and the lists
 # that take it or not by its branch and its state.
 w=$tmp/given/otherpr
@@ -153,9 +179,13 @@ got=$("$eval" --check "$tmp/old" 2>/dev/null)
 # that cannot run it, or a claude function, would leave the real claude in its
 # place.
 mkdir "$tmp/stub"
-printf '#!/usr/bin/env bash\necho "$*" >>%q\n' "$tmp/stub.args" >"$tmp/stub/claude"
+printf '#!/usr/bin/env bash\nargs=%q\n' "$tmp/stub.args" >"$tmp/stub/claude"
 cat >>"$tmp/stub/claude" <<'EOF'
-echo '{"type":"system","subtype":"init","session_id":"s1"}'
+echo "$*" >>"$args"
+# The session of call <n> is s<n>. A session that reads its texts records the
+# first one.
+case " $* " in *" --input-format stream-json "*) head -n 1 >"$args.stdin" ;; esac
+echo "{\"type\":\"system\",\"subtype\":\"init\",\"session_id\":\"s$(wc -l <"$args" | tr -d ' ')\"}"
 case " $* " in
   *" --resume "*) cost=2.5
     echo '{"type":"assistant","message":{"content":[{"type":"text","text":"I stop here."}]}}' ;;
@@ -199,6 +229,21 @@ got=$(stub there)
 { grep -qxF "there: success, \$2.5" <<<"$got" && grep -qxF "cost: \$2.50" <<<"$got"; } ||
   fail 'the cost of a run of two messages is not its last result' "$got"
 grep -qxF 'pass^1 there: PASS, 1 of 1 runs pass' <<<"$got" || fail 'the Given of there does not hold on a question and its answer' "$got"
+# Each answer of a case of three messages resumes the session of the message
+# before it.
+got=$(stub linkedhere)
+{ [ "$(wc -l <"$tmp/stub.args")" -eq 3 ] && sed -n 2p "$tmp/stub.args" | grep -qe '--resume s1 It is mine\.$' &&
+  sed -n 3p "$tmp/stub.args" | grep -qe '--resume s2 It continues here\.$'; } ||
+  fail 'the answers of linkedhere do not resume the session of the message before each' "$(cat "$tmp/stub.args")"
+# The other conversation of conv starts first, on Haiku with no tools, and
+# reads "#91"; the run then has ListAgents, and the cases with no such
+# conversation do not.
+rm -f "$tmp/stub.args.stdin"
+got=$(stub conv)
+{ sed -n 1p "$tmp/stub.args" | grep -qe '--model haiku .*--input-format stream-json .*--tools ' &&
+  [ "$(jq -r .message.content "$tmp/stub.args.stdin")" = '#91' ] && sed -n 2p "$tmp/stub.args" | grep -qe ' #91$' &&
+  ! sed -n 2p "$tmp/stub.args" | grep -qe ListAgents; } ||
+  fail 'conv does not start its other conversation on #91 before a run with ListAgents' "$(cat "$tmp/stub.args")"
 # A round of here can cost $8, a cap of $4 for each of its two messages.
 got=$(stub --max-cost 7 here)
 { [ ! -e "$tmp/stub.args" ] && grep -qxF "stopped before round 1 of 1: \$0.00 spent, and a round can cost \$8.00 more, past the cap of \$7" <<<"$got"; } ||

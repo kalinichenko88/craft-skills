@@ -3,7 +3,7 @@
 there_case() { line there 2 "The work on the person's task runs somewhere else" '#91' 'It runs somewhere else.'; }
 there_given() { inprogress_given; }
 there_check() {
-  answered
+  answered "$where"
   nochange 'the run stops'
   nobranch '[]'
   item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$me\"]" ]'
