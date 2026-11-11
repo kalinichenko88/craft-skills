@@ -402,7 +402,6 @@ Then:
 Never:
 - #96 is merged
 - the workspace of #91 is removed
-- a commit is added to `fix/91-parse-rows`
 
 ## The answer merge after a pull request check was cancelled
 
