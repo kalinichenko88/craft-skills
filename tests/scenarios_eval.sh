@@ -177,10 +177,8 @@ run() {
 
 # spent: the cost of the runs so far, from the last result line of each log.
 spent() {
-  local f
-  for f in "$runs"/run*/*.jsonl; do
-    [ ! -e "$f" ] || jq -Rr 'fromjson? | select(.type == "result") | .total_cost_usd' "$f" | tail -n 1
-  done | awk '{ s += $1 } END { printf "%.2f\n", s }'
+  jq -Rr 'fromjson? | select(.type == "result") | "\(input_filename) \(.total_cost_usd)"' "$runs"/run*/*.jsonl 2>/dev/null |
+    awk '{ last[$1] = $2 } END { for (f in last) s += last[f]; printf "%.2f\n", s }'
 }
 # messages <case>: the number of messages of the person in a run of the case.
 messages() { if [ -n "$(answer "$1")" ]; then echo 2; else echo 1; fi; }

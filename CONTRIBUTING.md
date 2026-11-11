@@ -167,10 +167,9 @@ the first message starts. Each run of a case is one session of
 `claude -p` with this checkout as the only plugin, a fake `gh` first on
 `PATH` that reads and writes a JSON tracker (`tests/fake_gh.sh`), and a
 workspace with a local `origin`. The answer resumes that session with
-`--resume`, and the same plugin and `PATH`. It checks each Then and Never item of the
-scenarios against
-the tracker, the branches, the workspace, and the session's messages and
-tool calls, and prints PASS, FAIL or SKIP for each: SKIP where the log holds
+`--resume`, and the same plugin and `PATH`. It checks each Then and Never
+item of the scenarios against the tracker, the branches, the workspace, and
+the session's messages and tool calls, and prints PASS, FAIL or SKIP for each: SKIP where the log holds
 a message only as thinking (#206). `--runs k` runs each case k times, and a
 case passes pass^k only when no item fails in any of its k runs. `--model`
 sets the model, Opus by default. The report ends with the cost of the pass,
