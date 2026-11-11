@@ -117,8 +117,8 @@ already, a folder with no code file added to the `Check:` line of an
 invariant, and that folder taken out again on a base where a second
 invariant names one too. With `--codex`, Codex reads the six branches with
 the same prompt. Run it after a change to
-`skills/review-loop/architecture-lens.md` or to the parts of
-`skills/architecture/SKILL.md` that it reads.
+`skills/review-loop/architecture-lens.md`, to `skills/architecture/invariants.md`
+or to the parts of `skills/architecture/SKILL.md` that it reads.
 `tests/debt_lens_eval.sh` sends the review of the instruction files to a
 monorepo whose `CLAUDE.md` files repeat and contradict its architecture file
 and each other. It checks each repeat, contradiction, redundancy and

@@ -14,8 +14,8 @@ one change, at `<head>`: the state of a commit inside it is no finding.
 and run no code of the project.
 
 1. Read `<skills>/architecture/SKILL.md` for its principles: *Consistency
-   first*, *Modules and layers*, *Decomposition*, *ADRs* and
-   *`invariants.sh`*. Do none of its steps. When the range changes a `.ts`,
+   first*, *Modules and layers*, *Decomposition* and *ADRs*, and
+   `<skills>/architecture/invariants.md`. Do none of their steps. When the range changes a `.ts`,
    `.tsx`, `.mts` or `.cts` file, read the rules of
    `<skills>/typescript-conventions/SKILL.md` too. When it changes React
    code, read the rules of `<skills>/react-conventions/SKILL.md` too.
@@ -29,7 +29,7 @@ and run no code of the project.
 3. From the root of the tree, run
    `bash <skills>/architecture/scripts/invariants.sh --new-since <base> <head>`.
    Each hit marked `new` is the branch's, except in the five cases that
-   *`invariants.sh`* names: read the diff for them. A FAIL whose failing hits
+   `invariants.md` names: read the diff for them. A FAIL whose failing hits
    have no `new` mark was on the base already.
 
    On exit 2, read its lines on stderr. Each line that starts with
