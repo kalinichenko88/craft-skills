@@ -4,12 +4,15 @@ The run ends the work on a task that it took into work. It opens the pull
 request of the task, and asks the person whether to merge it. The answer of
 the person starts the rest: the run merges the pull request, or leaves it
 open. After a merge, the run corrects the open tasks that the merge makes
-false, and removes the workspace of the task when the person asked for it.
+false, closes the duplicates that it left for a reproduction, asks whether
+to report a defect of the implementation that the work showed, and removes
+the workspace of the task when the person asked for it.
 
 Not covered yet:
 
-- the language of the commit that the merge adds, when the pull requests of
-  the repository are not in English, which #330 decides.
+- the language of the title of the pull request and of the commit that the
+  merge adds, when the pull requests of the repository are not in English:
+  the implementation does not decide it yet.
 
 ## The pull request of a task
 
@@ -127,13 +130,13 @@ Given:
   the default branch, and closes #91
 - the workspace of #91 is on `fix/91-parse-rows`
 - after #96 opened, the work on #91 added one commit to
-  `fix/91-parse-rows` in the workspace, which the repository's
+  `fix/91-parse-rows` in the workspace of #91, which the repository's
   `fix/91-parse-rows` does not have
 - the check passes on `fix/91-parse-rows`
 When: the run ends the work on #91
 Then:
 - the repository's `fix/91-parse-rows` has the same last commit as the
-  workspace's
+  one in the workspace of #91
 - #96 is open
 - the text of #96 tells what the new commit changes
 - the person is asked whether to merge #96
@@ -143,23 +146,25 @@ Never:
 - a second pull request opens for `fix/91-parse-rows`
 - #96 is merged
 
-## A pull request whose text names a task that it does not close
+## A pull request that fixes the own problem of a second task
 
 Given:
 - the run took task #91 into work, and #91 is open, assigned to the person
 - branch `fix/91-parse-rows` is linked to #91, and the workspace of #91 is
   on it
+- task #40 is open, assigned to the person, with no linked branch and no
+  pull request; its text holds its own problem, that `parseRows` in
+  `src/parser/read.ts` reads a tab as a field separator, and one added
+  finding, that `addTax` in `src/report/total.ts` adds the tax twice
+- the run took #40 along for its own problem when it took #91 into work
 - the work on #91 changes 40 lines of `src/parser/read.ts` on
-  `fix/91-parse-rows`
-- task #40 is open, with no assignee, no linked branch and no pull request;
-  it reports that `addTax` in `src/report/total.ts` adds the tax twice
-- during the work on #91, the run found that `addTax` rounds each tax
-  down, and added it to #40 as an added finding
+  `fix/91-parse-rows`, fixes the own problem of #40, and does not change
+  `src/report/total.ts`
 - the check passes on `fix/91-parse-rows`
 When: the run ends the work on #91
 Then:
 - the pull request of #91 is open
-- the text of the pull request of #91 names #40
+- the text of the pull request of #91 says that it does a part of #40
 Never:
 - the pull request of #91 closes #40
 
@@ -215,14 +220,15 @@ Given:
 - the person's language is English
 - the titles and the texts of the last ten merged pull requests of the
   repository are in German, after the type at the start of each title
+- the titles and the texts of the tasks of the repository, #91 too, are in
+  German
 When: the run ends the work on #91
 Then:
-- the sentence of the title of the pull request of #91 is in German
 - the text of the pull request of #91 is in German
 Never:
 - the person is asked in which language to write the pull request of #91
 
-## The end of the work with an added finding that it does not fix
+## The end of the work with an added finding that needs an answer
 
 Given:
 - the run took task #91 into work, and #91 is open, assigned to the person;
@@ -231,17 +237,20 @@ Given:
   finding, that `parseRows` drops a line that holds only spaces
 - branch `fix/91-parse-rows` is linked to #91, and the workspace of #91 is
   on it
+- the person said nothing of the added finding of #91, and no text of the
+  repository says whether `parseRows` keeps a line that holds only spaces
 - the work on #91 fixes its own problem on `fix/91-parse-rows`, and does not
   fix its added finding
-- the person said nothing of the added finding of #91
 - the check passes on `fix/91-parse-rows`
 When: the run ends the work on #91
 Then:
-- the person is told that the work on #91 does not fix the added finding of
-  #91
+- the pull request of #91 is open
+- the person is asked whether `parseRows` keeps a line that holds only
+  spaces
+- the run waits
 Never:
-- a pull request of #91 closes #91
-- #91 closes
+- the pull request of #91 closes #91
+- the person is asked whether to merge the pull request of #91
 
 ## The answer merge only
 
@@ -421,8 +430,8 @@ Given:
 - the workspace of #91 is on branch `fix/91-parse-rows`
 - pull request #96 of the person is open, merges `fix/91-parse-rows` into
   the default branch, and closes #91
-- the pull request check `deploy` of #96 waits for the approval of another
-  person, and does not end
+- the pull request check `deploy` of #96 needs the approval of another
+  person to go on, and does not end
 - an earlier run asked whether to merge #96, with three answers: merge and
   remove the workspace of #91, merge only, and do not merge
 When: the person answers merge only
@@ -440,8 +449,9 @@ Given:
 - the workspace of #91 is on branch `fix/91-parse-rows`
 - pull request #96 of the person is open, merges `fix/91-parse-rows` into
   the default branch, and closes #91
-- when the person answers, #96 has no pull request check; its check `test`
-  starts 30 seconds later, and passes three minutes after it starts
+- when the person answers, #96 has no pull request check; its pull request
+  check `test` starts 30 seconds later, and passes three minutes after it
+  starts
 - an earlier run asked whether to merge #96, with three answers: merge and
   remove the workspace of #91, merge only, and do not merge
 When: the person answers merge only
@@ -664,7 +674,8 @@ When: the person answers merge only
 Then:
 - #30 is open
 - the text of #30 names `src/parser/fields.ts` as the file of `splitLine`
-- the text of #30 holds its own problem and its two added findings
+- the text of #30 holds its own problem
+- the text of #30 holds its two added findings
 - a comment on #30 names #96
 Never:
 - a task is created
@@ -679,7 +690,7 @@ Given:
 - #96 deletes `src/parser/legacy.ts`
 - task #30 is open, with no assignee, no linked branch and no pull request;
   its text asks that `src/parser/legacy.ts` and `src/parser/read.ts` use
-  one `splitLine`, as each of them holds a copy of it
+  one `splitLine`, as each of them holds its own `splitLine`
 - an earlier run asked whether to merge #96, with three answers: merge and
   remove the workspace of #91, merge only, and do not merge
 When: the person answers merge only
@@ -699,9 +710,9 @@ Given:
 - #96 makes `parseRows` in `src/parser/read.ts` drop each empty line of a
   file, and its text says that it decided so
 - task #30 is open, with no assignee, no linked branch and no pull request;
-  its text asks whether `parseRows` keeps the empty lines of a file or
-  drops them, and asks for a test of `parseRows` on a file with empty
-  lines
+  its text asks whether `parseRows` in `src/parser/read.ts` keeps the empty
+  lines of a file or drops them, and asks for a test of `parseRows` on a
+  file with empty lines
 - an earlier run asked whether to merge #96, with three answers: merge and
   remove the workspace of #91, merge only, and do not merge
 When: the person answers merge only
@@ -727,16 +738,16 @@ Given:
   file in a list, without their line numbers; its text says that it ruled
   out an error from `parseRows` for a bad line
 - task #30 is open, with no assignee, no linked branch and no pull request;
-  its text asks that the person who imports a file sees the line number of
-  each bad line, and proposes that `parseRows` give an error that holds
-  that number
+  its text asks that a user of the product who imports a file sees the line
+  number of each bad line, and proposes that `parseRows` in
+  `src/parser/read.ts` give an error that holds that number
 - an earlier run asked whether to merge #96, with three answers: merge and
   remove the workspace of #91, merge only, and do not merge
 When: the person answers merge only
 Then:
 - #30 is open
-- the text of #30 still asks that the person who imports a file sees the
-  line number of each bad line
+- the text of #30 still asks that a user of the product who imports a file
+  sees the line number of each bad line
 - the text of #30 says that #96 ruled out an error from `parseRows` for a
   bad line
 - a comment on #30 names #96
@@ -784,8 +795,8 @@ Given:
   whose lines end with a comma, and names no code
 - the run that took #91 into work left #95 open until a reproduction of its
   failure
-- the failure of #95 shows on the default branch, and does not show with
-  the code of #96
+- before the merge, the failure of #95 shows on the default branch, and
+  does not show with the code of #96
 - an earlier run asked whether to merge #96, with three answers: merge and
   remove the workspace of #91, merge only, and do not merge
 When: the person answers merge only
@@ -809,16 +820,16 @@ Given:
   whose lines end with a comma, and names no code
 - the run that took #91 into work left #95 open until a reproduction of its
   failure
-- the failure of #95 shows on the default branch, and with the code of #96
-  too
+- before the merge, the failure of #95 shows on the default branch, and
+  with the code of #96 too
 - an earlier run asked whether to merge #96, with three answers: merge and
   remove the workspace of #91, merge only, and do not merge
 When: the person answers merge only
 Then:
 - #96 is merged
 - #95 is open
-- a comment on #95 names a cause of its failure other than the defect of
-  #91
+- a comment on #95 names what else than the defect of #91 can cause its
+  failure
 Never:
 - #95 closes
 
@@ -943,11 +954,11 @@ Given:
 - the workspace of #91 is on branch `fix/91-parse-rows`
 - pull request #96 of the person is open, merges `fix/91-parse-rows` into
   the default branch, and closes #91
-- during the work on #91, the person told the run that it skipped a step
-  of the implementation, and the run then did that step
+- during the work on #91, the person told an earlier run that it skipped a
+  step of the implementation, and that run then did that step
 - the repository is not the repository of the implementation
 - the default branch of the repository of the implementation holds that
-  step as the run read it, and no task of its tracker reports that the run
+  step as that run read it, and no task of its tracker reports that a run
   skipped it
 - an earlier run asked whether to merge #96, with three answers: merge and
   remove the workspace of #91, merge only, and do not merge
@@ -955,9 +966,38 @@ When: the person answers merge only
 Then:
 - #96 is merged
 - the person is asked whether to create a task in the tracker of the
-  repository of the implementation, which reports that the run skipped
-  that step
-- the question gives the title and the text of that task
+  repository of the implementation, which reports that a run skipped that
+  step
+- the question gives the title of that task
+- the question gives the text of that task
+- the question comes after #96 is merged
+- the run waits
+Never:
+- a task is created in the tracker of the repository of the
+  implementation
+- a task is created in the tracker of the repository
+
+## A script of the implementation that failed during the work
+
+Given:
+- task #91 is open, assigned to the person
+- the workspace of #91 is on branch `fix/91-parse-rows`
+- pull request #96 of the person is open, merges `fix/91-parse-rows` into
+  the default branch, and closes #91
+- during the work on #91, a script of the implementation failed on an
+  input that is valid by the text of the implementation
+- the repository is not the repository of the implementation
+- the default branch of the repository of the implementation holds that
+  script as it ran, and no task of its tracker reports that failure
+- an earlier run asked whether to merge #96, with three answers: merge and
+  remove the workspace of #91, merge only, and do not merge
+When: the person answers merge only
+Then:
+- #96 is merged
+- the person is asked whether to create a task in the tracker of the
+  repository of the implementation, which reports that failure
+- the question gives the title of that task
+- the question gives the text of that task
 - the question comes after #96 is merged
 - the run waits
 Never:
@@ -972,15 +1012,16 @@ Given:
 - the workspace of #91 is on branch `fix/91-parse-rows`
 - pull request #96 of the person is open, merges `fix/91-parse-rows` into
   the default branch, and closes #91
-- during the work on #91, the person told the run that it skipped a step
-  of the implementation, and the run then did that step
+- during the work on #91, the person told an earlier run that it skipped a
+  step of the implementation, and that run then did that step
 - the repository is the repository of the implementation, and no task of
-  its tracker reports that the run skipped that step
+  its tracker reports that a run skipped that step
 - an earlier run asked whether to merge #96, with three answers: merge and
   remove the workspace of #91, merge only, and do not merge
 When: the person answers merge only
 Then:
 - #96 is merged
-- a task of the tracker reports that the run skipped that step
+- a task of the tracker reports that a run skipped that step
+- the report of that step reaches the tracker after #96 is merged
 Never:
 - the person is asked whether to create a task for that step

@@ -20,8 +20,8 @@ Not covered yet:
 - a finding of debt in a repository with no label for debt;
 - fixes in the module of the task that together are not smaller than the
   work;
-- a finding in the rules or the scripts that the run follows, which goes to
-  their own tracker after the person says yes;
+- a finding in the implementation, which goes to the tracker of its
+  repository after the person says yes;
 - a repository with no tracker, a tracker that does not answer, and an error
   of the tracker while the run adds a finding to a task.
 
