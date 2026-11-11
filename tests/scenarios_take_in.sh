@@ -33,6 +33,7 @@ not_run() { :; }
 
 title='README: the install command says npm instal'
 body='The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.'
+typo='npm instal shop' # the defect, in the words of the body; not in the fixed command
 me=kim other=rivera
 # #95, the duplicate: the same report in other words. In the case of a free
 # duplicate, its text has a stack trace that #91 does not have.
@@ -130,10 +131,9 @@ snapshot() {
 }
 
 # check <dir> <case>: one line for each item, PASS, FAIL or SKIP, with the scenario.
-# The gist is the first message that names #91 or its title, when it holds
-# the title. A think line before that message, or before the first change
-# with no message about #91 before it, gives SKIP: it can be a message that
-# the log holds only in other words, and the log cannot show what it told.
+# The gist is the first message that names #91, its title or its typo (a
+# narration can drop the id and title, ADR 0008), when it holds the title. A
+# think line before it, or before a change with no such message, gives SKIP.
 # "The run waits" and "the run stops" have the same check, "no change": one
 # run cannot show the difference (scenarios/README.md), so a run that stops
 # passes "the run waits". With no answer after a question where the work
@@ -150,7 +150,7 @@ check() {
   first_write=$(W='(^|[;&|(] *)(bash |sh )?[^ ;&|]*(worktree|add-finding)\.sh|gh issue (edit|close|comment|create|reopen)|gh pr (create|merge|edit|close|comment)|gh api .*(-X|--method) *(POST|PATCH|PUT|DELETE)|gh api graphql.*mutation|git( +-[Cc] +[^ ]+)* +((commit|push|switch|checkout|worktree +add|merge|rebase|reset|cherry-pick|stash +(push|pop|apply|drop|save))([ ;&|)]|$)|stash *([;&|)]|$)|branch +[A-Za-z])|sed -i|perl -[a-z]*i' \
     awk -F'\t' '$1 ~ /^(sub)?(Edit|Write|NotebookEdit|EnterWorktree)$/ ||
       $1 ~ /^(sub)?Bash$/ && ($2 ~ ENVIRON["W"] || $2 ~ /gh issue develop/ && $2 !~ /(--list|--help| -l| -h)( |$)/) { print NR; exit }' "$d.events")
-  named=$(grep -n "^text" "$d.events" | grep -F -e '#91' -e "$title" | head -n 1)
+  named=$(grep -n "^text" "$d.events" | grep -F -e '#91' -e "$title" -e "$typo" | head -n 1)
   nline=${named%%:*}
   gist=$(grep -F "$title" <<<"$named" | cut -d: -f1 || true)
   titled=$(grep -n "^text" "$d.events" | grep -F "$title" | head -n 1 | cut -d: -f1)

@@ -2,8 +2,15 @@
   "me": "kim",
   "repo": "acme/shop",
   "origin": "<work>.origin",
+  "workspace": null,
   "down": false,
   "prs": [],
+  "labels": [
+    "bug",
+    "debt",
+    "enhancement"
+  ],
+  "visibility": "PUBLIC",
   "issues": [
     {
       "number": 91,
@@ -18,8 +25,11 @@
       "comments": [],
       "linked": [
         "docs/91-fix-install-command"
-      ],
-      "duplicateOf": null
+      ]
     }
+  ],
+  "log": [
+    "edit 91",
+    "develop 91"
   ]
 }
