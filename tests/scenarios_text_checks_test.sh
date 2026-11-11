@@ -76,18 +76,23 @@ leave_out "$tmp/four/change3.txt" 1.T1
 expect four "$gist (no line in 3 of 4 runs, on the base in 0 of 4)" 'an item with no line in 3 of 4 runs is not lost'
 set_none "$tmp/four/base1.txt" 1.T1
 expect four '' 'an item with no line in 1 of 4 runs on the base is lost'
+# Each side counts its own runs: 5 on the working tree and 4 on the base.
+cp -R "$fixtures" "$tmp/uneven"
+for i in 1 2 3 4 5; do cp "$fixtures/base$i.txt" "$tmp/uneven/change$i.txt"; done
+: >"$tmp/uneven/base5.txt"
+for i in 1 2 3; do set_none "$tmp/uneven/change$i.txt" 1.T1; done
+expect uneven "$gist (no line in 3 of 5 runs, on the base in 0 of 4)" 'an item with no line in 3 of 5 runs, and in 0 of 4 on the base, is not lost'
+set_none "$tmp/uneven/base1.txt" 1.T1
+expect uneven '' 'an item with no line in 1 of 4 runs on the base, and 3 of 5 on the working tree, is lost'
 
 # A second set of runs in again/ (#328): an item is LOST only when each set
-# loses it, with the counts of both. The recorded runs as the second set lose
-# the same 15 items; the base's answers on the working tree as the second set
-# lose none. An item that only the second set loses is not LOST.
+# loses it, on both sides, with the counts of both. The recorded runs as the
+# second set lose the items of the cut lines, but not one that its base gives
+# no line for in 2 of 5 runs, and the base's answers on the working tree lose
+# none. An item that only the second set loses is not LOST, and each set
+# counts its own runs.
 cp -R "$fixtures" "$tmp/twice"
 cp -R "$fixtures" "$tmp/twice/again"
-out=$(checks "$tmp/twice")
-[ "$(sed -n 's/^LOST \([^ ]*\) .*/\1/p' <<<"$out" | tr '\n' ' ')" = '2.T2 2.T3 2.N1 2.N2 2.N3 4.T3 4.N1 4.N2 5.T2 5.T3 5.N1 12.T2 12.T3 12.N1 12.N2 ' ] ||
-  fail 'two sets of the recorded runs do not lose the 15 items of the cut lines' "$out"
-[ "$(tail -n 1 <<<"$out")" = '15 of 83 items lost, 10 runs on the working tree and 10 on the base' ] ||
-  fail 'the last line does not count the runs of both sets' "$out"
 set_none "$tmp/twice/again/base1.txt" 2.T2
 set_none "$tmp/twice/again/base2.txt" 2.T2
 out=$(checks "$tmp/twice")
@@ -107,6 +112,10 @@ done
 expect later '' 'an item that only the second set loses is lost'
 for i in 1 2 3; do set_none "$tmp/later/change$i.txt" 1.T1; done
 expect later "$gist (no line in 8 of 10 runs, on the base in 0 of 10)" 'an item that both sets lose is not lost, or its counts are not the sums'
+cp "$fixtures/base3.txt" "$tmp/later/again/change3.txt"
+cp "$fixtures/base4.txt" "$tmp/later/again/change4.txt"
+: >"$tmp/later/again/change5.txt"
+expect later '' 'an item with no line in 2 of the 4 runs of the second set is lost'
 
 # A stub claude first on PATH answers with an error, as the CLI with no login
 # does, and records each call.
