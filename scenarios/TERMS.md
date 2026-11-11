@@ -14,13 +14,13 @@ column gives the name that a person who reads Russian sees.
 | task | A unit of work in the tracker: an id, a title, a text, a state (open or closed), labels, assignees, comments and linked branches. | задача | issue, ticket, card |
 | task id | The number of a task, as the person writes it: `#91`. | номер задачи | |
 | label | A name from the list of labels of the repository, as `bug`. A task carries labels from that list. | метка | tag |
-| link | The web address of a task, which names its repository and its id. | ссылка | URL |
+| link | The web address of a task, which names its repository and its id, or of a branch, which names its repository and its name. | ссылка | URL |
 | tracker | The place where the tasks of one repository live. | трекер | board, backlog |
 | milestone | A named group of tasks in the tracker, as `M1`. A task is in one milestone or in none. The milestone `Later` holds the tasks that are put off. | веха | sprint |
 | repository | The git repository of the code, with its default branch, on GitHub. | репозиторий | repo, project |
 | default branch | The branch that the work of the repository merges into. | основная ветка | main, master |
-| branch | A git branch of the repository. | ветка | |
-| linked branch | A branch that a task records as its own: whoever opens the task sees it. | связанная ветка | |
+| branch | A git branch of the repository. A scenario names a branch of another repository, as of a fork, with those words where it first names it. | ветка | |
+| linked branch | A branch that a task records as its own: whoever opens the task sees it. It can be a branch of another repository. | связанная ветка | |
 | pull request | A request to merge a branch into the default branch, with a title, a text and assignees. It closes a task when it names the task with a closing word, or when it is a linked pull request of the task. A pull request is the person's, or another person's, by the account that opened it. | pull request | merge request, PR |
 | linked pull request | A pull request that a task records as its own: whoever opens the task sees it. When the pull request of a linked branch opens, the task records the pull request in place of the branch. | связанный pull request | |
 | the pull request of a task | The pull request that brings the work of a task to the default branch: "the pull request of #91". | pull request задачи | |
@@ -28,6 +28,7 @@ column gives the name that a person who reads Russian sees.
 | busy | A task with an assignee, the label `in progress`, a linked branch or an open pull request that closes it. A task whose one mark is the person as its assignee is not busy: an assignee says who may take the task, not that the work on it runs. | занята | taken, claimed |
 | free | An open task that is not busy. | свободна | available |
 | duplicate | A task that reports the same thing as another task, about the same place, in the same words or not. When it closes, it closes as a duplicate of the other task, and the other task stays open or closed, as it was. | дубликат | copy |
+| reproduction | A run of code that shows the failure that a task reports, and what causes it. | воспроизведение | repro |
 | closed as not planned | The state of a task that closed because its work will not be done, not because the work is done. | закрыта как незапланированная | rejected, wontfix |
 | comment | A text added to a task after its own text. | комментарий | note, reply |
 | workspace | The place where the run reads and changes the code: a copy of the repository with its branches. | рабочая копия | checkout, worktree, clone |
@@ -51,9 +52,10 @@ column gives the name that a person who reads Russian sees.
 | verdict | The first line of a worth report: do it, do it another way, defer until a condition, or close. A verdict other than do it is a question to the person. | вердикт | |
 | product decision | A decision about what the users of the product see, pay or get, or what the company owes by law, tax or contract. It has a status, what it rests on and when to revisit it. A repository that keeps them has one numbered file for each, as in `docs/pdr/`, and a list of them, as `docs/PRODUCT.md`. | продуктовое решение | PDR |
 | the run | The handling of one text that the person writes, until it waits or stops. The run that takes a task goes on into the work. | прогон | session, turn |
+| conversation | The texts that the person writes in one place, and the messages of the runs that handle them, in their order. A conversation is open while the person can write a next text in it. An earlier run is in the same conversation, unless a scenario says otherwise. | диалог | session, chat, thread |
 | message | One text that the run gives the person. The person reads the messages of a run in their order. | сообщение | reply, output |
 | gist | What a message tells about a task: its id, its title as the task has it, and two or three sentences in the person's language on what is wanted and what must be true for the work to be done. | суть | summary |
 | tell | Give the person a message that needs no answer. | сказать | show, notify |
 | ask | Give the person a question. The run then waits for the answer and changes nothing until it comes. | спросить | confirm, prompt |
-| wait | End the run with nothing more changed. The next text that the person writes goes on with the same task. | ждать | pause |
+| wait | End the run with nothing more changed. The next text that the person writes in the same conversation goes on with the same task. | ждать | pause |
 | stop | End the run with nothing more changed. The run does not take the task: a next text that the person writes and that names it starts again. | остановиться | abort, quit |
