@@ -9,7 +9,10 @@ invariants:
 
 # The shape of a scenario file that scenarios/README.md gives (ADR 0008): no
 # host word, a name unique in scenarios/, a When of the person or of the run,
-# and the labels Given, When, Then and Never, once each, in this order.
+# the labels Given, When, Then and Never, once each, in this order, and an item
+# that builds on another scenario, as "as in <name>" at its end or "the
+# outcomes of <name> hold", names a heading. An item continues on the lines
+# that start with two spaces.
 scenarios:
 	! grep -HniE 'subagent|(^|[^[:alnum:]])gh([^[:alnum:]]|$$)|/code-review|claude code|codex' scenarios/*/*.md
 	! grep -h '^## ' scenarios/*/*.md | sort | uniq -d | grep .
@@ -17,6 +20,13 @@ scenarios:
 	awk 'function last() { if (at != "" && labels != "GWTN") { print at ": the labels are not Given, When, Then and Never, once each, in this order"; bad = 1 } } \
 	  /^## / { last(); at = FILENAME ":" FNR; labels = "" } \
 	  /^(Given|When|Then|Never):/ { labels = labels substr($$0, 1, 1) } END { last(); exit bad }' scenarios/*/*.md
+	grep -h '^## ' scenarios/*/*.md | awk 'FILENAME == "-" { name[substr($$0, 4)] = 1; next } \
+	  function ref(n) { if (!(n in name)) { print at ": no scenario has the name " n; bad = 1 } } \
+	  function item() { if (match(text, /the outcomes of .* hold/)) ref(substr(text, RSTART + 16, RLENGTH - 21)); \
+	    if (match(text, / as in .*$$/)) ref(substr(text, RSTART + 7)); text = "" } \
+	  /^- / { item(); at = FILENAME ":" FNR; text = substr($$0, 3); next } \
+	  /^  / && text != "" { sub(/^ +/, " "); text = text $$0; next } \
+	  { item() } END { item(); exit bad }' - scenarios/*/*.md
 
 lint: scenarios
 	claude plugin validate .

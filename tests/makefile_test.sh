@@ -110,4 +110,13 @@ fails 'two Whens' 'x/z.md:1: the labels' x/z.md \
   '## A new task' 'Given:' '- a' 'When: the person writes "#91"' 'When: the run meets #91' 'Then:' '- b' 'Never:' '- c'
 fails 'no Never in the last scenario of a file before another' 'a/a.md:1: the labels' a/a.md \
   '## A new task' 'Given:' '- a' 'When: the person writes "#91"' 'Then:' '- b'
+# An item builds on another scenario by its heading (#298). The copy of
+# take-in.md holds both forms on one line, and the heading A task in progress
+# for the person, with no branch.
+shape x/z.md "$(well 'A new task' $'the outcomes of A task in progress for the person,\n  with no branch hold')" ||
+  fail 'make scenarios fails on a reference to a heading on two lines' "$(cat "$tmp/out")"
+fails 'the outcomes of a heading that does not exist' 'x/z.md:6: no scenario has the name A missing task' x/z.md \
+  "$(well 'A new task' 'the outcomes of A missing task hold for #91')"
+fails 'as in a heading that does not exist, on two lines' 'x/z.md:6: no scenario has the name A missing task' x/z.md \
+  "$(well 'A new task' $'a branch for #91 exists, as in A\n  missing task')"
 echo 'makefile_test: ok'
