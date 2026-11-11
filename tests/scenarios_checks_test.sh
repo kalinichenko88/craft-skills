@@ -67,7 +67,7 @@ take_in=$root/scenarios/github/take-in.md
 [ "$(coverage "$tmp/new.md")" = '< A new scenario' ] || fail 'a heading with no case passes' "$(coverage "$tmp/new.md")"
 grep -vxF "## The work on the person's task continues here" "$take_in" >"$tmp/gone.md"
 [ "$(coverage "$tmp/gone.md")" = "> The work on the person's task continues here" ] ||
-  fail 'a scenario listed as not run, with no heading, passes' "$(coverage "$tmp/gone.md")"
+  fail 'a case whose scenario has no heading passes' "$(coverage "$tmp/gone.md")"
 
 n=0
 copy() {
@@ -256,22 +256,22 @@ copy
 sed -i.bak '/^text/s/?/./g' "$tmp/$n/assigned.events"
 flips assigned 'the person is asked whether the work on #91 runs somewhere else or continues here'
 
-# The answer that the work continues here, with no branch linked; the answer
-# that it runs somewhere else, with a write after it.
+# The answers: #91 given another assignee, and left with none.
 copy
-state here '.issues[0].linked = []'
-flips here 'that branch is made from the default branch' 'that branch is linked to #91'
+state here '.issues[0].assignees += ["rivera"]'
+flips here '#91 stays assigned to the person'
 copy
-add there $'Bash\tgh issue edit 91 --add-assignee @me'
-flips there 'the run stops: no change'
-# The Given of an answer does not hold: the first message asks nothing, or
-# the person gives no answer. The case is not checked.
-for change in '/^person/,$!s/?/./g' '/^person/d'; do
-  copy
-  sed -i.bak "$change" "$tmp/$n/there.events"
-  grep -qxF 'there: not checked, as its check says above' <<<"$("$eval" --check "$tmp/$n" 2>/dev/null)" ||
-    fail "copy $n of there, with no question or no answer, is checked"
-done
+state there '.issues[0].assignees = []'
+flips there 'never: the assignees of #91 change'
+# The Given of an answer does not hold, and the case is not checked: the
+# answer comes before the question, or the person gives no answer.
+notchecked() { grep -qxF "$1: not checked, as its check says above" <<<"$("$eval" --check "$tmp/$n" 2>/dev/null)" || fail "copy $n checks $1"; }
+copy
+{ grep '^person' "$fixtures/there.events"; grep -v '^person' "$fixtures/there.events"; } >"$tmp/$n/there.events"
+notchecked there
+copy
+grep -v '^person' "$fixtures/here.events" >"$tmp/$n/here.events"
+notchecked here
 
 # A linked branch: asked nothing, and a second branch linked.
 copy

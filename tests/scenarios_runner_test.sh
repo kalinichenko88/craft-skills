@@ -135,21 +135,31 @@ got=$("$eval" --check "$tmp/old" 2>/dev/null)
 { grep -qxF 'other: not checked, as its check says above' <<<"$got" && grep -qxF 'pass^1 other: not measured, 0 runs of 1' <<<"$got"; } ||
   fail 'a run with no snapshot of its Given is checked' "$got"
 
-# A stub claude records its arguments, starts session s1, asks whether the
-# work runs somewhere else, and costs $1.50 a session. A folder that cannot
-# run it, or a claude function, would leave the real claude in its place.
+# A stub claude records its arguments and starts session s1. A first session
+# asks whether the work runs somewhere else and costs $1.50; a resumed one
+# says that it stops, and gives $2.50, the cost of both of its messages. A
+# folder that cannot run it, or a claude function, would leave the real claude
+# in its place.
 mkdir "$tmp/stub"
-printf '#!/usr/bin/env bash\necho "$*" >>%q\necho %q\necho %q\necho %q\n' "$tmp/stub.args" '{"type":"system","subtype":"init","session_id":"s1"}' \
-  '{"type":"assistant","message":{"content":[{"type":"text","text":"Does the work run somewhere else?"}]}}' \
-  '{"type":"result","subtype":"success","total_cost_usd":1.5}' >"$tmp/stub/claude"
+printf '#!/usr/bin/env bash\necho "$*" >>%q\n' "$tmp/stub.args" >"$tmp/stub/claude"
+cat >>"$tmp/stub/claude" <<'EOF'
+echo '{"type":"system","subtype":"init","session_id":"s1"}'
+text='Does the work run somewhere else?' cost=1.5
+case " $* " in *" --resume "*) text='I stop here.' cost=2.5 ;; esac
+echo "{\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"text\",\"text\":\"$text\"}]}}"
+echo "{\"type\":\"result\",\"subtype\":\"success\",\"total_cost_usd\":$cost}"
+EOF
 chmod +x "$tmp/stub/claude"
 [ "$(PATH="$tmp/stub:$PATH" command -v claude || true)" = "$tmp/stub/claude" ] || fail 'claude is not the stub'
 # stub <argument>...: the report of the eval with the stub claude.
+# $tmp/stub.events keeps the events of its first round.
 stub() {
-  local r
+  local r d
   rm -f "$tmp/stub.args"
   r=$(PATH="$tmp/stub:$PATH" "$eval" "$@") || fail "the eval with a stub claude exits with an error: $*" "$r"
-  rm -rf "$(sed -n 's/^runs: //p' <<<"$r")"
+  d=$(sed -n 's/^runs: //p' <<<"$r")
+  cat "$d"/run1/*.events >"$tmp/stub.events" 2>/dev/null || true
+  rm -rf "$d"
   printf '%s\n' "$r"
 }
 # By default, a run of free is on opus with a cap of $4.
@@ -160,15 +170,18 @@ got=$(stub free)
 got=$(stub otherrepo)
 grep -qe ' https://github.com/acme/lib/issues/91$' "$tmp/stub.args" || fail 'otherrepo does not run on the link of #91' "$(cat "$tmp/stub.args")"
 # The answer of there resumes session s1 of its first message, as the last
-# argument. The resumed session gives the cost of both messages, so the cost
-# of the run is its last result. The log gives the answer after the question,
-# so the Given of there holds, and the stub changes nothing: the case passes.
+# argument. The cost of the run is its last result. The log gives the answer
+# after the question of the first message, so the Given of there holds, and
+# the stub changes nothing: the case passes.
 got=$(stub there)
 { [ "$(wc -l <"$tmp/stub.args")" -eq 2 ] && sed -n 1p "$tmp/stub.args" | grep -qe ' #91$' &&
   sed -n 2p "$tmp/stub.args" | grep -qe '--max-budget-usd 2 .*--resume s1 It runs somewhere else\.$'; } ||
   fail 'the answer of there does not resume the session of its first message' "$(cat "$tmp/stub.args")"
-grep -qxF "cost: \$1.50" <<<"$got" || fail 'the cost of a run of two messages is not its last result' "$got"
-grep -qxF 'pass^1 there: PASS, 1 of 1 runs pass' <<<"$got" || fail 'the log of there does not give the answer after the question' "$got"
+[ "$(cat "$tmp/stub.events")" = "$(printf 'text\tDoes the work run somewhere else?\nperson\tIt runs somewhere else.\ntext\tI stop here.')" ] ||
+  fail 'the log of there does not give the answer after the question of the first message' "$(cat "$tmp/stub.events")"
+{ grep -qxF "there: success, \$2.5" <<<"$got" && grep -qxF "cost: \$2.50" <<<"$got"; } ||
+  fail 'the cost of a run of two messages is not its last result' "$got"
+grep -qxF 'pass^1 there: PASS, 1 of 1 runs pass' <<<"$got" || fail 'the Given of there does not hold on a question and its answer' "$got"
 # A round of here can cost $8, a cap of $4 for each of its two messages.
 got=$(stub --max-cost 7 here)
 { [ ! -e "$tmp/stub.args" ] && grep -qxF "stopped before round 1 of 1: \$0.00 spent, and a round can cost \$8.00 more, past the cap of \$7" <<<"$got"; } ||
