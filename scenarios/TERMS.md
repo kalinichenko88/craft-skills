@@ -14,12 +14,12 @@ column gives the name that a person who reads Russian sees.
 | task | A unit of work in the tracker: an id, a title, a text, a state (open or closed), labels, assignees, comments and linked branches. | задача | issue, ticket, card |
 | task id | The number of a task, as the person writes it: `#91`. | номер задачи | |
 | label | A name from the list of labels of the repository, as `bug`. A task carries labels from that list. | метка | tag |
-| link | The web address of a task, which names its repository and its id. | ссылка | URL |
+| link | The web address of a task, which names its repository and its id, or of a branch, which names its repository and its name. | ссылка | URL |
 | tracker | The place where the tasks of one repository live. | трекер | board, backlog |
 | milestone | A named group of tasks in the tracker, as `M1`. A task is in one milestone or in none. The milestone `Later` holds the tasks that are put off. | веха | sprint |
 | repository | The git repository of the code, with its default branch, on GitHub. | репозиторий | repo, project |
 | default branch | The branch that the work of the repository merges into. | основная ветка | main, master |
-| branch | A git branch of the repository. A branch of another repository, as of a fork, is named so. | ветка | |
+| branch | A git branch of the repository. A scenario calls a branch of a fork, or of any other repository, "a branch of another repository". | ветка | |
 | linked branch | A branch that a task records as its own: whoever opens the task sees it. It can be a branch of another repository. | связанная ветка | |
 | pull request | A request to merge a branch into the default branch, with a title, a text and assignees. It closes a task when it names the task with a closing word, or when it is a linked pull request of the task. A pull request is the person's, or another person's, by the account that opened it. | pull request | merge request, PR |
 | linked pull request | A pull request that a task records as its own: whoever opens the task sees it. When the pull request of a linked branch opens, the task records the pull request in place of the branch. | связанный pull request | |

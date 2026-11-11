@@ -4,7 +4,9 @@ The whole text that the person writes names one task: "#91", "take #91", or
 the link of the task. It can also say where the work runs: on a branch only,
 or on the branch that the workspace is on. The run checks whether the task is
 free, tells the person the gist of the task, closes its duplicates, and starts
-the work on a branch linked to the task.
+the work on a branch linked to the task, or on the branch that the workspace
+is on. A next text of the person after a run that asked or waited goes on
+with the task of that run.
 
 Not covered yet:
 
@@ -12,7 +14,10 @@ Not covered yet:
 - a duplicate that tells only the failure that was seen, when the
   reproduction shows another cause;
 - the answers to the question what to do with a branch in the workspace
-  that has the name of the new branch.
+  that has the name of the new branch;
+- other pairs of states that each end the run in another way, as a closed
+  task with a busy duplicate;
+- a text after a wait that names another task.
 
 ## A free task
 
@@ -296,8 +301,8 @@ Given:
 When: the person writes "#91"
 Then:
 - #95 is closed as a duplicate of #91
-- #95 closes after a reproduction in the workspace of #91 shows that the
-  failure of #95 comes from the defect of #91
+- a reproduction of the failure of #95 runs in the workspace of #91
+- #95 closes after that reproduction
 - the last message names #95 as closed
 - the outcomes of A free task hold for #91
 Never:
@@ -448,7 +453,7 @@ Given:
 - the workspace has `fix/91-typo`, with the same last commit as the
   repository
 - an earlier run took #91 into the work in another conversation, which is
-  open
+  open; the first text of that conversation is "#91"
 When: the person writes "#91"
 Then:
 - the first message about #91 tells its gist
