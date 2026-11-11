@@ -8,14 +8,25 @@
 # the session's messages and tool calls. tests/scenarios_take_in.sh holds the
 # cases, their Given and their checks:
 #
-#   free   A free task
-#   other  A task that another person is assigned to
-#   down   The tracker does not answer
-#   dup    A free duplicate
-#   busy   A busy duplicate
+#   free       A free task
+#   other      A task that another person is assigned to
+#   down       The tracker does not answer
+#   dup        A free duplicate
+#   busy       A busy duplicate
+#   closed     A closed task
+#   otherpr    A task with another person's pull request
+#   mypr       A task with the person's pull request
+#   assigned   A task assigned to the person, with no branch
+#   linked     A linked branch with no assignee
+#   inws       The person's work is in the workspace
+#   moved      The person's branch moved on somewhere else
+#   otherrepo  A task of another repository
 #
 # The session loads this checkout as the plugin, with --setting-sources
-# project, so no other plugin and no setting of this machine reaches it.
+# project, so no other plugin and no setting of this machine reaches it. It
+# runs with no ListAgents: that tool lists every session of this machine, so
+# the runs of a round see each other as open sessions on #91, and the log
+# would hold the names of the person's other sessions.
 #
 # With --runs k, each case runs k times, one round of the cases after
 # another. As tau-bench scores an agent, a case passes pass^k only when each
@@ -29,7 +40,8 @@
 # --max-cost, the eval stops before a round that could take the cost of the
 # pass past it. The report ends with the cost of the pass. A failing check
 # is a result, not an error: it exits 0. The run folder keeps a folder for
-# each round, run1 and on, with each case's log, events, tracker and branches.
+# each round, run1 and on, with each case's log, events, tracker, branches and
+# workspace, and the branches and the workspace of its Given.
 #
 # With --check, it runs only the checks and the pass^k count, on the round
 # folders of an earlier run, one folder for each run. `make check` runs them so
@@ -111,7 +123,8 @@ run() {
   take_in setup "$w" "$2"
   (cd "$w" && PATH="$w.bin:$PATH" claude -p --model "$model" --setting-sources project \
     --settings '{"language":"English"}' --plugin-dir "$root" --output-format stream-json --verbose \
-    --max-budget-usd "$(budget "$2")" --dangerously-skip-permissions "$(message "$2")") >"$w.jsonl" 2>&1 || true
+    --max-budget-usd "$(budget "$2")" --disallowedTools ListAgents --dangerously-skip-permissions "$(message "$2")") \
+    >"$w.jsonl" 2>&1 || true
   take_in record "$w"
 }
 

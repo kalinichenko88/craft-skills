@@ -13,10 +13,14 @@
 #   issues       each with number, title, body, state, assignees and labels
 #                as lists of names, and comments as {author, body}; it can
 #                have stateReason, milestone (a title), linked (the names of
-#                its linked branches) and duplicateOf (a number)
+#                its linked branches on the origin), duplicateOf (a number)
+#                and repo, when it is in another repository than repo
 #   labels       the names that `gh label list` gives
 #   visibility   PUBLIC or PRIVATE
-#   prs          the pull requests that `gh pr list` gives; none if absent
+#   prs          the pull requests that `gh pr list` and `gh pr view --json`
+#                give, none if absent: each with number, title, state, author
+#                as {login}, headRefName (a branch on the origin) and closes,
+#                the numbers of the issues it closes
 #   origin       the bare origin where `gh issue develop` makes a branch
 #   workspace    the checkout of the eval, whose worktrees the log reads
 #   down         true: each call but --version fails with a 502
@@ -32,7 +36,7 @@
 state=$1
 shift
 printf '%s\n' "$*" >>"${state%.state.json}.calls"
-args=("$@") jqf='' fields='' search='' list_state=open num='' n=''
+args=("$@") jqf='' fields='' search='' list_state=open num='' n='' want=''
 for ((i = 0; i < $#; i++)); do
   a=${args[i]}
   case $a in
@@ -40,12 +44,13 @@ for ((i = 0; i < $#; i++)); do
     --json) fields=${args[i + 1]} ;;
     --search | -S) search=${args[i + 1]} ;;
     --state | -s) list_state=${args[i + 1]} ;;
+    --repo | -R) want=${args[i + 1]} ;;
     n=*) n=${a#n=} ;;
   esac
 done
 for a in "${args[@]:2}"; do
   case $a in
-    */issues/*) num=${a##*/issues/} num=${num%%[!0-9]*} && break ;;
+    */issues/*) num=${a##*/issues/} num=${num%%[!0-9]*} want=${a#*://*/} want=${want%%/issues/*} && break ;;
     \#[0-9]* | [0-9]*) num=${a#\#} && break ;;
   esac
 done
@@ -55,6 +60,7 @@ if [ "$(jq -r '.down // false' "$state")" = true ]; then
   exit 1
 fi
 me=$(jq -r .me "$state") repo=$(jq -r .repo "$state")
+want=${want:-$repo}
 out() { if [ -n "$jqf" ]; then jq -r "$jqf" <<<"$1"; else printf '%s\n' "$1"; fi; }
 pick() { jq -c --arg f "$fields" "$1"' | . as $i | if $f == "" then . else reduce ($f | split(","))[] as $k ({}; .[$k] = $i[$k]) end'; }
 save() { local t; t=$(jq "$@" "$state") && printf '%s\n' "$t" >"$state"; }
@@ -67,9 +73,10 @@ logged() { # logged <command> <number>
   fi
   save --arg e "$e" '.log += [$e]'
 }
-issues() {
-  jq --arg repo "$repo" '[.issues[] | {number, title, body, state, stateReason: (.stateReason // null),
-    url: "https://github.com/\($repo)/issues/\(.number)", assignees: [.assignees[] | {login: .}],
+issues() { # the issues of the repository that a URL or --repo names, or of repo
+  jq --arg repo "$repo" --arg want "$want" '[.issues[] | select((.repo // $repo) == $want)
+    | {number, title, body, state, stateReason: (.stateReason // null),
+    url: "https://github.com/\($want)/issues/\(.number)", assignees: [.assignees[] | {login: .}],
     labels: [.labels[] | {name: .}], milestone: (if .milestone then {title: .milestone} else null end),
     comments: [.comments[] | {author: {login: .author}, body}]}]' "$state"
 }
@@ -101,22 +108,30 @@ case "$1 $2" in
       origin=$(jq -r .origin "$state")
       linked=$(jq -r --argjson n "$n" '.issues[] | select(.number == $n) | (.linked // [])[]' "$state" |
         while read -r b; do
-          oid=$(git -C "$origin" rev-parse "refs/heads/$b")
-          jq -nc --arg b "$b" --arg oid "$oid" --arg repo "$repo" '{ref: {name: $b, repository: {nameWithOwner: $repo},
-            target: {oid: $oid, committedDate: "2026-11-03T00:00:00Z"}, compare: {behindBy: 0}}}'
+          oid=$(git -C "$origin" rev-parse "refs/heads/$b") ahead=$(git -C "$origin" rev-list --count "main..refs/heads/$b")
+          jq -nc --arg b "$b" --arg oid "$oid" --argjson ahead "$ahead" --arg repo "$repo" '{ref: {name: $b,
+            repository: {nameWithOwner: $repo}, target: {oid: $oid, committedDate: "2026-11-03T00:00:00Z"}, compare: {behindBy: $ahead}}}'
         done | jq -sc .)
-      out "$(jq -c --argjson n "$n" --argjson linked "$linked" '. as $s | ($s.issues[] | select(.number == $n)) as $i
+      closing=$(jq -c --argjson n "$n" '(.prs // [])[] | select(any(.closes[]; . == $n))' "$state" |
+        while read -r p; do
+          oid=$(git -C "$origin" rev-parse "refs/heads/$(jq -r .headRefName <<<"$p")")
+          jq -c --arg oid "$oid" --arg repo "$repo" '{number, state, author, headRefName, headRefOid: $oid,
+            headRepository: {nameWithOwner: $repo}}' <<<"$p"
+        done | jq -sc .)
+      out "$(jq -c --argjson n "$n" --argjson linked "$linked" --argjson closing "$closing" '. as $s
+        | ($s.issues[] | select(.number == $n)) as $i
         | {data: {viewer: {login: $s.me}, repository: {nameWithOwner: $s.repo, defaultBranchRef: {name: "main"},
           issue: {state: $i.state, assignees: {nodes: [$i.assignees[] | {login: .}]}, linkedBranches: {nodes: $linked},
-            closedByPullRequestsReferences: {nodes: []}}}}}' "$state")"
-    elif [[ $* == *issueOrPullRequest* ]]; then # the entries of collect.sh, with no timeline and no pull request
+            closedByPullRequestsReferences: {nodes: $closing}}}}}' "$state")"
+    elif [[ $* == *issueOrPullRequest* ]]; then # the entries of collect.sh, with no timeline, of issues only
       nums=$(grep -oE 'n[0-9]+: issueOrPullRequest' <<<"$*" | grep -oE '^n[0-9]+' | tr -d n | jq -sc .)
       out "$(jq -c --argjson nums "$nums" '. as $s | {data: {viewer: {login: .me}, repository: (reduce
         (.issues[] | select(.number | IN($nums[]))) as $i ({}; .["n\($i.number)"] = {__typename: "Issue",
           number: $i.number, title: $i.title, state: $i.state, stateReason: ($i.stateReason // null), body: $i.body,
           repository: {nameWithOwner: $s.repo}, labels: {nodes: [$i.labels[] | {name: .}]},
           assignees: {nodes: [$i.assignees[] | {login: .}]}, linkedBranches: {nodes: [($i.linked // [])[] | {ref: {name: .}}]},
-          closedByPullRequestsReferences: {nodes: []}, timelineItems: {totalCount: 0, nodes: []},
+          closedByPullRequestsReferences: {nodes: [($s.prs // [])[] | select(any(.closes[]; . == $i.number))
+            | {number, state, author}]}, timelineItems: {totalCount: 0, nodes: []},
           comments: {totalCount: ($i.comments | length), nodes: [$i.comments[] | {author: {login: .author}, body}]},
           duplicateOf: (if $i.duplicateOf then {number: $i.duplicateOf, repository: {nameWithOwner: $s.repo}} else null end)}))}}' "$state")"
     else
@@ -125,7 +140,10 @@ case "$1 $2" in
     fi
     ;;
   'issue view')
-    if [ -n "$fields" ]; then
+    if ! issues | jq -e --argjson n "$num" 'any(.[]; .number == $n)' >/dev/null; then
+      echo "GraphQL: Could not resolve to an issue or pull request with the number of $num. (repository.issue)" >&2
+      exit 1
+    elif [ -n "$fields" ]; then
       out "$(issues | jq -c --argjson n "$num" '.[] | select(.number == $n)' | pick .)"
     else
       issues | jq -r --argjson n "$num" '.[] | select(.number == $n)
@@ -184,6 +202,11 @@ case "$1 $2" in
     fi
     ;;
   'pr list') out "$(jq -c '.prs // []' "$state")" ;;
+  'pr view') # with --json only
+    pr=$(jq -c --argjson n "$num" '(.prs // [])[] | select(.number == $n)' "$state")
+    [ -n "$pr" ] || { echo "GraphQL: Could not resolve to a PullRequest with the number of $num. (repository.pullRequest)" >&2; exit 1; }
+    out "$(pick . <<<"$pr")"
+    ;;
   'repo view') out "$(jq -c '{nameWithOwner: .repo, visibility, defaultBranchRef: {name: "main"}}' "$state")" ;;
   'label list') out "$(jq -c '[.labels[] | {name: .}]' "$state")" ;;
   'auth status') echo "github.com: Logged in to github.com account $me" ;;

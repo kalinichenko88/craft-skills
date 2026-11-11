@@ -1,0 +1,5 @@
+Skill	craft:github
+Bash	D=<craft>/skills/github; cat $D/take-in.md; ls $D/scripts
+Bash	D=<craft>/skills/github; bash $D/scripts/take-in-check.sh 91; echo "exit=$?"
+Bash	gh issue view 91 --json title,body; gh pr view 96 --json title,author,state,url
+text	I did not start #91. A pull request from someone else is already open for it.  **#91 README: the install command says npm instal.** The README tells the reader to run `npm instal shop`. npm has no `instal` command, so this command fails. The work is done when the README says `npm install shop`.  **#96 docs: fix the npm install command** (https://github.com/acme/shop/pull/96) is open by `rivera`, and it closes #91. So the work is theirs. I made no worktree or branch, did not assign the issue to you, and changed nothing.  Tell me what you want to do. You can review #96, or wait for it to merge. If you want to take the work over, agree that with rivera first.

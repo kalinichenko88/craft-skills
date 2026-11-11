@@ -1,0 +1,6 @@
+Skill	craft:github
+Bash	D=<craft>/skills/github; cat $D/take-in.md; ls $D/scripts
+Bash	D=<craft>/skills/github; cat $D/tracker.md | head -80; echo ----; git remote -v; bash $D/scripts/take-in-check.sh 91; echo "exit=$?"
+Bash	gh issue view 91 --json title,body; echo "exit=$?"
+Bash	git branch -a; git worktree list
+text	**#91 README: the install command says npm instal**  The README tells the reader to run `npm instal shop`. npm has no `instal` command, so the command fails. The work is done when the README says `npm install shop`.  The issue may already be in progress somewhere else. The take-in check printed:  ``` #91: assigned to you #91: branch fix/91-typo, 1 commits ahead of main, last commit 2026-11-03T00:00:00Z ```  So #91 is assigned to you, and it has a branch `fix/91-typo` with one commit from 2026-11-03. The branch exists here and on `origin`, but no worktree has it checked out. The check found no sign that the work continues on this computer, so it did not say to resume it here. Another of your sessions, on this computer or another one, may still be working on it.  I have made no changes. One question before I go on: **is the work on #91 still running somewhere else, or should I continue it here?** If it runs somewhere else, I stop. If I continue here, I'll pick up the `fix/91-typo` branch and its commit, then do the take-in steps.

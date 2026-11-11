@@ -19,16 +19,14 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 # cases: one line for each case, with its name, the cap of one of its runs in
 # dollars, and the message of the person. A case that goes on into the work
 # after the take-in has the higher cap.
-cases() { printf '%s\n' 'free 4 #91' 'other 2 #91' 'down 2 #91' 'dup 4 #91' 'busy 4 #91'; }
-# The scenarios of take-in that no case runs yet (#237, #239).
+cases() {
+  printf '%s\n' 'free 4 #91' 'other 2 #91' 'down 2 #91' 'dup 4 #91' 'busy 4 #91' 'closed 2 #91' 'otherpr 2 #91' \
+    'mypr 2 #91' 'assigned 2 #91' 'linked 2 #91' 'inws 4 #91' 'moved 2 #91' 'otherrepo 2 https://github.com/acme/lib/issues/91'
+}
+# The scenarios of take-in that no case runs yet (#239).
 # tests/scenarios_checks_test.sh fails for a heading of the file that is
 # neither a case nor in this list, and for a name here that is no heading.
-not_run() {
-  printf '%s\n' "A closed task" "A task with another person's pull request" "A task with the person's pull request" \
-    "A task assigned to the person, with no branch" "The work on the person's task continues here" \
-    "The work on the person's task runs somewhere else" "A linked branch with no assignee" \
-    "The person's work is in the workspace" "The person's branch moved on somewhere else" "A task of another repository"
-}
+not_run() { printf '%s\n' "The work on the person's task continues here" "The work on the person's task runs somewhere else"; }
 
 title='README: the install command says npm instal'
 body='The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.'
@@ -47,9 +45,21 @@ Require stack:
     at Object.<anonymous> (/home/lee/app/index.js:1:14)"
 
 # setup <dir> <case>: the workspace <dir>, its origin <dir>.origin, the
-# tracker <dir>.state.json, and the fake gh in <dir>.bin.
+# tracker <dir>.state.json, and the fake gh in <dir>.bin. <dir>.given.workspace
+# and <dir>.given.branches hold the workspace and the origin's branches as the
+# Given leaves them, in the shape of record.
 setup() {
   local w=$1
+  # elsewhere <branch> <who>: a commit of <who> on <branch> of the origin,
+  # from another clone: the fix of #91.
+  elsewhere() {
+    git clone -q "$w.origin" "$w.elsewhere"
+    git -C "$w.elsewhere" switch -qc "$1"
+    printf '# shop\n\nInstall it with `npm install shop`.\n' >"$w.elsewhere/README.md"
+    git -C "$w.elsewhere" -c user.name="$2" -c user.email="$2@example.com" commit -qam 'docs: fix the install command'
+    git -C "$w.elsewhere" push -q origin "$1"
+    rm -rf "$w.elsewhere"
+  }
   git init -q --bare -b main "$w.origin"
   git init -q -b main "$w"
   git -C "$w" config user.name "$me"
@@ -59,18 +69,33 @@ setup() {
   git -C "$w" commit -qm 'docs: add the README'
   git -C "$w" remote add origin "$w.origin"
   git -C "$w" push -q -u origin main
+  case $2 in
+    otherpr) elsewhere fix/91-install "$other" ;;
+    mypr) elsewhere fix/91-install "$me" ;;
+    linked) git -C "$w.origin" branch fix/91-typo main ;;
+    inws | moved) git -C "$w" branch fix/91-typo && git -C "$w" push -q -u origin fix/91-typo ;;
+  esac
+  [ "$2" != moved ] || elsewhere fix/91-typo "$me"
   jq -n --arg case "$2" --arg me "$me" --arg other "$other" --arg origin "$w.origin" \
     --arg w "$w" --arg title "$title" --arg body "$body" --arg title95 "$title95" --arg body95 "$body95" --arg trace "$trace" '
     def task($n; $t; $b; $who): {number: $n, title: $t, body: $b, state: "OPEN", stateReason: null,
       assignees: $who, labels: [], comments: [], linked: []};
-    {me: $me, repo: "acme/shop", origin: $origin, workspace: $w, down: ($case == "down"), prs: [],
+    def pr($who): {number: 96, title: "docs: fix the npm install command", state: "OPEN", author: {login: $who},
+      headRefName: "fix/91-install", url: "https://github.com/acme/shop/pull/96", closes: [91]};
+    {me: $me, repo: "acme/shop", origin: $origin, workspace: $w, down: ($case == "down"),
+      prs: (if $case == "otherpr" then [pr($other)] elif $case == "mypr" then [pr($me)] else [] end),
       labels: ["bug", "debt", "enhancement"], visibility: "PUBLIC",
-      issues: ([task(91; $title; $body; if $case == "other" then [$other] else [] end)]
+      issues: ([task(91; $title; $body; if $case == "other" then [$other]
+          elif $case | IN("assigned", "inws", "moved") then [$me] else [] end)
+        | if $case == "closed" then .state = "CLOSED" | .stateReason = "COMPLETED" else . end
+        | if $case | IN("linked", "inws", "moved") then .linked = ["fix/91-typo"] else . end
+        | if $case == "otherrepo" then .repo = "acme/lib" else . end]
         + if $case == "dup" then [task(95; $title95; $body95 + "\n\nThen my app failed:\n\n```\n" + $trace + "\n```"; [])]
           elif $case == "busy" then [task(95; $title95; $body95; [$other])] else [] end)}' >"$w.state.json"
   mkdir "$w.bin"
   printf '#!/usr/bin/env bash\nexec bash %q %q "$@"\n' "$root/tests/fake_gh.sh" "$w.state.json" >"$w.bin/gh"
   chmod +x "$w.bin/gh"
+  snapshot "$w" "$w.given"
 }
 
 # record <dir>: <dir>.events holds the messages to the person, as text lines,
@@ -80,11 +105,8 @@ setup() {
 # text lines. Another one can reach the log only as a think line, in other
 # words, without the task's id and title (#206), with
 # --include-partial-messages too. Paths of this machine become <craft>,
-# <work> and <tmp>. <dir>.branches holds the origin's branches, each one that
-# is not made from main marked so. <dir>.workspace
-# holds the changed files, the local branches, the worktrees, the branch of
-# HEAD, the commits on main and the stash entries of the workspace. Each line
-# of a command becomes one part of a line, after "; ".
+# <work> and <tmp>. Each line of a command becomes one part of a line, after
+# "; ". Then snapshot writes <dir>.branches and <dir>.workspace.
 record() {
   jq -r 'select(.type == "assistant") | (if .parent_tool_use_id then "sub" else "" end) as $sub
     | .message.content[]
@@ -95,15 +117,29 @@ record() {
       else empty end' "$1.jsonl" |
     awk -v r="$root" -v w="$1" -v t="${TMPDIR:-/tmp}" '{ gsub(r, "<craft>"); gsub("(/private)?" w, "<work>")
       gsub("(/private)?" t, "<tmp>/"); gsub("<tmp>//", "<tmp>/"); print }' >"$1.events"
+  snapshot "$1" "$1"
+}
+
+# snapshot <dir> <to>: <to>.branches holds the origin's branches, each one
+# that is not made from main marked so. <to>.workspace holds the changed
+# files, the local branches, the worktrees, the branch of HEAD, the commits
+# on main and the stash entries of the workspace. Each local branch but main
+# gives its last commit, and "changed" when its worktree has a changed file.
+snapshot() {
+  local b c t
   git -C "$1.origin" for-each-ref --format='%(refname:short)' refs/heads | while read -r b; do
     if git -C "$1.origin" merge-base --is-ancestor main "$b"; then echo "$b"; else echo "$b, not from main"; fi
-  done >"$1.branches"
+  done >"$2.branches"
   { git -C "$1" status --porcelain
-    git -C "$1" for-each-ref --format='%(refname:short)' refs/heads
+    git -C "$1" for-each-ref --format='%(refname:short) %(objectname) %(worktreepath)' refs/heads | while read -r b c t; do
+      [ "$b" != main ] || { echo main; continue; }
+      [ -z "$t" ] || ! git -C "$t" status --porcelain | grep -q . || c="$c changed"
+      echo "$b $c"
+    done
     echo "worktrees $(git -C "$1" worktree list --porcelain | grep -c '^worktree ')"
     echo "head $(git -C "$1" rev-parse --abbrev-ref HEAD)"
     echo "main $(git -C "$1" rev-list --count main)"
-    echo "stash $(git -C "$1" stash list | wc -l | tr -d ' ')"; } >"$1.workspace"
+    echo "stash $(git -C "$1" stash list | wc -l | tr -d ' ')"; } >"$2.workspace"
 }
 
 # check <dir> <case>: one line for each item, PASS, FAIL or SKIP, with the scenario.
@@ -116,7 +152,7 @@ record() {
 # passes "the run waits".
 # shellcheck disable=SC2034,SC2329 # the items read the values and call issue, at and told through eval
 check() {
-  local d=$1 s first_write named nline gist titled think assignees linked branch same last
+  local d=$1 s first_write named nline gist titled think assignees linked branch same last where yours
   # A write: an edit of a file, a commit, a branch, a worktree, or a write to
   # the tracker. A read, as `sed -n 1p worktree.sh` or `git merge-base`, is
   # none.
@@ -129,9 +165,9 @@ check() {
   titled=$(grep -n "^text" "$d.events" | grep -F "$title" | head -n 1 | cut -d: -f1)
   think=$(grep -n "^think" "$d.events" | head -n 1 | cut -d: -f1)
   last=$(awk -F'\t' '$1 == "text" { last = $2 } END { print last }' "$d.events")
-  # The workspace as setup leaves it: no changed file, main, one worktree,
-  # HEAD on main, one commit on main, no stash entry.
-  same='[ "$(cat "$d.workspace")" = "$(printf "main\nworktrees 1\nhead main\nmain 1\nstash 0")" ]'
+  # The workspace as the Given leaves it.
+  same='cmp -s "$d.given.workspace" "$d.workspace"'
+  where='somewhere else|elsewhere|(another|other) (session|machine|computer)' yours="assigned to (you|$me)"
   assignees=$(jq -c '.issues[] | select(.number == 91) | .assignees' "$d.state.json")
   linked=$(jq -c '.issues[] | select(.number == 91) | .linked' "$d.state.json")
   branch=$(jq -r '.[0] // empty' <<<"$linked")
@@ -142,6 +178,15 @@ check() {
   # not, or null.
   at() { jq -e "def at(\$w): [(.log // [])[] | split(\" \")[0:2] | join(\" \") == \$w] | index(true); $1" "$d.state.json" >/dev/null; }
   told() { grep "^text" "$d.events" | grep -qiF "$1"; }
+  says() { grep "^text" "$d.events" | grep -qiE "$1"; }
+  # asked <regex>: a message that holds a question and matches the regex.
+  asked() { grep "^text" "$d.events" | grep -F '?' | grep -qiE "$1"; }
+  # tip <snapshot>: the line of fix/91-typo in a snapshot of the workspace.
+  tip() { grep '^fix/91-typo ' "$1" || true; }
+  nochange() { item "$1: no change" '[ -z "$first_write" ] && eval "$same"'; }
+  # nobranch <linked>: the origin has the branches of the Given, and #91 has
+  # the linked branches <linked>, as JSON.
+  nobranch() { item 'never: a branch for #91 is created' "cmp -s \"\$d.given.branches\" \"\$d.branches\" && [ \"\$linked\" = '$1' ]"; }
   before() { [ -n "$1" ] && { [ -z "$first_write" ] || [ "$1" -lt "$first_write" ]; }; }
   # first: the first message about #91 tells its gist.
   first() {
@@ -172,16 +217,16 @@ check() {
     other) s='A task that another person is assigned to'
       first
       item 'the person is told that #91 is assigned to another person' 'told "$other"'
-      item 'the run waits: no change' '[ -z "$first_write" ] && eval "$same"'
+      nochange 'the run waits'
       item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$other\"]" ]'
-      item 'never: a branch for #91 is created' '[ "$(cat "$d.branches")" = main ] && [ "$linked" = "[]" ]'
+      nobranch '[]'
       ;;
     down) s='The tracker does not answer'
       item 'the person is told the error of the tracker' 'told 502'
-      item 'the run stops: no change' '[ -z "$first_write" ] && eval "$same"'
+      nochange 'the run stops'
       item 'never: a gist of #91 that the run did not read' '[ -z "$titled" ]'
       item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
-      item 'never: a branch for #91 is created' '[ "$(cat "$d.branches")" = main ] && [ "$linked" = "[]" ]'
+      nobranch '[]'
       ;;
     dup) s='A free duplicate'
       # Each line of the trace, with its indent or without.
@@ -201,6 +246,71 @@ check() {
       outcomes
       item 'never: #95 closes' 'at "at(\"close 95\") == null"'
       item 'never: the assignees of #95 change' '[ "$(issue 95 .assignees)" = "[\"$other\"]" ]'
+      ;;
+    closed) s='A closed task'
+      first
+      item 'the person is told that #91 is closed' 'told closed'
+      nochange 'the run waits'
+      item 'never: the state of #91 changes' '[ "$(issue 91 "[.state, .stateReason]")" = "[\"CLOSED\",\"COMPLETED\"]" ]'
+      item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+      nobranch '[]'
+      ;;
+    otherpr) s="A task with another person's pull request"
+      first
+      item 'the person is told that #96 of another person closes #91' 'grep "^text" "$d.events" | grep -F "#96" | grep -qiF "$other"'
+      nochange 'the run waits'
+      item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+      nobranch '[]'
+      ;;
+    mypr) s="A task with the person's pull request"
+      first
+      item 'the person is told that the work on #91 has pull request #96' 'told "#96"'
+      nochange 'the run stops'
+      item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+      nobranch '[]'
+      ;;
+    assigned) s='A task assigned to the person, with no branch'
+      first
+      item 'the person is told that #91 is assigned to the person already' 'says "$yours"'
+      item 'the person is asked whether the work on #91 runs somewhere else or continues here' 'asked "$where"'
+      nochange 'the run waits'
+      nobranch '[]'
+      item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$me\"]" ]'
+      ;;
+    linked) s='A linked branch with no assignee'
+      first
+      item 'the person is told that fix/91-typo is linked to #91' 'told fix/91-typo'
+      item 'the person is asked whose branch fix/91-typo is' 'asked "whose|yours|your (own )?branch|someone else|another person"'
+      nochange 'the run waits'
+      item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+      nobranch '["fix/91-typo"]'
+      ;;
+    inws) s="The person's work is in the workspace"
+      first
+      # What the message says: the log keeps no line break of a message.
+      item 'the person is told in one line that the work on #91 continues on fix/91-typo' \
+        'grep "^text" "$d.events" | grep -F fix/91-typo | grep -qi continu'
+      # A commit on fix/91-typo, or a changed file in its worktree.
+      item 'the work goes on, on fix/91-typo' '[ -n "$(tip "$d.workspace")" ] && [ "$(tip "$d.workspace")" != "$(tip "$d.given.workspace")" ]'
+      item 'never: the person is asked whether the work runs somewhere else' '! asked "$where"'
+      item 'never: #91 gets a second linked branch' '[ "$(jq length <<<"$linked")" -le 1 ]'
+      item 'never: the assignees of #91 change' '[ "$assignees" = "[\"$me\"]" ]'
+      ;;
+    moved) s="The person's branch moved on somewhere else"
+      first
+      item 'the person is told that #91 is assigned to the person' 'says "$yours"'
+      item 'the person is told that fix/91-typo is linked to #91' 'told fix/91-typo'
+      item 'the person is asked whether the work on #91 runs somewhere else or continues here' 'asked "$where"'
+      nochange 'the run waits'
+      nobranch '["fix/91-typo"]'
+      item "never: the workspace's fix/91-typo changes" '[ "$(tip "$d.workspace" | cut -d" " -f2)" = "$(tip "$d.given.workspace" | cut -d" " -f2)" ]'
+      ;;
+    otherrepo) s='A task of another repository'
+      first
+      item 'the person is told that #91 is in another repository' 'told acme/lib'
+      nochange 'the run stops'
+      item 'never: the assignees of #91 change' '[ "$assignees" = "[]" ]'
+      nobranch '[]'
       ;;
     *) echo "$0: no case $2" >&2; return 2 ;;
   esac

@@ -1,0 +1,5 @@
+Skill	craft:github
+Bash	cat <craft>/skills/github/take-in.md; ls <craft>/skills/github/scripts
+Bash	D=<craft>/skills/github; bash $D/scripts/take-in-check.sh 91; echo "exit=$?"; git remote -v
+Bash	gh issue view 91 --json title,body; gh pr view 96 --json title,url,headRefName,state 2>&1
+text	I did not start new work on #91 README: the install command says npm instal, because you already have an open pull request that closes it.  The README tells readers to run `npm instal shop`. npm has no `instal` command, so the command fails. The issue is done when the README says `npm install shop`.  That fix is already in #96 docs: fix the npm install command (branch `fix/91-install`, https://github.com/acme/shop/pull/96). It is your pull request, and it is open. The branch is not here on this computer, so I made no worktree and changed nothing.  To go on, tell me to review #96 or to merge it.

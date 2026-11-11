@@ -159,14 +159,15 @@ checks that the scout gives a sentence of #117 and the title of #205 as false,
 no sentence of #179, and the moved citation of #179.
 It needs the history of the checkout down to #217. Run it after a change to
 the citations job of `skills/github/scout.md` or to *Finishing*.
-`tests/scenarios_eval.sh` runs craft on five scenarios of
-`scenarios/github/take-in.md`: a free task, a task that another person is
-assigned to, a tracker that does not answer, a free duplicate and a busy
-duplicate. Each run of a case is one run of
+`tests/scenarios_eval.sh` runs craft on the thirteen scenarios of
+`scenarios/github/take-in.md` that the first message of the person starts,
+as a free task, a closed task, a task with a pull request, a linked branch,
+the person's branch in the workspace, a task of another repository and a
+free duplicate. Each run of a case is one run of
 `claude -p` with this checkout as the only plugin, a fake `gh` first on
 `PATH` that reads and writes a JSON tracker (`tests/fake_gh.sh`), and a
 workspace with a local `origin`. It checks each Then and Never item of the
-five scenarios against
+scenarios against
 the tracker, the branches, the workspace, and the session's messages and
 tool calls, and prints PASS, FAIL or SKIP for each: SKIP where the log holds
 a message only as thinking (#206). `--runs k` runs each case k times, and a
@@ -181,9 +182,10 @@ cases, with the Given and the checks of each, are in
 recorded run of each case in `tests/fixtures/scenarios/`, and on copies that
 change the verdict of one item. It fails for a scenario of take-in that has
 no case and is not in the eval's `--not-run` list.
-`tests/scenarios_runner_test.sh` counts pass^2 over the recorded runs and a
-copy, and runs the eval with a stub `claude` to check `--model` and the stop
-before `--max-cost`.
+`tests/scenarios_runner_test.sh` sets up the Given of each case and checks
+what `take-in-check.sh` reads in it through the fake `gh`. It counts pass^2
+over the recorded runs and a copy, and runs the eval with a stub `claude` to
+check `--model` and the stop before `--max-cost`.
 `tests/scenarios_text_eval.sh` reads the text of a skill against the
 scenario file of its flow, with no live run. Each file in `scenarios/*/*.md`
 has a row in the eval: the scenario file and the files of the skill that its

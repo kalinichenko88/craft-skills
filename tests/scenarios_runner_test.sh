@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Runs tests/scenarios_eval.sh with no model: the fake gh of tests/fake_gh.sh
-# marks the writes that come after the work started, the pass^k lines count
+# marks the writes that come after the work started, take-in-check.sh reads
+# the Given of each case of tests/scenarios_take_in.sh through the fake gh as
+# the scenario of the case gives it, the pass^k lines count
 # the runs of each case over the folders given, and a stub claude shows that a
 # run takes --model and stops before --max-cost.
 
@@ -38,17 +40,47 @@ fake issue comment 95 --body b
 [ "$(jq -c '.issues[0] | [.state, .stateReason, .duplicateOf]' "$tmp/fake.state.json")" = '["CLOSED","DUPLICATE",91]' ] ||
   fail 'the fake gh does not close #95 as a duplicate of #91' "$(jq -c .issues "$tmp/fake.state.json")"
 
+# The Given of each case, as take-in-check.sh reads it through the fake gh on
+# the message of the case.
+take_in=$root/tests/scenarios_take_in.sh
+given() { # given <case> <what take-in-check.sh prints>
+  local w=$tmp/given/$1 got
+  mkdir -p "$tmp/given"
+  bash "$take_in" setup "$w" "$1"
+  got=$(cd "$w" && PATH="$w.bin:$PATH" bash "$root/skills/github/scripts/take-in-check.sh" \
+    "$(bash "$take_in" cases | awk -v c="$1" '$1 == c { print $3 }')" 2>&1 || true)
+  [ "$got" = "$2" ] || fail "take-in-check.sh does not read the Given of $1" "$got"
+}
+ahead() { printf '#91: branch fix/91-typo, %s commits ahead of main, last commit 2026-11-03T00:00:00Z' "$1"; }
+for c in free dup busy; do given $c 'take #91'; done
+given other '#91: assigned to rivera'
+given down 'HTTP 502: Bad Gateway (https://api.github.com/graphql)'
+given closed '#91: closed'
+given otherpr '#91: PR #96 by rivera is open and closes it'
+given mypr '#91: PR #96 by you is open and closes it'
+given assigned '#91: assigned to you'
+given linked "$(ahead 0)"
+given inws "$(printf '#91: assigned to you\n%s\ncontinue #91 on fix/91-typo' "$(ahead 0)")"
+given moved "$(printf '#91: assigned to you\n%s' "$(ahead 1)")"
+given otherrepo '#91 is in acme/lib, and this checkout is acme/shop: stop'
+# The task of another repository reads by its link, and is no task of this one.
+w=$tmp/given/otherrepo
+[ "$(cd "$w" && PATH="$w.bin:$PATH" gh issue view https://github.com/acme/lib/issues/91 --json title --jq .title)" = \
+  'README: the install command says npm instal' ] || fail 'the fake gh does not read #91 of acme/lib by its link'
+! (cd "$w" && PATH="$w.bin:$PATH" gh issue view 91 --json title >/dev/null 2>&1) || fail 'the fake gh reads #91 of acme/lib as a task of acme/shop'
+w=$tmp/given/otherpr
+[ "$(cd "$w" && PATH="$w.bin:$PATH" gh pr view 96 --json author --jq .author.login)" = rivera ] || fail 'the fake gh does not read #96'
+
 # pass^2 over the recorded runs and a copy: a second run in which free fails
 # an item and busy has no run.
 cp -R "$fixtures" "$tmp/2"
 jq '.issues[0].linked += ["fix/91-other"]' "$fixtures/free.state.json" >"$tmp/2/free.state.json"
 rm "$tmp/2"/busy.*
 got=$("$eval" --check "$fixtures" "$tmp/2")
-[ "$(grep '^pass' <<<"$got")" = 'pass^2 busy: not measured, 1 run of 2
-pass^2 down: PASS, 2 of 2 runs pass
+[ "$(grep '^pass' <<<"$got" | grep -v ': PASS, 2 of 2 runs pass$')" = 'pass^2 busy: not measured, 1 run of 2
 pass^2 dup: FAIL, 0 of 2 runs pass
-pass^2 free: FAIL, 1 of 2 runs pass
-pass^2 other: PASS, 2 of 2 runs pass' ] || fail 'pass^2 does not count the runs of each case' "$got"
+pass^2 free: FAIL, 1 of 2 runs pass' ] && [ "$(grep -c '^pass' <<<"$got")" = 13 ] ||
+  fail 'pass^2 does not count the runs of each case' "$got"
 [ "$(grep -E '^(round |busy: no run)' <<<"$got")" = "round 1 of 2
 round 2 of 2
 busy: no run: $tmp/2 has no busy.events, as when its setup fails" ] || fail 'the report does not name each round and the run that is missing' "$got"
@@ -70,7 +102,8 @@ stub() {
 }
 # By default, a run of free is on opus with a cap of $4.
 got=$(stub free)
-grep -qe '--model opus .*--max-budget-usd 4 ' "$tmp/stub.args" || fail 'free does not run on opus with a cap of 4 dollars' "$(cat "$tmp/stub.args")"
+grep -qe '--model opus .*--max-budget-usd 4 --disallowedTools ListAgents ' "$tmp/stub.args" ||
+  fail 'free does not run on opus with a cap of 4 dollars and no ListAgents' "$(cat "$tmp/stub.args")"
 # A round of other and down can cost $4: with a cap of $10, the third round
 # runs at $6.00 spent, and the fourth does not at $9.00.
 got=$(stub --runs 4 --model haiku --max-cost 10 other down)

@@ -1,0 +1,5 @@
+Skill	craft:github
+Bash	cd <craft>/skills/github && cat take-in.md; ls scripts
+Bash	D=<craft>/skills/github; bash $D/scripts/take-in-check.sh https://github.com/acme/lib/issues/91; echo "exit=$?"; git remote -v
+Bash	gh issue view https://github.com/acme/lib/issues/91 --json title,body 2>&1 | head -50
+text	I did not take this issue into work. It belongs to a different repository than the one this session is in.  **acme/lib#91 README: the install command says npm instal**  The README tells readers to run `npm instal shop`. npm has no `instal` command, so the command fails. The issue is done when the README says `npm install shop`.  The take-in check stopped with: `#91 is in acme/lib, and this checkout is acme/shop: stop`. So I made no worktree or branch, did not assign the issue, and changed no files.  To go ahead, open a session in a checkout of `acme/lib` and give it the issue there. If you want the fix in this repository (`acme/shop`) instead, tell me and I'll do it here.

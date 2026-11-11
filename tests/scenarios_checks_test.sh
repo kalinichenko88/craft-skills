@@ -2,13 +2,16 @@
 # Runs the checks of tests/scenarios_eval.sh on recorded runs, with no model.
 # tests/fixtures/scenarios/take-in/ holds the events, the tracker, the
 # branches and the workspace of one probe run of each case: free, other and
-# down of 2026-11-03, dup and busy of 2026-11-10. In the runs of free, dup and
-# busy, no message about #91 comes before the branch, but think lines do: the
-# log cannot show whether a message told the gist (#206), so the two gist
-# items give SKIP. The run of dup carries one line of the stack trace of #95
-# to #91, not the trace, and fails that item. Every other item passes. A copy with
-# one change to a recorded run changes the verdicts it names and no other; a
-# read added to a run changes none. Each heading of
+# down of 2026-11-03, dup and busy of 2026-11-10, and the other eight of
+# 2026-11-11, which also keep the workspace and the branches of their Given.
+# The Given of other and down is the one that setup makes now. In the runs of
+# free, dup and busy, no message about #91 comes before the branch, but think
+# lines do: the log cannot show whether a message told the gist (#206), so
+# the two gist items give SKIP; in the run of inws, the gist item does. The
+# run of dup carries one line of the stack trace of #95 to #91, not the trace,
+# and fails that item. Every other item passes. A copy with one change to a
+# recorded run changes the verdicts it names and no other; a read added to a
+# run changes none. Each heading of
 # scenarios/github/take-in.md is a scenario that the checks name or that the
 # eval lists as not run, and nothing else is.
 
@@ -34,20 +37,18 @@ checks() {
 
 report=$("$eval" --check "$fixtures")
 out=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$report")
-[ "$(grep '^pass' <<<"$report")" = 'pass^1 busy: PASS, 1 of 1 runs pass
-pass^1 down: PASS, 1 of 1 runs pass
-pass^1 dup: FAIL, 0 of 1 runs pass
-pass^1 free: PASS, 1 of 1 runs pass
-pass^1 other: PASS, 1 of 1 runs pass' ] || fail 'the recorded runs do not give pass^1 to each case but dup' "$report"
-[ "$(grep -c '^PASS ' <<<"$out")" = 34 ] || fail 'the recorded runs do not pass 34 items' "$out"
+[ "$(grep '^pass' <<<"$report" | grep -v ': PASS, 1 of 1 runs pass$')" = 'pass^1 dup: FAIL, 0 of 1 runs pass' ] &&
+  [ "$(grep -c '^pass' <<<"$report")" = 13 ] || fail 'the recorded runs do not give pass^1 to each of the 13 cases but dup' "$report"
+[ "$(grep -c '^PASS ' <<<"$out")" = 79 ] || fail 'the recorded runs do not pass 79 items' "$out"
 [ "$(grep -v '^PASS ' <<<"$out")" = 'SKIP A busy duplicate: the first message about #91 tells its gist: a think line comes before it
 SKIP A busy duplicate: the gist comes before any change: only a think line comes before the change
 FAIL A free duplicate: a comment on #91 holds the stack trace of #95
 SKIP A free duplicate: the first message about #91 tells its gist: a think line comes before it
 SKIP A free duplicate: the gist comes before any change: only a think line comes before the change
 SKIP A free task: the first message about #91 tells its gist: a think line comes before it
-SKIP A free task: the gist comes before any change: only a think line comes before the change' ] ||
-  fail 'the recorded runs do not give only the six gist SKIPs and the FAIL of the trace' "$out"
+SKIP A free task: the gist comes before any change: only a think line comes before the change
+SKIP The person'"'"'s work is in the workspace: the first message about #91 tells its gist: a think line comes before it' ] ||
+  fail 'the recorded runs do not give only the seven gist SKIPs and the FAIL of the trace' "$out"
 
 # coverage <scenario file>: "< heading" for each heading that no case runs and
 # the eval does not list as not run, "> name" for each name that the eval
@@ -61,8 +62,9 @@ take_in=$root/scenarios/github/take-in.md
 [ -z "$(coverage "$take_in")" ] || fail 'the eval does not cover each scenario of take-in once' "$(coverage "$take_in")"
 { cat "$take_in"; printf '\n## A new scenario\n'; } >"$tmp/new.md"
 [ "$(coverage "$tmp/new.md")" = '< A new scenario' ] || fail 'a heading with no case passes' "$(coverage "$tmp/new.md")"
-grep -vxF '## A closed task' "$take_in" >"$tmp/gone.md"
-[ "$(coverage "$tmp/gone.md")" = '> A closed task' ] || fail 'a scenario listed as not run, with no heading, passes' "$(coverage "$tmp/gone.md")"
+grep -vxF "## The work on the person's task continues here" "$take_in" >"$tmp/gone.md"
+[ "$(coverage "$tmp/gone.md")" = "> The work on the person's task continues here" ] ||
+  fail 'a scenario listed as not run, with no heading, passes' "$(coverage "$tmp/gone.md")"
 
 n=0
 copy() {
@@ -73,6 +75,10 @@ scenario() {
   case $1 in
     free) echo 'A free task' ;; other) echo 'A task that another person is assigned to' ;;
     down) echo 'The tracker does not answer' ;; dup) echo 'A free duplicate' ;; busy) echo 'A busy duplicate' ;;
+    closed) echo 'A closed task' ;; otherpr) echo "A task with another person's pull request" ;;
+    mypr) echo "A task with the person's pull request" ;; assigned) echo 'A task assigned to the person, with no branch' ;;
+    linked) echo 'A linked branch with no assignee' ;; inws) echo "The person's work is in the workspace" ;;
+    moved) echo "The person's branch moved on somewhere else" ;; otherrepo) echo 'A task of another repository' ;;
   esac
 }
 state() { jq "$2" "$tmp/$n/$1.state.json" >"$tmp/state" && mv "$tmp/state" "$tmp/$n/$1.state.json"; }
@@ -220,5 +226,60 @@ flips busy 'never: the assignees of #95 change'
 copy
 sed -i.bak '/^text.*#95/{s/busy/taken/g; s/rivera/someone/g;}' "$tmp/$n/busy.events"
 flips busy 'the person is told that #95 stays open because it is busy'
+
+# A closed task reopened, and told with no word that it is closed.
+copy
+state closed '.issues[0].state = "OPEN"'
+flips closed 'never: the state of #91 changes'
+copy
+sed -i.bak '/^text/{s/closed/done/g; s/Closed/Done/g;}' "$tmp/$n/closed.events"
+flips closed 'the person is told that #91 is closed'
+
+# #96 named with no word of whose it is; a new branch on the origin.
+copy
+sed -i.bak '/^text/s/rivera/someone/g' "$tmp/$n/otherpr.events"
+flips otherpr 'the person is told that #96 of another person closes #91'
+copy
+echo fix/91-new >>"$tmp/$n/mypr.branches"
+flips mypr 'never: a branch for #91 is created'
+
+# The person's task: told it is theirs with no word of an assignee, and asked
+# nothing.
+copy
+sed -i.bak '/^text/s/assigned to you/yours/g' "$tmp/$n/assigned.events"
+flips assigned 'the person is told that #91 is assigned to the person already'
+copy
+sed -i.bak '/^text/s/?/./g' "$tmp/$n/assigned.events"
+flips assigned 'the person is asked whether the work on #91 runs somewhere else or continues here'
+
+# A linked branch: asked nothing, and a second branch linked.
+copy
+sed -i.bak '/^text/s/?/./g' "$tmp/$n/linked.events"
+flips linked 'the person is asked whose branch fix/91-typo is'
+copy
+state linked '.issues[0].linked += ["fix/91-other"]'
+flips linked 'never: a branch for #91 is created'
+
+# The work in the workspace: no commit and no change on fix/91-typo, and a
+# question whether the work runs somewhere else.
+copy
+cp "$fixtures/inws.given.workspace" "$tmp/$n/inws.workspace"
+flips inws 'the work goes on, on fix/91-typo'
+copy
+add inws $'text\tDoes the work on #91 run somewhere else, or here?'
+flips inws 'never: the person is asked whether the work runs somewhere else'
+
+# The branch that moved on: the workspace's fix/91-typo pulled.
+copy
+sed -i.bak 's/^fix\/91-typo .*/fix\/91-typo 0000000000000000000000000000000000000000/' "$tmp/$n/moved.workspace"
+flips moved "never: the workspace's fix/91-typo changes" 'the run waits: no change'
+
+# A task of another repository: told with no name of it, and assigned.
+copy
+sed -i.bak '/^text/s#acme/lib#there#g' "$tmp/$n/otherrepo.events"
+flips otherrepo 'the person is told that #91 is in another repository'
+copy
+state otherrepo '.issues[0].assignees += ["kim"]'
+flips otherrepo 'never: the assignees of #91 change'
 
 echo 'scenarios_checks_test: ok'
