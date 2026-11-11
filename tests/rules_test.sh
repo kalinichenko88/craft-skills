@@ -227,7 +227,7 @@ rules.md|`craft:react-conventions` too. A subagent invokes them itself. No patte
 rules.md|A read-only subagent, as a review or an `Explore` subagent, files nothing, whatever the rules below say.
 skills/github/take-in.md|While a subagent reads the file, you can run `worktree.sh` below:
 skills/github/take-in.md|Claude Code: wait until each subagent that you sent returns. Then call `EnterWorktree`
-skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false, or in the work on the issue filed for it as a finding outside the task. Then add a line under `## Updates`, a heading right after the Status and Date lines:
+skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false, or later as a finding outside the task. Then add a line under `## Updates`, a heading right after the Status and Date lines:
 skills/review-loop/architecture-lens.md|The one exception is *A fact that changed* in *ADRs*: a sentence corrected in place, with its line under `## Updates` that quotes the old words, and with the same decision.
 EOF
 # After a compaction Claude Code attaches each skill again, but counts 4

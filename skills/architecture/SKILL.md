@@ -281,9 +281,8 @@ so that the next agent does not offer it again.
 
 **A fact that changed.** When a sentence of an accepted ADR is false now and
 its decision is the same, correct the sentence in place: in the change that
-makes it false, or in the work on the issue filed for it as a finding
-outside the task. Then add a line under `## Updates`, a heading right after the
-Status and Date lines:
+makes it false, or later as a finding outside the task. Then add a line
+under `## Updates`, a heading right after the Status and Date lines:
 `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 The date is the day of the correction; the source is the issue, the pull
 request or the run that shows the new fact. The Status stays `accepted`. A

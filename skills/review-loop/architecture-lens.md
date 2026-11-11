@@ -94,7 +94,7 @@ Report:
 - **False doc.** A passage of the architecture file, of an instruction file
   or of an accepted ADR that the change made false, also in a file that the
   range does not change: the change corrects it, so it is no Outside
-  finding. In an ADR whose decision still holds, the change corrects the
+  finding. In an ADR whose decision is the same, the change corrects the
   sentence as *A fact that changed* says. Code that
   breaks a rule does not make the rule false: only a change of the fact,
   or an ADR that amends the rule, does.
