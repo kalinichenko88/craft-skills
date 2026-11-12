@@ -6,7 +6,7 @@ other_check() {
   first
   item 'the person is told that #91 is assigned to another person' 'told "$other"'
   nochange 'the run waits'
-  keeps '["rivera"]'
+  keeps "$other"
   nobranch '[]'
 }
 other_copies() {

@@ -22,7 +22,7 @@ myprws_check() {
   item 'never: a pull request other than #96 closes #91' \
     '[ "$(jq -c "[.prs[] | select(any(.closes[]; . == 91)) | .number]" "$d.state.json")" = "[96]" ] && ! grep -qE "^(sub)?Bash.*gh pr create" "$d.events"'
   nobranch '[]'
-  keeps '["kim"]'
+  keeps "$me"
 }
 myprws_copies() {
   # No new commit on fix/91-typo, a question whether the work runs somewhere

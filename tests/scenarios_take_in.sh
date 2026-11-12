@@ -277,8 +277,12 @@ check() {
     item 'the person is told in one line that the work on #91 continues on fix/91-typo' \
       'grep "^text" "$d.events" | grep -F fix/91-typo | grep -qi continu'
   }
-  # keeps <assignees>: the assignees of #91 are those of the Given, as JSON.
-  keeps() { item 'never: the assignees of #91 change' "[ \"\$assignees\" = '$1' ]"; }
+  # keeps <login>...: the assignees of #91 are those of the Given.
+  keeps() {
+    local want
+    want=$(printf '%s\n' "$@" | jq -Rsc 'split("\n") | map(select(length > 0))')
+    item 'never: the assignees of #91 change' '[ "$assignees" = "$want" ]'
+  }
   # oneworkspace: no worktree is made for #91.
   oneworkspace() { item 'never: a workspace of #91 is created' 'grep -qx "worktrees 1" "$d.workspace"'; }
   # part <k>: the messages to the person before answer <k> of the person and

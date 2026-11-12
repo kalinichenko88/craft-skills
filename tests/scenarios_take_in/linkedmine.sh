@@ -6,7 +6,7 @@ linkedmine_check() {
   answered "$whose"
   item 'the person is asked whether the work on #91 runs somewhere else or continues here' 'part 2 | grep -qiE "($where)[^.?!]*\?"'
   nochange 'the run waits'
-  keeps '[]'
+  keeps
   unlabelled
   nobranch '["fix/91-typo"]'
 }

@@ -7,7 +7,7 @@ closed_check() {
   item 'the person is told that #91 is closed' 'told closed'
   nochange 'the run waits'
   item 'never: the state of #91 changes' '[ "$(issue 91 "[.state, .stateReason]")" = "[\"CLOSED\",\"COMPLETED\"]" ]'
-  keeps '[]'
+  keeps
   nobranch '[]'
 }
 closed_copies() {

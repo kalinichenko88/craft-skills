@@ -4,6 +4,7 @@ inws_case() { line inws 4 "The person's work is in the workspace" '#91'; }
 # wsbranch: fix/91-typo in the workspace and on the origin, for the cases
 # whose workspace has the linked branch.
 wsbranch() { git -C "$w" branch fix/91-typo; git -C "$w" push -q -u origin fix/91-typo; }
+# inws_given: the Given of inws, and of moved before its commit elsewhere.
 inws_given() { wsbranch; given='.issues[0] |= (.assignees = [$me] | .linked = ["fix/91-typo"])'; }
 inws_check() {
   first
@@ -12,7 +13,7 @@ inws_check() {
   item 'the work goes on, on fix/91-typo' '[ -n "$(tip "$d.workspace")" ] && [ "$(tip "$d.workspace")" != "$(tip "$d.given.workspace")" ]'
   item 'never: the person is asked whether the work runs somewhere else' '! asked "$where"'
   onelinked
-  keeps '["kim"]'
+  keeps "$me"
 }
 inws_copies() {
   # No commit and no change on fix/91-typo, and a question whether the work

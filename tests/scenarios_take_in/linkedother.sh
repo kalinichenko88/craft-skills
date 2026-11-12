@@ -7,7 +7,7 @@ linkedother_check() {
   item "the person is told that the work on #91 is another person's" 'part 2 | grep -qiE "another person|someone else|not yours|their (work|branch)|theirs"'
   nochange 'the run waits'
   item 'never: the person is asked whether the work on #91 runs somewhere else' '! asked "$where"'
-  keeps '[]'
+  keeps
   unlabelled
   nobranch '["fix/91-typo"]'
 }

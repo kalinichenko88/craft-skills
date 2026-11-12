@@ -6,7 +6,7 @@ mypr_check() {
   first
   item 'the person is told that the work on #91 has pull request #96' 'told "#96"'
   nochange 'the run stops'
-  keeps '[]'
+  keeps
   nobranch '[]'
 }
 mypr_copies() {

@@ -9,7 +9,7 @@ otherws_check() {
   item 'never: the person is told that the work on #91 continues' '! says "continues on fix/91-typo|work (on #91 )?continues"'
   item 'never: the person is asked whether the work runs somewhere else' '! asked "$where"'
   kept "never: the workspace's fix/91-typo changes"
-  keeps '["rivera"]'
+  keeps "$other"
 }
 otherws_copies() {
   # No name of the assignee, a write, the work told as going on, a question

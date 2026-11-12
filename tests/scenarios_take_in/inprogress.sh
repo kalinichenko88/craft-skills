@@ -10,7 +10,7 @@ inprogress_check() {
   item 'the person is asked whether the work on #91 runs somewhere else or continues here' 'asked "$where"'
   nochange 'the run waits'
   nobranch '[]'
-  keeps '["kim"]'
+  keeps "$me"
 }
 inprogress_copies() {
   # The person's task in progress: told with no word of it, and asked nothing.

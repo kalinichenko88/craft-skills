@@ -163,18 +163,18 @@ session() {
     --max-budget-usd "$(budget "$c")" ${deny[@]+"${deny[@]}"} --dangerously-skip-permissions "$@" </dev/null 7>&-) 2>&1 || true
 }
 # companion <workspace>: the open conversation of the Given, which reads its
-# texts from the pipe <workspace>.in on file descriptor 7 of the run, and not
-# on one of its own, so that it reads the end of its texts when the run ends.
-# It has the first one when its first result comes, or after a minute.
+# texts from the pipe <workspace>.in. The run alone writes to the pipe, on
+# file descriptor 7, so the conversation reads the end of its texts when the
+# run closes it, or ends. It has the first one when its first result comes,
+# or after a minute.
 companion() {
   local w=$1 i
   mkfifo "$w.in"
-  exec 7<>"$w.in"
   (cd "$w" && PATH="$w.bin:$PATH" exec claude -p --model haiku --setting-sources project --settings '{"language":"English"}' \
     --plugin-dir "$root" --input-format stream-json --output-format stream-json --verbose --tools "" --max-budget-usd 0.1 \
-    <&7 7<&- >"$w.companion.jsonl" 2>&1) &
+    >"$w.companion.jsonl" 2>&1) <"$w.in" &
   pid=$!
-  trap 'kill "$pid" 2>/dev/null || true' EXIT
+  exec 7>"$w.in"
   jq -nc --arg t "$(cat "$w.companion")" '{type: "user", message: {role: "user", content: $t}}' >&7
   for i in $(seq 60); do ! grep -qs '"type":"result"' "$w.companion.jsonl" || break; sleep 1; done
 }
@@ -183,7 +183,7 @@ companion() {
 # before, and on each of its answers, which a person line in the log comes
 # before; each answer resumes the session of the message before it.
 run() {
-  local w=$1/$2 id a pid=
+  local w=$1/$2 id a i pid=
   [ -f "$w.state.json" ] || return 0
   [ ! -f "$w.companion" ] || companion "$w"
   session "$w" "$2" "$(message "$2")" >"$w.jsonl"
@@ -192,7 +192,14 @@ run() {
     [ -n "$id" ] || break
     { jq -nc --arg t "$a" '{type: "person", text: $t}'; session "$w" "$2" --resume "$id" "$a"; } >>"$w.jsonl"
   done
-  [ -z "$pid" ] || { exec 7>&-; kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; }
+  # The end of its texts ends the other conversation; one that does not end in
+  # ten seconds is stopped.
+  if [ -n "$pid" ]; then
+    exec 7>&-
+    for i in $(seq 10); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
+    kill "$pid" 2>/dev/null || true
+    wait "$pid" 2>/dev/null || true
+  fi
   record "$w"
 }
 
