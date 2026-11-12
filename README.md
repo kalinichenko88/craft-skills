@@ -89,10 +89,10 @@ take next: you get one free task and the reason. Skill: roadmap.
 - **Codex**: a host of its own for the plugin, and in Claude Code a second
   reviewer: it reads risky changes, specs and the text of skills.
 - **Playwright and Claude in Chrome**: `craft:review-loop` walks a changed
-  screen with them before the first round. By default the Playwright MCP
-  opens a browser window on your screen. To run it with no window, add its
-  variables to the `env` block of `~/.claude/settings.json`, then start a
-  new session:
+  screen with them before the first round. On a machine with a screen, the
+  Playwright MCP opens a browser window by default. To run it with no
+  window, put its two variables in the `env` object at the top level of
+  `~/.claude/settings.json`, then start a new session:
 
   ```json
   "env": {
@@ -101,10 +101,12 @@ take next: you get one free task and the reason. Skill: roadmap.
   }
   ```
 
-  The walk reads the same screenshots, console errors and failed requests.
-  With no window, the page is 1280×720 unless you set a size. In Codex, add
-  `--headless` after `@playwright/mcp@latest`. Claude in Chrome always opens
-  its tabs in your own Chrome.
+  With no window, the walk still gets screenshots, console errors and
+  failed requests. Without `PLAYWRIGHT_MCP_VIEWPORT_SIZE`, the page is
+  1280x720. In Codex, add the server with
+  `codex mcp add playwright -- npx @playwright/mcp@latest --headless --viewport-size 1440x900`.
+  Claude in Chrome has no mode with no window: it opens its tabs in your own
+  Chrome.
 
 ## Dependencies
 
