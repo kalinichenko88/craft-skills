@@ -1,7 +1,7 @@
 # Filing an issue
 
 The global prompt says when a finding becomes an issue; this file says how,
-and which findings get none: a nit, and a defect that its input never
+and which findings get none: a nit, and a failure that its input never
 reaches.
 Read `tracker.md`, next to this file, before the search below: it runs the
 scripts and reads the tracker. `<dir>` is this skill's base directory.
@@ -44,16 +44,18 @@ docs that fails, and a missing or redundant test of what real use reaches.
 Give each nit one line in the final report instead, so that the person can
 file it.
 
-**A defect that its input never reaches is not filed.** A defect that shows
-only on some input, as a value, a state or a call, is traced first. Follow
-that input back from the code, through each caller, to each place where it
-enters the program. When a check in code or in a script refuses that input
-on every path before the code, as a schema, a validation or a default that
-each caller sets, the finding is ruled out. It is not filed and goes into no
-host. Give it one line in the final report, with the `path:line` of each
-check. A step of a skill's text is no such check: a model can skip it. When
-one path has no such check, or the trace cannot follow a path to its end,
-file the finding as below.
+**A failure that its input never reaches is not filed.** A finding that the
+Boy Scout check leaves, and that fails only on some input, as a value, a
+state or a call, is traced first. Follow that input back from the code,
+through each caller, to each place where it enters the program. When a check
+in code or in a script, as a schema or a validation, refuses that input, or
+a default takes its place, on every path before the code, the finding is
+ruled out: real use does not reach it, so it is no defect. It is not filed
+and goes into no host. Give it one line in the final report, with the
+`path:line` of each check. A step of a skill's text is no such check: a
+model can skip it. Data loss or a security hole is filed all the same, and
+so is a finding with one path that has no such check, or with a path that
+the trace cannot follow to its end.
 
 **Search by identifier, not by your title.** A search for the symbol finds
 every issue that names it; the prose you were about to write finds only issues

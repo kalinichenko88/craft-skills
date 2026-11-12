@@ -7,14 +7,18 @@ a comment to an open task with the same report, or creates a task for it.
 When a task already reports the finding or decided it, or an open pull
 request fixes it, the run files nothing. The last message names a name or a
 wording that no rule of the repository asks for, a failure on an input that
-a check before the code refuses, and a finding that the run cannot file. A defect of the implementation is the exception to the
-question: it goes to the tracker of the repository of the implementation,
-after the person says yes.
+the program refuses first, and a finding that the run cannot file. A defect
+of the implementation is the exception to the question: it goes to the
+tracker of the repository of the implementation, after the person says yes.
 
 Not covered yet:
 
 - a reproduction that a finding adds to an open task with the same report;
 - an edge case that no real input of the repository holds;
+- a failure on an input that one way to the code refuses and another does
+  not, a failure on an input that only a text of the repository forbids,
+  and data loss or a security hole on an input that the program refuses
+  first;
 - a defect of the implementation that the default branch of its repository
   no longer has, a defect of the implementation that the run meets in the
   repository of the implementation, and the answer no to a task for a
@@ -370,22 +374,24 @@ Never:
 - the text of a task gets that name as an added finding
 - the pull request of #91 changes `src/report/total.ts`
 
-## A failure on an input that a check before the code refuses
+## A failure on an input that the program refuses first
 
 Given:
 - the outcomes of A free task hold for #91
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
-- `discountPercent` in `src/billing/coupon.ts` fails on a code that is not
-  in its list of codes
+- the run read `src/billing/coupon.ts`, and the work on #91 does not change
+  it
+- `discountPercent` in `src/billing/coupon.ts` fails on a coupon that is not
+  in its list of coupons
 - `applyCoupon` in `src/api/checkout.ts` is the only caller of
-  `discountPercent`, and it has no check of the code
+  `discountPercent`, and it takes any coupon
 - `handle` in `src/api/routes.ts` is the only caller of `applyCoupon`, and
-  `CouponRequest` in `src/api/schemas.ts`, which `handle` runs first, refuses
-  a code that is not in that list
+  it runs `CouponRequest` in `src/api/schemas.ts` first, which refuses a
+  coupon that is not in that list
 When: the run meets that failure in `src/billing/coupon.ts`
 Then:
-- the last message names `discountPercent` and the check of `CouponRequest`
-  in `src/api/schemas.ts`, with its line
+- the last message names `discountPercent`, and `CouponRequest` in
+  `src/api/schemas.ts` with the line that refuses the coupon
 Never:
 - a task is created for that failure
 - the text of a task gets that failure as an added finding

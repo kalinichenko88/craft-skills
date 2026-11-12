@@ -39,9 +39,9 @@ time.
   filed. A nit, as a name or a wording that no rule of the project asks for,
   gets no issue: the final report names it, so that you can file it. A false
   comment, a failing command in the docs or a missing test of what real use
-  reaches is no nit. A defect gets no issue either when a check in the code,
-  as a schema, refuses its input before the code: the report names that
-  check.
+  reaches is no nit. A failure gets no issue either when a check in code or
+  in a script, as a schema, refuses its input on every path: the report
+  names that check. Data loss or a security hole gets an issue all the same.
 - **A defect in the plugin reaches its tracker.** When the agent finds that
   a rule, a skill or a script of this plugin is wrong, it writes an issue for
   `kalinichenko88/craft-skills`: the plugin version, the file and line, and

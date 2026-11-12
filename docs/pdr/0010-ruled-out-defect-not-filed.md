@@ -1,4 +1,4 @@
-# 0010 A defect that a check in the code keeps its input from is not filed
+# 0010 A failure that a check in the code keeps its input from is not filed
 
 - Status: accepted
 - Level: feature
@@ -6,13 +6,15 @@
 
 ## Decision
 
-We will not file an out-of-scope defect that shows only on an input that a
-check in code or in a script refuses on every path before the code. The run
+We will not file an out-of-scope failure that shows only on an input that
+a check in code or in a script refuses, or a default replaces, on every path
+before the code: real use does not reach it, so it is no defect. The run
 traces the input back through each caller to where it enters, and the final
 report names each check by its `path:line` in one line
-(`skills/github/filing.md`). A step of a skill's text is no such check. A
-finding whose worth is unclear gets no worth check of its own and is filed
-as before, and a fix outside the task's module stays out of the pull
+(`skills/github/filing.md`). A step of a skill's text is no such check.
+Data loss or a security hole is filed all the same, as a nit of that kind
+is. A finding whose worth is unclear gets no worth check of its own and is
+filed as before, and a fix outside the task's module stays out of the pull
 request.
 
 ## Rests on
@@ -20,11 +22,11 @@ request.
 - On 2026-11-12, 4 of the 33 issues closed as not planned in this tracker
   and in two private ones closed because the input never reaches the code,
   each within a day. Two of them were a trace: a schema refused the
-  characters of the defect, or the caller always set a default. One of
+  characters of the failure, or the caller always set a default. One of
   these two was filed from a review after #260, with no check of the
   schema (#375).
-- `tests/github_filing_eval.sh labelled`, with the check two callers above
-  the defect: 4 of 20 runs filed it on the text before #375, and each of the
+- `tests/github_filing_eval.sh 10 labelled`, with the check two callers above
+  the failure: 4 of 20 runs filed it on the text before #375, and each of the
   4 stopped at the first caller. With the trace, 0 of 20 filed it, and 20
   of 20 named the check by its line, against 9 of 20 before. The defect,
   the false docstring and the nit got the same verdicts in all 40 runs. With
@@ -57,4 +59,5 @@ their input never reaches the code.
 
 ## Links
 
-#375, #260, #103, PDR 0004, `skills/github/filing.md`, `scenarios/github/filing.md`
+#375, #260, #103, PDR 0004, `skills/github/filing.md`,
+`scenarios/github/filing.md`

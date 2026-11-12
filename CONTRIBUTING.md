@@ -280,7 +280,7 @@ the tracker, and that the final message names the check by its line. With
 `labelled` after the count of runs, each finding carries the class that a
 review-loop round gives it, and the docstring is a nit there. With
 `--check <runs folder>` it runs only the checks. Run it after a change to
-*A nit is not worth an issue* or *A defect that its input never reaches is
+*A nit is not worth an issue* or *A failure that its input never reaches is
 not filed* in `skills/github/filing.md`, or to *Out-of-scope findings become
 issues* in `rules.md`. `tests/github_filing_checks_test.sh` runs its checks in
 `make check`, on six recorded runs in `tests/fixtures/github_filing/`, and

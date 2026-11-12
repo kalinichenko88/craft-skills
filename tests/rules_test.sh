@@ -250,7 +250,7 @@ EOF
 # characters a token against 5,000 tokens: it cuts the text past 20,000
 # characters (ADR 0006). A file on the debt list waits for its split, and
 # must not grow past its size there. A path that is gone leaves the list.
-debt='skills/review-loop/SKILL.md 33557 #283'
+debt='skills/review-loop/SKILL.md 33535 #283'
 for f in "$root"/skills/*/SKILL.md; do
   path=${f#"$root/"}
   chars=$(jq -Rs length "$f")
