@@ -11,9 +11,11 @@ in parallel" one answer: the fastest path from now to the goal, in at most
 three lanes of new work. The goal is the nearest milestone, the first current
 one. Its `Done when` is a list of outcomes that someone can check, each with
 the issues that it needs. Lane 1 holds those issues, with any label, and what
-they wait on. A goal task that can run beside lane 1 opens lane 2 before
-tests, bugs and improvements do; they take the lanes that are left, one area
-of the code each. Work in progress is no lane, and no lane overlaps with it.
+they wait on. The top bug that can run takes the next lane, so that the most
+important bug reaches the developers early; bugs rank by milestone first. A
+goal task that can run beside them takes the last lane before the other bugs,
+tests and improvements do. Each lane holds one area of the code. Work in
+progress is no lane, and no lane overlaps with it.
 
 When the `Done when` names only closed issues, the next milestone is the goal,
 when there is one, and the agent offers to re-plan the first one. When it names no issue, lane 1
@@ -52,6 +54,9 @@ the person declines the re-plan that a note offers twice.
   16 moves on this tracker now, and the old rule still ranks by age.
 - Lane 1 as one worker, every goal task in turn: the goal waits while lanes 2
   and 3 hold work that it does not need.
+- Goal tasks before every bug in lanes 2 and 3: an important bug waits while
+  the goal holds all three lanes. The person wants bugs, the important ones
+  first, to reach the developers early (2026-11-12).
 - No cap on the lanes, as before: the answer can give more lanes than the
   person can run.
 

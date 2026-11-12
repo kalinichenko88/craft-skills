@@ -117,9 +117,10 @@ Tree: <the repository's top directory>
 In Codex, follow `lanes.md` yourself and write its return as your notes.
 
 Then put the free tasks into at most three lanes of new work. Work in
-progress, your own included, is no lane. Take the tasks one at a time in
-rank, the main path first, then bugs, then secondary. For each task, the
-first of these that holds decides:
+progress, your own included, is no lane. Take the tasks one at a time, each
+track in its rank: the main path until one task starts lane 1, then the bugs
+until one takes a lane, then the rest of the main path, the rest of the bugs,
+and secondary. For each task, the first of these that holds decides:
 
 1. It overlaps with work in progress, or the overlap check marks it
    `ready: no`: it waits.
@@ -132,9 +133,10 @@ first of these that holds decides:
 6. It is on the main path: it goes into lane 1, after its tasks. Any other
    task waits.
 
-Say what holds each task that waits. So a main-path task that can run beside
-lane 1 takes a free lane before tests, bugs and improvements do, and with no
-main-path task to start, lane 1 stays empty.
+Say what holds each task that waits. So the goal starts lane 1, the top bug
+that can run takes the next lane, and a main-path task that can run beside
+them takes the last one before the other bugs, tests and improvements do.
+With no main-path task to start, lane 1 stays empty.
 
 ## One task
 
