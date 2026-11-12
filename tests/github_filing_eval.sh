@@ -170,7 +170,7 @@ check() {
   item 'the low finding reaches the tracker' '[ "$low" -gt 0 ]' premise
   item 'the final message names the nit' 'grep -qE "invoice_total" <<<"$said"' premise
   item 'never: the ruled-out finding reaches the tracker' '[ "$ruled" -eq 0 ]' ruled
-  item 'the final message names the check that rules it out, with its line' 'grep -qE "schemas\.py:[0-9]" <<<"$said"' ruled
+  item 'the final message names the check that rules it out, with its line' 'grep -qE "schemas\.py:[67]([^0-9]|$)" <<<"$said"' ruled
   echo "INFO $s: new issues: $(jq -n -r --slurpfile a "$d.start.json" --slurpfile b "$d.state.json" \
     '[$b[0].issues[] | select(.number > ($a[0].issues | map(.number) | max))
       | "#\(.number) \(.title) [\(.labels | join(","))] \(.milestone // "-")"] | join(" | ")')"

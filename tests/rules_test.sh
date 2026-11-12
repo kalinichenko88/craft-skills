@@ -200,10 +200,9 @@ done
 #   got an issue from a review in a private tracker, with no look at the
 #   check. With the check two callers above, 4 of 20 Opus runs filed it, each
 #   after a look at the first caller alone; with the trace, 0 of 60 (#375).
-#   Each fix of the reviews closed a case where one sentence ruled the
-#   finding out and another filed it: a default, a nit, a trace that stops
-#   after a check, and a Boy Scout fix or a declined finding on the Filed
-#   line.
+#   Each fix of the reviews closed a case where two sentences gave one
+#   finding two outcomes: a default, a nit, a trace that stops after a
+#   check, and a Boy Scout fix or a declined finding on the Filed line.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
@@ -217,6 +216,8 @@ skills/github/filing.md|On each path before the code, look for a check in code o
 skills/github/filing.md|When one path has none, or the trace stops on a path before it finds one, the finding is not ruled out: it is filed as below.
 skills/github/filing.md|A finding that the Boy Scout check leaves, that is no nit, and that fails only on some input,
 skills/review-loop/SKILL.md|After them, marked `not filed`, each finding outside the task that `craft:github` calls a nit or rules out.
+skills/github/SKILL.md|A nit, or a failure that `filing.md` rules out: one line in the final report, no issue
+skills/github/filing.md|Give it one line in the final report, with the `path:line` of each check or default.
 skills/github/filing.md|The one exception is debt: a file or a folder to split,
 skills/github/filing.md|create `debt` first: `gh label create debt --description "Structural debt to refactor" --color 5319e7`
 skills/github/filing.md|For a debt finding, when the repository has no debt label, create `debt` first.

@@ -3,7 +3,7 @@
 # tests/fixtures/github_filing/, four Opus runs of 2026-11-06 (#260): filed,
 # with filing.md before the nit rule, files the nit; dropped, with the nit
 # rule before its list of no-nits and with labelled findings, leaves the
-# false docstring off the tracker; kept, with the final rule, files the low
+# false docstring off the tracker; kept, with the rule of #260, files the low
 # finding and the defect and names the nit in its message; noremote, with a
 # local origin, files nothing, so its premise fails and its other items give
 # SKIP. Their asks hold no ruled-out finding, so its two items give SKIP.
@@ -68,13 +68,26 @@ flips kept 'never: the nit reaches the tracker' '(.issues[] | select(.number == 
 # The wording of the nit body in filed.state.json, with no new name in it.
 # shellcheck disable=SC2016 # Markdown's backticks
 flips kept 'never: the nit reaches the tracker' '.issues += [{number: 99, title: "billing: a name", body: "The `get_` prefix adds no information.", labels: [], comments: []}]'
-# The words of the issue that untraced.state.json files.
-# shellcheck disable=SC2016 # Markdown's backticks
-flips traced "$never" '.issues += [{number: 99, title: "An unknown coupon code crashes the checkout with a 500", body: "`billing/coupon.py:5` raises a KeyError.", labels: ["bug"], comments: []}]'
+# An issue that names the function and its error, but no coupon.
+flips traced "$never" '.issues += [{number: 99, title: "KeyError in discount_percent", body: "The lookup has no guard.", labels: ["bug"], comments: []}]'
 fresh
-printf 'text\tNot filed: the name invoice_total, and the KeyError, which the schema refuses first.\n' >>"$tmp/copy/traced.events"
+# shellcheck disable=SC2016 # Markdown's backticks
+printf 'text\tNot filed: the name invoice_total, and the KeyError, which `CouponRequest` in api/schemas.py refuses first.\n' >>"$tmp/copy/traced.events"
 [ "$(changed)" = "> FAIL traced: $line" ] ||
   fail "a last message with no line of the check does not flip only: $line" "$(changed)"
+fresh
+printf 'text\tNot filed: invoice_total, and the KeyError: see api/schemas.py:4.\n' >>"$tmp/copy/traced.events"
+[ "$(changed)" = "> FAIL traced: $line" ] ||
+  fail "a last message with a line that refuses nothing does not flip only: $line" "$(changed)"
+fresh
+jq 'del(.issues[] | select(.title | test("sign.?up"; "i")))' "$fixtures/traced.state.json" >"$tmp/copy/traced.state.json"
+[ "$(changed)" = "> FAIL traced: the premise: the defect reaches the tracker
+> SKIP traced: never: the nit reaches the tracker: the defect reaches no issue
+> SKIP traced: the low finding reaches the tracker: the defect reaches no issue
+> SKIP traced: the final message names the nit: the defect reaches no issue
+> SKIP traced: $never: the defect reaches no issue
+> SKIP traced: $line: the defect reaches no issue" ] ||
+  fail 'a run with the ruled-out finding that files no defect does not skip its items' "$(changed)"
 fresh
 printf 'text\tDone.\n' >>"$tmp/copy/kept.events"
 [ "$(changed)" = '> FAIL kept: the final message names the nit' ] ||
@@ -111,5 +124,8 @@ for l in 'FAIL run1: never: the nit' 'PASS run1: the premise' 'PASS run1: the lo
   "FAIL run1: $never" "PASS run2: $never" "PASS run2: $line"; do
   grep -qF "$l" <<<"$v" || fail "the stub run gives no: $l" "$v"
 done
+# The labelled ask of a stub run is the ask of the recorded labelled run.
+runs=$(TMPDIR="$tmp/t" GH_TOKEN=x GITHUB_TOKEN=x PATH="$tmp/bin:$PATH" "$root/tests/github_filing_eval.sh" 1 labelled | sed -n 's/^runs: //p')
+diff "$runs/run1.ask" "$fixtures/traced.ask" >/dev/null || fail 'the labelled ask is not the ask of traced' "$(diff "$runs/run1.ask" "$fixtures/traced.ask")"
 
 echo 'github_filing_checks_test: ok'

@@ -53,7 +53,7 @@ a schema or a validation, that refuses that input, or for a default that
 takes its place.
 When each path has one, and the failure is no data loss and no security
 hole, the finding is ruled out: real use does not reach it, so it is no
-defect. It is not filed and goes into no host. Give it one line in the final
+defect, latent or not. It is not filed and goes into no host. Give it one line in the final
 report, with the `path:line` of each check or default. A step of a skill's
 text is no such check: a model can skip it. When one path has none, or the
 trace stops on a path before it finds one, the finding is not ruled out: it
