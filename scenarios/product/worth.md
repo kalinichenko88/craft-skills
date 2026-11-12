@@ -27,7 +27,7 @@ Not covered yet:
   to revisit, and a task that has to go around it;
 - the product decision that the run writes after a deferral or a close;
 - a run with no person to answer;
-- a deferral of a task that an open task outside `Later` depends on;
+- a deferral of a task that an open task outside `Later` waits on;
 - the answer no to a deferral or a close, and the answer to do the feature as
   the person asked;
 - a task that records a decision with its reasons, and holds no worth

@@ -60,6 +60,11 @@ rows=(
   'scenarios/github/pull-request.md rules.md skills/github/SKILL.md skills/review-loop/SKILL.md skills/github/filing.md skills/github/take-in.md skills/github/tracker.md skills/github/scout.md'
   'scenarios/review-loop/review.md skills/review-loop/SKILL.md skills/github/SKILL.md skills/github/filing.md'
   'scenarios/product/worth.md rules.md skills/product/SKILL.md skills/product/reader.md skills/product/store.md skills/review-loop/SKILL.md skills/github/take-in.md'
+  'scenarios/roadmap/next.md skills/roadmap/SKILL.md skills/roadmap/lanes.md skills/roadmap/planning.md'
+  'scenarios/roadmap/milestone.md skills/roadmap/SKILL.md'
+  'scenarios/roadmap/later.md skills/roadmap/SKILL.md'
+  'scenarios/roadmap/plan.md skills/roadmap/SKILL.md skills/roadmap/planning.md skills/github/filing.md'
+  'scenarios/roadmap/triage.md skills/roadmap/SKILL.md skills/roadmap/triage.md skills/github/take-in.md skills/github/filing.md skills/github/tracker.md'
 )
 usage() { echo "usage: $0 [scenario file | --changed] [runs] [base] | --check <runs folder>" >&2; exit 2; }
 # row_of <scenario file>: the row of that file, or a status of 1.
