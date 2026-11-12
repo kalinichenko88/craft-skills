@@ -28,11 +28,11 @@
       "comments": [
         {
           "author": "kim",
-          "body": "From #95, closed as a duplicate of this issue: a user followed README.md, ran `npm instal shop`, and the package did not install. Their app then failed:\n\n```\nError: Cannot find module 'shop'\nRequire stack:\n- /home/lee/app/index.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Module._load (node:internal/modules/cjs/loader:1051:27)\n    at Module.require (node:internal/modules/cjs/loader:1311:19)\n    at require (node:internal/modules/helpers:179:18)\n    at Object.<anonymous> (/home/lee/app/index.js:1:14)\n```"
+          "body": "#95 reports the same defect: a reader followed `npm instal shop` from README.md, the package did not install, and the app then failed with this error:\n\n````\nError: Cannot find module 'shop'\nRequire stack:\n- /home/lee/app/index.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Module._load (node:internal/modules/cjs/loader:1051:27)\n    at Module.require (node:internal/modules/cjs/loader:1311:19)\n    at require (node:internal/modules/helpers:179:18)\n    at Object.<anonymous> (/home/lee/app/index.js:1:14)\n````"
         }
       ],
       "linked": [
-        "docs/91-fix-npm-install-typo"
+        "docs/91-fix-install-command"
       ]
     },
     {
@@ -54,10 +54,10 @@
     }
   ],
   "log": [
-    "edit 91",
-    "develop 91",
     "comment 91",
     "comment 95",
-    "close 95"
+    "close 95",
+    "edit 91",
+    "develop 91"
   ]
 }

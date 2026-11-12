@@ -74,8 +74,8 @@ before the survivor's, in the order of `roadmap.sh`, or the survivor has
 none, the survivor takes it. When the survivor is in the list too, with no
 entry in its `status:` line, the duplicate's row gives it no milestone: its
 own row carries the earlier of the two, unless its verdict gives it none.
-When both have such an entry, neither closes as a duplicate: each one in the list
-counts as not a duplicate, and goes on to *Verdict* below.
+When both have such an entry, neither closes as a duplicate: each one in the
+list counts as not a duplicate, and goes on to *Verdict* below.
 
 ## Verdict
 
@@ -146,9 +146,9 @@ use the github skill's `worktree.sh`: it assigns the issue and puts the label
 Show one table: the issue with its title, a few words on what it is about,
 its verdict, its label, its milestone by its full title, the reply to
 its author, and for a duplicate the comment on the survivor, with each trace
-or log in it under the table as it goes, and the survivor's new milestone,
-when it takes one. An issue that the
-account `gh` is logged in as filed gets no reply. Every comment is public:
+or log in it under the table as it will be posted, and the survivor's new
+milestone, when it takes one. An issue that the account `gh` is logged in as
+filed gets no reply. Every comment is public:
 apply *Public repositories* in `<github>/SKILL.md` to each one, so nothing
 from the conversation or from a private source goes in.
 

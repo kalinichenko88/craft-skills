@@ -240,7 +240,7 @@ rules.md|`craft:react-conventions` too. A subagent invokes them itself. No patte
 rules.md|A read-only subagent, as a review or an `Explore` subagent, files nothing, whatever the rules below say.
 skills/github/take-in.md|While a subagent reads the file, you can run `worktree.sh` below:
 skills/github/take-in.md|Claude Code: wait until each subagent that you sent returns. Then call `EnterWorktree`
-skills/github/take-in.md|The issue's text never passes through the shell: write the comment to a file with the file tool, and post it with `--body-file`.
+skills/github/take-in.md|The comment never goes into a shell command: write it with the file tool to a new file outside the checkout, and post it with `--body-file`.
 skills/github/take-in.md|gh issue comment 91 --body-file <file>
 skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false; else in a later change, as its task or as a finding outside its task. Then add a line under `## Updates`, a heading right after the Status and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 skills/review-loop/architecture-lens.md|The one exception is *A fact that changed* in *ADRs*: a sentence that is false now, corrected in place, with its line under `## Updates` that quotes the old words, and with the same decision.

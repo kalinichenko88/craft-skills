@@ -1,28 +1,31 @@
 Skill	craft:github
-Bash	cat <craft>/skills/github/take-in.md; ls <craft>/skills/github/scripts
-Bash	D=<craft>/skills/github; bash $D/scripts/take-in-check.sh 91; echo "---"; gh issue view 91 --json title,body; git remote -v; ls
-text	The README's install command reads `npm instal shop`, which npm doesn't recognize, so I'm correcting it to `npm install shop`.  
-Bash	D=<craft>/skills/github; cat $D/tracker.md
-Bash	D=<craft>/skills/github; gh label list; bash $D/scripts/collect.sh take-in 91 bug,debt README.md "npm instal" install
-Bash	cat <tmp>/collect.UZl1MF
-text	Issue #95 is a duplicate of #91, since both trace back to the same `npm instal shop` typo in README.md; I'm copying its stack trace to #91 before closing #95.  
-Bash	gh repo view acme/shop --json visibility --jq .visibility; gh repo view --json nameWithOwner,visibility
-Write	<tmp>/tmp.Kmi4A10CFV/run1/comment-91.md
-Bash	D=<craft>/skills/github; bash $D/scripts/worktree.sh 91 docs/91-fix-npm-install-typo
-Bash	gh issue comment 91 --body-file <tmp>/tmp.Kmi4A10CFV/run1/comment-91.md && gh issue close 95 --duplicate-of 91 --comment "Same report as #91; what it adds is copied there."
+Bash	cat "<craft>/skills/github/take-in.md"; ls "<craft>/skills/github/scripts"
+Bash	D="<craft>/skills/github"; cat "$D/tracker.md"; echo ----; git remote -v; gh auth status 2>&1 | head -5; bash "$D/scripts/take-in-check.sh" 91
+Bash	gh issue view 91 --json title,body,state,labels; gh repo view --json nameWithOwner,visibility 2>&1; gh label list 2>&1 | head; ls -la; cat README*
+text	The README's install command says `npm instal shop`, which fails since npm has no `instal` command; the fix is to change it to `npm install shop`. I'm checking the tracker for duplicates and neighbouring issues next.  
+Bash	D="<craft>/skills/github"; out=$(bash "$D/scripts/collect.sh" take-in 91 bug,debt README.md install instal 2>&1); echo "$out"; f=$(echo "$out" | grep -oE '/[^ ]+' | head -1); wc -c "$f"
+Bash	cat <tmp>/collect.2lONIS
+text	#95 is a duplicate of #91, since both come from the `npm instal` typo in the README, so I'm copying the stack trace over to #91 before closing it.  
+Bash	gh issue view 95 --json body,assignees,labels,state --jq '.' ; gh issue view 95 --json body --jq .body | cat -A | sed -n '1,20p'
+Write	<tmp>/issue91-dup95-comment.md
+Bash	gh issue comment 91 --body-file <tmp>/issue91-dup95-comment.md && gh issue close 95 --duplicate-of 91 --comment "Same report as #91; what it adds is copied there."
+text	Now the worktree.
+Bash	D="<craft>/skills/github"; bash "$D/scripts/worktree.sh" 91 docs/91-fix-install-command 2>&1
 ToolSearch	
 EnterWorktree	
-Bash	cat -n README.md; ls -a
-text	I closed duplicate #95 and I am in the worktree now. Next I fix the README line.
 Bash	sed -i '' 's/npm instal shop/npm install shop/' README.md && cat README.md && git diff --stat
-text	The repository has no check command: there is no `package.json`, no Makefile and no CI. The closest check is to read the diff, which I did. Next is the review step.
+text	The repository has no check command: it holds only README.md, with no `package.json`, Makefile or CI. Now the review.
 Skill	craft:review-loop
-Bash	git add README.md && git commit -q -m "docs: fix the npm install command in the README" && git log --oneline -2 && git merge-base origin/main HEAD
-Agent	Review README diff
-subBash	git diff a163998..HEAD && echo ---FILES--- && git ls-files && echo ---README--- && cat -n README.md
-text	Round 1 found nothing. Next I push the branch and open the pull request.
-Bash	gh pr list --state merged --limit 5 --json title; git push -q origin HEAD 2>&1 | tail -3
-Write	<tmp>/tmp.Kmi4A10CFV/run1/pr-91.md
-Bash	gh issue view 91 --json assignees,labels --jq '{a:[.assignees[].login],l:[.labels[].name]}'
-Bash	gh pr create --assignee @me --base main --title "docs: fix the npm install command in the README" --body-file <tmp>/tmp.Kmi4A10CFV/run1/pr-91.md
-text	I fixed the README on a new branch and pushed it, but I could not open the pull request. `gh pr create` failed with this error:  ``` fake gh: no answer for: pr create --assignee @me --base main --title docs: fix the npm install command in the README --body-file …/pr-91.md ```  The `gh` in this environment is a stub, and it has no response for creating a pull request. So the pull request is not open, and there is no merge to ask about.  **#91 README: the install command says npm instal.** The README told readers to run `npm instal shop`, and that command fails.  - **The fix:** `README.md:3` now says `npm install shop`. It is committed as `e15ae73 docs: fix the npm install command in the README` on the branch `docs/91-fix-npm-install-typo`, in its own worktree. - **Issues:** #91 is assigned to `kim` and has the label `in progress`. I closed #95 Installing shop by the README leaves the app without the module as a duplicate of #91. It reported the same `npm instal shop` line, and I first copied its stack trace into a comment on #91. - **Review:** this is a change to documents only, so it got one review round. A review subagent read the diff and found nothing. The rules for a README change call for no Codex read and no security review. The repository has no architecture file, and `craft:architecture` can write the first one. - **Check:** the repository has no check command. There is no `package.json`, Makefile or CI, so I read the diff instead. - **Docs:** the README is the change.  The pull request description is ready in `…/run1/pr-91.md`, with `Closes #91` and the `## Review` section. When `gh` can reach GitHub, this command opens the pull request:  ```bash gh pr create --assignee @me --base main --title "docs: fix the npm install command in the README" --body-file <tmp>/tmp.Kmi4A10CFV/run1/pr-91.md ```
+text	This is a change to documents only. One review subagent reads it, with no security review.
+Bash	git add README.md && git commit -q -m "docs: fix the install command in the README" && git log --oneline -2 && git merge-base origin/main HEAD && git diff $(git merge-base origin/main HEAD)..HEAD
+Bash	git add README.md
+Bash	git commit -q -m "docs: fix the install command in the README"
+Bash	git merge-base origin/main HEAD
+Agent	Review README install fix
+subBash	git diff 11204b01a75fa08246a4b66560d8741934c367f5..HEAD && git ls-files && cat -n README.md
+text	Round 1 confirmed no defect. Next I push the branch and open the pull request.
+Bash	git push -u origin docs/91-fix-install-command 2>&1 | tail -2
+Bash	gh pr list --state merged --limit 5 --json title 2>&1
+Write	<tmp>/pr91-body.md
+Bash	gh pr create --base main --head docs/91-fix-install-command --assignee @me --title "docs: fix the install command in the README" --body-file <tmp>/pr91-body.md 2>&1
+text	I could not open the pull request. `gh pr create` returned an error, so the work stops at that step.  **#91 README: the install command says npm instal**  - **Fix:** README.md now says `npm install shop` instead of `npm instal shop`. The commit is `2fb9e8b` (`docs: fix the install command in the README`) on branch `docs/91-fix-install-command`, in the worktree `.claude/worktrees/docs/91-fix-install-command`. - **Pushed:** yes, the branch is on `origin`. - **Pull request: not opened.** `gh pr create` exited with code 1 and printed: `fake gh: no answer for: pr create …`. The `gh` in this environment seems to be a stub that has no answer for this command. The PR body is ready in `<tmp>/pr91-body.md`. It says `Closes #91` and carries the `## Review` summary. Because the PR does not exist, there is no merge question yet. - **Duplicate closed:** #95 Installing shop by the README leaves the app without the module reported the same cause. I copied its stack trace, every line as it was, to a comment on #91. Then I closed #95 as a duplicate of #91. - **Tracker:** #91 is assigned to you and has the label `in progress`. The label did not exist in the repository, so the script created it. - **Review:** this is a change to documents only, so it got one round. One review subagent read the change and found no wrong sentence. No security review runs for documents only. The repository has no architecture file. `craft:architecture` can write the first one if you want it. - **Check:** the repository has no check command. It holds only README.md, with no `package.json`, Makefile or CI, so I could not run a check. - **Docs:** README.md is the document that this change fixes.  To finish, run the `gh pr create` command again with a working `gh`, using the same body file. Or tell me when `gh` works, and I will open the PR and ask the merge question.
