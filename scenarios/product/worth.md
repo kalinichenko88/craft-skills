@@ -117,8 +117,8 @@ Then:
 - `docs/PRODUCT.md` lists the new product decision
 Never:
 - #91 is closed
-- #91 gets an assignee, the label `in progress`, a linked branch or a pull
-  request
+- #91 gets an assignee, the label `in progress`, a linked branch or an open
+  pull request that closes it
 
 ## The answer yes to a close
 
@@ -139,8 +139,8 @@ Then:
   for the card number on the page of an order
 - `docs/PRODUCT.md` lists the new product decision
 Never:
-- #91 gets an assignee, the label `in progress`, a linked branch or a pull
-  request
+- #91 gets an assignee, the label `in progress`, a linked branch or an open
+  pull request that closes it
 
 ## A task that holds a worth report
 
@@ -460,6 +460,7 @@ Then:
 Never:
 - the status of 0001 changes
 - the decision of 0001 changes
+- a file of the default branch changes
 
 ## A feature with no person to answer
 
