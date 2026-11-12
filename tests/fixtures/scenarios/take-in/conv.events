@@ -1,0 +1,8 @@
+companion	#91
+Skill	craft:github
+Bash	cd <craft>/skills/github && cat take-in.md; ls scripts
+Bash	D=<craft>/skills/github; git remote -v; gh auth status 2>&1 | head -5; bash $D/scripts/take-in-check.sh 91
+Bash	gh issue view 91 --json title,body 2>&1; git branch -a; git worktree list
+text	The README's `npm instal shop` command fails because npm has no `instal` command, so I'm fixing it to `npm install shop` on the existing `fix/91-typo` branch. I'm checking first whether another session is already working on this issue.  
+ListAgents	
+text	I stopped here and made no changes. Another open session is already working on this issue: **`#91 the install command says npm instal`** (ref `35f275`). It is idle, not offline, and it started 26 seconds ago.  The fix is on branch `fix/91-typo`, which holds no commits yet. Two sessions on one branch could overwrite each other's work, so continue in that session.  If that session is a leftover and you want the work done here, tell me and I'll pick it up in this session.

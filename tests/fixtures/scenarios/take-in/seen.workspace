@@ -1,0 +1,6 @@
+fix/91-keep-trailing-empty-field d4423a3614f8b3246ab71990a6c66668b290a00b
+main
+worktrees 2
+head main
+main 2
+stash 0

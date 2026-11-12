@@ -1,0 +1,104 @@
+Skill	craft:github
+Bash	cat <craft>/skills/github/take-in.md; ls <craft>/skills/github/scripts
+Bash	D=<craft>/skills/github; bash $D/scripts/take-in-check.sh 91; echo "exit=$?"; git remote -v; gh auth status 2>&1 | head -5
+Bash	gh issue view 91 --json title,body,labels,assignees,state; echo "exit=$?"
+text	parseRows in src/parser/read.ts treats an empty line as a row with one empty field, so text ending in a line break gets a stray empty last row. I'm fixing it so an empty line produces no row.  
+Bash	D=<craft>/skills/github; cat $D/tracker.md; echo ----; git ls-files; cat src/parser/read.ts; cat package.json 2>/dev/null
+Bash	D=<craft>/skills/github; cat README.md src/import-table.ts src/parser/split.ts; ls -a; gh label list; bash $D/scripts/collect.sh take-in 91 '' src/parser/read.ts parseRows "empty line" "empty row"
+Bash	cat <tmp>/collect.R7kSHN
+text	The tracker lists one neighbouring bug, #12 in parseRows (tabs read as field separators), which shares the same function and has a settled fix, so I'm fixing it alongside the task. No duplicates turned up, and I'm creating the worktree next.  
+Bash	D=<craft>/skills/github; gh repo view --json visibility,nameWithOwner; bash $D/scripts/worktree.sh 91 fix/91-skip-empty-lines; echo "exit=$?"; node --version
+Bash	gh issue edit 12 --add-assignee @me --add-label "in progress"; echo "exit=$?"
+ToolSearch	
+EnterWorktree	
+text	The issue cites only `src/parser/read.ts` and `parseRows`, with no line number. Both still exist, so the citation holds. Before I edit TypeScript, I load the conventions.
+Skill	craft:typescript-conventions
+text	I write the tests first and run them against the code before the fix.
+Write	<work>/.claude/worktrees/fix/91-skip-empty-lines/src/parser/read.test.ts
+Write	<work>/.claude/worktrees/fix/91-skip-empty-lines/src/import-table.test.ts
+Bash	node --test 'src/**/*.test.ts' 2>&1 | grep -E '^(not ok|ok|# (pass|fail))|^\s+(not ok|ok)'
+Bash	node --test 'src/**/*.test.ts' 2>&1 | tail -40
+Bash	node --test 'src/**/*.test.ts' 2>&1 | grep -E '^[✔✖ℹ]|^\s+[✔✖]' | head -20
+text	All 6 tests fail, as expected. Now the fix:
+Edit	<work>/.claude/worktrees/fix/91-skip-empty-lines/src/parser/read.ts
+Edit	<work>/.claude/worktrees/fix/91-skip-empty-lines/src/parser/read.ts
+Write	<work>/.claude/worktrees/fix/91-skip-empty-lines/src/import-table.ts
+Bash	node --test 'src/**/*.test.ts' 2>&1 | grep -E '^[✔✖ℹ]|^\s+[✔✖]'; npx -y -p typescript@5 tsc --noEmit --strict --allowImportingTsExtensions --target es2024 --module nodenext --types node src/**/*.ts src/*.ts 2>&1 | tail -5
+Bash	npx -y -p typescript@5 -p @types/node tsc --noEmit --strict --allowImportingTsExtensions --target es2024 --module nodenext --typeRoots "$(npm root -g)" src/parser/read.ts src/import-table.ts src/parser/split.ts 2>&1 | tail -5; echo "tsc exit=${pipestatus[1]}"
+Bash	npx -y -p typescript@5 tsc --noEmit --strict --allowImportingTsExtensions --target es2024 --module nodenext --types '' src/parser/read.ts src/import-table.ts src/parser/split.ts; echo "tsc exit=$?"
+Bash	d=$(mktemp -d); printf '{"compilerOptions":{"strict":true,"noEmit":true,"allowImportingTsExtensions":true,"target":"es2024","module":"nodenext","types":[]},"files":["%s/src/parser/read.ts","%s/src/import-table.ts","%s/src/parser/split.ts"]}' "$PWD" "$PWD" "$PWD" > $d/tsconfig.json; npx -y -p typescript@5 tsc -p $d/tsconfig.json; echo "tsc exit=$?"; rm -rf $d
+text	Tests pass (6 of 6), and the source typechecks with `strict`. The repository has no check command, so these two runs are the closest equivalent. Now the review.
+Skill	craft:review-loop
+text	Level: `high`. The change adds an empty-line rule to two parsers and drops the tab separator. Those are new parsing rules that the `low`/`medium` rows do not cover. Before round 1, I commit the work.
+Bash	git add -A && git commit -q -F - <<'EOF'; fix(parser): give no row for an empty line; ; - Skip empty lines in parseRows and importTable; - Split a line in parseRows only at commas, not at tabs; - Add node:test cases for both readers; EOF; git log --oneline -3; git merge-base origin/main HEAD
+Skill	code-review
+subBash	git diff 312fa1b..HEAD && git status --short && git ls-files && ls -a ~/.claude/CLAUDE.md 2>/dev/null
+subBash	cat -n src/parser/read.ts src/parser/split.ts src/import-table.ts README.md; ls ~/.claude/CLAUDE.md CLAUDE.md src/CLAUDE.md 2>&1; grep -rn "parseRows\|importTable\|splitLine\|isEmpty" --include=*.ts . ; git log --stat -3 | head -40; cat package.json 2>&1 | head
+subBash	grep -rn "parseRows\|importTable\|splitLine\|isEmpty\|countRows" src; git log --stat -3 | head -40; git show 312fa1b:src/parser/read.ts | sed -n 50,70p; node --version; node --test src 2>&1 | tail -15
+subBash	node --test src/**/*.test.ts src/*.test.ts 2>&1 | tail -12; node -e "; const {parseRows}=require('./src/parser/read.ts');const {importTable}=require('./src/import-table.ts');; console.log(JSON.stringify(parseRows('a,b\r\n\r\nc,d\r\n')), JSON.stringify(importTable('a,b\r\n\r\nc,d\r\n')));; console.log(JSON.stringify(parseRows('a,b\n,\nc,d')), JSON.stringify(importTable('a,b\n,\nc,d')));; console.log(JSON.stringify(parseRows('a,b\n  \nc,d')), JSON.stringify(importTable('a,\"x,y\"')));; "
+text	I check each finding against the code before I act on it.
+Bash	grep -rn "countRows\|isEmpty\|trimRow\|width(" src --include=*.ts | grep -v "^src/parser/read.ts"; node -e "; import('./src/parser/read.ts').then(m=>{console.log(JSON.stringify(m.parseRows('a,b\r\n\r\nc,d\r\n')))});; import('./src/import-table.ts').then(m=>{console.log(JSON.stringify(m.importTable('a,\"x,y\"\na,b,')))});"
+text	The CRLF finding is real: with CRLF line ends, a blank line still gives a row. I fix both readers at the root, which is the line split.
+Bash	sed -i '' "s|text.split('\\\\n')|text.split(/\\\\r?\\\\n/)|" src/parser/read.ts src/import-table.ts; grep -n "split(" src/parser/read.ts src/import-table.ts
+text	Now the CRLF tests. I add the empty-text case for `importTable` as well, which was a nit.
+Bash	python3 - <<'EOF'; import re; p='src/parser/read.test.ts'; s=open(p).read(); s=s.replace("""  it('gives no row for an empty text', () => {""","""  it('gives no row for an empty line in a text with CRLF line ends', () => {;     assert.deepEqual(parseRows('a,b\\r\\n\\r\\nc,d\\r\\n'), [;       ['a', 'b'],;       ['c', 'd'],;     ]);;   });; ;   it('gives no row for an empty text', () => {"""); open(p,'w').write(s); p='src/import-table.test.ts'; s=open(p).read(); s=s.rstrip()[:-3].rstrip()+"""; ;   it('gives no row for an empty line in a text with CRLF line ends', () => {;     assert.deepEqual(importTable('a,b\\r\\n\\r\\nc,d\\r\\n'), [;       ['a', 'b'],;       ['c', 'd'],;     ]);;   });; ;   it('gives no row for an empty text', () => {;     assert.deepEqual(importTable(''), []);;   });; });; """; open(p,'w').write(s); EOF; tail -16 src/import-table.test.ts; git stash push -q -m crlf-red-check -- src/parser/read.ts src/import-table.ts && node --test 'src/**/*.test.ts' 2>&1 | grep -E '^ℹ (pass|fail)'; git stash list --format='%H %gs' | grep crlf-red-check
+text	With the fix set aside, the 2 CRLF tests fail. Now I put the fix back:
+Bash	git stash apply -q 880fe60d286bd8539106f569e4a500a789403fba && n=$(git stash list --format='%gd %gs' | grep crlf-red-check | cut -d' ' -f1) && git stash drop -q "$n"; node --test 'src/**/*.test.ts' 2>&1 | grep -E '^ℹ (pass|fail)'; git add -A && git commit -q -F - <<'EOF'; fix(parser): give no row for an empty line in a CRLF text; ; - Split lines at CRLF or LF in parseRows and importTable; - Add CRLF and empty-text test cases; EOF; git rev-parse --short HEAD
+Bash	git stash apply -q 880fe60d286bd8539106f569e4a500a789403fba
+Bash	git stash list --format='%gd %gs'
+Bash	git stash drop -q stash@{0}
+Bash	node --test 'src/**/*.test.ts' 2>&1 | grep -E '^ℹ (pass|fail)'
+Bash	git add -A
+Bash	git commit -q -m "fix(parser): give no row for an empty line in a CRLF text" -m "- Split lines at CRLF or LF in parseRows and importTable; - Add CRLF and empty-text test cases"
+Bash	git rev-parse --short HEAD
+text	Round 2 reads only the fix commit.
+Skill	code-review
+subBash	git show ffc47a4 && git show 07cc50b --stat && git ls-files && find . -name 'CLAUDE*.md' -not -path './node_modules/*'; ls ~/.claude/CLAUDE.md
+subBash	cat -n src/parser/read.ts src/import-table.ts src/parser/split.ts; cat README.md; cat src/import-table.test.ts; ls -a; ls -a ..
+subBash	grep -rn "isEmpty\|countRows\|parseRows\|importTable\|splitLine\|trimRow" src README.md; git show 07cc50b -- src/parser/read.ts src/import-table.ts; node --version; node --test src/ 2>&1 | tail -15
+subBash	node --test src/**/*.test.ts src/*.test.ts 2>&1 | tail -8; node -e "; const s='a,b\r\n \r\n,\r\nc,d\r';console.log(JSON.stringify(s.split(/\r?\n/)))"
+text	Round 2 found no defect in the task; the remaining findings are older issues outside it, which I'll turn into issues, and the final pass over the whole branch runs next alongside the tests review.  
+Skill	code-review
+Agent	Review the branch tests
+Bash	cat <craft>/skills/github/filing.md | head -150
+subBash	git diff 312fa1b..HEAD && git status --short && ls -la && git ls-files
+subBash	cat -n src/parser/read.ts src/parser/split.ts README.md; ls -a ..; ls ~/.claude/CLAUDE.md; cat CLAUDE.md 2>/dev/null; grep -rn "parseRows\|importTable\|splitLine\|isEmpty" src
+subBash	git log --format='%h %s%n%b' 312fa1b..HEAD; git show --stat HEAD~1 HEAD | head -30; ls -a <work>; find <work> -maxdepth 3 -name 'CLAUDE*.md' -not -path '*/worktrees/*'; git show 312fa1b:src/parser/read.ts | sed -n 55,70p
+subBash	node --test src/ 2>&1 | tail -8; node --input-type=module -e "; import {parseRows} from './src/parser/read.ts'; import {importTable} from './src/import-table.ts';; console.log(JSON.stringify(parseRows('a,\"x\n\ny\"\nc,d')));; console.log(JSON.stringify(parseRows('a,b\n  \nc,d')), JSON.stringify(importTable('a,b\n,\nc,d')));; console.log(JSON.stringify(parseRows('a,b\rc,d')));; console.log(JSON.stringify(parseRows('a,\nb,')), JSON.stringify(importTable('a,\nb,')));; console.log(JSON.stringify(parseRows('a\tb\nc\td')));; " 2>&1
+subBash	node --test 'src/**/*.test.ts' 2>&1 | tail -10
+subRead	<craft>/skills/review-loop/tests-lens.md
+subBash	git log --stat 312fa1b4e8c599c9e598a670598eff9d40d71b78..ffc47a4 && git diff 312fa1b4e8c599c9e598a670598eff9d40d71b78..ffc47a4 && git ls-files
+subBash	cat -n src/parser/read.ts src/parser/split.ts src/import-table.ts; cat README.md; grep -rn "isEmpty\|parseRows\|importTable" --include=*.ts . 
+text	The review passed with no new defects, so I'm declining the empty-line-in-quoted-field finding and filing it as an issue, and I'm adding a test that pins blank-line-of-spaces behavior to both test files.  
+Bash	python3 - <<'EOF'; for p,fn in (('src/parser/read.test.ts','parseRows'),('src/import-table.test.ts','importTable')):;     s=open(p).read();     anchor="  it('gives no row for an empty line in a text with CRLF line ends', () => {";     exp = "[' ']" if fn=='parseRows' else "[' ']";     add=f"""  it('gives a row for a line of spaces, which is not empty', () => {{;     assert.deepEqual({fn}('a,b\\n \\nc,d'), [;       ['a', 'b'],;       {exp},;       ['c', 'd'],;     ]);;   }});; ; """;     s=s.replace(anchor, add+anchor);     open(p,'w').write(s); EOF; node --test 'src/**/*.test.ts' 2>&1 | grep -E '^ℹ (pass|fail)'
+Bash	git add -A
+Bash	git commit -q -m "test(parser): pin that a line of spaces still gives a row"
+Agent	Run the security review
+Bash	D=<craft>/skills/github; f=$(bash $D/scripts/collect.sh filing src/parser/read.ts src/import-table.ts src/parser/split.ts README.md countRows importTable splitLine BOM quote instal | awk '{print $1}' | tr -d :); grep -E '^(==|#|status)' "$f" | sort -u | head -40
+subSkill	security-review
+Bash	bash <craft>/skills/github/scripts/collect.sh filing src/parser/read.ts src/import-table.ts src/parser/split.ts README.md countRows importTable splitLine BOM quote instal
+subBash	git remote -v; git branch -a; git log --oneline main..HEAD; git diff --stat main...HEAD; git diff main...HEAD
+Bash	grep -E '^#[0-9]' <tmp>/collect.ZmX5Sf | sort -u
+subBash	cat src/parser/read.ts src/parser/split.ts; ls -R src; grep -rn "parseRows\|importTable\|splitLine" src --include=*.ts | grep -v test
+text	No issue covers these findings, and #12 and #91 are both busy, so each finding becomes a new issue. The repository is public, and the text uses only this repository's own code.
+Bash	gh issue create --label bug --title "parser: parseRows and importTable do not split a text with lone CR line ends" --body 'Both readers split lines at `/\r?\n/` (`src/parser/read.ts:59`, `src/import-table.ts:6`). A text with classic Mac line ends (a lone `\r`) stays one line: `parseRows('"'"'a,b\rc,d'"'"')` gives `[["a","b\rc","d"]]`, not two rows.; ; Found in the review of the fix for #91. Out of scope there: #91 is about empty lines, and the old code did not split at a lone CR either.'; gh issue create --label bug --title "parser: a quoted field with a line break is split into two rows" --body 'Both readers split the text into lines before they read quotes (`src/parser/read.ts:59`, `src/import-table.ts:6`). A quoted value that holds a line break becomes two broken rows: `parseRows('"'"'"x\ny",b'"'"')` gives `[["\"x"],["y\"","b"]]`, not `[["x\ny","b"]]`. After #91, an empty line inside such a value is dropped too.; ; Found in the review of the fix for #91. Out of scope there: the fix needs a reader that knows quotes, not a line split.'; gh issue create --label bug --title "parser: parseRows keeps a UTF-8 BOM in the first field" --body '`parseRows` in `src/parser/read.ts` does not remove a leading `﻿`. CSV exports from Windows often start with one. `parseRows('"'"'﻿"id",name'"'"')` gives `[["﻿\"id\"","name"]]`: the first header keeps the BOM and its quotes. `importTable` acts the same.; ; Found in the review of the fix for #91. Out of scope there.'; gh issue create --label debt --title "parser: importTable and parseRows are two CSV readers that give different rows" --body '`importTable` in `src/import-table.ts` reads CSV with `splitLine` (`src/parser/split.ts`). It does not use `parseRows` (`src/parser/read.ts`). The two readers differ:; ; - `importTable` does not unquote: `importTable('"'"'a,"x,y"'"'"')` gives `[["a","\"x","y\""]]`.; - `splitLine` drops an empty last field: `importTable('"'"'a,b,\nc,d,e'"'"')` gives rows of 2 and 3 fields, and `parseRows` keeps the empty field.; ; The fix for #91 had to put the same line split and empty-line filter in both readers. Each later fix to line ends or quotes must be made twice. `importTable` can call `parseRows`, or both can share one line reader in `src/parser/`.; ; Found in the review of the fix for #91. Out of scope there: it changes what `importTable` returns.'; gh issue create --title "docs: the install command in the README has a typo" --body '`README.md:3` says `npm instal shop`. npm has no `instal` command, so the command fails. It must be `npm install shop`.; ; Found in the review of the fix for #91. Out of scope there: the README is outside `src/parser/`.'
+text	The security review found nothing. I file the issues one at a time, with each body in a file.
+Write	/tmp/i91-cr.md
+Write	/tmp/i91-quote.md
+Write	/tmp/i91-bom.md
+Write	/tmp/i91-readers.md
+Write	/tmp/i91-readme.md
+Bash	gh issue create --label bug --title "parser: parseRows and importTable do not split a text with lone CR line ends" --body-file /tmp/i91-cr.md
+Bash	gh issue create --label bug --title "parser: a quoted field with a line break is split into two rows" --body-file /tmp/i91-quote.md
+Bash	gh issue create --label bug --title "parser: parseRows keeps a UTF-8 BOM in the first field" --body-file /tmp/i91-bom.md
+Bash	gh issue create --label debt --title "parser: importTable and parseRows are two CSV readers that give different rows" --body-file /tmp/i91-readers.md
+Bash	gh issue create --title "docs: the install command in the README has a typo" --body-file /tmp/i91-readme.md
+text	Now the final check on the branch: the tests and the typecheck.
+Bash	node --test 'src/**/*.test.ts' 2>&1 | grep -E '^ℹ (pass|fail)'
+Bash	d=$(mktemp -d); printf '{"compilerOptions":{"strict":true,"noEmit":true,"allowImportingTsExtensions":true,"target":"es2024","module":"nodenext","types":[]},"files":["%s/src/parser/read.ts","%s/src/import-table.ts","%s/src/parser/split.ts"]}' "$PWD" "$PWD" "$PWD" > $d/tsconfig.json; npx -y -p typescript@5 tsc -p $d/tsconfig.json; echo "tsc exit=$?"
+Bash	gh pr list --state merged --limit 5 --json title
+Bash	git push -q origin fix/91-skip-empty-lines
+Write	/tmp/pr91.md
+Bash	gh pr create --assignee @me --base main --head fix/91-skip-empty-lines --title "fix(parser): give no row for an empty line" --body-file /tmp/pr91.md
+Bash	gh pr create --assignee @me --title "fix(parser): give no row for an empty line" --body "$(cat /tmp/pr91.md)"
+text	I fixed #91 parser: parseRows turns an empty line into a row with one empty field, and the branch is pushed. **The pull request did not open**: `gh pr create` fails here with `fake gh: no answer for: pr create …`. So there is no PR and no merge question yet.  **What changed** (branch `fix/91-skip-empty-lines`, 3 commits): - `parseRows` in `src/parser/read.ts` now skips empty lines. A text that ends with a line break no longer gets an empty last row. - Lines now split at CRLF as well as LF. Without this, a blank line in a CRLF file (as Windows and Excel write) still gave a row. Round 1 of the review found this. - `importTable` in `src/import-table.ts` had the same defect, so I fixed it the same way. It is not part of the issue, and I list it in the PR text. - **#12 parser: parseRows reads a tab as a field separator** comes along: `parseRows` now splits a line only at commas, so a field can hold a tab. It was a settled bug in the same function. I assigned it to you and labelled it `in progress`. - New tests in `src/parser/read.test.ts` and `src/import-table.test.ts`. The tests failed before each fix.  **Check:** the repository has no check script. The closest equivalent is `node --test 'src/**/*.test.ts'`, which gives 11 pass and 0 fail, and `tsc --strict` on the sources, which passes.  **Review:** I ran two rounds at `high`, because the change adds new parsing rules to two readers. Round 1 found the CRLF defect, which I fixed. Round 2 and the last pass over the whole branch found no new defect. The tests review asked for one more test, which I added, and the security review found nothing.  **Decision for you to check:** an "empty line" means zero characters. A line of spaces or of commas still gives a row, and a test pins this. Tell me if #91 should drop those lines too.  **Filed** (older problems that the review found): - #92 parser: parseRows and importTable do not split a text with lone CR line ends - #93 parser: a quoted field with a line break is split into two rows - #94 parser: parseRows keeps a UTF-8 BOM in the first field - #95 parser: importTable and parseRows are two CSV readers that give different rows (debt) - #96 docs: the install command in the README has a typo  **Not filed:** `countRows` counts every line, empty ones too, as its comment says. Nothing calls it, but its name now suggests it matches `parseRows`.  **Docs impact:** none. The README holds only the install line, and I updated the code comments of both readers.  **What waits:** - The PR description is ready in `/tmp/pr91.md`, with `Closes #91`, `Closes #12` and the full review summary. To open it, run `gh pr create --assignee @me --title "fix(parser): give no row for an empty line" --body-file /tmp/pr91.md`. I can do this and ask the merge question when `gh` works. - The worktree is at `.claude/worktrees/fix/91-skip-empty-lines`. - #91 and #12 keep the label `in progress` until the merge.

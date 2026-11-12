@@ -1,0 +1,61 @@
+branch fix/91-keep-trailing-empty-field
+commit d4423a3614f8b3246ab71990a6c66668b290a00b test: move the importTable test next to its code, and test an empty line
+commit 1d2b45a37ca1d2d46ac00a71c76c65b21094173c fix(parser): keep the empty last field of a line that ends with a comma
+diff --git a/src/import-table.test.ts b/src/import-table.test.ts
+new file mode 100644
+index 0000000..103f2ac
+--- /dev/null
++++ b/src/import-table.test.ts
+@@ -0,0 +1,13 @@
++import assert from 'node:assert/strict';
++import { test } from 'node:test';
++
++import { importTable } from './import-table.ts';
++
++test('importTable gives a row with an empty last cell as many columns as the header', () => {
++  const table = importTable('name,price,note\nx,1,');
++
++  assert.deepEqual(table, [
++    ['name', 'price', 'note'],
++    ['x', '1', ''],
++  ]);
++});
+diff --git a/src/parser/split.test.ts b/src/parser/split.test.ts
+new file mode 100644
+index 0000000..4abb6f9
+--- /dev/null
++++ b/src/parser/split.test.ts
+@@ -0,0 +1,16 @@
++import assert from 'node:assert/strict';
++import { test } from 'node:test';
++
++import { splitLine } from './split.ts';
++
++test('splitLine keeps the empty last field of a line that ends with a comma', () => {
++  assert.deepEqual(splitLine('a,b,'), ['a', 'b', '']);
++});
++
++test('splitLine gives each field of a line with no empty field', () => {
++  assert.deepEqual(splitLine('a,b,c'), ['a', 'b', 'c']);
++});
++
++test('splitLine gives one empty field for an empty line', () => {
++  assert.deepEqual(splitLine(''), ['']);
++});
+diff --git a/src/parser/split.ts b/src/parser/split.ts
+index db12cd0..918c563 100644
+--- a/src/parser/split.ts
++++ b/src/parser/split.ts
+@@ -1,9 +1,5 @@
+-// splitLine: the fields of one line of a CSV text.
++// splitLine: the fields of one line of a CSV text. A line that ends with a
++// comma has an empty last field.
+ export function splitLine(line: string): string[] {
+-  const fields = line.split(',');
+-  if (fields[fields.length - 1] === '') {
+-    fields.pop();
+-  }
+-
+-  return fields;
++  return line.split(',');
+ }

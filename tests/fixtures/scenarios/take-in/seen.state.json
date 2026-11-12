@@ -1,0 +1,108 @@
+{
+  "me": "kim",
+  "repo": "acme/shop",
+  "origin": "<work>.origin",
+  "workspace": null,
+  "down": false,
+  "prs": [],
+  "labels": [
+    "bug",
+    "debt",
+    "enhancement",
+    "in progress"
+  ],
+  "visibility": "PUBLIC",
+  "issues": [
+    {
+      "number": 91,
+      "title": "parser: splitLine drops the last field of a line that ends with a comma",
+      "body": "`splitLine` in `src/parser/split.ts` drops the last field of a line that ends with a comma: `a,b,` gives two fields, not three. Done when `splitLine` keeps that empty last field.",
+      "state": "OPEN",
+      "stateReason": null,
+      "assignees": [
+        "kim"
+      ],
+      "labels": [
+        "in progress"
+      ],
+      "comments": [],
+      "linked": [
+        "fix/91-keep-trailing-empty-field"
+      ]
+    },
+    {
+      "number": 95,
+      "title": "An imported table has one column less than its file",
+      "body": "I imported a CSV file, and the table has one column less than the file has.",
+      "state": "CLOSED",
+      "stateReason": "DUPLICATE",
+      "assignees": [],
+      "labels": [],
+      "comments": [
+        {
+          "author": "kim",
+          "body": "Same cause as #91: `importTable` splits each line with `splitLine`, which drops the empty last field. Reproduced: the line `x,1,` under the header `name,price,note` gives the row `[\"x\",\"1\"]`. The fix for #91 guards `importTable` too."
+        }
+      ],
+      "linked": [],
+      "duplicateOf": 91
+    },
+    {
+      "number": 96,
+      "title": "parser: splitLine cuts a quoted field that holds a comma",
+      "body": "Where: `src/parser/split.ts:4`, `splitLine`.\n\nHow it shows up: `splitLine('\"Smith, J\",5')` gives `[\"\\\"Smith\", \" J\\\"\", \"5\"]`, not `[\"Smith, J\", \"5\"]`. The row gets one column more than the header, and the quotes stay in the data. `importTable` uses `splitLine`, so an imported table shows it too.\n\nWhy out of scope: found in the review of #91. That fix only keeps an empty last field. Quoted fields need a real field scanner, which is larger than that fix.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 97,
+      "title": "importTable keeps a carriage return at the end of each line of a CRLF file",
+      "body": "Where: `src/import-table.ts:5`, `importTable` splits the text on `\\n` only.\n\nHow it shows up: `importTable(\"name,price,note\\r\\nx,1,\\r\\n\")` gives `[[\"name\",\"price\",\"note\\r\"],[\"x\",\"1\",\"\\r\"],[\"\"]]`. The last cell of each row keeps `\\r`, so a file saved on Windows gives a header `note\\r`, and an empty last cell is `\\r`, not empty.\n\nWhy out of scope: found in the review of #91, which changes only `src/parser/split.ts`.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 98,
+      "title": "parser: parseRows and splitLine split a line in two different ways",
+      "body": "Where: `src/parser/read.ts:60` (`parseRows` splits on comma or tab and unquotes) and `src/parser/split.ts:4` (`splitLine` splits on comma only, used by `importTable`).\n\nHow it shows up: for `a\\tb,`, `parseRows` gives `[\"a\",\"b\",\"\"]`, and `importTable` gives `[\"a\\tb\",\"\"]`. The two paths can drift apart each time one of them changes.\n\nWhy out of scope: found in the review of #91. Which splitter stays is a design choice.",
+      "state": "OPEN",
+      "labels": [
+        "debt"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 99,
+      "title": "importTable gives a row for an empty line, as the one after the last newline",
+      "body": "Where: `src/import-table.ts:5`.\n\nHow it shows up: `importTable(\"name,price\\nx,1\\n\")` gives a last row `[\"\"]` for the empty text after the last newline. Before #91 it gave `[]`. Both are a row that the file does not hold as data.\n\nQuestion: must `importTable` skip empty lines, or only the empty text after the last newline? The docs and the tests do not say.\n\nWhy out of scope: found in the review of #91. That fix makes `splitLine` give one empty field for an empty line, as for any other line with no comma. What the table does with empty lines is a product rule.",
+      "state": "OPEN",
+      "labels": [],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    }
+  ],
+  "log": [
+    "edit 91",
+    "develop 91",
+    "comment 95 +changes",
+    "close 95 +changes",
+    "create 96 +changes",
+    "create 97 +changes",
+    "create 98 +changes",
+    "create 99 +changes",
+    "edit 91 +changes"
+  ]
+}

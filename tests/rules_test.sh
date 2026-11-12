@@ -185,6 +185,17 @@ done
 #   ADR 0007, Sonnet gave the stale answers in 5 of 5 runs (#343). The skill
 #   corrects such a sentence in place with a dated line under `## Updates`
 #   that keeps the old words, and the lens accepts it.
+# - The merge passed no `--subject`, so the squash commit took the PR title
+#   as its subject: 29 of the last 30 merges here have the subject
+#   "<PR title> (#<PR>)". A PR title follows the project's language, and a
+#   commit message is English in every repository (#330). The merge gives an
+#   English subject, with the number that /release reads.
+# - take-in carried a duplicate's stack trace to the survivor as its first
+#   lines in 3 of 5 Opus runs. With the trace copied as it is, each of 5 runs
+#   wrote that comment through a heredoc in the shell, where a line of the
+#   log can end the heredoc and run as a command (#296). The comment goes to
+#   a new file outside the checkout through the file tool, so that no file
+#   stays in the worktree, and gh reads it with --body-file.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
@@ -212,6 +223,8 @@ rules.md|With no real source to sample, the count stops nothing, and the test us
 skills/review-loop/SKILL.md|With no real source to sample, the count declines nothing, and the test of the fix uses the input of the finding.
 skills/github/SKILL.md|gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
 skills/github/SKILL.md|The list decides, not the exit code of the watch: a cancelled check gives 0, and no check at all gives 1.
+skills/github/SKILL.md|with `--subject` and `--body` in English, as every commit message is, also when the PR is in another language. `--subject` is the PR title in English, then ` (#<PR>)`
+skills/github/SKILL.md|`gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch
 skills/github/SKILL.md|Add `--admin` or `--auto` only when the person asks for it: `--admin` merges past a red check, and `--auto` leaves the pull request open when the command ends.
 skills/github/SKILL.md|Run the merge in the checkout that holds the branch, whatever directory the session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints.
 skills/github/SKILL.md|`ExitWorktree` does nothing for a session that moved there in any other way, as with `cd` after `worktree.sh`: that session runs both commands itself, each with `git -C <the main checkout>`. Only a session that started in the worktree, as with `claude --worktree` or `codex --worktree`, cannot leave it: give the person the two commands below, to run after the session ends.
@@ -228,6 +241,8 @@ rules.md|`craft:react-conventions` too. A subagent invokes them itself. No patte
 rules.md|A read-only subagent, as a review or an `Explore` subagent, files nothing, whatever the rules below say.
 skills/github/take-in.md|While a subagent reads the file, you can run `worktree.sh` below:
 skills/github/take-in.md|Claude Code: wait until each subagent that you sent returns. Then call `EnterWorktree`
+skills/github/take-in.md|The survivor's comment never goes into a shell command: write it with the file tool to a new file outside the checkout, and post it with `--body-file`.
+skills/github/take-in.md|gh issue comment 91 --body-file <file>
 skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false; else in a later change, as its task or as a finding outside its task. Then add a line under `## Updates`, a heading right after the Status and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 skills/review-loop/architecture-lens.md|The one exception is *A fact that changed* in *ADRs*: a sentence that is false now, corrected in place, with its line under `## Updates` that quotes the old words, and with the same decision.
 EOF

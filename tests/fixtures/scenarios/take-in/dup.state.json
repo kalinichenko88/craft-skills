@@ -28,7 +28,7 @@
       "comments": [
         {
           "author": "kim",
-          "body": "From #95, a duplicate: after `npm instal shop` fails, the app fails with:\n\n```\nError: Cannot find module 'shop'\nRequire stack:\n- /home/lee/app/index.js\n```"
+          "body": "#95 reports the same defect: a reader followed `npm instal shop` from README.md, the package did not install, and the app then failed with this error:\n\n````\nError: Cannot find module 'shop'\nRequire stack:\n- /home/lee/app/index.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Module._load (node:internal/modules/cjs/loader:1051:27)\n    at Module.require (node:internal/modules/cjs/loader:1311:19)\n    at require (node:internal/modules/helpers:179:18)\n    at Object.<anonymous> (/home/lee/app/index.js:1:14)\n````"
         }
       ],
       "linked": [

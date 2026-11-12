@@ -1,0 +1,117 @@
+{
+  "me": "kim",
+  "repo": "acme/shop",
+  "origin": "<work>.origin",
+  "workspace": null,
+  "down": false,
+  "prs": [],
+  "labels": [
+    "bug",
+    "debt",
+    "enhancement",
+    "in progress"
+  ],
+  "visibility": "PUBLIC",
+  "issues": [
+    {
+      "number": 91,
+      "title": "parser: parseRows turns an empty line into a row with one empty field",
+      "body": "`parseRows` at `src/parser/read.ts:57` turns an empty line into a row with one empty field, so a text that ends with a line break gets an empty last row. Done when `parseRows` gives no row for an empty line.",
+      "state": "OPEN",
+      "stateReason": null,
+      "assignees": [
+        "kim"
+      ],
+      "labels": [
+        "in progress"
+      ],
+      "comments": [],
+      "linked": [
+        "fix/91-skip-empty-lines"
+      ]
+    },
+    {
+      "number": 92,
+      "title": "parser: a line break inside a quoted field splits the row in two",
+      "body": "Where: `src/parser/read.ts:59` (`parseRows`) and `src/import-table.ts:5` (`importTable`).\n\nBoth functions split the text on line breaks before they read quotes. A quoted field that holds a line break, which RFC 4180 allows and spreadsheet apps write for a cell with several lines, becomes two broken rows. `parseRows(line1\\nline2,x)` gives `[[line1'], ['line2, x]]`, not `[[line1nline2, x]]`. Since #91, an empty line inside a quoted field is also dropped with no error.\n\nWhy not in the fix of #91: it needs a parser that reads quotes across lines. That is a new design, larger than the fix.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 93,
+      "title": "parser: splitLine drops an empty last field, so the row loses a column",
+      "body": "Where: `src/parser/split.ts:4` (`splitLine`), used by `importTable` in `src/import-table.ts`.\n\n`splitLine` removes the last field when it is empty. `importTable('a,b,c\\n1,2,')` gives `[['a','b','c'], ['1','2']]`: the second row has one column less than the header. `parseRows` keeps the field: `['1','2','']`.\n\nWhy not in the fix of #91: the `pop` looks intended for a closing comma, so the fix needs a decision on what a closing comma means.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 94,
+      "title": "parser: importTable and parseRows are two CSV parsers with different rules",
+      "body": "Where: `src/import-table.ts:4` (`importTable` with `splitLine` from `src/parser/split.ts`) and `src/parser/read.ts:57` (`parseRows`).\n\nThe two functions read the same CSV text in two ways. `parseRows` splits fields on a comma or a tab and removes quotes. `importTable` splits only on a comma, keeps the quotes and drops an empty last field. The fix of #91 had to be written twice, once in each. Each next fix of line handling must also be written twice, and the two can drift.\n\nWhy not in the fix of #91: making `importTable` use `parseRows` changes the output of `importTable` for tabs, quotes and closing commas. That needs a decision on which rules are correct.",
+      "state": "OPEN",
+      "labels": [
+        "debt"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 95,
+      "title": "parser: a lone CR line break is not read as a line break",
+      "body": "Where: `src/parser/read.ts:59` (`parseRows`) and `src/import-table.ts:5` (`importTable`).\n\nSince #91, both functions split lines on `\\r?\\n`. A text with a CR alone between lines, as old Mac files have, is read as one line: `parseRows('a,b\\rc,d')` gives `[['a', 'b\\rc', 'd']]`.\n\nWhy not in the fix of #91: #91 is about empty lines. There is no sample of real input files to show whether this form occurs.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 96,
+      "title": "README: the install command says npm instal, which fails",
+      "body": "Where: `README.md:3`.\n\nThe README says `npm instal shop`. The npm command is `install`, so the command as written fails.\n\nWhy not in the fix of #91: the README is outside the parser module that #91 changes.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 97,
+      "title": "parser: a UTF-8 BOM stays in the first field of the first row",
+      "body": "Where: `src/parser/read.ts:59` (`parseRows`) and `src/import-table.ts:5` (`importTable`).\n\nNeither function removes a byte order mark at the start of the text. Spreadsheet apps write one in \"CSV UTF-8\" files. For a text that starts with U+FEFF and then `name,age`, the first field of the first row is U+FEFF followed by `name`, so a look-up of the header `name` fails.\n\nWhy not in the fix of #91: it is a different defect from empty lines.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    }
+  ],
+  "log": [
+    "edit 91",
+    "develop 91",
+    "edit 91 body",
+    "create 92 +changes",
+    "create 93 +changes",
+    "create 94 +changes",
+    "create 95 +changes",
+    "create 96 +changes",
+    "create 97 +changes"
+  ]
+}

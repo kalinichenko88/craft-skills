@@ -1,0 +1,6 @@
+Skill	craft:github
+Bash	cat <craft>/skills/github/take-in.md; ls <craft>/skills/github/scripts
+Bash	D=<craft>/skills/github; bash $D/scripts/take-in-check.sh 91; echo "exit=$?"; git remote -v
+Bash	gh issue view 91 --json title,body; echo "exit=$?"; ls -la; cat README.md
+Bash	gh issue view 91 --json title,body; echo "exit=$?"
+text	I can't start on #91 yet, because GitHub won't let me read the issue.  - **The availability check passed.** It printed `take #91`. That means the issue is open, and nobody else has a branch, a label or a pull request on it. - **Reading the issue failed.** `gh issue view 91` returned `HTTP 502: Bad Gateway` from `api.github.com`. I tried twice and got the same error both times. So I don't have the title or the body, and I can't tell you what the issue asks.  I stopped there. I haven't created a branch or worktree, haven't assigned the issue, and haven't edited anything. The repository has only `README.md`, and that file has a typo: `npm instal shop` should be `npm install shop`. That may be what #91 is about, but I won't guess at the task from the code.  When GitHub responds again, send `#91` once more and I'll go through the steps again from the start.

@@ -1,0 +1,49 @@
+{
+  "me": "kim",
+  "repo": "acme/shop",
+  "origin": "<work>.origin",
+  "workspace": null,
+  "down": false,
+  "prs": [
+    {
+      "number": 96,
+      "title": "docs: fix the npm install command",
+      "state": "OPEN",
+      "author": {
+        "login": "kim"
+      },
+      "headRefName": "fix/91-typo",
+      "url": "https://github.com/acme/shop/pull/96",
+      "closes": [
+        91
+      ]
+    }
+  ],
+  "labels": [
+    "bug",
+    "debt",
+    "enhancement",
+    "in progress"
+  ],
+  "visibility": "PUBLIC",
+  "issues": [
+    {
+      "number": 91,
+      "title": "README: the install command says npm instal",
+      "body": "The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.",
+      "state": "OPEN",
+      "stateReason": null,
+      "assignees": [
+        "kim"
+      ],
+      "labels": [
+        "in progress"
+      ],
+      "comments": [],
+      "linked": []
+    }
+  ],
+  "log": [
+    "edit 91"
+  ]
+}
