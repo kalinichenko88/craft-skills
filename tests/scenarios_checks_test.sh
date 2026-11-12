@@ -9,9 +9,10 @@
 # 2026-11-11 for the label in progress (#285), and the events of inws again
 # from its log (ADR 0008). The run of dup was recorded again on 2026-11-12,
 # on the text of #296 that copies a stack trace as it is. The runs of other
-# and down kept no Given: theirs
-# is the one that setup makes now. In the runs of a case of more messages, a
-# person line gives each text of the person after the first one.
+# and down kept no Given: theirs is the one that setup makes now. In the runs
+# of a case of more messages, a person line gives each text of the person
+# after the first one. A recorded tracker keeps no path of its run: its
+# origin is <work>.origin, and its workspace is null.
 #
 # Each item of a recorded run passes, but those that <case>_fails of its
 # case file lists, with why. A copy of the files of one case, with one change,
@@ -49,6 +50,8 @@ for f in "$root"/tests/scenarios_take_in/*.sh; do
   . "$f"
 done
 
+kept=$(jq -r 'select(.origin != "<work>.origin" or .workspace != null) | input_filename' "$fixtures"/*.state.json)
+[ -z "$kept" ] || fail 'a recorded tracker keeps a path of its run' "$kept"
 report=$("$eval" --check "$fixtures")
 out=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$report")
 [ "$(grep -c '^pass' <<<"$report")" = "$(grep -c . <<<"$table")" ] || fail 'the recorded runs do not give pass^1 to each case' "$report"

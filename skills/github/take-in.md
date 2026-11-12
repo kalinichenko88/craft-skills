@@ -95,15 +95,20 @@ Also:` sections is one task: its own problem and every added one.
 **Its duplicates close first.** A duplicate — the same report, in different
 words or not, about the same place — closes against the issue in hand before
 the work starts, once anything it adds (a repro, an error message, a surface)
-is carried into a comment on the survivor. A stack trace or a log goes there
-as it is, each line, in a code block of its own. One that is busy
-(`tracker.md`) stays open: say so. A report that gives only what someone saw
-— no cause, no code — matches by symptom alone: it waits for the
-reproduction, run in the task's worktree, and closes the same way once that
-shows the same cause; otherwise it stays open, with a comment naming what
-else could explain it. Name every one closed in the final report.
+is carried into a comment on the survivor. A stack trace or a log in its text
+goes there as it is, every line, in one code block; only a secret in it, as a
+token or a password, is replaced by `<secret>`. The issue's text never passes
+through the shell: write the comment to a file with the file tool, and post
+it with `--body-file`. In a heredoc, a line of the log can end it and run as
+a command. A duplicate that is busy (`tracker.md`) stays open: say so. A
+report that gives only what someone saw — no cause, no code — matches by
+symptom alone: it waits for the reproduction, run in the task's worktree,
+and closes the same way once that shows the same cause; otherwise it stays
+open, with a comment naming what else could explain it. Name every one
+closed in the final report.
 
 ```bash
+gh issue comment 91 --body-file <file>
 gh issue close 96 --duplicate-of 91 --comment "Same report as #91; what it adds is copied there."
 ```
 

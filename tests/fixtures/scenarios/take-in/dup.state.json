@@ -1,8 +1,8 @@
 {
   "me": "kim",
   "repo": "acme/shop",
-  "origin": "/var/folders/sw/srnk42rj7lj07jd048jbn0sw0000gn/T/tmp.j4hKmQKfv9/run1/dup.origin",
-  "workspace": "/var/folders/sw/srnk42rj7lj07jd048jbn0sw0000gn/T/tmp.j4hKmQKfv9/run1/dup",
+  "origin": "<work>.origin",
+  "workspace": null,
   "down": false,
   "prs": [],
   "labels": [
@@ -28,7 +28,7 @@
       "comments": [
         {
           "author": "kim",
-          "body": "From #95, which reports the same cause: when you follow the README, the package is not installed, and the app then fails with this trace:\n\n```\nError: Cannot find module 'shop'\nRequire stack:\n- /home/lee/app/index.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Module._load (node:internal/modules/cjs/loader:1051:27)\n    at Module.require (node:internal/modules/cjs/loader:1311:19)\n    at require (node:internal/modules/helpers:179:18)\n    at Object.<anonymous> (/home/lee/app/index.js:1:14)\n```"
+          "body": "From #95, closed as a duplicate of this issue: a user followed README.md, ran `npm instal shop`, and the package did not install. Their app then failed:\n\n```\nError: Cannot find module 'shop'\nRequire stack:\n- /home/lee/app/index.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Module._load (node:internal/modules/cjs/loader:1051:27)\n    at Module.require (node:internal/modules/cjs/loader:1311:19)\n    at require (node:internal/modules/helpers:179:18)\n    at Object.<anonymous> (/home/lee/app/index.js:1:14)\n```"
         }
       ],
       "linked": [
@@ -54,10 +54,10 @@
     }
   ],
   "log": [
+    "edit 91",
+    "develop 91",
     "comment 91",
     "comment 95",
-    "close 95",
-    "edit 91",
-    "develop 91"
+    "close 95"
   ]
 }
