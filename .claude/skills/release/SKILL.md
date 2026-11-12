@@ -13,17 +13,21 @@ with that section as its notes. Codex reinstalls the plugin when the `version`
 field changes. Claude Code tracks commits instead, which is why
 `.claude-plugin/plugin.json` carries no `version` — never add one.
 
-This skill is the only place `version` and `CHANGELOG.md` change; pull requests
-leave them alone. It releases what is already on `main`: merging a pull request
-is a separate decision, never a step of the release.
+This skill is the only place `version` and `CHANGELOG.md` change; other pull
+requests leave them alone. It releases what is already on `main`: merging
+another pull request is a separate decision, never a step of the release. The
+release commit itself reaches `main` through a pull request of its own, as
+every change does: the ruleset of `main` requires the checks.
 
-Each command runs in a fresh shell, so `$last` and `$version` below stand for
-values: write the real ones (`v0.1.0`, `0.2.0`) into every later command.
+Each command runs in a fresh shell, so `$last`, `$version`, `$base` and
+`$merge` below stand for values: write the real ones (`v0.1.0`, `0.2.0`, a
+commit hash) into every later command.
 
 1. **Start from `main`.** Run `git fetch origin --tags`. Stop and say why if the
    branch is not `main` or the tree is dirty. Behind `origin/main`: `git merge
    --ff-only origin/main`. Stop if that fails, or if `HEAD` is still not
-   `origin/main` — local commits the remote does not have.
+   `origin/main` — local commits the remote does not have. `git rev-parse HEAD`
+   is `$base`, the commit that the release covers.
 2. **Read what is unreleased.** `last=$(git describe --tags --abbrev=0 --match 'v[0-9]*')`, then
    `git log --format='%h %s' "$last"..HEAD`.
    A log line is the short hash, a space and the subject; steps 3 and 4 read
@@ -78,19 +82,47 @@ values: write the real ones (`v0.1.0`, `0.2.0`) into every later command.
 5. **Bump and check.**
    `tmp=$(mktemp) && jq --arg v "$version" '.version = $v' .codex-plugin/plugin.json >"$tmp" && mv "$tmp" .codex-plugin/plugin.json`,
    then `make check`. If the check fails, restore both files and stop.
-6. **Commit, tag and push together.**
+6. **Merge through a pull request, then tag the merge commit.** Commit on a
+   branch and push it:
 
    ```sh
+   git switch -C "chore/release-$version"
    git commit -m "chore(release): bump the Codex version to $version" -- .codex-plugin/plugin.json CHANGELOG.md
-   git tag -a "v$version" -m "v$version"
-   git push --atomic origin main "v$version"
+   git push -u origin "chore/release-$version"
    ```
 
-   `--atomic` lands the commit and the tag together or not at all. A rejected
-   push means `main` moved: `git tag -d "v$version" && git reset --keep HEAD~1`,
-   then start again at step 1: the reset drops the changelog section too, so
-   step 4 writes it again. Never rebase or amend the release commit — the tag
-   points at it.
+   After the push succeeds, in a separate command:
+   `gh pr create --assignee @me --title "chore(release): bump the Codex version to $version" --body "The version in .codex-plugin/plugin.json and the $version section of CHANGELOG.md."`.
+   Wait for its checks as *Pull requests* in `craft:github` says, and stop
+   where it stops. When the person drops the release there, close it:
+   `gh pr close <PR> --delete-branch`, then `git switch main`. When the checks
+   pass, run `git fetch origin main`. If `origin/main` is not `$base`, `main`
+   moved, and the section misses its new commits: close the release the same
+   way, and start again at step 1; step 4 writes the section again. Otherwise
+   merge, with no *Finishing* of `craft:github`, as the release closes no
+   issue:
+
+   ```sh
+   gh pr merge <PR> --squash --delete-branch \
+     --subject "chore(release): bump the Codex version to $version (#<PR>)" \
+     --body "- Set the Codex version to $version
+   - Add the $version section to CHANGELOG.md"
+   ```
+
+   A squash merge makes a new commit, so the tag goes on the commit that the
+   merge put on `main`: `gh pr view <PR> --json mergeCommit --jq .mergeCommit.oid`
+   is `$merge`. Run `git fetch origin main`. If `git rev-parse "$merge^"` is
+   not `$base`, commits landed between the check and the merge: the release
+   holds them, but its section, and maybe its level, do not. Stop before the
+   tag, and show the person `git log --oneline "$base..$merge^"` with the
+   level that step 3 gives for them: the person decides how to correct the
+   release. Otherwise:
+
+   ```sh
+   git tag -a "v$version" -m "v$version" "$merge"
+   git push origin "v$version"
+   git switch main && git merge --ff-only origin/main
+   ```
 7. **Publish the GitHub release** with the new section, heading left out, as
    its notes. One shell line, so the empty check guards the create. Nothing in
    this file may read as a dollar sign followed by a digit: Claude Code
@@ -102,10 +134,11 @@ values: write the real ones (`v0.1.0`, `0.2.0`) into every later command.
    ```
 
    Empty notes mean the heading in step 4 does not read `## $version ` — fix
-   the file, commit it on top and run this again. Without `--verify-tag`, a tag
+   it through a pull request of its own, merged as *Pull requests* in
+   `craft:github` says, then run this again on `main`. Without `--verify-tag`, a tag
    missing on the remote does not stop `gh`: it tags the default branch's HEAD
-   and publishes the release there. With it, `gh` stops: run the push from step 6,
-   then run this again. A failed `gh release create` leaves nothing to
+   and publishes the release there. With it, `gh` stops: run the tag push from
+   step 6, then run this again. A failed `gh release create` leaves nothing to
    undo: fix the cause and run it again.
-8. **Report** the new tag, the release URL and the update steps from the
+8. **Report** the new tag, the pull request, the release URL and the update steps from the
    README's *Update* section, the trust in `/hooks` included.

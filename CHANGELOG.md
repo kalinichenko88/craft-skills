@@ -3,7 +3,8 @@
 Every release of this plugin, newest first. A line is one commit on
 `main`: the skill or area it changed in parentheses, its subject without the
 type, and the PR number when it has one. The `/release` skill writes the
-section; pull requests leave this file alone.
+section and merges it through a pull request of its own; other pull requests
+leave this file alone.
 
 ## 2.2.0 - 2026-11-10
 
