@@ -4,7 +4,7 @@ The run works on a task, or on a change that the person asked for, and
 meets a finding. Without a question to the person, it fixes the finding in
 the pull request of the task, adds it to an open task on the same code, adds
 a comment to an open task with the same report, or creates a task for it.
-When a task already reports the finding or settles it, or an open pull
+When a task already reports the finding or decided it, or an open pull
 request fixes it, the run files nothing. The last message names a name or a
 wording that no rule of the repository asks for, and a finding that the run
 cannot file. A defect of the implementation is the exception to the
@@ -96,7 +96,7 @@ Never:
 - a task is created for the defect
 - the assignees of #12 change
 
-## A finding that a closed task settled
+## A finding that a closed task decided
 
 Given:
 - the outcomes of A free task hold for #91
@@ -591,3 +591,28 @@ Then:
 - the person is told the error of the tracker
 Never:
 - a new task is created for the defect
+
+## A public repository, a log that the person gave, and an open task on the code
+
+Given:
+- the repository is public
+- the outcomes of A free task hold for #91
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- the run read `src/report/total.ts`, the only caller of `parseRows`, and
+  the work on #91 does not change it
+- the person gave a log of a failed import, which names the customer
+  `Acme Ltd` and the path `/srv/acme/orders.csv`
+- `addTax` in `src/report/total.ts` adds the tax twice, and a line of that
+  log shows it
+- the repository has the labels `bug` and `enhancement`
+- task #12 is open, with no assignee, no linked branch, no pull request and
+  no added finding; it has the label `enhancement`, and it asks that
+  `addTax` take the rate from the order
+When: the run meets that defect in `src/report/total.ts`
+Then:
+- the text of #12 holds the defect as an added finding
+Never:
+- the title or the text of #12 holds `Acme Ltd`
+- the title or the text of #12 holds `/srv/acme/orders.csv`
+- a comment on #12 holds `Acme Ltd`
+- a comment on #12 holds `/srv/acme/orders.csv`

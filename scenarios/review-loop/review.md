@@ -995,3 +995,26 @@ Then:
 Never:
 - a round reads the plan
 - a security review runs
+
+## A defect in a review that the person asks for
+
+Given:
+- the workspace is on branch `fix/csv-quotes`, which has two commits that
+  the default branch does not have
+- the two commits fix how `writeCsv` in `src/export/csv.ts` quotes a field
+  that holds a comma, and change no business logic
+- no task names `fix/csv-quotes`, and no pull request merges it
+- round 1 reports one defect: `writeCsv` puts no quotes around a field that
+  holds a quote, and its docstring says that it does
+- the check passes on `fix/csv-quotes`
+When: the person writes "review this branch"
+Then:
+- `fix/csv-quotes` has one commit that fixes that defect
+- round 2 reads only that commit
+- a last pass reads the whole branch after round 2
+- the security review reads the branch after the last pass
+- the person is told the result of each round
+Never:
+- round 2 reads the whole branch
+- a pull request opens
+- the person is asked whether to merge
