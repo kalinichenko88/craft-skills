@@ -6,9 +6,12 @@
 #   want wip  <n> <title> <busy> <files of its open PRs|-> <its branches|->
 #   want pr   <n> <author> <files|->   (a PR that closes no open issue)
 #
-# The main set is every open non-bug issue of the current milestones and every
-# open issue it waits on, through any chain; its free issues are the main path.
-# Bugs and secondary are the free issues outside it. A track ranks by the
+# The goal is the first current milestone. Its main set is the open issues
+# that its Done when names, with any label, and every open issue they wait on,
+# through any chain; when the Done when names no issue, it is the open non-bug
+# issues of the goal and what they wait on. Its free issues are the main path.
+# When none is free, the next milestone that is not Later is the goal. Bugs and
+# secondary are the free issues outside the main set. A track ranks by the
 # effective order (the lowest milestone order among the issue and the issues
 # that wait on it), then by how many issues wait on it, then by number.
 
@@ -32,22 +35,25 @@ END {
   first = 0
   titles = ""
   for (i = 1; i <= msn; i++) if (mscur[mslist[i]]) {
-    cur[mslist[i]] = 1
     titles = append(titles, "; ", mstitle[mslist[i]])
     if (!first) first = i
   }
   print "current: " (titles == "" ? "none" : titles)
-  # The next milestone: the first after the first current one that is not
-  # current and not Later.
-  if (mainset(cur) == 0 && first) {
-    for (i = first + 1; i <= msn; i++) if (!cur[mslist[i]] && !mslater[mslist[i]]) break
-    if (i <= msn) {
-      split("", cur)
-      cur[mslist[i]] = 1
-      gsub(/; /, ", ", titles)
-      print "note: nothing on the main path of " titles " is free; it is from " mstitle[mslist[i]]
-      mainset(cur)
+  if (first) {
+    g = mslist[first]
+    if (mainset(g) == 0) {
+      for (i = first + 1; i <= msn; i++) if (!mslater[mslist[i]]) break
+      if (i <= msn) {
+        notes(g)
+        print "note: nothing on the main path of " mstitle[g] " is free; it is from " mstitle[mslist[i]]
+        g = mslist[i]
+        mainset(g)
+      }
     }
+    print "goal: " mstitle[g]
+    k = donewhen(g, dw)
+    for (i = 1; i <= k; i++) print "  " dw[i]
+    notes(g)
   }
   nm = nb = ns = 0
   for (i = 1; i <= isn; i++) {
@@ -58,6 +64,12 @@ END {
     else sec[++ns] = j
   }
   track("main path", mp, nm, nm)
+  print "== held on the main path"
+  c = 0
+  for (i = 1; i <= isn; i++) if ((islist[i] in main) && (islist[i] in needed) && !isfree(islist[i])) held[++c] = islist[i] + 0
+  sortnum(held, c)
+  if (!c) print "none"
+  for (i = 1; i <= c; i++) print "#" held[i] " " istitle[held[i]] " (" (ems(held[i]) ? mstitle[ems(held[i])] : "no milestone") "): " state(held[i])
   track("bugs", bugs, nb, 5)
   track("secondary", sec, ns, 5)
 
@@ -80,15 +92,52 @@ END {
   if (!c) print "none"
 }
 
-# Fills main with the open non-bug issues of the milestones in cur and every
-# issue they wait on; returns how many of them are free.
-function mainset(cur,   i, j, free) {
+# Fills main with the main set of milestone m, and returns how many of it are
+# free. Sets refs to the count of numbers that its Done when names, and named
+# to the count of open issues among them.
+function mainset(m,   k, i, s, t, j, free, dl) {
   split("", main)
-  for (i = 1; i <= isn; i++) if (!isbug[islist[i]] && (ems(islist[i]) in cur)) main[islist[i]] = 1
+  refs = named = 0
+  k = donewhen(m, dl)
+  for (i = 1; i <= k; i++) {
+    s = " " dl[i]
+    # #21 after a character that is not a letter, a digit, _ or /: not
+    # other/repo#21, and not the #10 of #9#10.
+    while (match(s, /[^A-Za-z0-9_\/]#[0-9]+/)) {
+      t = substr(s, RSTART, RLENGTH)
+      s = substr(s, RSTART + RLENGTH)
+      sub(/^[^#]*#/, "", t)
+      refs++
+      if ((t in istitle) && !(t in main)) { main[t] = 1; named++ }
+    }
+  }
+  if (!refs) for (i = 1; i <= isn; i++) if (!isbug[islist[i]] && ems(islist[i]) == m) main[islist[i]] = 1
   closure(main)
   free = 0
   for (j in main) if (isfree(j)) free++
   return free
+}
+
+# Fills out with the lines of m's description from its Done when line on, and
+# returns how many.
+function donewhen(m, out,   k, i, l, c) {
+  split("", out)
+  c = 0
+  k = split(mdlines[m], l, "\n")
+  for (i = 1; i <= k; i++) if (c || l[i] ~ /^[Dd]one when/) out[++c] = l[i]
+  return c
+}
+
+# The note on the Done when of m, after mainset(m): it names no issue, or only
+# closed ones.
+function notes(m,   i, c) {
+  if (!refs) {
+    print "note: " mstitle[m] " has no Done when that names an issue; the main path of " mstitle[m] " is each of its issues without the bug label, and what they wait on"
+  } else if (!named) {
+    c = 0
+    for (i = 1; i <= isn; i++) if (ems(islist[i]) == m) c++
+    print "note: every issue that the Done when of " mstitle[m] " names is closed; it names none of its " c " open issues"
+  }
 }
 
 # Prints a track's top 5, and the want lines of its top wanted, which the

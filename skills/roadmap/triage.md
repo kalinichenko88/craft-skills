@@ -140,17 +140,23 @@ use the github skill's `worktree.sh`: it assigns the issue and puts the label
   `Later` when no milestone needs it. No priority labels. An issue that waits
   for an answer gets no new milestone, and keeps the one it has. An issue that
   closes gets none, and loses the one it has.
+- **The `Done when` point.** An issue that goes into a current milestone
+  because it breaks what the milestone delivers also goes on the `Done when`
+  point that it breaks, when that `Done when` names an open issue already:
+  `next.sh` takes the main path from those numbers (`SKILL.md`, *How the plan
+  lives in GitHub*). A `Done when` that names no issue, or only closed ones,
+  gets no number from triage: its re-plan gives each point its issues.
 
 ## The approval
 
 Show one table: the issue with its title, a few words on what it is about,
-its verdict, its label, its milestone by its full title, the reply to
-its author, and for a duplicate the comment on the survivor, with each trace
-or log in it under the table as it will be posted, and the survivor's new
-milestone, when it takes one. An issue that the account `gh` is logged in as
-filed gets no reply. Every comment is public: apply *Public repositories* in
-`<github>/SKILL.md` to each one, so nothing from the conversation or from a
-private source goes in.
+its verdict, its label, its milestone by its full title and its `Done when`
+point when it gets one, the reply to its author, and for a duplicate the
+comment on the survivor, with each trace or log in it under the table as it
+will be posted, and the survivor's new milestone, when it takes one. An issue
+that the account `gh` is logged in as filed gets no reply. Every comment is
+public: apply *Public repositories* in `<github>/SKILL.md` to each one, so
+nothing from the conversation or from a private source goes in.
 
 After the approval, read the `status:` line of each issue again. When one has
 an entry now, give its row and each row that names it again by the rules
@@ -165,6 +171,9 @@ above, and ask for the approval of those rows again. Then write each row:
   `bash <dir>/scripts/read.sh milestone M1` prints it, or `Later` with
   `bash <dir>/scripts/plan.sh later <n>`, and the milestone of an issue that
   closes with `gh issue edit <n> --remove-milestone`;
+- the `Done when` points, once for each milestone that gets a number, with
+  `bash <dir>/scripts/plan.sh describe '<title>' <file>`: the file holds its
+  description with the numbers of all its rows added to their points;
 - the reply with `gh issue comment <n> --body-file <file>`;
 - a duplicate: first the comment on the survivor, with
   `gh issue comment <survivor> --body-file <file>`, and the survivor's new
