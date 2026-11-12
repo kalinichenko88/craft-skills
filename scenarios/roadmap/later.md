@@ -12,6 +12,8 @@ Not covered yet:
 - a task that is split into smaller tasks, and a smaller task with no
   milestone of its own, which goes into `Later` with it;
 - a closed milestone `Later`;
+- a task that another task waits on, when there is no milestone `Later`;
+- a busy task;
 - a task that comes back from `Later`;
 - the answer no to the question.
 

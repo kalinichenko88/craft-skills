@@ -1,19 +1,19 @@
 # Tell what is left in a milestone
 
 The person asks what is left to close a milestone, or what can be taken from
-`Later`. The run reads the plan in the tracker and gives the open tasks of
-that milestone, in the order in which they can run: the free ones, the busy
-ones, and the ones that wait, each with what it waits on. From `Later`, it
-gives the free tasks. The run changes nothing in the tracker or in the
-repository.
+`Later`. The run reads the tracker and gives the open tasks of that
+milestone, in the order in which they can run: the free ones, the busy ones,
+and the ones that wait, each with what it waits on. From `Later`, it gives
+the free tasks. The run changes nothing in the tracker or in the repository.
 
 Not covered yet:
 
 - the count of the closed tasks of a milestone, and its due date;
 - a task that is split into smaller tasks;
+- a task in `Later` that waits on another task;
 - the question with no milestone, whose answer gives each open milestone,
   and the tasks with no milestone;
-- a run of another flow that reads the plan.
+- a run of another flow that reads the roadmap.
 
 ## What is left in a milestone
 

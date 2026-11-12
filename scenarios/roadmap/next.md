@@ -1,28 +1,30 @@
 # Take the next task, or run tasks in parallel
 
 The person asks what to take now, what the priority is, or what can run in
-parallel. The three questions get one answer from the plan in the tracker:
-the path to the goal, with the top bug beside it, in at most three lanes. The
-goal is the first current milestone, and lane 1 holds the tasks that its
-`Done when` needs. No task of one lane changes a function that a task of
-another lane, or a busy task, changes. For "what can I take now", the run
-gives one task. The run changes nothing in the tracker or in the repository.
+parallel. The three questions get one answer from the tracker: the tasks
+that the `Done when` of the first current milestone needs, with the top bug
+beside them, in at most three lanes. Lane 1 holds the tasks of that
+`Done when`. No task of one lane changes a function that a task of another
+lane, or a busy task, changes. For "what can I take now", the run gives one
+task. The run changes nothing in the tracker or in the repository.
 
 Not covered yet:
 
 - the question what the priority is, which gets the answer of parallel work;
 - the person's own busy tasks, which the answer shows beside the lanes;
-- a task of the goal that is split into smaller tasks, and a smaller task
-  with no milestone of its own;
+- a task of the `Done when` that is split into smaller tasks, and a smaller
+  task with no milestone of its own;
 - a task in `Later` that a task outside `Later` waits on;
 - a first current milestone with no free task that its `Done when` needs,
-  when the next milestone becomes the goal;
-- a repository with no milestone, where the path goes to the goal in the
+  when the run takes the `Done when` of the next milestone in its place;
+- a repository with no milestone, where the run takes the tasks from the
   documents of the product;
 - a task whose text waits on a decision;
-- five bugs, or five other tasks, that each change a function of a lane.
+- five bugs, or five other tasks, that each change a function of a lane;
+- the question what to take now, when the first task of the `Done when`
+  changes a function that a busy task changes.
 
-## The next task on the path to the goal
+## The next task that the first current milestone needs
 
 Given:
 - `M1 · First demo` is the current milestone; its `Done when` has one
@@ -93,7 +95,7 @@ Never:
 - a lane holds #21
 - a lane holds #25
 
-## Two tasks of the goal that change one function
+## Two tasks of the Done when that change one function
 
 Given:
 - `M1 · First demo` is the current milestone; its `Done when` has one
@@ -114,7 +116,7 @@ Then:
 Never:
 - #21 and #22 are in two lanes
 
-## A task of the goal that waits on another task
+## A task of the Done when that waits on another task
 
 Given:
 - `M1 · First demo` is the current milestone; its `Done when` has two
@@ -131,7 +133,7 @@ Then:
 Never:
 - a lane holds #23
 
-## A goal whose Done when names no task
+## A current milestone whose Done when names no task
 
 Given:
 - `M1 · First demo` is the current milestone; its `Done when` has one
