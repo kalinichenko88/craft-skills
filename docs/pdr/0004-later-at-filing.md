@@ -44,3 +44,7 @@ than one triage approval can take.
 ## Links
 
 #260, PR #110, `skills/github/filing.md` *No free host*, `skills/roadmap/triage.md` *Label and milestone*
+
+## Checked
+
+- 2026-11-12 #278: a task still goes into `Later` only after the person says so. The lines cited above moved: the rule is in `skills/roadmap/SKILL.md` *Putting a task off* and `skills/roadmap/README.md` *What you get*.
