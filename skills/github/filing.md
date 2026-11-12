@@ -47,15 +47,15 @@ file it.
 **A failure that its input never reaches is not filed.** A finding that the
 Boy Scout check leaves, and that fails only on some input, as a value, a
 state or a call, is traced first. Follow that input back from the code,
-through each caller, to each place where it enters the program. When a check
-in code or in a script, as a schema or a validation, refuses that input, or
-a default takes its place, on every path before the code, the finding is
-ruled out: real use does not reach it, so it is no defect. It is not filed
-and goes into no host. Give it one line in the final report, with the
-`path:line` of each check. A step of a skill's text is no such check: a
-model can skip it. Data loss or a security hole is filed all the same, and
-so is a finding with one path that has no such check, or with a path that
-the trace cannot follow to its end.
+through each caller, to each place where it enters the program. A check in
+code or in a script, as a schema or a validation, can refuse that input, or
+a default can take its place. When one of them does so on every path before
+the code, and the failure is no data loss and no security hole, the finding
+is ruled out: real use does not reach it, so it is no defect. It is not
+filed and goes into no host. Give it one line in the final report, with the
+`path:line` of each check or default. A step of a skill's text is no such
+check: a model can skip it. When one path has no such check, or the trace
+cannot follow a path to its end, the finding is filed.
 
 **Search by identifier, not by your title.** A search for the symbol finds
 every issue that names it; the prose you were about to write finds only issues

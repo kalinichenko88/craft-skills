@@ -8,13 +8,14 @@
 
 We will not file an out-of-scope failure that shows only on an input that
 a check in code or in a script refuses, or a default replaces, on every path
-before the code: real use does not reach it, so it is no defect. The run
-traces the input back through each caller to where it enters, and the final
-report names each check by its `path:line` in one line
-(`skills/github/filing.md`). A step of a skill's text is no such check.
-Data loss or a security hole is filed all the same, as a nit of that kind
-is. A finding whose worth is unclear gets no worth check of its own and is
-filed as before, and a fix outside the task's module stays out of the pull
+before the code, unless it is data loss or a security hole: real use does
+not reach it, so it is no defect. The run traces the input back through
+each caller to where it enters, and the final report names each check or
+default by its `path:line` in one line (`skills/github/filing.md`). A step
+of a skill's text is no such check. Data loss or a security hole is filed,
+as an edge case of that kind is in *A nit is not worth an issue*. A
+finding whose worth is unclear gets no worth check of its own and is filed
+as before, and a fix outside the task's module stays out of the pull
 request.
 
 ## Rests on
@@ -25,12 +26,15 @@ request.
   characters of the failure, or the caller always set a default. One of
   these two was filed from a review after #260, with no check of the
   schema (#375).
-- `tests/github_filing_eval.sh 10 labelled`, with the check two callers above
-  the failure: 4 of 20 runs filed it on the text before #375, and each of the
-  4 stopped at the first caller. With the trace, 0 of 20 filed it, and 20
-  of 20 named the check by its line, against 9 of 20 before. The defect,
-  the false docstring and the nit got the same verdicts in all 40 runs. With
-  the check in the only caller, 0 of 10 runs filed it before the trace.
+- Runs of `tests/github_filing_eval.sh 10 labelled`, with the check two
+  callers above the failure: 4 of 20 runs filed it on the text before #375,
+  and each of the 4 stopped at the first caller. With the trace, in three
+  wordings of it, 0 of 30 filed it, and 30 of 30 named the check by its
+  line, against 9 of 20 before. The defect and the nit got the same
+  verdicts in all 50 runs. The false docstring reached the tracker in 49:
+  the one run that left it off followed the label `(nit)` of the review, as
+  the labelled runs of #260 did. With the check in the only caller, 0 of 10
+  runs filed it before the trace.
 - A model skips steps of a skill's text: #348 (1 of 1 run), #356 (4 of 5
   runs).
 - 11 of the 33 closed as not worth it, and 59 of the 64 open findings of

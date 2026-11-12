@@ -16,7 +16,7 @@
 # Each run keeps its ask in <run>.ask. The items of the ruled-out finding
 # give SKIP on a run whose ask does not hold it, as the runs before #375. On
 # filing.md before #375, 4 of 20 labelled runs filed the ruled-out finding,
-# each one after a look at the first caller alone; with its trace, 0 of 20.
+# each one after a look at the first caller alone; with its trace, 0 of 30.
 #
 # The checks read the end state of the JSON and the session's messages. The
 # defect reaching the tracker is the premise: a run that files nothing
