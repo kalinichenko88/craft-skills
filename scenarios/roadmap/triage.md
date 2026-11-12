@@ -15,7 +15,7 @@ Not covered yet:
 
 - a task that a run of its code reproduces;
 - a task that the code shows false, one that a commit on the default branch
-  fixed, and one that an earlier decision settles;
+  fixed, and one that an earlier decision decided;
 - a task with the label `question` whose author has not answered yet, and
   one whose author answered;
 - a task that the person wrote;
