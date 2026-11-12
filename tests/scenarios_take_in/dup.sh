@@ -15,11 +15,17 @@ dup_check() {
   outcomes
 }
 dup_copies() {
-  # The stack trace of #95 in a comment on #91, its indent lost.
+  # Only the first line of the stack trace of #95 in the comment on #91, as
+  # in the runs before #296.
   copy dup
-  state dup '(.issues[] | select(.number == 91) | .comments) +=
-    [{author: "kim", body: (.issues[] | select(.number == 95) | .body | split("```")[1] | gsub("\n +"; "\n"))}]'
+  state dup '(.issues[] | select(.number == 91) | .comments[].body) =
+    "From #95:\n\n```\n" + (.issues[] | select(.number == 95) | .body | split("```")[1] | split("\n")[1]) + "\n```"'
   flips dup 'a comment on #91 holds the stack trace of #95'
+
+  # The stack trace in the comment on #91, its indent lost.
+  copy dup
+  state dup '(.issues[] | select(.number == 91) | .comments[].body) |= gsub("\n +"; "\n")'
+  stays
 
   # #95 closed, but not as a duplicate.
   copy dup
@@ -48,8 +54,7 @@ dup_copies() {
   flips dup 'never: #91 closes'
 }
 dup_fails() {
-  # One line of the stack trace of #95 reaches #91, not the trace (#296); the
-  # first message about #91 is a narration with no title, before the first
-  # change (#317).
-  printf '%s\n' 'FAIL a comment on #91 holds the stack trace of #95' 'FAIL the first message about #91 tells its gist' 'FAIL the gist comes before any change'
+  # The first message about #91 is a narration with no title, before the
+  # first change (#317).
+  printf '%s\n' 'FAIL the first message about #91 tells its gist' 'FAIL the gist comes before any change'
 }
