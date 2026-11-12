@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Prints the free tasks per track, ranked — main path, bugs, secondary — and
-# the work in progress, then writes the overlap file for the lanes.md reader
-# and prints its path and size as its last line.
+# Prints the goal milestone with its Done when, the free tasks per track,
+# ranked — main path, bugs, secondary —, what holds the rest of the main path,
+# and the work in progress, then writes the overlap file for the lanes.md
+# reader and prints its path and size as its last line.
 #
 #   next.sh [bug-label]
 #

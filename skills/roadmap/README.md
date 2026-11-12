@@ -7,9 +7,8 @@ run in parallel, and what is left to close a milestone.
 
 ## When it starts
 
-- "What can I take now?", "What is next on the roadmap?"
-- "What can I take in parallel with the main work?", "What on the roadmap can
-  run in parallel?"
+- "What can I take now?", "What is the priority?", "What can run in
+  parallel?"
 - "What is left to close M1?"
 - You want to plan a roadmap, put a task off to `Later`, or plan again after a
   milestone closes.
@@ -18,12 +17,17 @@ run in parallel, and what is left to close a milestone.
 
 ## What you get
 
-- **One task, and why.** Only free tasks: open, not in progress, not someone
-  else's, and with no open blocker. The main path comes first, then bugs, then the rest. The
-  answer gives the task with its title, its milestone, and why it is first:
-  "it is in M1 · First demo and 2 issues wait on it".
-- **Parallel work that does not collide.** No task in the set changes the same
-  function as another task in it, or as work in progress.
+- **The fastest path to the goal.** The goal is the nearest milestone, and
+  its `Done when` lists the outcomes it needs, each with its issues. Lane 1
+  holds only those issues and what they wait on. Tests, bugs and improvements
+  go into lanes 2 and 3, after a goal task that can run beside lane 1. Only
+  free tasks: open, not in progress, not someone else's, and with no open
+  blocker.
+- **One task, and why.** The first task of lane 1, with its title, its
+  milestone, and why it is first: "M1 · First demo needs it for 'a new user
+  signs up'". The other lanes get one line each.
+- **Lanes that do not collide.** At most three. No task in one lane changes
+  the same function as a task in another lane, or as work in progress.
 - **What is left in a milestone**, in dependency order: what is free, what is
   in progress, and what is blocked and by what.
 - **A plan made with you.** The skill reads the project's `docs/`, the README
@@ -54,7 +58,7 @@ run in parallel, and what is left to close a milestone.
 
 ### Pick the next task
 
-![Pick the next task: you get the right task to take now, and the tasks that can run beside it without conflicts](../../docs/roadmap/02-next.webp)
+![Pick the next task: you get the fastest path to the goal, and up to three lanes that run without conflicts](../../docs/roadmap/02-next.webp)
 
 ### Close a milestone
 
@@ -66,9 +70,10 @@ run in parallel, and what is left to close a milestone.
 
 ## How it works
 
-Scripts in `scripts/` read the plan through the GitHub API and rank the free
-tasks on the main path, among bugs and the rest. In Claude Code a Haiku
-subagent reads the code to find which tasks would change the same functions.
+Scripts in `scripts/` read the plan through the GitHub API, take the path to
+the goal from the issues that its `Done when` names, and rank the free tasks
+on it, among bugs and the rest. In Claude Code a Haiku subagent reads the
+code to find which tasks would change the same functions.
 
 ## Needs
 

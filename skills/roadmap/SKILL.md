@@ -1,6 +1,6 @@
 ---
 name: roadmap
-description: Use when planning a product's roadmap or milestones, asking which task to take next or what can run in parallel, asking what is left to close a milestone, putting a task off to Later, re-planning after a milestone closes, triaging new issues that have no label or no milestone, or when an agent needs the project's roadmap as context.
+description: Use when planning a product's roadmap or milestones, asking which task to take next, what the priority is or what can run in parallel, asking what is left to close a milestone, putting a task off to Later, re-planning after a milestone closes, triaging new issues that have no label or no milestone, or when an agent needs the project's roadmap as context.
 ---
 
 # Planning on GitHub
@@ -14,15 +14,13 @@ and stop.
 
 | Moment | What must happen | Read first |
 | --- | --- | --- |
-| "What can I take now", "what is next on the roadmap" | `next.sh`; give one task with its title, its track and milestone, and why it is first | *One task* below |
-| "What can I take in parallel with the main work" | `next.sh`, then the overlap check; one bug and one secondary task that overlap with nothing | *Parallel work* below |
-| "What on the roadmap can run in parallel" | `next.sh`, then the overlap check; every free main-path task that overlaps with nothing | *Parallel work* below |
+| "What can I take now", "what is the priority", "what can run in parallel" | `next.sh`, then the overlap check; at most three lanes to the goal, none overlapping, lane 1 the main path; one task, or a table per lane | *The lanes* below |
 | "What is needed to close M1" | `roadmap.sh M1`; its open tasks in dependency order, what is in progress, what is blocked and by what | *The roadmap* below |
 | "What can I take from Later" | `roadmap.sh Later`; offer its free tasks | *The roadmap* below |
 | The person decides, in the conversation, to put a task off | `plan.sh later <n>`; a refusal names the issues that wait on it | *Putting a task off* below |
 | An agent needs the roadmap as context | `roadmap.sh` | *The roadmap* below |
 | Start a roadmap | read `docs/`, propose, one approval, then write | `planning.md` |
-| A milestone has no open issues left, or the person asks to re-plan | the same, from that milestone | `planning.md`, *Re-planning* |
+| A milestone has no open issues left, a `note:` of `next.sh` says that its `Done when` names no issue or only closed ones, or the person asks to re-plan | the same, from that milestone | `planning.md`, *Re-planning* |
 | Open issues have no label or no milestone, or the person asks to triage | duplicates first; a verdict for each with no entry in its `status:` line, then its label and milestone, or its close; one approval, then write | `triage.md` |
 | The person wants the board | `board.sh`; pass on the two settings it prints | *The board* below |
 
@@ -32,7 +30,8 @@ directory. Read all of it before the first step of that moment.
 ## How the plan lives in GitHub
 
 - **A stage is a milestone**, titled `M<n> · <name>`. Its description is a
-  short goal and a `Done when` sentence: an outcome someone can see in a demo.
+  short goal and a `Done when` list: the outcomes that someone can check, as
+  in a demo, each with the issues that it needs, as `(#21, #22)`.
   The order comes from the number after `M`; other titles come after; `Later`
   is last and holds what is wanted but not planned. One number belongs to one
   open milestone: `plan.sh create` and `rename` refuse a second `M1`, and an
@@ -52,11 +51,15 @@ directory. Read all of it before the first step of that moment.
   busy, with no open blocker of its own or of its parent, no open sub-issue,
   and not in `Later` — unless an open issue outside `Later` waits on it,
   through any chain: then it is needed.
-- **The tracks.** The main path is the free issues without the bug label in
-  the current milestones, and every free issue they wait on, wherever it is.
+- **The goal and the tracks.** The goal is the nearest milestone: the first
+  current one. The main path is the free issues of the path to it: the open
+  issues, with any label, that its `Done when` names, and every issue they
+  wait on, wherever it is. When the `Done when` names no issue, the path is
+  the issues of the milestone without the bug label, and what they wait on.
   Bugs are the other free issues with the bug label. Secondary is every other
-  free issue. A track ranks by milestone order — a blocker of an `M1` task
-  ranks with `M1` — then by how many issues wait on it, then oldest first.
+  free issue, the rest of the goal milestone too. A track ranks by milestone
+  order — a blocker of an `M1` task ranks with `M1` — then by how many issues
+  wait on it, then oldest first.
 - An issue goes into a milestone with `gh issue edit <n> --milestone '<title>'`,
   out of it with `--remove-milestone`, and into `Later` with `plan.sh later`.
 
@@ -78,33 +81,32 @@ step by hand with `gh`: that skips the checks the script makes. A line that
 starts with `refused:` is not an error: it says why `plan.sh` wrote nothing.
 Tell the person, and change the plan, not the check.
 
-## One task
+## The lanes
+
+The three questions get one answer: the fastest path from now to the goal,
+in at most three lanes.
 
 ```bash
 bash <dir>/scripts/next.sh bug
 ```
 
 The argument is the repository's name for the bug label in `gh label list`.
-The script prints the current milestones, then the sections `== main path`,
-`== bugs` and `== secondary` — each one's top 5, ranked, as `#21 <title>
-(<milestone>), unblocks 2` — then `== in progress`, and last the path of the
-overlap file. When nothing on the main path of the current milestones is
-free, a `note:` line says so, and the main path comes from the next
-milestone: the first after the first current one that is not current and not
-`Later`.
+The script prints the current milestones, the goal with its `Done when`,
+then the sections `== main path`, `== held on the main path`, `== bugs` and
+`== secondary` — each track's top 5, ranked, as `#21 <title> (<milestone>),
+unblocks 2`, and each held task with what holds it — then `== in progress`,
+and last the path of the overlap file. When nothing on the main path of the
+first current milestone is free, a `note:` line says so, and the goal is the
+next milestone that is not `Later`. A `note:` line also says when the `Done
+when` of a goal names no issue, or only closed ones: say so, and offer to
+re-plan that milestone (`planning.md`, *Re-planning*). With no milestone,
+lane 1 holds the free tasks that the current goal of the project's
+`PRODUCT.md` needs, by your reading, and the answer says that the pick is
+yours.
 
-Give one task: the first of the main path, else of bugs, else of secondary.
-Give its number, title, a few words on what it changes, its track and its
-milestone, and why it is first, as "it is in M1 · First demo and 2 issues
-wait on it". Name the top bug as the alternative, the same way. When the person
-takes a task, the `craft:github` skill's take-in starts with its bare
-number, as `#21`: it checks the task, assigns it and marks it `in progress`.
-
-## Parallel work
-
-Run `next.sh`, then the overlap check on the file it printed. In Claude Code,
-send one `Agent` call with `model: "haiku"` and this prompt, whatever the
-file's size — the reading it saves is in the code:
+Then run the overlap check on the file that `next.sh` printed. In Claude
+Code, send one `Agent` call with `model: "haiku"` and this prompt, whatever
+the file's size — the reading it saves is in the code:
 
 ```
 Read <dir>/lanes.md and do what it says.
@@ -114,21 +116,40 @@ Tree: <the repository's top directory>
 
 In Codex, follow `lanes.md` yourself and write its return as your notes.
 
-Then pick a set. No task in it overlaps with another task in it, or with any
-work in progress, your own included:
+Then put the free tasks into lanes, one at a time in rank: the main path
+first, then bugs, then secondary. Work in progress, your own included, is no
+lane, and no lane overlaps with it.
 
-- **Next to the main work:** one task from bugs and one from secondary.
-- **On the roadmap:** every free main-path task, ranked. There is no cap,
-  unless the project's own instructions set one.
-- A task whose return says `ready: no` waits on a decision outside it: leave
-  it out and say what it waits on.
+- Lane 1 holds only main-path tasks. The first one starts it.
+- A task that overlaps with the tasks of one lane goes into that lane.
+- A task that overlaps with no lane opens the next lane, up to three. A
+  main-path task with no lane left goes into lane 1.
+- Every other task waits: one that overlaps with work in progress or with
+  two lanes, one off the main path that overlaps with lane 1, one with no
+  lane left, and one whose return says `ready: no`. Say what each waits on.
 
-Answer with a short table of the set: each task with its title, a few words
-on what it changes, and its files. Then each overlap in one line, with the
-file and the function. Each task in the set
-starts through take-in, in its own worktree. The file holds every main-path
-task, but only the top 5 of bugs and of secondary: when all five overlap, say
-so.
+So a goal task that can run beside lane 1 opens lane 2 before tests, bugs
+and improvements do. Lane 1 ends with the held tasks of the main path.
+
+## One task
+
+For "what can I take now", give the first task of lane 1, else of lane 2:
+its number, title, a few words on what it changes, its milestone, and why it
+is first, as "M1 · First demo needs it for 'a new user signs up', and 2
+issues wait on it". Then name each other lane in one line: its first task
+with its title, and its area. When the person takes a task, the
+`craft:github` skill's take-in starts with its bare number, as `#21`: it
+checks the task, assigns it and marks it `in progress`.
+
+## Parallel work
+
+For the priority and for parallel work, answer with one table per lane: each
+task with its title, a few words on what it changes, its area and its files,
+and lane 1's held tasks last, with what holds each. Then each overlap in one
+line, with the file and the function, and each task that waits. Each task in
+a lane starts through take-in, in its own worktree. The file holds every
+main-path task, but only the top 5 of bugs and of secondary: when all five
+overlap, say so.
 
 ## The roadmap
 

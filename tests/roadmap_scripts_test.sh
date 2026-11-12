@@ -295,6 +295,8 @@ check 'main path: a chain counts every step' '#21 Issue 21 (M1 · Stage 1), unbl
 check 'bugs' '#22 Issue 22 (M1 · Stage 1), unblocks 0' "$(section bugs <<<"$out")"
 check 'secondary: next milestone, then none' \
   "$(printf '#40 Issue 40 (M2 · Stage 2), unblocks 0\n#41 Issue 41 (no milestone), unblocks 0')" "$(section secondary <<<"$out")"
+check 'a Done when that names no issue' \
+  'note: the Done when of M1 · Stage 1 names no issue; the main path is each of its issues without the bug label' "$(grep '^note: ' <<<"$out")"
 # A blocker in M3 of an M1 task is on the main path and ranks with M1.
 reset
 mark M1
@@ -325,16 +327,48 @@ edit 19 '.assignees.nodes = [{login: "someone"}]'
 out=$(bash "$scripts/next.sh")
 check 'fallback note' 'note: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2' "$(sed -n 2p <<<"$out")"
 check 'busy issue in progress' '#19 Issue 19: assigned to someone' "$(section 'in progress' <<<"$out")"
-# A milestone between two current ones is the next one.
+# The goal is the first current milestone alone, and the next goal is the next
+# milestone in order, current or not.
 reset
 mark M1
 mark M3
 put '19 30:M3 40:M2 50:M4'
 edit 19 '.assignees.nodes = [{login: "someone"}]'
-edit 30 '.assignees.nodes = [{login: "someone"}]'
 out=$(bash "$scripts/next.sh")
-check 'fallback between current milestones' 'note: nothing on the main path of M1 · Stage 1, M3 · Stage 3 is free; it is from M2 · Stage 2' "$(sed -n 2p <<<"$out")"
+check 'fallback by order' 'note: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2' "$(sed -n 2p <<<"$out")"
 check 'fallback main path' '#40 Issue 40 (M2 · Stage 2), unblocks 0' "$(section 'main path' <<<"$out")"
+check 'a second current milestone is secondary' '#30 Issue 30 (M3 · Stage 3), unblocks 0' "$(section secondary <<<"$out" | head -1)"
+# The main path is what the Done when of the goal names, with any label, and
+# what that waits on. A number before the Done when, or of another repository,
+# names nothing. The rest of the goal milestone is secondary.
+done_when() { ms 'map(if (.title | startswith("M1 ")) then .description = $d else . end)' --arg d "$1"; }
+reset
+done_when $'Fix #19 first.\n\nDone when:\n- a user signs up (#20, #21)\n- the export works (#22, other/repo#23)\n\nCurrent.'
+put '19 20 21 22 23 40:M2'
+blocks 21 20
+edit 22 '.labels.nodes = [{name: "bug"}]'
+out=$(bash "$scripts/next.sh")
+check 'the goal and its Done when' \
+  "$(printf 'goal: M1 · Stage 1\n  Done when:\n  - a user signs up (#20, #21)\n  - the export works (#22, other/repo#23)')" "$(sed -n 2,5p <<<"$out")"
+check 'the named issues, a bug too' \
+  "$(printf '#20 Issue 20 (M1 · Stage 1), unblocks 1\n#22 Issue 22 (M1 · Stage 1), unblocks 0')" "$(section 'main path' <<<"$out")"
+check 'what holds the rest of the main path' '#21 Issue 21 (M1 · Stage 1): blocked by #20' "$(section 'held on the main path' <<<"$out")"
+check 'the rest of the goal milestone' \
+  "$(printf '#19 Issue 19 (M1 · Stage 1), unblocks 0\n#23 Issue 23 (M1 · Stage 1), unblocks 0\n#40 Issue 40 (M2 · Stage 2), unblocks 0')" "$(section secondary <<<"$out")"
+check 'no note on a Done when that names open issues' 0 "$(grep -c '^note: ' <<<"$out" || true)"
+# A Done when as one sentence: the description of this repository's
+# M3 · Skills hold in real runs, as GitHub gave it on 2026-11-11.
+reset
+done_when $'The skills do what their rules say in real runs: the conventions load and hold in subagents, and the end of a task leaves nothing for the person to do by hand.\n\nDone when the runs of #196 load the conventions before the first edit in 5 of 5 per task, the runs of #197 keep one direction between features in 5 of 5, a review subagent on the task of #227 invokes the conventions skills in 5 of 5 runs, a session that went into its worktree with cd removes the worktree and the branch itself (#195), the command for the project scope runs as the docs give it (#165), and `collect.sh` finds the issues of a repository whose remote still has its old name (#252).\n\nCurrent.'
+put '165 195 196 197 227 252 19'
+out=$(bash "$scripts/next.sh")
+check 'a Done when sentence names six' 6 "$(grep -c '^==> #.*\[main path, ' "$(sed -n 's/^overlap: \([^ ]*\) .*/\1/p' <<<"$out")")"
+check 'and not the issue it does not name' '#19 Issue 19 (M1 · Stage 1), unblocks 0' "$(section secondary <<<"$out")"
+# Every issue that it names is closed: the next milestone is the goal.
+put '19 20 40:M2'
+check 'a Done when of closed issues' \
+  "$(printf 'note: every issue that the Done when of M1 · Stage 1 names is closed; it names none of its 2 open issues\nnote: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2\ngoal: M2 · Stage 2')" \
+  "$(bash "$scripts/next.sh" | sed -n 2,4p)"
 # A task in Later that an issue outside Later waits on, through any chain, is
 # offered; one that nothing outside Later waits on is not.
 reset
