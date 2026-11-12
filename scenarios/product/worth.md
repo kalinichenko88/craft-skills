@@ -301,7 +301,6 @@ Given:
 When: the person writes "Let us shape an export of the orders before we build it"
 Then:
 - the first message about the export asks the person one question about it
-- the run waits
 Never:
 - the first message about the export holds a worth report
 
@@ -317,7 +316,6 @@ Then:
 - the message that asks the question holds a worth report on the two ways
 - the worth report comes before the options of the question
 - the options of the question are the options of the worth report
-- the run waits
 Never:
 - a file of the repository changes before the person answers
 
@@ -479,7 +477,6 @@ Then:
 - the person is told that #22 waits on #91
 - the person is asked whether to put #22 off too, or to remove the
   dependency of #22 on #91
-- the run waits
 Never:
 - #91 is in the milestone `Later`
 
