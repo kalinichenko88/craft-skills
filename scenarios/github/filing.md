@@ -611,8 +611,11 @@ Given:
 When: the run meets that defect in `src/report/total.ts`
 Then:
 - the text of #12 holds the defect as an added finding
+- that added finding names `src/report/total.ts` and the line of the defect
 Never:
 - the title or the text of #12 holds `Acme Ltd`
 - the title or the text of #12 holds `/srv/acme/orders.csv`
 - a comment on #12 holds `Acme Ltd`
 - a comment on #12 holds `/srv/acme/orders.csv`
+- the text of the pull request of #91 holds `Acme Ltd`
+- the text of the pull request of #91 holds `/srv/acme/orders.csv`
