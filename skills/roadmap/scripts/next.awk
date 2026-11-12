@@ -44,7 +44,7 @@ END {
     if (mainset(g) == 0) {
       for (i = first + 1; i <= msn; i++) if (!mslater[mslist[i]]) break
       if (i <= msn) {
-        if (refs) notes(g)
+        notes(g)
         print "note: nothing on the main path of " mstitle[g] " is free; it is from " mstitle[mslist[i]]
         g = mslist[i]
         mainset(g)

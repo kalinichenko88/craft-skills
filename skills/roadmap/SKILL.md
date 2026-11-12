@@ -20,7 +20,7 @@ and stop.
 | The person decides, in the conversation, to put a task off | `plan.sh later <n>`; a refusal names the issues that wait on it | *Putting a task off* below |
 | An agent needs the roadmap as context | `roadmap.sh` | *The roadmap* below |
 | Start a roadmap | read `docs/`, propose, one approval, then write | `planning.md` |
-| A milestone has no open issues left, a `note:` of `next.sh` says that its `Done when` names no issue or only closed ones, or the person asks to re-plan | the same, from that milestone | `planning.md`, *Re-planning* |
+| A milestone has no open issues left, or the person asks to re-plan | the same, from that milestone | `planning.md`, *Re-planning* |
 | Open issues have no label or no milestone, or the person asks to triage | duplicates first; a verdict for each with no entry in its `status:` line, then its label and milestone, or its close; one approval, then write | `triage.md` |
 | The person wants the board | `board.sh`; pass on the two settings it prints | *The board* below |
 
@@ -97,7 +97,7 @@ then the sections `== main path`, `== held on the main path`, `== bugs` and
 unblocks 2`, and each held task with what holds it — then `== in progress`,
 and last the path of the overlap file. When nothing on the main path of the
 first current milestone is free, a `note:` line says so, and the goal is the
-next milestone that is not `Later`. A `note:` line also says when the `Done
+next milestone that is not `Later`, when there is one. A `note:` line also says when the `Done
 when` of a goal names no issue, or only closed ones: say so, and offer to
 re-plan that milestone (`planning.md`, *Re-planning*). With no milestone,
 lane 1 holds the free tasks that the current goal of the project's
@@ -121,15 +121,17 @@ first, then bugs, then secondary. Work in progress, your own included, is no
 lane, and no lane overlaps with it.
 
 - Lane 1 holds only main-path tasks. The first one starts it.
-- A task that overlaps with the tasks of one lane goes into that lane.
+- A task that overlaps with the tasks of one lane goes into that lane; a task
+  off the main path never goes into lane 1.
 - A task that overlaps with no lane opens the next lane, up to three. A
   main-path task with no lane left goes into lane 1.
 - Every other task waits: one that overlaps with work in progress or with
-  two lanes, one off the main path that overlaps with lane 1, one with no
-  lane left, and one whose return says `ready: no`. Say what each waits on.
+  two or more lanes, one off the main path that overlaps with lane 1, one
+  with no lane left, and one whose return says `ready: no`. Say what each
+  waits on.
 
-So a goal task that can run beside lane 1 opens lane 2 before tests, bugs
-and improvements do. Lane 1 ends with the held tasks of the main path.
+So a main-path task that can run beside lane 1 opens lane 2 before tests,
+bugs and improvements do.
 
 ## One task
 
@@ -144,8 +146,9 @@ checks the task, assigns it and marks it `in progress`.
 ## Parallel work
 
 For the priority and for parallel work, answer with one table per lane: each
-task with its title, a few words on what it changes, its area and its files,
-and lane 1's held tasks last, with what holds each. Then each overlap in one
+task with its title, a few words on what it changes, its area and its files.
+Lane 1's table lists the held tasks of the main path last, with what holds
+each. Then each overlap in one
 line, with the file and the function, and each task that waits. Each task in
 a lane starts through take-in, in its own worktree. The file holds every
 main-path task, but only the top 5 of bugs and of secondary: when all five

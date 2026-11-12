@@ -140,11 +140,16 @@ use the github skill's `worktree.sh`: it assigns the issue and puts the label
   `Later` when no milestone needs it. No priority labels. An issue that waits
   for an answer gets no new milestone, and keeps the one it has. An issue that
   closes gets none, and loses the one it has.
+- **The `Done when` point.** An issue that goes into a current milestone
+  because it breaks what the milestone delivers also goes on the `Done when`
+  point that it breaks: only an issue that a point names is on the main path
+  (`SKILL.md`, *How the plan lives in GitHub*).
 
 ## The approval
 
 Show one table: the issue with its title, a few words on what it is about,
-its verdict, its label, its milestone by its full title, the reply to
+its verdict, its label, its milestone by its full title and the `Done when`
+point that it goes on, the reply to
 its author, and for a duplicate the comment on the survivor and the
 survivor's new milestone, when it takes one. An issue that the
 account `gh` is logged in as filed gets no reply. Every comment is public:
@@ -164,6 +169,9 @@ above, and ask for the approval of those rows again. Then write each row:
   `bash <dir>/scripts/read.sh milestone M1` prints it, or `Later` with
   `bash <dir>/scripts/plan.sh later <n>`, and the milestone of an issue that
   closes with `gh issue edit <n> --remove-milestone`;
+- the `Done when` point with `bash <dir>/scripts/plan.sh describe '<title>'
+  <file>`, the file holding the milestone's description with the number
+  added to that point;
 - the reply with `gh issue comment <n> --body-file <file>`;
 - a duplicate: first the comment on the survivor, with
   `gh issue comment <survivor> --body-file <file>`, and the survivor's new

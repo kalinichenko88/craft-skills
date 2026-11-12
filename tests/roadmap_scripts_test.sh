@@ -325,7 +325,8 @@ mark M1
 put '19 40:M2'
 edit 19 '.assignees.nodes = [{login: "someone"}]'
 out=$(bash "$scripts/next.sh")
-check 'fallback note' 'note: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2' "$(sed -n 2p <<<"$out")"
+check 'fallback notes' \
+  "$(printf 'note: the Done when of M1 · Stage 1 names no issue; the main path is each of its issues without the bug label\nnote: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2')" "$(sed -n 2,3p <<<"$out")"
 check 'busy issue in progress' '#19 Issue 19: assigned to someone' "$(section 'in progress' <<<"$out")"
 # The goal is the first current milestone alone, and the next goal is the next
 # milestone in order, current or not.
@@ -335,7 +336,7 @@ mark M3
 put '19 30:M3 40:M2 50:M4'
 edit 19 '.assignees.nodes = [{login: "someone"}]'
 out=$(bash "$scripts/next.sh")
-check 'fallback by order' 'note: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2' "$(sed -n 2p <<<"$out")"
+check 'fallback by order' 'note: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2' "$(sed -n 3p <<<"$out")"
 check 'fallback main path' '#40 Issue 40 (M2 · Stage 2), unblocks 0' "$(section 'main path' <<<"$out")"
 check 'a second current milestone is secondary' '#30 Issue 30 (M3 · Stage 3), unblocks 0' "$(section secondary <<<"$out" | head -1)"
 # The main path is what the Done when of the goal names, with any label, and

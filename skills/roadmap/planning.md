@@ -66,8 +66,8 @@ until the person approves the whole plan. One approval covers the whole list.
 
 ## Re-planning
 
-When a milestone has no open issues left, when `next.sh` says that its `Done
-when` names no issue or only closed ones, or when the person asks:
+When a milestone has no open issues left, or when the person asks, as after
+the offer that a `note:` of `next.sh` leads to:
 
 1. Run `roadmap.sh <milestone>` and show it.
 2. Propose:

@@ -17,7 +17,7 @@ of the code each. Work in progress is no lane, and no lane overlaps with it.
 
 When the `Done when` names only closed issues, the next milestone is the goal,
 and the agent offers to re-plan the first one. When it names no issue, lane 1
-is the milestone's issues without the bug label, as before, and the agent
+is the milestone's issues without the bug label, and what they wait on, and the agent
 offers to rewrite the `Done when` as a list. With no milestone, the agent
 picks lane 1 by the current goal of `PRODUCT.md`, and says that the pick is
 its own.
