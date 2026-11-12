@@ -509,8 +509,8 @@ summary is not the turn's last message, the report starts that message too.
   a fix had elsewhere.
 - **Declined:** each finding that did not survive, with the reason.
 - **Filed:** the issues opened or added to, with their numbers and titles.
-  After them, marked `not filed`, each finding outside the task that got
-  no issue and no fix.
+  After them, marked `not filed`, each finding outside the task that
+  `craft:github` calls a nit or rules out.
 - **Docs:** the docs the branch changed, or `docs impact: none` and why, as
   *Docs move with the change* in the global prompt asks.
 

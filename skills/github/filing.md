@@ -45,18 +45,18 @@ Give each nit one line in the final report instead, so that the person can
 file it.
 
 **A failure that its input never reaches is not filed.** A finding that the
-Boy Scout check leaves, and that fails only on some input, as a value, a
-state or a call, is traced first. Follow that input back from the code,
-through each caller, to each place where it enters the program. A check in
-code or in a script, as a schema or a validation, can refuse that input, or
-a default can take its place. When each path before the code has one of
-them, and the failure is no data loss and no security hole, the finding is
-ruled out: real use does not reach it, so it is no defect. It is not filed
-and goes into no host. Give it one line in the final report, with the
-`path:line` of each check or default. A step of a skill's text is no such
-check: a model can skip it. When one path has neither such a check nor a
-default, or the trace cannot follow a path to its end, the finding is not
-ruled out: it is filed as below, unless it is a nit.
+Boy Scout check leaves, that is no nit, and that fails only on some input,
+as a value, a state or a call, is traced first. Follow that input back from
+the code, through each caller, to each place where it enters the program.
+On each path, look for a check in code or in a script, as a schema or a
+validation, that refuses that input, or for a default that takes its place.
+When each path has one, and the failure is no data loss and no security
+hole, the finding is ruled out: real use does not reach it, so it is no
+defect. It is not filed and goes into no host. Give it one line in the final
+report, with the `path:line` of each check or default. A step of a skill's
+text is no such check: a model can skip it. When one path has none, or the
+trace stops on a path before it finds one, the finding is not ruled out: it
+is filed as below.
 
 **Search by identifier, not by your title.** A search for the symbol finds
 every issue that names it; the prose you were about to write finds only issues

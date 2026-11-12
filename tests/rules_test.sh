@@ -205,6 +205,10 @@ done <<'EOF'
 rules.md|`craft:review-loop` replaces `superpowers:requesting-code-review` and `superpowers:receiving-code-review`.
 rules.md|. In `superpowers:subagent-driven-development`, the review after each task stays as that skill sets it, without `craft:review-loop`. Invoke review-loop after the last task, in place of the final review.
 rules.md|In Claude Code, invoke it also in place of the builder check of `superpowers:brainstorming`, and after the self-review of `superpowers:writing-plans`.
+skills/github/filing.md|On each path, look for a check in code or in a script, as a schema or a validation, that refuses that input, or for a default that takes its place. When each path has one, and the failure is no data loss and no security hole, the finding is ruled out
+skills/github/filing.md|When one path has none, or the trace stops on a path before it finds one, the finding is not ruled out: it is filed as below.
+skills/github/filing.md|A finding that the Boy Scout check leaves, that is no nit, and that fails only on some input,
+skills/review-loop/SKILL.md|After them, marked `not filed`, each finding outside the task that `craft:github` calls a nit or rules out.
 skills/github/filing.md|The one exception is debt: a file or a folder to split,
 skills/github/filing.md|create `debt` first: `gh label create debt --description "Structural debt to refactor" --color 5319e7`
 skills/github/filing.md|For a debt finding, when the repository has no debt label, create `debt` first.
@@ -250,7 +254,7 @@ EOF
 # characters a token against 5,000 tokens: it cuts the text past 20,000
 # characters (ADR 0006). A file on the debt list waits for its split, and
 # must not grow past its size there. A path that is gone leaves the list.
-debt='skills/review-loop/SKILL.md 33541 #283'
+debt='skills/review-loop/SKILL.md 33557 #283'
 for f in "$root"/skills/*/SKILL.md; do
   path=${f#"$root/"}
   chars=$(jq -Rs length "$f")
