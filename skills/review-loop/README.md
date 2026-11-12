@@ -133,8 +133,8 @@ each task stays as that skill sets it. In place of the final review of
   Then what the branch changed as a whole, in one to five bullets. Then the
   rounds, the decisions with their reasons, what was fixed, what was declined
   and why, the issues filed, and the findings outside the task that got no
-  issue. Last, the docs the branch changed, or why it changed none. The pull
-  request description carries the summary under
+  issue and no fix. Last, the docs the branch changed, or why it changed
+  none. The pull request description carries the summary under
   `## Review`. In a public repository, an example from a private source in
   that section or in a reply to a review comment keeps no names, numbers,
   titles, paths or code.
