@@ -100,10 +100,9 @@ first current milestone is free, the goal is the next milestone that is not
 `Later`, and a `note:` line says so; with no such milestone, the goal stays.
 A `note:` line also says when a milestone has no `Done when` that names an
 issue, or one that names only closed ones: say so, and offer to re-plan that
-milestone
-(`planning.md`, *Re-planning*). With no milestone, the main path is the free
-tasks that the current goal of the project's `PRODUCT.md` needs, by your
-reading, and the answer says that the pick is yours.
+milestone (`planning.md`, *Re-planning*). With no milestone, the main path
+is the free tasks that the current goal of the project's `PRODUCT.md` needs,
+by your reading, and the answer says that the pick is yours.
 
 Then run the overlap check on the file that `next.sh` printed. In Claude
 Code, send one `Agent` call with `model: "haiku"` and this prompt, whatever
@@ -119,20 +118,20 @@ In Codex, follow `lanes.md` yourself and write its return as your notes.
 
 Then put the free tasks into lanes, one at a time in rank: the main path
 first, then bugs, then secondary. Work in progress, your own included, is no
-lane.
+lane. A task waits when it overlaps with work in progress or with two or
+more lanes, when its return says `ready: no`, or when it is off the main
+path and overlaps with lane 1 or finds no lane left. Say what each one waits
+on. Each other task goes into a lane:
 
-- A task waits when it overlaps with work in progress or with two or more
-  lanes, or when its return says `ready: no`. Say what each waits on.
-- Lane 1 holds only main-path tasks. The first one that does not wait starts
-  it; with none, lane 1 stays empty, and the other tasks open lanes 2 and 3.
-- A task that overlaps with the tasks of one lane goes into that lane; a task
-  off the main path that overlaps with lane 1 waits.
-- A task that overlaps with no lane opens the next lane, up to three. With no
-  lane left, a main-path task goes into lane 1, and any other task waits.
+- Lane 1 holds only main-path tasks. The first one starts it; with none,
+  lane 1 stays empty, and the other tasks open lanes 2 and 3.
+- A task that overlaps with the tasks of one lane goes into that lane.
+- A task that overlaps with no lane opens the next lane, up to three. With
+  no lane left, a main-path task goes into lane 1.
 
 So a main-path task that can run beside lane 1 opens lane 2 before tests,
 bugs and improvements do. The tasks of one lane run one after another, in
-its order.
+the order they went in.
 
 ## One task
 
@@ -149,10 +148,11 @@ checks the task, assigns it and marks it `in progress`.
 For the priority and for parallel work, answer with one table per lane: each
 task with its title, a few words on what it changes, its area and its files.
 Lane 1's table lists the held tasks of the main path last, with what holds
-each; they are not offered. Then each overlap in one line, with the file and
-the function, and each task that waits. The first task of each lane starts
-through take-in, in its own worktree, and the next task of a lane when the
-one before it is done. The file holds every
+each, also when lane 1 has no task to start; they are not offered. Then
+each overlap in one line, with the file and the function, and each task that
+waits, with what it waits on. The first task of each lane starts through
+take-in, in its own worktree. When one is closed, ask again: the lanes change
+with the work in progress. The file holds every
 main-path task, but only the top 5 of bugs and of secondary: when all five
 overlap, say so.
 

@@ -329,10 +329,9 @@ check 'fallback notes' \
   "$(printf 'note: M1 · Stage 1 has no Done when that names an issue; the main path of M1 · Stage 1 is each of its issues without the bug label, and what they wait on\nnote: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2')" "$(sed -n 2,3p <<<"$out")"
 check 'busy issue in progress' '#19 Issue 19: assigned to someone' "$(section 'in progress' <<<"$out")"
 # The goal is the first current milestone alone, and the next goal is the next
-# milestone in order, current or not.
+# milestone in order, not the next current one.
 reset
 mark M1
-mark M2
 mark M3
 put '19 30:M3 40:M2 50:M4'
 edit 19 '.assignees.nodes = [{login: "someone"}]'
@@ -342,8 +341,8 @@ check 'fallback main path' '#40 Issue 40 (M2 · Stage 2), unblocks 0' "$(section
 check 'a second current milestone is secondary' '#30 Issue 30 (M3 · Stage 3), unblocks 0' "$(section secondary <<<"$out" | head -1)"
 # The main path is what the Done when of the goal names, with any label, and
 # what that waits on. A number before the Done when, of another repository, or
-# right after another number, names nothing. The rest of the goal milestone is
-# secondary, and its busy issue is not held on the main path.
+# right after another number, as #41, names nothing: busy #41 is then not held
+# on the main path. The rest of the goal milestone is secondary.
 done_when() { ms 'map(if (.title | startswith("M1 ")) then .description = $d else . end)' --arg d "$1"; }
 reset
 done_when $'Fix #19 first.\n\nDone when:\n- a user signs up (#21)\n- the export works (#22, other/repo#23, #22#41)\n\nCurrent.'
@@ -373,9 +372,10 @@ put '19 20 40:M2'
 check 'a Done when of closed issues' \
   "$(printf 'note: every issue that the Done when of M1 · Stage 1 names is closed; it names none of its 2 open issues\nnote: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2\ngoal: M2 · Stage 2')" \
   "$(bash "$scripts/next.sh" | sed -n 2,4p)"
-# Every issue that it names is busy: the next milestone is the goal, with no
-# note on the Done when.
+# Every issue that it names is busy: the next milestone is the goal, current
+# too, with no note on the Done when.
 done_when $'Done when:\n- a user signs up (#20)\n\nCurrent.'
+mark M2
 put '20 40:M2'
 edit 20 '.assignees.nodes = [{login: "someone"}]'
 check 'a Done when of busy issues' \

@@ -101,7 +101,8 @@ function mainset(m,   k, i, s, t, j, free, dl) {
   k = donewhen(m, dl)
   for (i = 1; i <= k; i++) {
     s = " " dl[i]
-    # #21 after a space or a bracket, not other/repo#21 or #9#10.
+    # #21 after a character that is not a letter, a digit, _ or /: not
+    # other/repo#21, and not the #10 of #9#10.
     while (match(s, /[^A-Za-z0-9_\/]#[0-9]+/)) {
       t = substr(s, RSTART, RLENGTH)
       s = substr(s, RSTART + RLENGTH)
