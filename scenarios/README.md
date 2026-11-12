@@ -28,7 +28,7 @@ yet.
 | [`roadmap/milestone.md`](roadmap/milestone.md) | The person asks what is left to close a milestone, or what can be taken from `Later`, and the run gives its open tasks with what each waits on, or the free tasks of `Later`. |
 | [`roadmap/later.md`](roadmap/later.md) | The person puts a task off, and the run moves it into `Later`, or moves nothing and asks what to do with the tasks that wait on it. |
 | [`roadmap/plan.md`](roadmap/plan.md) | The person asks for a roadmap, or to plan again after the last task of a milestone, and the run proposes the whole roadmap and writes it after one approval. |
-| [`roadmap/triage.md`](roadmap/triage.md) | The person asks to triage the tasks that nobody has triaged, and the run proposes one table with a duplicate, a label, a milestone and a comment for each, and writes it after one approval. |
+| [`roadmap/triage.md`](roadmap/triage.md) | The person asks to triage the open tasks with no label, no milestone or the label `question`, and the run proposes one table with a duplicate, a label, a milestone and a comment for each, and writes it after one approval. |
 
 ## The shape of a scenario
 

@@ -2,8 +2,10 @@
 
 The person asks what is left to close a milestone, or what can be taken from
 `Later`. The run reads the tracker and gives the open tasks of that
-milestone, each task after the tasks it waits on, and each with its state:
-free, busy, or what it waits on. From `Later`, it gives the free tasks. The run changes nothing in the tracker or in the repository.
+milestone, each task after the tasks of the milestone that it waits on, and
+each with its state: free, busy, or what it waits on, with the milestone of
+that task when it is another one. From `Later`, it gives the free tasks. The
+run changes nothing in the tracker or in the repository.
 
 Not covered yet:
 
@@ -27,7 +29,7 @@ Then:
 - the person is given #21, #22 and #25 as the open tasks of
   `M1 · First demo`
 - #21 comes before #22
-- the person is told that #21 is free and waits on no task
+- the person is told that #21 is free
 - the person is told that #22 waits on #21
 - the person is told that #25 is assigned to another person
 Never:
