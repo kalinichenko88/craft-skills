@@ -116,22 +116,24 @@ Tree: <the repository's top directory>
 
 In Codex, follow `lanes.md` yourself and write its return as your notes.
 
-Then put the free tasks into lanes, one at a time in rank: the main path
-first, then bugs, then secondary. Work in progress, your own included, is no
-lane. A task waits when it overlaps with work in progress or with two or
-more lanes, when its return says `ready: no`, or when it is off the main
-path and overlaps with lane 1 or finds no lane left. Say what each one waits
-on. Each other task goes into a lane:
+Then put the free tasks into at most three lanes of new work. Work in
+progress, your own included, is no lane. Take the tasks one at a time in
+rank, the main path first, then bugs, then secondary. For each task, the
+first of these that holds decides:
 
-- Lane 1 holds only main-path tasks. The first one starts it; with none,
-  lane 1 stays empty, and the other tasks open lanes 2 and 3.
-- A task that overlaps with the tasks of one lane goes into that lane.
-- A task that overlaps with no lane opens the next lane, up to three. With
-  no lane left, a main-path task goes into lane 1.
+1. It overlaps with work in progress, or the overlap check marks it
+   `ready: no`: it waits.
+2. It overlaps with the tasks of two or more lanes: it waits.
+3. It overlaps with the tasks of one lane: it goes into that lane, after
+   them. A task off the main path waits instead of going into lane 1.
+4. It is on the main path, and lane 1 has no task yet: it starts lane 1.
+5. Lane 2 or lane 3 is not open yet: it opens the first of them.
+6. It is on the main path: it goes into lane 1, after its tasks. Any other
+   task waits.
 
-So a main-path task that can run beside lane 1 opens lane 2 before tests,
-bugs and improvements do. The tasks of one lane run one after another, in
-the order they went in.
+Say what each task that waits waits on. So a main-path task that can run
+beside lane 1 opens lane 2 before tests, bugs and improvements do, and with
+no main-path task to start, lane 1 stays empty.
 
 ## One task
 
@@ -147,14 +149,13 @@ checks the task, assigns it and marks it `in progress`.
 
 For the priority and for parallel work, answer with one table per lane: each
 task with its title, a few words on what it changes, its area and its files.
-Lane 1's table lists the held tasks of the main path last, with what holds
-each, also when lane 1 has no task to start; they are not offered. Then
-each overlap in one line, with the file and the function, and each task that
-waits, with what it waits on. The first task of each lane starts through
-take-in, in its own worktree. When one is closed, ask again: the lanes change
-with the work in progress. The file holds every
-main-path task, but only the top 5 of bugs and of secondary: when all five
-overlap, say so.
+After lane 1's tasks, list the held tasks of the main path, with what holds
+each; they are not offered. Then each overlap in one line, with the file and
+the function, and each task that waits. The first task of each lane starts
+through take-in, in its own worktree. The next task of a lane waits for it:
+when it is closed, the person asks again, as the lanes change with the work
+in progress. The file holds every main-path task, but only the top 5 of bugs
+and of secondary: when all five overlap, say so.
 
 ## The roadmap
 
