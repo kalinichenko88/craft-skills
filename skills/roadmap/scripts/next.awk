@@ -131,7 +131,7 @@ function donewhen(m, out,   k, i, l, c) {
 # closed ones.
 function notes(m,   i, c) {
   if (!refs) {
-    print "note: the Done when of " mstitle[m] " names no issue; its path is each of its issues without the bug label, and what they wait on"
+    print "note: the Done when of " mstitle[m] " names no issue; the main path of " mstitle[m] " is each of its issues without the bug label, and what they wait on"
   } else if (!named) {
     c = 0
     for (i = 1; i <= isn; i++) if (ems(islist[i]) == m) c++

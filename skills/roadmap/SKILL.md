@@ -96,14 +96,13 @@ then the sections `== main path`, `== held on the main path`, `== bugs` and
 `== secondary` — each track's top 5, ranked, as `#21 <title> (<milestone>),
 unblocks 2`, and each held task with what holds it — then `== in progress`,
 and last the path of the overlap file. When nothing on the main path of the
-first current milestone is free, and a milestone that is not `Later` comes
-after it, a `note:` line says so, and that milestone is the goal. A `note:`
-line also says when the `Done when` of a goal names no issue, or only closed
-ones: say so, and offer to
-re-plan that milestone (`planning.md`, *Re-planning*). With no milestone,
-lane 1 holds the free tasks that the current goal of the project's
-`PRODUCT.md` needs, by your reading, and the answer says that the pick is
-yours.
+first current milestone is free, the goal is the next milestone that is not
+`Later`, and a `note:` line says so; with no such milestone, the goal stays.
+A `note:` line also says when the `Done when` of a milestone names no issue,
+or only closed ones: say so, and offer to re-plan that milestone
+(`planning.md`, *Re-planning*). With no milestone, the main path is the free
+tasks that the current goal of the project's `PRODUCT.md` needs, by your
+reading, and the answer says that the pick is yours.
 
 Then run the overlap check on the file that `next.sh` printed. In Claude
 Code, send one `Agent` call with `model: "haiku"` and this prompt, whatever

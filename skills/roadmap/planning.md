@@ -67,7 +67,8 @@ until the person approves the whole plan. One approval covers the whole list.
 ## Re-planning
 
 When a milestone has no open issues left, or when the person asks, as when
-the person accepts the offer that a `note:` of `next.sh` leads to:
+the person accepts the re-plan that the agent offers on a `note:` of
+`next.sh`:
 
 1. Run `roadmap.sh <milestone>` and show it.
 2. Propose:

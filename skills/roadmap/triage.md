@@ -171,7 +171,7 @@ above, and ask for the approval of those rows again. Then write each row:
   `bash <dir>/scripts/read.sh milestone M1` prints it, or `Later` with
   `bash <dir>/scripts/plan.sh later <n>`, and the milestone of an issue that
   closes with `gh issue edit <n> --remove-milestone`;
-- the `Done when` points, once for each milestone that gets one, with
+- the `Done when` points, once for each milestone that gets a number, with
   `bash <dir>/scripts/plan.sh describe '<title>' <file>`: the file holds its
   description with the numbers of all its rows added to their points;
 - the reply with `gh issue comment <n> --body-file <file>`;
