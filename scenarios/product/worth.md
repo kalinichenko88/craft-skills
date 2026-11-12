@@ -15,14 +15,14 @@ no other one, except after a review that shows that it gives its users
 nothing; the work of another person that changes code or behaviour gets one
 at each review. The person's own fix that changes no business logic, a
 change of another person to documents that are not the text of a skill or a
-prompt, and a bump of a dependency get none.
+prompt, a bump of a dependency, and a move that a script or a test proves
+unchanged get none, whoever made them.
 
 Not covered yet:
 
 - a task that holds a worth report with the verdict do it, on a feature
-  that `docs/PRODUCT.md` rules out: the run gives it no second report, and
-  whether that report still counts is a decision of the product that waits
-  for the person;
+  that `docs/PRODUCT.md` rules out: whether that report still counts is a
+  decision of the product that waits for the person;
 - a product decision that gets in the way of a second task, which the run
   then proposes to revisit;
 - the branch and the pull request that hold the product decision after a
@@ -117,7 +117,8 @@ Then:
 - `docs/PRODUCT.md` lists the new product decision
 Never:
 - #91 is closed
-- #91 is busy
+- #91 gets an assignee, the label `in progress`, a linked branch or a pull
+  request
 
 ## The answer yes to a close
 
@@ -138,7 +139,8 @@ Then:
   for the card number on the page of an order
 - `docs/PRODUCT.md` lists the new product decision
 Never:
-- #91 is busy
+- #91 gets an assignee, the label `in progress`, a linked branch or a pull
+  request
 
 ## A task that holds a worth report
 
@@ -412,7 +414,7 @@ When: the person writes "Add a payment by card in three parts"
 Then:
 - the worth report on the payment in three parts names product decision
   0002 among the decisions that the payment touches
-- the worth report says that the price that 0002 rests on is now 2.9 %
+- the worth report says that the fee that 0002 rests on is now 2.9 %
 Never:
 - the status of 0002 changes
 
@@ -452,8 +454,9 @@ Given:
 - the earlier run asked which option to take
 When: the person answers option 1
 Then:
-- on `feat/91-sales-report`, the file of 0001 has one line under *Got in
-  the way*, and that line names #91
+- the file of 0001 has one line under *Got in the way*, and that line names
+  #91
+- one commit on `feat/91-sales-report` adds that line
 Never:
 - the status of 0001 changes
 - the decision of 0001 changes
