@@ -26,10 +26,10 @@ task's module stays out of the pull request.
   schema (#375).
 - Runs of `tests/github_filing_eval.sh 10 labelled`, with the check two
   callers above the failure: 4 of 20 runs filed it on the text before #375,
-  and each of the 4 stopped at the first caller. With the trace, in three
-  wordings of it, 0 of 40 filed it, and 40 of 40 named the check by its
+  and each of the 4 stopped at the first caller. With the trace, in five
+  wordings of it, 0 of 60 filed it, and 60 of 60 named the check by its
   line, against 9 of 20 before. The defect and the nit got the same
-  verdicts in all 60 runs. The false docstring reached the tracker in 59:
+  verdicts in all 80 runs. The false docstring reached the tracker in 79:
   the one run that left it off followed the label `(nit)` of the review, as
   the labelled runs of #260 did. With the check in the only caller, 0 of 10
   runs filed it before the trace.

@@ -196,6 +196,14 @@ done
 #   log can end the heredoc and run as a command (#296). The comment goes to
 #   a new file outside the checkout through the file tool, so that no file
 #   stays in the worktree, and gh reads it with --body-file.
+# - A finding of a failure on an input that a check before the code refuses
+#   got an issue from a review in a private tracker, with no look at the
+#   check. With the check two callers above, 4 of 20 Opus runs filed it, each
+#   after a look at the first caller alone; with the trace, 0 of 60 (#375).
+#   Each fix of the reviews closed a case where one sentence ruled the
+#   finding out and another filed it: a default, a nit, a trace that stops
+#   after a check, and a Boy Scout fix or a declined finding on the Filed
+#   line.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
@@ -205,7 +213,7 @@ done <<'EOF'
 rules.md|`craft:review-loop` replaces `superpowers:requesting-code-review` and `superpowers:receiving-code-review`.
 rules.md|. In `superpowers:subagent-driven-development`, the review after each task stays as that skill sets it, without `craft:review-loop`. Invoke review-loop after the last task, in place of the final review.
 rules.md|In Claude Code, invoke it also in place of the builder check of `superpowers:brainstorming`, and after the self-review of `superpowers:writing-plans`.
-skills/github/filing.md|On each path, look for a check in code or in a script, as a schema or a validation, that refuses that input, or for a default that takes its place. When each path has one, and the failure is no data loss and no security hole, the finding is ruled out
+skills/github/filing.md|On each path before the code, look for a check in code or in a script, as a schema or a validation, that refuses that input, or for a default that takes its place. When each path has one, and the failure is no data loss and no security hole, the finding is ruled out
 skills/github/filing.md|When one path has none, or the trace stops on a path before it finds one, the finding is not ruled out: it is filed as below.
 skills/github/filing.md|A finding that the Boy Scout check leaves, that is no nit, and that fails only on some input,
 skills/review-loop/SKILL.md|After them, marked `not filed`, each finding outside the task that `craft:github` calls a nit or rules out.

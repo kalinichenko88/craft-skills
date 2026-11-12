@@ -48,8 +48,9 @@ file it.
 Boy Scout check leaves, that is no nit, and that fails only on some input,
 as a value, a state or a call, is traced first. Follow that input back from
 the code, through each caller, to each place where it enters the program.
-On each path, look for a check in code or in a script, as a schema or a
-validation, that refuses that input, or for a default that takes its place.
+On each path before the code, look for a check in code or in a script, as
+a schema or a validation, that refuses that input, or for a default that
+takes its place.
 When each path has one, and the failure is no data loss and no security
 hole, the finding is ruled out: real use does not reach it, so it is no
 defect. It is not filed and goes into no host. Give it one line in the final
