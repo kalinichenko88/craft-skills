@@ -96,9 +96,10 @@ then the sections `== main path`, `== held on the main path`, `== bugs` and
 `== secondary` — each track's top 5, ranked, as `#21 <title> (<milestone>),
 unblocks 2`, and each held task with what holds it — then `== in progress`,
 and last the path of the overlap file. When nothing on the main path of the
-first current milestone is free, a `note:` line says so, and the goal is the
-next milestone that is not `Later`, when there is one. A `note:` line also says when the `Done
-when` of a goal names no issue, or only closed ones: say so, and offer to
+first current milestone is free, and a milestone that is not `Later` comes
+after it, a `note:` line says so, and that milestone is the goal. A `note:`
+line also says when the `Done when` of a goal names no issue, or only closed
+ones: say so, and offer to
 re-plan that milestone (`planning.md`, *Re-planning*). With no milestone,
 lane 1 holds the free tasks that the current goal of the project's
 `PRODUCT.md` needs, by your reading, and the answer says that the pick is
@@ -120,7 +121,8 @@ Then put the free tasks into lanes, one at a time in rank: the main path
 first, then bugs, then secondary. Work in progress, your own included, is no
 lane, and no lane overlaps with it.
 
-- Lane 1 holds only main-path tasks. The first one starts it.
+- Lane 1 holds only main-path tasks. The first one starts it; with none
+  free, lane 1 stays empty, and the other tasks open lanes 2 and 3.
 - A task that overlaps with the tasks of one lane goes into that lane; a task
   off the main path never goes into lane 1.
 - A task that overlaps with no lane opens the next lane, up to three. A

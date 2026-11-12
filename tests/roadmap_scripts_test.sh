@@ -296,7 +296,7 @@ check 'bugs' '#22 Issue 22 (M1 · Stage 1), unblocks 0' "$(section bugs <<<"$out
 check 'secondary: next milestone, then none' \
   "$(printf '#40 Issue 40 (M2 · Stage 2), unblocks 0\n#41 Issue 41 (no milestone), unblocks 0')" "$(section secondary <<<"$out")"
 check 'a Done when that names no issue' \
-  'note: the Done when of M1 · Stage 1 names no issue; the main path is each of its issues without the bug label' "$(grep '^note: ' <<<"$out")"
+  'note: the Done when of M1 · Stage 1 names no issue; its path is each of its issues without the bug label, and what they wait on' "$(grep '^note: ' <<<"$out")"
 # A blocker in M3 of an M1 task is on the main path and ranks with M1.
 reset
 mark M1
@@ -326,7 +326,7 @@ put '19 40:M2'
 edit 19 '.assignees.nodes = [{login: "someone"}]'
 out=$(bash "$scripts/next.sh")
 check 'fallback notes' \
-  "$(printf 'note: the Done when of M1 · Stage 1 names no issue; the main path is each of its issues without the bug label\nnote: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2')" "$(sed -n 2,3p <<<"$out")"
+  "$(printf 'note: the Done when of M1 · Stage 1 names no issue; its path is each of its issues without the bug label, and what they wait on\nnote: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2')" "$(sed -n 2,3p <<<"$out")"
 check 'busy issue in progress' '#19 Issue 19: assigned to someone' "$(section 'in progress' <<<"$out")"
 # The goal is the first current milestone alone, and the next goal is the next
 # milestone in order, current or not.
@@ -370,6 +370,13 @@ put '19 20 40:M2'
 check 'a Done when of closed issues' \
   "$(printf 'note: every issue that the Done when of M1 · Stage 1 names is closed; it names none of its 2 open issues\nnote: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2\ngoal: M2 · Stage 2')" \
   "$(bash "$scripts/next.sh" | sed -n 2,4p)"
+# Every issue that it names is busy: the next milestone is the goal, with no
+# note on the Done when.
+done_when $'Done when:\n- a user signs up (#20)\n\nCurrent.'
+put '20 40:M2'
+edit 20 '.assignees.nodes = [{login: "someone"}]'
+check 'a Done when of busy issues' 'note: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2' \
+  "$(bash "$scripts/next.sh" | grep '^note: ' | head -1)"
 # A task in Later that an issue outside Later waits on, through any chain, is
 # offered; one that nothing outside Later waits on is not.
 reset

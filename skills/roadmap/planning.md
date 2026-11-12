@@ -66,8 +66,8 @@ until the person approves the whole plan. One approval covers the whole list.
 
 ## Re-planning
 
-When a milestone has no open issues left, or when the person asks, as after
-the offer that a `note:` of `next.sh` leads to:
+When a milestone has no open issues left, or when the person asks, as when
+the person accepts the offer that a `note:` of `next.sh` leads to:
 
 1. Run `roadmap.sh <milestone>` and show it.
 2. Propose:
@@ -78,7 +78,8 @@ the offer that a `note:` of `next.sh` leads to:
    - the next milestone's issues and links, planned again from what the
      closed one taught, and its `Done when` list;
    - the triage of the issues of *The list* in `triage.md`, with its rows in
-     this one approval, written after every rename and every new milestone;
+     this one approval, written after every rename, every new milestone and
+     every new description;
    - the new current marks: `plan.sh current` and `plan.sh not-current`.
 3. After one approval, write as at the start. `plan.sh describe <milestone>
    <file>` changes a description and keeps its current mark. `plan.sh rename`
