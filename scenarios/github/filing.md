@@ -295,16 +295,16 @@ Given:
 - the run read `src/report/total.ts`, the only caller of `parseRows`, and
   the work on #91 does not change it
 - `addTax` in `src/report/total.ts` adds the tax twice
-- the docstring of `roundTotal` in `src/report/total.ts` says that it
-  rounds the total to the nearest cent, and `roundTotal` rounds it down
+- the docstring of `addTax` says that it rounds the tax to the nearest
+  cent, and `addTax` rounds it down
 - the repository has the labels `bug` and `enhancement`
 - task #12 is open, with no assignee, no linked branch, no pull request and
   no added finding; it has the label `enhancement`, and it asks that
   `addTax` in `src/report/total.ts` take the rate from the order
 When: the run meets those two defects in `src/report/total.ts`
 Then:
-- the text of #12 holds the defect of `addTax` as an added finding
-- the text of #12 holds the defect of `roundTotal` as an added finding
+- the text of #12 holds the tax added twice as an added finding
+- the text of #12 holds the tax rounded down as an added finding
 - the title of #12 names its own problem and the two defects
 Never:
 - a new task is created for either defect
@@ -320,11 +320,11 @@ Given:
 - the repository has the labels `bug` and `enhancement`
 - task #12 is open, with no assignee, no linked branch and no pull request;
   it has the labels `enhancement` and `bug`, it asks that `addTax` take the
-  rate from the order, and its text holds one added finding: `roundTotal`
-  in `src/report/total.ts` rounds the total down
+  rate from the order, and its text holds one added finding: `addTax`
+  rounds the tax down
 When: the run meets that defect in `src/report/total.ts`
 Then:
-- the text of #12 holds the defect of `addTax` as a second added finding
+- the text of #12 holds the tax added twice as a second added finding
 - the first added finding of #12 stays as it was
 - the title of #12 names its own problem and the two added findings
 Never:
