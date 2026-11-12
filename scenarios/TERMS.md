@@ -48,7 +48,7 @@ column gives the name that a person who reads Russian sees.
 | review | A read of a change for defects by a reader that did not write it: of the whole branch against the default branch, or of one commit. It reports what it finds, and the run checks each report against the code before it acts on it. | ревью | audit |
 | level | The weight of a change or of a round, from the least: low, medium, high, xhigh. The run gives it, before the round reads. A reader that has levels reads at it; a reader with none reads as it always does. | уровень | depth, effort |
 | round | One review in a series that reads a change and the fixes of what the reviews report. Round 1 reads the whole branch; each other round reads only the commit that fixes the defects that the review before it reported: a round, the last pass or the security review. | раунд | iteration |
-| defect | A wrong result, a crash or a broken contract, on an input or a state that the real use of the repository reaches; or data loss or a security hole, on any input. | дефект | |
+| defect | A wrong result, a crash or a broken contract, on an input or a state that the real use of the repository reaches; or data loss or a security hole, on any input; except a report that a feature gives its users nothing, which is a question to the person: the run gives the person a worth report on it. | дефект | |
 | last pass | One more review of the whole branch, once for a branch, after the rounds: when there were two or three rounds, and round 3, if it ran, reported no defect. A round reads the fix of each defect that it reports. | последний проход | final review |
 | security review | A review of the final branch against the default branch for security holes only, once for a branch. It comes after the rounds and the last pass. A round reads the fix of each defect that it reports. | security review | |
 | a change to documents only | A change in which no changed file is code: each one is text, as Markdown, for a person or an agent to read, as the text of a skill or a prompt. | изменение только документов | |
@@ -75,5 +75,5 @@ column gives the name that a person who reads Russian sees.
 | gist | What a message tells about a task: its id, its title as the task has it, and two or three sentences in the person's language on what is wanted and what must be true for the work to be done. | суть | summary |
 | tell | Give the person a message that needs no answer. | сказать | show, notify |
 | ask | Give the person a question. The run then waits for the answer and changes nothing until it comes. | спросить | confirm, prompt |
-| wait | End the run with nothing more changed. The next text that the person writes in the same conversation goes on with the same task. | ждать | pause |
+| wait | End the run with nothing more changed. The next text that the person writes in the same conversation goes on with the same task, or, for a run with no task, with what the run asked about. | ждать | pause |
 | stop | End the run with nothing more changed. The run does not take the task: a next text that the person writes and that names it starts again. | остановиться | abort, quit |
