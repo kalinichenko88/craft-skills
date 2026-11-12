@@ -1,20 +1,24 @@
 # File a finding
 
-The run works on a task and meets a finding. Without a question to the
-person, it fixes the finding in the pull request of the task, adds it to an
-open task on the same code, adds a comment to an open task with the same
-report, or creates a task for it. When a task already reports the finding or
-settles it, or an open pull request fixes it, the run files nothing. The last
-message names a finding that no rule of the repository asks to fix, as a
-name, and a finding that the run cannot file. A finding in the
-implementation goes to the tracker of the repository of the implementation,
+The run works on a task, or on a change that the person asked for, and
+meets a finding. Without a question to the person, it fixes the finding in
+the pull request of the task, adds it to an open task on the same code, adds
+a comment to an open task with the same report, or creates a task for it.
+When a task already reports the finding or settles it, or an open pull
+request fixes it, the run files nothing. The last message names a name or a
+wording that no rule of the repository asks for, and a finding that the run
+cannot file. A defect of the implementation is the exception to the
+question: it goes to the tracker of the repository of the implementation,
 after the person says yes.
 
 Not covered yet:
 
 - a reproduction that a finding adds to an open task with the same report;
+- an edge case that no real input of the repository holds;
 - a defect of the implementation that the default branch of its repository
-  no longer has.
+  no longer has, a defect of the implementation that the run meets in the
+  repository of the implementation, and the answer no to a task for a
+  defect of the implementation.
 
 ## An unused import in a file of the task
 
@@ -232,6 +236,7 @@ Given:
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
 - the run read `splitHeader` in `src/parser/header.ts` and `splitLine` in
   `src/parser/split.ts`
+- `parseRows` calls `splitHeader` for the first line of a text
 - `splitHeader` drops a comma inside quotes, and `splitLine` keeps it; the
   fix can make `splitHeader` call `splitLine`, or change the code of
   `splitHeader`
@@ -273,8 +278,8 @@ Given:
 - the run read `src/report/total.ts`, the only caller of `parseRows`, and
   the work on #91 does not change it
 - `addTax` in `src/report/total.ts` adds the tax twice
-- the repository has the labels `documentation` and `question`, and no
-  other label
+- the repository has the labels `documentation`, `question` and
+  `in progress`, and no other label
 When: the run meets that defect in `src/report/total.ts`
 Then:
 - one new task is created for the defect
@@ -295,7 +300,7 @@ Given:
 - the repository has the labels `bug` and `enhancement`
 - task #12 is open, with no assignee, no linked branch, no pull request and
   no added finding; it has the label `enhancement`, and it asks that
-  `addTax` take the rate from the order
+  `addTax` in `src/report/total.ts` take the rate from the order
 When: the run meets those two defects in `src/report/total.ts`
 Then:
 - the text of #12 holds the defect of `addTax` as an added finding
@@ -347,7 +352,7 @@ Then:
 Never:
 - a new task is created for the export to CSV
 
-## A name that no rule of the repository asks to change
+## A name that no rule of the repository asks for
 
 Given:
 - the outcomes of A free task hold for #91
@@ -372,17 +377,19 @@ Given:
 - the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
 - the run read `src/report/total.ts`, the only caller of `parseRows`, and
   the work on #91 does not change it
-- task #40 is closed as done: pull request #45, merged, made `addTax` in
+- task #40 is closed as done; its text names `addTax` and reports that it
+  adds the tax twice
+- pull request #45, merged, names `addTax` in its text, made `addTax` in
   `src/report/total.ts` add the tax once, and closed #40
-- commit `a1b2c3d` on the default branch, after #45, makes `addTax` add
-  the tax twice again
+- commit `a1b2c3d` on the default branch, after #45 and before the branch
+  of #91, makes `addTax` add the tax twice again, and the run read it
 - the repository has the label `bug`
 When: the run meets that defect in `src/report/total.ts`
 Then:
 - one new task is created for the defect
-- the text of the new task says that the defect of #40 shows again
+- the title or the text of the new task says that the defect of #40 shows
+  again
 - the text of the new task names #45
-- the text of the new task names `a1b2c3d`
 - the new task has the label `bug`
 Never:
 - #40 is opened again
@@ -396,8 +403,8 @@ Given:
   the work on #91 does not change it
 - `addTax` in `src/report/total.ts` adds the tax twice, and no task names
   `addTax`
-- pull request #50 of another person is open; it makes `addTax` add the tax
-  once
+- pull request #50 of another person is open; its text names `addTax`, and
+  it makes `addTax` add the tax once
 When: the run meets that defect in `src/report/total.ts`
 Then:
 - #50 is open
@@ -414,8 +421,9 @@ Given:
   the work on #91 does not change it
 - `addTax` in `src/report/total.ts` adds the tax twice, and no task names
   `addTax`
-- pull request #50 of another person is open; it makes `addTax` take the
-  rate from the order, and keeps the second add of the tax
+- pull request #50 of another person is open; its text names `addTax`, and
+  it makes `addTax` take the rate from the order, and keeps the second add
+  of the tax
 - the repository has the label `bug`
 When: the run meets that defect in `src/report/total.ts`
 Then:
@@ -458,7 +466,6 @@ Given:
   debt
 When: the run meets those copies in `src/report/total.ts`
 Then:
-- the repository has the label `debt`
 - one new task is created for the copies
 - the new task has the label `debt`
 - the label `debt` is created before the new task
@@ -472,9 +479,13 @@ Given:
 - the work on #91 changes 10 lines of `parseRows` in `src/parser/read.ts`
 - `src/parser/read.ts` is the only caller of `splitLine` and of `joinLine`
   in `src/parser/split.ts`, and the run read both
-- `splitLine` drops the last field of a line that ends with a comma, and
-  `joinLine` puts no quotes around a field that holds a comma; each defect
-  has one way to fix it, and each fix changes 6 lines with its test
+- the docstring of `splitLine` says that a line with n commas gives n + 1
+  fields, and `splitLine` drops the last field of a line that ends with a
+  comma
+- the docstring of `joinLine` says that it puts quotes around a field that
+  holds a comma, and `joinLine` puts none
+- each defect has one way to fix it, and each fix changes 6 lines with its
+  test
 - the repository has the label `bug`
 When: the run meets those two defects in `src/parser/split.ts`
 Then:
@@ -491,8 +502,10 @@ Given:
 - the outcomes of A free task hold for #91
 - the repository is `acme/shop`, and it is not the repository of the
   implementation
-- a rule of the implementation names a script, and the default branch of
-  the repository of the implementation has no script of that name
+- a rule of the implementation names a script; the default branch of the
+  repository of the implementation holds that rule as the run read it, and
+  has no script of that name
+- the work on #91 comes to the step of that rule, and the run reads it
 - the repository of the implementation is public, and no task of its
   tracker reports that rule
 When: the run meets that rule in the work on #91
@@ -511,7 +524,7 @@ Never:
 ## The answer yes to a task for a defect of the implementation
 
 Given:
-- task #91 is open, assigned to the person
+- the outcomes of A free task hold for #91
 - the repository is not the repository of the implementation
 - an earlier run asked whether to create a task in the tracker of the
   repository of the implementation, which reports that a rule of the
@@ -530,18 +543,17 @@ Never:
 ## A repository with no tracker
 
 Given:
-- the outcomes of A free task hold for #91
-- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
-- the run read `src/report/total.ts`, the only caller of `parseRows`, and
-  the work on #91 does not change it
-- `addTax` in `src/report/total.ts` adds the tax twice
 - the repository has no tracker, and the workspace has no remote
+- the person asked the run to change 40 lines of `parseRows` in
+  `src/parser/read.ts`, and the run works on branch `fix/parse-rows`
+- the run read `src/report/total.ts`, the only caller of `parseRows`, and
+  the work does not change it
+- `addTax` in `src/report/total.ts` adds the tax twice
 When: the run meets that defect in `src/report/total.ts`
 Then:
 - the last message names the defect of `addTax`
-- the last message names `src/report/total.ts` and the line of the defect
 Never:
-- the pull request of #91 changes `src/report/total.ts`
+- a commit on `fix/parse-rows` changes `src/report/total.ts`
 
 ## A tracker that does not answer
 
@@ -555,7 +567,7 @@ Given:
   to each request
 When: the run meets that defect in `src/report/total.ts`
 Then:
-- the person is told that the tracker gave an error
+- the person is told the error of the tracker
 - the last message names the defect of `addTax`
 Never:
 - the pull request of #91 changes `src/report/total.ts`
