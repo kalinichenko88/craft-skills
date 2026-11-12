@@ -12,15 +12,17 @@ work goes on, and the report opens the last message. On the answer, the run
 writes the product decision, puts the task off to `Later`, or closes the
 task as not planned. The person's own feature that has a worth report gets
 no other one, except after a review that shows that it gives its users
-nothing; the work of another person gets one at each review. A fix that
-changes no business logic, a change to documents only of another person and
-a bump of a dependency get none.
+nothing; the work of another person that changes code or behaviour gets one
+at each review. The person's own fix that changes no business logic, a
+change of another person to documents that are not the text of a skill or a
+prompt, and a bump of a dependency get none.
 
 Not covered yet:
 
 - a task that holds a worth report with the verdict do it, on a feature
   that `docs/PRODUCT.md` rules out: the run gives it no second report, and
-  whether that report still counts is a decision of the product, in #365;
+  whether that report still counts is a decision of the product that waits
+  for the person;
 - a product decision that gets in the way of a second task, which the run
   then proposes to revisit;
 - the branch and the pull request that hold the product decision after a
@@ -30,7 +32,9 @@ Not covered yet:
 - the answer to the question whether to add a worth report to the pull
   request of another person;
 - a run with no person to answer, on a feature that `docs/PRODUCT.md` rules
-  out, and in a repository that keeps no product decisions.
+  out, and in a repository that keeps no product decisions;
+- the product decision and the condition in the text of the task, when the
+  move into `Later` is refused because another task waits on the task.
 
 ## A feature that the person asks for
 
@@ -113,7 +117,7 @@ Then:
 - `docs/PRODUCT.md` lists the new product decision
 Never:
 - #91 is closed
-- #91 gets an assignee or a linked branch
+- #91 is busy
 
 ## The answer yes to a close
 
@@ -134,7 +138,7 @@ Then:
   for the card number on the page of an order
 - `docs/PRODUCT.md` lists the new product decision
 Never:
-- #91 gets an assignee or a linked branch
+- #91 is busy
 
 ## A task that holds a worth report
 
@@ -341,8 +345,9 @@ Never:
 ## A feature in a repository that keeps no product decisions
 
 Given:
-- the repository has no `docs/PRODUCT.md`, no `PRODUCT.md`, no `docs/pdr/`
-  and no other file of product decisions
+- the repository keeps its documents in `docs/`; it has no
+  `docs/PRODUCT.md`, no `PRODUCT.md`, no `docs/pdr/` and no other file of
+  product decisions
 - the instructions of the repository say nothing about product decisions
 - the page of orders is in `src/orders/`
 When: the person writes "Add an export of the orders to CSV on the page of orders"
@@ -355,8 +360,9 @@ Never:
 ## The answer no to a file of product decisions
 
 Given:
-- the repository has no `docs/PRODUCT.md`, no `PRODUCT.md`, no `docs/pdr/`
-  and no other file of product decisions
+- the repository keeps its documents in `docs/`; it has no
+  `docs/PRODUCT.md`, no `PRODUCT.md`, no `docs/pdr/` and no other file of
+  product decisions
 - the instructions of the repository say nothing about product decisions
 - an earlier run gave the person a worth report on an export of the orders,
   and asked whether to write a `docs/PRODUCT.md` for the repository
@@ -378,18 +384,19 @@ Given:
 - an earlier run gave the person a worth report on #91 with the verdict do
   it another way and two options: 1, recommended, an export of the orders of
   one month; 2, an export of all the orders
-- the earlier run asked which option to take, and changed no file of the
-  repository
+- the earlier run asked which option to take, asked whether to move the
+  decisions of `docs/decisions.md` to `docs/PRODUCT.md` and `docs/pdr/`, and
+  changed no file of the repository
 When: the person answers option 1
 Then:
 - `docs/decisions.md` holds a new dated line: an export of the orders of one
   month
-- the person is asked whether to move the decisions of `docs/decisions.md`
-  to `docs/PRODUCT.md` and `docs/pdr/`
 Never:
-- `docs/PRODUCT.md` is created before the person answers yes
-- a file of `docs/pdr/` is created before the person answers yes
+- `docs/PRODUCT.md` is created
+- a file of `docs/pdr/` is created
 - a line of `docs/decisions.md` that was there before the answer changes
+- the person is asked again whether to move the decisions of
+  `docs/decisions.md`
 
 ## A product decision whose ground changed
 
@@ -397,9 +404,9 @@ Given:
 - the repository keeps its product decisions in `docs/PRODUCT.md` and
   `docs/pdr/`
 - product decision 0002, accepted, says that the shop pays the card fee of
-  each order; it rests on the page of prices of its payment provider, which
-  gave 1.4 % of a payment
-- the page of prices of the payment provider gives 2.9 % of a payment since
+  each order; it rests on `docs/provider-contract.md`, the contract with its
+  payment provider, which gave a fee of 1.4 % of a payment
+- `docs/provider-contract.md` now gives a fee of 2.9 % of a payment, since
   2026-10-01
 When: the person writes "Add a payment by card in three parts"
 Then:
@@ -436,6 +443,8 @@ Given:
   years and then deletes it; its file has no line under *Got in the way*
 - task #91 is open, assigned to the person; it asks for a report of the
   sales of the last five years
+- branch `feat/91-sales-report` is linked to #91, and the workspace of #91
+  is on it
 - an earlier run gave the person a worth report on #91 that names 0001 as a
   decision that #91 has to go around, with the verdict do it another way
   and two options: 1, recommended, a report of the sales of the last two
@@ -443,8 +452,8 @@ Given:
 - the earlier run asked which option to take
 When: the person answers option 1
 Then:
-- the file of 0001 has one line under *Got in the way*, and that line names
-  #91
+- on `feat/91-sales-report`, the file of 0001 has one line under *Got in
+  the way*, and that line names #91
 Never:
 - the status of 0001 changes
 - the decision of 0001 changes
@@ -479,10 +488,13 @@ When: the person answers yes
 Then:
 - #91 is in the milestone `M1`
 - the person is told that #22 waits on #91
+- the message gives the title of #22
 - the person is asked whether to put #22 off too, or to remove the
   dependency of #22 on #91
 Never:
 - #91 is in the milestone `Later`
+- #22 is in the milestone `Later`
+- the dependency of #22 on #91 is removed
 
 ## The answer no to a deferral
 
