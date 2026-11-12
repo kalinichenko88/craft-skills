@@ -75,5 +75,5 @@ column gives the name that a person who reads Russian sees.
 | gist | What a message tells about a task: its id, its title as the task has it, and two or three sentences in the person's language on what is wanted and what must be true for the work to be done. | суть | summary |
 | tell | Give the person a message that needs no answer. | сказать | show, notify |
 | ask | Give the person a question. The run then waits for the answer and changes nothing until it comes. | спросить | confirm, prompt |
-| wait | End the run with nothing more changed. The next text that the person writes in the same conversation goes on with the same task. | ждать | pause |
+| wait | End the run with nothing more changed. The next text that the person writes in the same conversation goes on with the same task, or, for a run with no task, with what the run asked about. | ждать | pause |
 | stop | End the run with nothing more changed. The run does not take the task: a next text that the person writes and that names it starts again. | остановиться | abort, quit |

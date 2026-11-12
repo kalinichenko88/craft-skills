@@ -28,7 +28,9 @@ Not covered yet:
 - the next feature in the same conversation, after the answer no to a file
   of product decisions;
 - the answer to the question whether to add a worth report to the pull
-  request of another person.
+  request of another person;
+- a run with no person to answer, on a feature that `docs/PRODUCT.md` rules
+  out, and in a repository that keeps no product decisions.
 
 ## A feature that the person asks for
 
@@ -311,6 +313,8 @@ Given:
   `docs/pdr/`
 - in this conversation, the run and the person shape an export of the orders
   to CSV, and the person answered each question of the run so far
+- the export can make its CSV at each request or once a night, and no text
+  of the person chooses between the two
 When: the run meets a question that chooses between two ways: make the CSV at each request, or once a night
 Then:
 - the message that asks the question holds a worth report on the two ways
@@ -339,12 +343,12 @@ Never:
 Given:
 - the repository has no `docs/PRODUCT.md`, no `PRODUCT.md`, no `docs/pdr/`
   and no other file of product decisions
-- the instructions of the project say nothing about product decisions
+- the instructions of the repository say nothing about product decisions
 - the page of orders is in `src/orders/`
 When: the person writes "Add an export of the orders to CSV on the page of orders"
 Then:
 - the person is given a worth report on the export
-- the person is asked whether to write a `docs/PRODUCT.md` for the project
+- the person is asked whether to write a `docs/PRODUCT.md` for the repository
 Never:
 - `docs/PRODUCT.md` is created before the person answers yes
 
@@ -353,13 +357,13 @@ Never:
 Given:
 - the repository has no `docs/PRODUCT.md`, no `PRODUCT.md`, no `docs/pdr/`
   and no other file of product decisions
-- the instructions of the project say nothing about product decisions
+- the instructions of the repository say nothing about product decisions
 - an earlier run gave the person a worth report on an export of the orders,
-  and asked whether to write a `docs/PRODUCT.md` for the project
+  and asked whether to write a `docs/PRODUCT.md` for the repository
 When: the person answers no
 Then:
-- the person is asked whether to add to the instructions of the project that
-  it keeps no `PRODUCT.md`
+- the person is asked whether to add to the instructions of the repository
+  that it keeps no `PRODUCT.md`
 Never:
 - `docs/PRODUCT.md` is created
 
