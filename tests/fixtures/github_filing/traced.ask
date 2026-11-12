@@ -1,0 +1,8 @@
+I am on the branch fix/14-order-total-rounding for #14, and the fix is committed. The review of the branch confirmed no defect in the task. It also returned four findings outside the module of the task:
+
+1. (nit) `billing/invoice.py:4`: `get_invoice_total` could be named `invoice_total`. The `get_` prefix adds nothing.
+2. (nit) `billing/tax.py:4`: the docstring of `vat` says that it returns cents, but it returns euros as a Decimal, and its only caller adds it to a total in euros.
+3. (defect) `accounts/signup.py:4`: `sign_up` stores the email as typed, so Bob@shop.test and bob@shop.test sign up as two accounts.
+4. (defect) `billing/coupon.py:5`: `discount_percent` raises a KeyError on a code that is not in `COUPONS`, so an unknown coupon code crashes the checkout with a 500.
+
+Handle them. Leave the branch and the pull request to me. Then tell me in short what you did.

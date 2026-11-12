@@ -48,3 +48,4 @@ than one triage approval can take.
 ## Checked
 
 - 2026-11-12 #278: a task still goes into `Later` only after the person says so. The lines cited above moved: the rule is in `skills/roadmap/SKILL.md` *Putting a task off* and `skills/roadmap/README.md` *What you get*.
+- 2026-11-12 #375: the ground holds. 59 of the 64 open findings of unclear worth in two private trackers have a milestone. A worth check of its own for such a finding was not built. Besides a nit, a failure whose input a check in code or in a script refuses, or a default replaces, on every path is not filed now, unless it is data loss or a security hole (PDR 0010).

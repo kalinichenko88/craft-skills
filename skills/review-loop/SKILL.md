@@ -446,7 +446,7 @@ a real defect on two, in 53 to 204 seconds.
    shared token, fix it there, and count the places.
 6. **A finding outside the task is an issue**, through the
    `craft:github` skill, unless the Boy Scout Rule takes it into this
-   change, or that skill gives it no issue as a nit.
+   change, or that skill gives it no issue.
 
 ## The security review
 
@@ -509,8 +509,8 @@ summary is not the turn's last message, the report starts that message too.
   a fix had elsewhere.
 - **Declined:** each finding that did not survive, with the reason.
 - **Filed:** the issues opened or added to, with their numbers and titles.
-  After them, marked `not filed`, each nit outside the task that the
-  `craft:github` skill gives no issue.
+  After them, marked `not filed`, each finding outside the task that
+  `craft:github` calls a nit or rules out.
 - **Docs:** the docs the branch changed, or `docs impact: none` and why, as
   *Docs move with the change* in the global prompt asks.
 

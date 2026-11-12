@@ -1,7 +1,8 @@
 # Filing an issue
 
 The global prompt says when a finding becomes an issue; this file says how,
-and which nit gets none.
+and which findings get none: a nit, and a failure that its input never
+reaches.
 Read `tracker.md`, next to this file, before the search below: it runs the
 scripts and reads the tracker. `<dir>` is this skill's base directory.
 
@@ -30,7 +31,7 @@ another module, a bug that shows outside the module too, a design choice, a
 question on business logic (what the product should do where its docs, tests
 and names do not say it; a bug is code that crashes or does not do what they
 say), a change that code outside the module relies on — and it is an issue,
-however small it looks, unless it is a nit, below.
+however small it looks, unless it is a nit or ruled out, below.
 
 **A nit is not worth an issue.** A finding that the Boy Scout check leaves,
 and that is a nit, is not filed and goes into no host. A nit here is a
@@ -42,6 +43,20 @@ filed: a comment or a doc line that says something false, a command in the
 docs that fails, and a missing or redundant test of what real use reaches.
 Give each nit one line in the final report instead, so that the person can
 file it.
+
+**A failure that its input never reaches is not filed.** A finding that the
+Boy Scout check leaves, that is no nit, and that fails only on some input,
+as a value, a state or a call, is traced first. Follow that input back from
+the code, through each caller, to each place where it enters the program. On
+each path before the code, look for a check in code or in a script, as a
+schema or a validation, that refuses that input, or for a default that takes
+its place. When each path has one, and the failure is no data loss and no
+security hole, the finding is ruled out: real use does not reach it, so it
+is no defect, latent or not. It is not filed and goes into no host. Give it
+one line in the final report, with the `path:line` of each check or default.
+A step of a skill's text is no such check: a model can skip it. When one
+path has none, or the trace stops on a path before it finds one, the finding
+is not ruled out: it is filed as below.
 
 **Search by identifier, not by your title.** A search for the symbol finds
 every issue that names it; the prose you were about to write finds only issues
