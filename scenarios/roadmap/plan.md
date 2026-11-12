@@ -43,7 +43,10 @@ Never:
 
 Given:
 - the repository has no milestone and no task
-- an earlier run proposed a roadmap and asked the person to approve it
+- `docs/product.md` describes the users of the product, its goal, and what
+  its first demo shows
+- an earlier run proposed a roadmap from `docs/product.md` and asked the
+  person to approve it
 - in that roadmap, `M1 · First demo` is the current milestone; its goal is
   that a new user signs up and sees the dashboard
 - in that roadmap, the `Done when` of `M1 · First demo` has two outcomes: a

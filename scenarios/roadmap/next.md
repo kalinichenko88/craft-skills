@@ -3,10 +3,10 @@
 The person asks what to take now, what the priority is, or what can run in
 parallel. The three questions get one answer from the tracker: the tasks
 that the `Done when` of the first current milestone needs, with the top bug
-beside them, in at most three lanes. Lane 1 holds the tasks of that
-`Done when`. No task of one lane changes a function that a task of another
-lane, or a busy task, changes. For "what can I take now", the run gives one
-task. The run changes nothing in the tracker or in the repository.
+beside them, in at most three lanes. Lane 1 starts with one of those tasks.
+No task of one lane changes a function that a task of another lane, or a
+busy task, changes. For "what can I take now", the run gives one task. The
+run changes nothing in the tracker or in the repository.
 
 Not covered yet:
 
@@ -67,8 +67,8 @@ Then:
 - lane 1 starts with #21
 - lane 2 starts with #40
 - lane 3 starts with #22
-- the person is told that #41 waits, and what holds it
-- the person is told that #50 waits, and what holds it
+- the person is told that #41 is held out of the lanes, and what holds it
+- the person is told that #50 is held out of the lanes, and what holds it
 Never:
 - a lane holds #41
 - a lane holds #50
@@ -89,8 +89,8 @@ Given:
 When: the person writes "What can run in parallel?"
 Then:
 - lane 1 starts with #22
-- the person is told that #21 waits, and that #96 changes `signUp` in
-  `src/auth/signup.ts`
+- the person is told that #21 is held out of the lanes, and that #96
+  changes `signUp` in `src/auth/signup.ts`
 Never:
 - a lane holds #21
 - a lane holds #25

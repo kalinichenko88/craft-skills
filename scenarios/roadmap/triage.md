@@ -1,9 +1,9 @@
 # Triage the new tasks
 
-The person asks to triage the tasks that nobody has checked: the open tasks
+The person asks to triage the tasks that nobody has triaged: the open tasks
 with no label, with no milestone, or with the label `question`. The run
-closes duplicates first. It checks each other such task that is not busy
-against the code, and proposes one table: for each task, what the check
+closes duplicates first. It reads each other such task that is not busy
+against the code, and proposes one table: for each task, what the code
 showed, its label, its milestone, and the text of a comment to its author. A
 busy task gets its row with what makes it busy, and no change. The run
 writes nothing before the person approves the whole table, and one approval
@@ -15,8 +15,8 @@ Not covered yet:
 - a task that a run of its code reproduces;
 - a task that the code shows false, one that a commit on the default branch
   fixed, and one that an earlier decision settles;
-- a task with the label `question` that waits for the answer of its author,
-  and one whose author answered;
+- a task with the label `question` whose author has not answered yet, and
+  one whose author answered;
 - a task that the person wrote;
 - a repository with no milestone outside `Later`;
 - a task that becomes busy after the approval;
