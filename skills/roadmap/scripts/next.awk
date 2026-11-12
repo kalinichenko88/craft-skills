@@ -100,9 +100,9 @@ function mainset(m,   k, i, s, t, j, free, dl) {
   refs = named = 0
   k = donewhen(m, dl)
   for (i = 1; i <= k; i++) {
-    s = dl[i]
-    # #21, not other/repo#21.
-    while (match(s, /(^|[^A-Za-z0-9_\/])#[0-9]+/)) {
+    s = " " dl[i]
+    # #21 after a space or a bracket, not other/repo#21 or #9#10.
+    while (match(s, /[^A-Za-z0-9_\/]#[0-9]+/)) {
       t = substr(s, RSTART, RLENGTH)
       s = substr(s, RSTART + RLENGTH)
       sub(/^[^#]*#/, "", t)
@@ -131,7 +131,7 @@ function donewhen(m, out,   k, i, l, c) {
 # closed ones.
 function notes(m,   i, c) {
   if (!refs) {
-    print "note: the Done when of " mstitle[m] " names no issue; the main path of " mstitle[m] " is each of its issues without the bug label, and what they wait on"
+    print "note: " mstitle[m] " has no Done when that names an issue; the main path of " mstitle[m] " is each of its issues without the bug label, and what they wait on"
   } else if (!named) {
     c = 0
     for (i = 1; i <= isn; i++) if (ems(islist[i]) == m) c++

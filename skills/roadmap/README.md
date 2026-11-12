@@ -23,7 +23,7 @@ run in parallel, and what is left to close a milestone.
   go into lanes 2 and 3, after a goal task that can run beside lane 1. Only
   free tasks: open, not in progress, not someone else's, and with no open
   blocker.
-- **One task, and why.** The first task of lane 1, with its title, its
+- **One task, and why.** The first task of lane 1, else of lane 2, with its title, its
   milestone, and why it is first: "M1 · First demo needs it for 'a new user
   signs up'". The other lanes get one line each.
 - **Lanes that do not collide.** At most three. No task in one lane changes
