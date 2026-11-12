@@ -16,11 +16,11 @@ Not covered yet:
 - a reproduction that a finding adds to an open task with the same report;
 - an edge case that no real input of the repository holds;
 - a failure on an input that one way to the code refuses and another does
-  not, on an input whose way to the code the run does not follow up to a
+  not, on an input whose way to the code the run does not follow as far as a
   place that refuses it, on an input that the program replaces with a
-  default first, or
-  on an input that only a text of the repository forbids, and data loss or
-  a security hole on an input that the program refuses first;
+  default first, or on an input that only a text of the repository forbids,
+  and data loss or a security hole on an input that the program refuses
+  first;
 - a defect of the implementation that the default branch of its repository
   no longer has, a defect of the implementation that the run meets in the
   repository of the implementation, and the answer no to a task for a

@@ -10,10 +10,12 @@
 # Two labelled Opus runs of 2026-11-12 (#375): untraced, with filing.md
 # before #375, files the ruled-out finding and names no check; traced, with
 # its trace, files it not and names `api/schemas.py:6`. A last message that
-# names no nit fails that item. A copy with one change to a recorded tracker
-# flips the verdict it names.
+# names no nit fails that item, and so does one that names no refusing line
+# of api/schemas.py, as no line or line 8. A copy with one change to a
+# recorded tracker flips the verdict it names; with no defect, the items of
+# the ruled-out finding give SKIP too.
 # Then it runs the eval with a stub claude first on PATH, which files
-# through the fake gh.
+# through the fake gh, and compares the labelled ask with the ask of traced.
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
@@ -70,13 +72,14 @@ flips kept 'never: the nit reaches the tracker' '(.issues[] | select(.number == 
 flips kept 'never: the nit reaches the tracker' '.issues += [{number: 99, title: "billing: a name", body: "The `get_` prefix adds no information.", labels: [], comments: []}]'
 # An issue that names the function and its error, but no coupon.
 flips traced "$never" '.issues += [{number: 99, title: "KeyError in discount_percent", body: "The lookup has no guard.", labels: ["bug"], comments: []}]'
+flips traced "$never" '.issues += [{number: 99, title: "Unknown coupon code gives a 500", body: "Seen at checkout.", labels: ["bug"], comments: []}]'
 fresh
 # shellcheck disable=SC2016 # Markdown's backticks
 printf 'text\tNot filed: the name invoice_total, and the KeyError, which `CouponRequest` in api/schemas.py refuses first.\n' >>"$tmp/copy/traced.events"
 [ "$(changed)" = "> FAIL traced: $line" ] ||
   fail "a last message with no line of the check does not flip only: $line" "$(changed)"
 fresh
-printf 'text\tNot filed: invoice_total, and the KeyError: see api/schemas.py:4.\n' >>"$tmp/copy/traced.events"
+printf 'text\tNot filed: invoice_total, and the KeyError: see api/schemas.py:8.\n' >>"$tmp/copy/traced.events"
 [ "$(changed)" = "> FAIL traced: $line" ] ||
   fail "a last message with a line that refuses nothing does not flip only: $line" "$(changed)"
 fresh
@@ -110,7 +113,7 @@ cat >"$tmp/bin/claude" <<'EOF'
 [ -z "${GH_TOKEN:-}${GITHUB_TOKEN:-}" ] && [ -d "${GH_CONFIG_DIR:-}" ] && [ -z "$(ls -A "$GH_CONFIG_DIR")" ] || exit 1
 gh issue create --title 'sign_up treats emails that differ only in case as two accounts' --body 'accounts/signup.py:4' --label bug >/dev/null
 gh issue create --title 'The docstring of vat is wrong' --body-file - --label documentation >/dev/null <<<'billing/tax.py:4 says cents'
-f=$(mktemp) && echo 'Also: rename get_invoice_total to invoice_total.' >"$f"
+f=$(mktemp "$PWD.XXXXXX") && echo 'Also: rename get_invoice_total to invoice_total.' >"$f"
 if [ "${PWD##*/}" = run1 ]; then
   gh issue comment 14 --body-file "$f" >/dev/null
   gh issue create --title 'An unknown coupon code crashes the checkout' --body 'billing/coupon.py:5' --label bug >/dev/null
@@ -119,13 +122,16 @@ echo '{"type":"assistant","message":{"content":[{"type":"text","text":"Filed. No
 echo '{"type":"result","subtype":"success","total_cost_usd":0}'
 EOF
 chmod +x "$tmp/bin/claude"
-v=$(TMPDIR="$tmp/t" GH_TOKEN=x GITHUB_TOKEN=x PATH="$tmp/bin:$PATH" "$root/tests/github_filing_eval.sh" 2 | grep -E '^(PASS|FAIL|SKIP) ')
+# macOS mktemp ignores TMPDIR, so the runs folder that the eval prints is
+# removed here.
+out=$(TMPDIR="$tmp/t" GH_TOKEN=x GITHUB_TOKEN=x PATH="$tmp/bin:$PATH" "$root/tests/github_filing_eval.sh" 2 labelled)
+runs=$(sed -n 's/^runs: //p' <<<"$out")
+v=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$out")
 for l in 'FAIL run1: never: the nit' 'PASS run1: the premise' 'PASS run1: the low finding' 'PASS run2: never: the nit' 'PASS run2: the low finding' 'PASS run2: the final message names the nit' \
   "FAIL run1: $never" "PASS run2: $never" "PASS run2: $line"; do
   grep -qF "$l" <<<"$v" || fail "the stub run gives no: $l" "$v"
 done
-# The labelled ask of a stub run is the ask of the recorded labelled run.
-runs=$(TMPDIR="$tmp/t" GH_TOKEN=x GITHUB_TOKEN=x PATH="$tmp/bin:$PATH" "$root/tests/github_filing_eval.sh" 1 labelled | sed -n 's/^runs: //p')
 diff "$runs/run1.ask" "$fixtures/traced.ask" >/dev/null || fail 'the labelled ask is not the ask of traced' "$(diff "$runs/run1.ask" "$fixtures/traced.ask")"
+[ -z "$runs" ] || rm -rf "$runs"
 
 echo 'github_filing_checks_test: ok'
