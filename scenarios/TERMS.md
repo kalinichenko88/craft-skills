@@ -17,6 +17,10 @@ column gives the name that a person who reads Russian sees.
 | link | The web address of a task, which names its repository and its id, or of a branch, which names its repository and its name. | ссылка | URL |
 | tracker | The place where the tasks of one repository live. | трекер | board, backlog |
 | milestone | A named group of tasks in the tracker, as `M1`. A task is in one milestone or in none. The milestone `Later` holds the tasks that are put off. | веха | sprint |
+| current milestone | A milestone that the plan marks as current. When no milestone has the mark, the first open milestone by its number is current. `Later` is never current. | текущая веха | active milestone |
+| `Done when` | The list, in the text of a milestone, of the outcomes that someone can check, as in a demo, each with the ids of the tasks that it needs. | «Готово, когда» | acceptance criteria, definition of done |
+| dependency | A record in the tracker that one task waits on another task: the task can start only when the other one is closed. A task also waits on each task that a task it waits on waits on. | зависимость | blocker, depends on |
+| lane | One of at most three lists of tasks, in order, that the run gives the person to work on side by side: lane 1, lane 2 and lane 3. The tasks of one lane run one after another. | дорожка | track, stream |
 | repository | The git repository of the code, with its default branch, on GitHub. | репозиторий | repo, project |
 | default branch | The branch that the work of the repository merges into. | основная ветка | main, master |
 | branch | A git branch of the repository. A scenario names a branch of another repository, as of a fork, with those words where it first names it. | ветка | |
