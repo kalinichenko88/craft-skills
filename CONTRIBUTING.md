@@ -194,13 +194,16 @@ that run; `tests/scenarios_take_in.sh` holds what
 the cases share.
 `tests/scenarios_checks_test.sh` runs its checks in `make check`, on one
 recorded run of each case in `tests/fixtures/scenarios/`, and on copies of
-the files of one case that change the verdict of one item. It fails for a scenario of take-in that has
-no case and is not in the eval's `--not-run` list.
-`tests/scenarios_runner_test.sh` sets up the Given of each case and checks
-what `take-in-check.sh` reads in it through the fake `gh`. It counts pass^2
-over the recorded runs and a copy, and runs the eval with a stub `claude` to
-check `--model`, the answers that resume the session of the message before
-each, the other conversation of a Given, and the stop before `--max-cost`.
+the files of one case that change the verdict of one item. It fails for a
+scenario of take-in that has no case and is not in the eval's `--not-run`
+list.
+`tests/scenarios_given_test.sh` sets up the Given of each case and checks
+what `take-in-check.sh` reads in it through the fake `gh`, and the reads and
+writes of the fake `gh` that the Givens need.
+`tests/scenarios_runner_test.sh` counts pass^2 over the recorded runs and a
+copy, and runs the eval with a stub `claude` to check `--model`, the answers
+that resume the session of the message before each, the other conversation
+of a Given, and the stop before `--max-cost`.
 `tests/scenarios_text_eval.sh` reads the text of a skill against the
 scenario file of its flow, with no live run. Each file in `scenarios/*/*.md`
 has a row in the eval: the scenario file and the files of the skill that its
