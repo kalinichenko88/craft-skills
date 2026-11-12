@@ -299,9 +299,10 @@ the computer: a finding reaches the tracker only as its shape and its counts.
 
 ## Release
 
-Pull requests leave `version` alone. Once the work is on `main`, run `/release`
-in Claude Code from this repository, or `/release minor` to pick the level. It
-bumps `.codex-plugin/plugin.json`, writes the `CHANGELOG.md` section, merges
-both through a pull request of its own after the checks pass, tags the merge
-commit `vX.Y.Z` and publishes a GitHub release with that section as its notes. The skill lives in `.claude/skills/`, not `skills/`, so it does not ship
-with the plugin.
+Other pull requests leave `version` alone. Once the work is on `main`, run
+`/release` in Claude Code from this repository, or `/release minor` to pick
+the level. It bumps `.codex-plugin/plugin.json`, writes the `CHANGELOG.md`
+section, merges both through a pull request of its own after the checks pass,
+tags the merge commit `vX.Y.Z` and publishes a GitHub release with that
+section as its notes. The skill lives in `.claude/skills/`, not `skills/`, so
+it does not ship with the plugin.

@@ -94,10 +94,13 @@ commit hash) into every later command.
    After the push succeeds, in a separate command:
    `gh pr create --assignee @me --title "chore(release): bump the Codex version to $version" --body "The version in .codex-plugin/plugin.json and the $version section of CHANGELOG.md."`.
    Wait for its checks as *Pull requests* in `craft:github` says, and stop
-   where it stops. When they pass, run `git fetch origin main`. If `origin/main`
-   is not `$base`, `main` moved, and the section misses its new commits:
-   `gh pr close <PR> --delete-branch`, `git switch main`, then start again at
-   step 1, which writes the section again. Otherwise merge:
+   where it stops. When the person drops the release there, close it:
+   `gh pr close <PR> --delete-branch`, then `git switch main`. When the checks
+   pass, run `git fetch origin main`. If `origin/main` is not `$base`, `main`
+   moved, and the section misses its new commits: close the release the same
+   way, and start again at step 1; step 4 writes the section again. Otherwise
+   merge, with no *Finishing* of `craft:github`, as the release closes no
+   issue:
 
    ```sh
    gh pr merge <PR> --squash --delete-branch \
@@ -108,10 +111,12 @@ commit hash) into every later command.
 
    A squash merge makes a new commit, so the tag goes on the commit that the
    merge put on `main`: `gh pr view <PR> --json mergeCommit --jq .mergeCommit.oid`
-   is `$merge`. Run `git fetch origin main`. If `git rev-parse "$merge^"` is
-   not `$base`, a commit landed between the check and the merge: stop before
-   the tag, and show the person `git log --oneline "$base..$merge^"`.
-   Otherwise:
+   is `$merge`. Run `git fetch origin main`, then the commands below. If
+   `git rev-parse "$merge^"` is not `$base`, commits landed between the check
+   and the merge: the release holds them, and its section does not. Run the
+   commands all the same, and show the person `git log --oneline "$base..$merge^"`: their
+   lines go into the section through a pull request of their own, merged as
+   *Pull requests* in `craft:github` says, before step 7.
 
    ```sh
    git tag -a "v$version" -m "v$version" "$merge"
@@ -129,7 +134,8 @@ commit hash) into every later command.
    ```
 
    Empty notes mean the heading in step 4 does not read `## $version ` — fix
-   the file, commit it on top and run this again. Without `--verify-tag`, a tag
+   it through a pull request of its own, merged as *Pull requests* in
+   `craft:github` says, then run this again on `main`. Without `--verify-tag`, a tag
    missing on the remote does not stop `gh`: it tags the default branch's HEAD
    and publishes the release there. With it, `gh` stops: run the tag push from
    step 6, then run this again. A failed `gh release create` leaves nothing to
