@@ -1,0 +1,79 @@
+{
+  "me": "kim",
+  "repo": "acme/shop",
+  "labels": [
+    "bug",
+    "debt",
+    "documentation",
+    "enhancement"
+  ],
+  "visibility": "PUBLIC",
+  "issues": [
+    {
+      "number": 14,
+      "title": "Order total is off by a cent on some orders",
+      "body": "`orders/total.py` sums floats and rounds with `round`, so 3 × 0.35 gives 1.05 on one order and 1.04 on another. Done when the total rounds half up, in Decimal.",
+      "state": "OPEN",
+      "assignees": [
+        "kim"
+      ],
+      "labels": [
+        "bug"
+      ],
+      "milestone": "M1 · Checkout",
+      "comments": []
+    },
+    {
+      "number": 15,
+      "title": "Export the orders of a month as CSV",
+      "body": "The shop owner needs the orders of a month as a CSV file: order, customer, total.",
+      "state": "OPEN",
+      "assignees": [],
+      "labels": [
+        "enhancement"
+      ],
+      "milestone": "M1 · Checkout",
+      "comments": []
+    },
+    {
+      "number": 16,
+      "title": "Dark mode for the admin pages",
+      "body": "The admin pages have only a light theme.",
+      "state": "OPEN",
+      "assignees": [],
+      "labels": [
+        "enhancement"
+      ],
+      "milestone": "Later",
+      "comments": []
+    },
+    {
+      "number": 17,
+      "title": "The docstring of vat says cents, but it returns euros",
+      "body": "`billing/tax.py:4`: the docstring of `vat` says \"Returns the VAT on amount, in cents.\" The function returns euros: a `Decimal` quantized to `0.01`. Its only caller, `get_invoice_total` in `billing/invoice.py:5`, adds the result to an order total in euros.\n\nA reader who trusts the docstring can divide the result by 100, or multiply a caller's value by 100, and get a wrong invoice total.\n\nFix: say \"in euros, rounded to the cent\" in the docstring.\n\nOut of scope for #14 Order total is off by a cent on some orders: that fix changes `orders/`, and this is in `billing/`.",
+      "state": "OPEN",
+      "labels": [
+        "documentation"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 18,
+      "title": "Sign-up treats emails that differ only in case as two accounts",
+      "body": "`accounts/signup.py:4`: `sign_up` checks and stores the email exactly as typed. So `Bob@shop.test` and `bob@shop.test` sign up as two accounts for the same mailbox.\n\nSteps:\n\n```python\nfrom accounts.signup import sign_up\nsign_up(\"bob@shop.test\", \"h1\")\nsign_up(\"Bob@shop.test\", \"h2\")  # no ValueError: a second account\n```\n\nExpected: the second call raises `ValueError(\"this email has an account\")`.\n\nA likely fix compares and stores a normalized email (for example `email.strip().lower()`). Which normalization to use is a product decision: the local part of an address is case-sensitive by the standard, though almost no provider treats it so. The login lookup must use the same normalization.\n\nOut of scope for #14 Order total is off by a cent on some orders: that fix changes `orders/`, and this is in `accounts/`.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    }
+  ],
+  "log": [
+    "create 17",
+    "create 18"
+  ]
+}

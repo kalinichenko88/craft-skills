@@ -1,7 +1,8 @@
 # Filing an issue
 
 The global prompt says when a finding becomes an issue; this file says how,
-and which nit gets none.
+and which findings get none: a nit, and a defect that its input never
+reaches.
 Read `tracker.md`, next to this file, before the search below: it runs the
 scripts and reads the tracker. `<dir>` is this skill's base directory.
 
@@ -30,7 +31,7 @@ another module, a bug that shows outside the module too, a design choice, a
 question on business logic (what the product should do where its docs, tests
 and names do not say it; a bug is code that crashes or does not do what they
 say), a change that code outside the module relies on — and it is an issue,
-however small it looks, unless it is a nit, below.
+however small it looks, unless it is a nit or ruled out, below.
 
 **A nit is not worth an issue.** A finding that the Boy Scout check leaves,
 and that is a nit, is not filed and goes into no host. A nit here is a
@@ -42,6 +43,17 @@ filed: a comment or a doc line that says something false, a command in the
 docs that fails, and a missing or redundant test of what real use reaches.
 Give each nit one line in the final report instead, so that the person can
 file it.
+
+**A defect that its input never reaches is not filed.** A defect that shows
+only on some input, as a value, a state or a call, is traced first. Follow
+that input back from the code, through each caller, to each place where it
+enters the program. When a check in code or in a script refuses that input
+on every path before the code, as a schema, a validation or a default that
+each caller sets, the finding is ruled out. It is not filed and goes into no
+host. Give it one line in the final report, with the `path:line` of each
+check. A step of a skill's text is no such check: a model can skip it. When
+one path has no such check, or the trace cannot follow a path to its end,
+file the finding as below.
 
 **Search by identifier, not by your title.** A search for the symbol finds
 every issue that names it; the prose you were about to write finds only issues

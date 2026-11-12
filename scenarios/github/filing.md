@@ -6,8 +6,8 @@ the pull request of the task, adds it to an open task on the same code, adds
 a comment to an open task with the same report, or creates a task for it.
 When a task already reports the finding or decided it, or an open pull
 request fixes it, the run files nothing. The last message names a name or a
-wording that no rule of the repository asks for, and a finding that the run
-cannot file. A defect of the implementation is the exception to the
+wording that no rule of the repository asks for, a failure on an input that
+a check before the code refuses, and a finding that the run cannot file. A defect of the implementation is the exception to the
 question: it goes to the tracker of the repository of the implementation,
 after the person says yes.
 
@@ -369,6 +369,27 @@ Never:
 - a task is created for that name
 - the text of a task gets that name as an added finding
 - the pull request of #91 changes `src/report/total.ts`
+
+## A failure on an input that a check before the code refuses
+
+Given:
+- the outcomes of A free task hold for #91
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- `discountPercent` in `src/billing/coupon.ts` fails on a code that is not
+  in its list of codes
+- `applyCoupon` in `src/api/checkout.ts` is the only caller of
+  `discountPercent`, and it has no check of the code
+- `handle` in `src/api/routes.ts` is the only caller of `applyCoupon`, and
+  `CouponRequest` in `src/api/schemas.ts`, which `handle` runs first, refuses
+  a code that is not in that list
+When: the run meets that failure in `src/billing/coupon.ts`
+Then:
+- the last message names `discountPercent` and the check of `CouponRequest`
+  in `src/api/schemas.ts`, with its line
+Never:
+- a task is created for that failure
+- the text of a task gets that failure as an added finding
+- the pull request of #91 changes `src/billing/coupon.ts`
 
 ## A defect that a merged pull request fixed before
 
