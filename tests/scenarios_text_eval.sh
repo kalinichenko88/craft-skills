@@ -59,7 +59,7 @@ rows=(
   'scenarios/github/filing.md rules.md skills/github/SKILL.md skills/github/filing.md skills/github/tracker.md skills/github/scout.md'
   'scenarios/github/pull-request.md rules.md skills/github/SKILL.md skills/review-loop/SKILL.md skills/github/filing.md skills/github/take-in.md skills/github/tracker.md skills/github/scout.md'
   'scenarios/review-loop/review.md skills/review-loop/SKILL.md skills/github/SKILL.md skills/github/filing.md'
-  'scenarios/product/worth.md rules.md skills/product/SKILL.md skills/product/reader.md skills/product/store.md skills/review-loop/SKILL.md skills/github/take-in.md'
+  'scenarios/product/worth.md rules.md skills/product/SKILL.md skills/product/reader.md skills/product/store.md skills/review-loop/SKILL.md skills/github/take-in.md skills/roadmap/SKILL.md'
   'scenarios/roadmap/next.md skills/roadmap/SKILL.md skills/roadmap/lanes.md skills/roadmap/planning.md'
   'scenarios/roadmap/milestone.md skills/roadmap/SKILL.md'
   'scenarios/roadmap/later.md skills/roadmap/SKILL.md'
