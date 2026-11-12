@@ -17,12 +17,13 @@ run in parallel, and what is left to close a milestone.
 
 ## What you get
 
-- **The fastest path to the goal.** The goal is the nearest milestone, and
-  its `Done when` lists the outcomes it needs, each with its issues. Lane 1
-  holds only those issues and what they wait on. The top bug takes lane 2,
-  so an important bug reaches you early. The next goal task takes lane 3,
-  before the other bugs, tests and improvements. Only free tasks: open, not
-  in progress, not someone else's, and with no open blocker.
+- **The path to the goal, with the top bug beside it.** The goal is the
+  nearest milestone, and its `Done when` lists the outcomes it needs, each
+  with its issues. Lane 1 holds only those issues and what they wait on.
+  The top bug that can run takes lane 2, so an important bug reaches you
+  early. The next goal task that can run beside them takes lane 3, before
+  the other bugs, tests and improvements. Only free tasks: open, not in
+  progress, not someone else's, and with no open blocker.
 - **One task, and why.** The first task of lane 1, else of lane 2, with its
   title, its milestone, and why it is first: "M1 · First demo needs it for
   'a new user signs up'". The other lanes get one line each.
