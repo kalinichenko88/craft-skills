@@ -6,6 +6,49 @@ type, and the PR number when it has one. The `/release` skill writes the
 section and merges it through a pull request of its own; other pull requests
 leave this file alone.
 
+## 2.3.0 - 2026-11-12
+
+### Added
+
+- (roadmap) take the next task and the lanes from the Done when of the nearest milestone (#353)
+- (architecture) correct a stale sentence of an accepted ADR in place, with a dated Updates line (#344)
+- (github) title a new capability and a planned task by the work, and keep the problem title for a defect (#342)
+- (github) mark the work that runs with the label in progress, not with the assignee (#329)
+
+### Changed
+
+- (scenarios) give product a scenario for each case of its Not covered yet list (#369)
+- (scenarios) add the scenarios that a read of check.md found missing (#368)
+- (scenarios) give the filing of a finding a scenario for each case of its Not covered yet list (#363)
+- (scenarios) specify the flows of roadmap: the next task and the lanes, a milestone, Later, the roadmap and triage (#361)
+- (scenarios) give review-loop a scenario for each case of its Not covered yet list (#358)
+- (review-loop) say how to run the Playwright browser of the walk with no window (#352)
+- (scenarios) give each take-in scenario a case, each case a file of its own, and record a run of each (#350)
+- (scenarios) fail make check on an item that builds on a scenario name that no heading has (#346)
+- (scenarios) give the pull request flow a scenario for each case of its Not covered yet list (#334)
+- (scenarios) give take-in a scenario for each of the fourteen cases it did not cover (#333)
+- (scenarios) read a narration as a message, so the gist items of take-in give a verdict (#319)
+- (scenarios) run the text eval on each scenario row whose skill files a pull request changes (#311)
+- (plugin) rewrap the paragraph of the scenarios eval in CONTRIBUTING.md (#316)
+- (scenarios) give the two answer scenarios of take-in a case of two messages and a recorded run (#315)
+- (scenarios) give eight single-message take-in scenarios a case and a recorded run (#314)
+- (scenarios) run each case k times on a chosen model, score pass^k and stop at a cost cap (#310)
+- (scenarios) add check.md, which reads the scenarios against each other, and fix what it found (#308)
+- (scenarios) specify the worth report of a feature, its verdict as a question and the answer to it (#302)
+- (scenarios) specify the review of a change, its rounds and the pull request after it (#301)
+- (scenarios) specify the pull request, the merge, Finishing and Cleanup (#300)
+- (scenarios) specify the filing of a finding outside the task (#299)
+- (scenarios) give the two duplicate scenarios a case, and share one fake gh among three evals (#297)
+- (scenarios) give the text eval one row for each scenario file (#295)
+
+### Fixed
+
+- (release) merge the release commit through a pull request and tag the merge commit (#381)
+- (github) copy a duplicate's stack trace to the survivor whole, and post the comment from a file (#355)
+- (github) give the squash merge an English subject when the PR title is in another language (#347)
+- (scenarios) fail the text eval only on an item that two sets of runs lose, not on model noise (#335)
+- (github) make the merge wait for the PR's checks, and take --admin only when the person asks (#324)
+
 ## 2.2.0 - 2026-11-10
 
 ### Added
