@@ -8,8 +8,9 @@
 
 We will give "what can I take now", "what is the priority" and "what can run
 in parallel" one answer: the path from now to the goal, with the top bug
-beside it, in at most three lanes of new work. The goal is the nearest milestone, the first current
-one. Its `Done when` is a list of outcomes that someone can check, each with
+beside it, in at most three lanes of new work. The goal is the nearest
+milestone, the first current one. Its `Done when` is a list of outcomes that
+someone can check, each with
 the issues that it needs. Lane 1 holds those issues, with any label, and what
 they wait on. The top bug that can run takes the next lane, so that the most
 important bug reaches the developers early; bugs rank by milestone first. A

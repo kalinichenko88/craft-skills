@@ -14,7 +14,7 @@ and stop.
 
 | Moment | What must happen | Read first |
 | --- | --- | --- |
-| "What can I take now", "what is the priority", "what can run in parallel" | `next.sh`, then the overlap check; at most three lanes, none overlapping: lane 1 the main path to the goal, then the top bug; one task, or a table per lane | *The lanes* below |
+| "What can I take now", "what is the priority", "what can run in parallel" | `next.sh`, then the overlap check; at most three lanes, none overlapping: lane 1 the main path to the goal, then the top bug that can run; one task, or a table per lane | *The lanes* below |
 | "What is needed to close M1" | `roadmap.sh M1`; its open tasks in dependency order, what is in progress, what is blocked and by what | *The roadmap* below |
 | "What can I take from Later" | `roadmap.sh Later`; offer its free tasks | *The roadmap* below |
 | The person decides, in the conversation, to put a task off | `plan.sh later <n>`; a refusal names the issues that wait on it | *Putting a task off* below |
