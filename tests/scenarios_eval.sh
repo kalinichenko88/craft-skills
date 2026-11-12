@@ -3,35 +3,29 @@
 # #231. Each case builds a tracker as JSON and a workspace with a bare origin,
 # puts a gh first on PATH that runs tests/fake_gh.sh over that JSON, and runs one
 # session of `claude -p` on the person's message, on the model of --model,
-# opus by default. In a case of two messages, the person's answer to the
-# question of the first one resumes that session, with --resume and the same
-# plugin and PATH. Then it checks the Then and Never items of the case's
+# opus by default. In a case of more messages, each answer of the person
+# resumes that session, with --resume and the same plugin and PATH. Then it
+# checks the Then and Never items of the case's
 # scenario against the end state of the JSON, the branches of the origin, and
-# the session's messages and tool calls. tests/scenarios_take_in.sh holds the
-# cases, their Given and their checks:
-#
-#   free       A free task
-#   other      A task that another person is assigned to
-#   down       The tracker does not answer
-#   dup        A free duplicate
-#   busy       A busy duplicate
-#   closed     A closed task
-#   otherpr    A task with another person's pull request
-#   mypr       A task with the person's pull request
-#   assigned   A task assigned to the person, with no branch
-#   inprogress A task in progress for the person, with no branch
-#   here       The work on the person's task continues here, an answer
-#   there      The work on the person's task runs somewhere else, an answer
-#   linked     A linked branch with no assignee
-#   inws       The person's work is in the workspace
-#   moved      The person's branch moved on somewhere else
-#   otherrepo  A task of another repository
+# the session's messages and tool calls. tests/scenarios_take_in/ holds a
+# file for each case, with its scenario, its Given and its checks, and
+# tests/scenarios_take_in.sh what the cases share.
 #
 # The session loads this checkout as the plugin, with --setting-sources
 # project, so no other plugin and no setting of this machine reaches it. It
 # runs with no ListAgents: that tool lists every session of this machine, so
 # the runs of a round see each other as open sessions on #91, and the log
-# would hold the names of the person's other sessions.
+# would hold the names of the person's other sessions. The one exception is a
+# case whose Given has another open conversation, as <dir>.companion of setup
+# gives: a session of Haiku with no tools starts on the first text of that
+# conversation, which the file holds, before the run, and stays open until
+# the run ends. The run then has ListAgents, and sees it as one of the
+# sessions of this machine. Such a case runs after the other cases of its
+# round end, one at a time, so that it sees no other run. When the other
+# conversation gives a first result with no error, the log of the run starts
+# with a companion line and its first text. Its cap of $0.10 is not in the
+# cap of a round that --max-cost reads. Read the log of such a run for the
+# names of the person's other sessions before it becomes a fixture.
 #
 # With --runs k, each case runs k times, one round of the cases after
 # another. As tau-bench scores an agent, a case passes pass^k only when each
@@ -67,12 +61,12 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 usage() { echo "usage: $0 [--runs k] [--model name] [--max-cost usd] [case ...] | --check <round folder> ... | --not-run" >&2; exit 2; }
 take_in() { bash "$root/tests/scenarios_take_in.sh" "$@"; }
 table=$(take_in cases)
-# budget <case>, message <case>, answer <case>: the cap of one message, the
-# message of the person, and the answer after it or nothing, from the line of
-# the case.
-budget() { awk -v c="$1" '$1 == c { print $2 }' <<<"$table"; }
-message() { awk -v c="$1" '$1 == c { print $3 }' <<<"$table"; }
-answer() { awk -v c="$1" '$1 == c { $1 = $2 = $3 = ""; sub(/^ +/, ""); print }' <<<"$table"; }
+# budget <case>, message <case>, answers <case>: the cap of one message, the
+# message of the person, and each answer after it, one on each line, from the
+# line of the case.
+budget() { awk -F'\t' -v c="$1" '$1 == c { print $2 }' <<<"$table"; }
+message() { awk -F'\t' -v c="$1" '$1 == c { print $4 }' <<<"$table"; }
+answers() { awk -F'\t' -v c="$1" '$1 == c { for (i = 5; i <= NF; i++) print $i }' <<<"$table"; }
 # record <dir>: <dir>.events holds the messages to the person, as text lines,
 # the answer of the person, as a person line,
 # the session's other thinking that has words, as think lines, and each tool
@@ -84,6 +78,8 @@ answer() { awk -v c="$1" '$1 == c { $1 = $2 = $3 = ""; sub(/^ +/, ""); print }' 
 # <work> and <tmp>. Each line of a command becomes one part of a line, after
 # "; ". Then snapshot writes <dir>.branches and <dir>.workspace.
 record() {
+  { [ ! -f "$1.companion.jsonl" ] || [ "$(jq -Rr 'fromjson? | select(.type == "result") | .subtype' "$1.companion.jsonl" | head -n 1)" != success ] ||
+    printf 'companion\t%s\n' "$(cat "$1.companion")"
   jq -r 'if .type == "person" then "person\t" + .text
     elif .type == "assistant" then (if .parent_tool_use_id then "sub" else "" end) as $sub
       | (.narration_block_indexes // []) as $said
@@ -93,7 +89,7 @@ record() {
         elif .type == "tool_use" then $sub + .name + "\t"
           + ((.input.command // .input.file_path // .input.skill // .input.description // "") | tostring | gsub("\n"; "; "))
         else empty end
-    else empty end' "$1.jsonl" |
+    else empty end' "$1.jsonl"; } |
     awk -v r="$root" -v w="$1" -v t="${TMPDIR:-/tmp}" '{ gsub(r, "<craft>"); gsub("(/private)?" w, "<work>")
       gsub("(/private)?" t, "<tmp>/"); gsub("<tmp>//", "<tmp>/"); print }' >"$1.events"
   take_in snapshot "$1" "$1"
@@ -148,31 +144,61 @@ done
 case $k in '' | *[!0-9]* | 0*) usage ;; esac
 case $cap in *[!0-9.]* | *.*.* | .) usage ;; esac
 [ -n "$model" ] || usage
-cases=${*:-$(cut -d' ' -f1 <<<"$table")}
+# A case named twice runs once: two setups of one folder would collide.
+cases=$(if [ $# -gt 0 ]; then printf '%s\n' "$@"; else cut -f1 <<<"$table"; fi | awk '!seen[$0]++')
 for c in $cases; do [ -n "$(budget "$c")" ] || usage; done
 command -v claude >/dev/null || { echo "$0: no claude command" >&2; exit 2; }
 command -v jq >/dev/null || { echo "$0: no jq command" >&2; exit 2; }
 
 # session <workspace> <case> <argument>...: one claude -p in the workspace,
-# on the message that the last argument gives.
+# on the message that the last argument gives. It reads no input, and does
+# not hold the pipe of the open conversation.
 session() {
-  local w=$1 c=$2
+  local w=$1 c=$2 deny=()
   shift 2
+  # --disallowedTools takes a list: a flag after it ends the list.
+  [ -f "$w.companion" ] || deny=(--disallowedTools ListAgents)
   (cd "$w" && PATH="$w.bin:$PATH" claude -p --model "$model" --setting-sources project \
     --settings '{"language":"English"}' --plugin-dir "$root" --output-format stream-json --verbose \
-    --max-budget-usd "$(budget "$c")" --disallowedTools ListAgents --dangerously-skip-permissions "$@") 2>&1 || true
+    --max-budget-usd "$(budget "$c")" ${deny[@]+"${deny[@]}"} --dangerously-skip-permissions "$@" </dev/null 7>&-) 2>&1 || true
+}
+# companion <workspace>: the open conversation of the Given, which reads its
+# texts from the pipe <workspace>.in. The run alone writes to the pipe, on
+# file descriptor 7, so the conversation reads the end of its texts when the
+# run closes it, or ends. It has the first one when its first result comes,
+# or after a minute.
+companion() {
+  local w=$1 i
+  mkfifo "$w.in"
+  (cd "$w" && PATH="$w.bin:$PATH" exec claude -p --model haiku --setting-sources project --settings '{"language":"English"}' \
+    --plugin-dir "$root" --input-format stream-json --output-format stream-json --verbose --tools "" --max-budget-usd 0.1 \
+    >"$w.companion.jsonl" 2>&1) <"$w.in" &
+  pid=$!
+  exec 7>"$w.in"
+  jq -nc --arg t "$(cat "$w.companion")" '{type: "user", message: {role: "user", content: $t}}' >&7
+  for i in $(seq 60); do ! grep -qs '"type":"result"' "$w.companion.jsonl" || break; sleep 1; done
 }
 
-# run <round folder> <case>: the session on the message of the case, and on
-# its answer, which a person line in the log comes before.
+# run <round folder> <case>: the session on the message of the case, set up
+# before, and on each of its answers, which a person line in the log comes
+# before; each answer resumes the session of the message before it.
 run() {
-  local w=$1/$2 id
-  take_in setup "$w" "$2"
+  local w=$1/$2 id a i pid=
+  [ -f "$w.state.json" ] || return 0
+  [ ! -f "$w.companion" ] || companion "$w"
   session "$w" "$2" "$(message "$2")" >"$w.jsonl"
-  if [ -n "$(answer "$2")" ]; then
-    id=$(jq -Rr 'fromjson? | select(.type == "system" and .subtype == "init") | .session_id' "$w.jsonl" | head -n 1)
-    [ -z "$id" ] || { jq -nc --arg t "$(answer "$2")" '{type: "person", text: $t}'
-      session "$w" "$2" --resume "$id" "$(answer "$2")"; } >>"$w.jsonl"
+  answers "$2" | while IFS= read -r a; do
+    id=$(jq -Rr 'fromjson? | select(.type == "system" and .subtype == "init") | .session_id' "$w.jsonl" | tail -n 1)
+    [ -n "$id" ] || break
+    { jq -nc --arg t "$a" '{type: "person", text: $t}'; session "$w" "$2" --resume "$id" "$a"; } >>"$w.jsonl"
+  done
+  # The end of its texts ends the other conversation; one that does not end in
+  # ten seconds is stopped.
+  if [ -n "$pid" ]; then
+    exec 7>&-
+    for i in $(seq 10); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
+    ! kill -0 "$pid" 2>/dev/null || kill "$pid"
+    wait "$pid" 2>/dev/null || true
   fi
   record "$w"
 }
@@ -183,7 +209,7 @@ spent() {
     awk '{ last[$1] = $2 } END { for (f in last) s += last[f]; printf "%.2f\n", s }'
 }
 # messages <case>: the number of messages of the person in a run of the case.
-messages() { if [ -n "$(answer "$1")" ]; then echo 2; else echo 1; fi; }
+messages() { echo $((1 + $(answers "$1" | grep -c .))); }
 
 need=0
 for c in $cases; do need=$((need + $(budget "$c") * $(messages "$c"))); done
@@ -197,8 +223,13 @@ for i in $(seq "$k"); do
   fi
   mkdir "$runs/run$i"
   rounds+=("$runs/run$i")
-  for c in $cases; do run "$runs/run$i" "$c" & done
+  # A case whose setup fails gets no run. A run that fails ends alone, as a
+  # job of its own.
+  for c in $cases; do { take_in setup "$runs/run$i/$c" "$c" || rm -f "$runs/run$i/$c.state.json"; } & done
   wait
+  for c in $cases; do [ -f "$runs/run$i/$c.companion" ] || run "$runs/run$i" "$c" & done
+  wait
+  for c in $cases; do [ ! -f "$runs/run$i/$c.companion" ] || { run "$runs/run$i" "$c" & wait "$!" || true; }; done
 done
 score "$k" ${rounds[@]+"${rounds[@]}"}
 [ -z "$stop" ] || echo "$stop"

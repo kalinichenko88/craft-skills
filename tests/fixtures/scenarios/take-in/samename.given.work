@@ -1,0 +1,11 @@
+branch fix/91-typo
+commit fc699d262968ed7dec7a6ab20f5edcfdcb3ca202 docs: try a shorter install command
+diff --git a/README.md b/README.md
+index 67808fb..81d350c 100644
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,3 @@
+ # shop
+ 
+-Install it with `npm instal shop`.
++Install it with `npm i shop`.

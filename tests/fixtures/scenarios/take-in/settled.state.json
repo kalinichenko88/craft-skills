@@ -1,0 +1,118 @@
+{
+  "me": "kim",
+  "repo": "acme/shop",
+  "origin": "<work>.origin",
+  "workspace": null,
+  "down": false,
+  "prs": [],
+  "labels": [
+    "bug",
+    "debt",
+    "enhancement",
+    "in progress"
+  ],
+  "visibility": "PUBLIC",
+  "issues": [
+    {
+      "number": 91,
+      "title": "parser: parseRows turns an empty line into a row with one empty field",
+      "body": "`parseRows` in `src/parser/read.ts` turns an empty line into a row with one empty field, so a text that ends with a line break gets an empty last row. Done when `parseRows` gives no row for an empty line.",
+      "state": "OPEN",
+      "stateReason": null,
+      "assignees": [
+        "kim"
+      ],
+      "labels": [
+        "in progress"
+      ],
+      "comments": [],
+      "linked": [
+        "fix/91-skip-empty-lines"
+      ]
+    },
+    {
+      "number": 12,
+      "title": "parser: parseRows reads a tab as a field separator",
+      "body": "`parseRows` in `src/parser/read.ts` splits a line at a tab too, so a field that holds a tab becomes two fields. `parseRows` must split a line only at commas.",
+      "state": "OPEN",
+      "stateReason": null,
+      "assignees": [
+        "kim"
+      ],
+      "labels": [
+        "bug",
+        "in progress"
+      ],
+      "comments": [],
+      "linked": []
+    },
+    {
+      "number": 92,
+      "title": "parser: parseRows and importTable do not split a text with lone CR line ends",
+      "body": "Both readers split lines at `/\\r?\\n/` (`src/parser/read.ts:59`, `src/import-table.ts:6`). A text with lone `\\r` line ends (classic Mac) stays one line: `parseRows('a,b\\rc,d')` gives `[[\"a\",\"b\\rc\",\"d\"]]`, not two rows.\n\nFound in the review of the fix for #91. Out of scope there: #91 is about empty lines, and the old code did not split at a lone CR either.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 93,
+      "title": "parser: a quoted field with a line break is split into two rows",
+      "body": "Both readers split the text into lines before they read quotes (`src/parser/read.ts:59`, `src/import-table.ts:6`). A quoted value that holds a line break becomes two broken rows: `parseRows('\"x\\ny\",b')` gives `[[\"\\\"x\"],[\"y\\\"\",\"b\"]]`, not `[[\"x\\ny\",\"b\"]]`. Since #91, an empty line inside such a value is dropped too.\n\nFound in the review of the fix for #91. Out of scope there: the fix needs a reader that knows quotes, not a line split.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 94,
+      "title": "parser: parseRows keeps a UTF-8 BOM in the first field",
+      "body": "`parseRows` in `src/parser/read.ts` does not remove a leading `﻿`. CSV exports from Windows often start with one. `parseRows('﻿\"id\",name')` gives `[[\"﻿\\\"id\\\"\",\"name\"]]`: the first header keeps the BOM and its quotes. `importTable` acts the same.\n\nFound in the review of the fix for #91. Out of scope there.",
+      "state": "OPEN",
+      "labels": [
+        "bug"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 95,
+      "title": "parser: importTable and parseRows are two CSV readers that give different rows",
+      "body": "`importTable` in `src/import-table.ts` reads CSV with `splitLine` (`src/parser/split.ts`). It does not use `parseRows` (`src/parser/read.ts`). The two readers give different rows:\n\n- `importTable` does not unquote: `importTable('a,\"x,y\"')` gives `[[\"a\",\"\\\"x\",\"y\\\"\"]]`.\n- `splitLine` drops an empty last field: `importTable('a,b,\\nc,d,e')` gives rows of 2 and 3 fields. `parseRows` keeps the empty field.\n\nThe fix for #91 had to put the same line split and empty-line filter in both readers. Each later fix to line ends or quotes must be made twice. `importTable` can call `parseRows`, or both can share one line reader in `src/parser/`.\n\nFound in the review of the fix for #91. Out of scope there: it changes what `importTable` returns.",
+      "state": "OPEN",
+      "labels": [
+        "debt"
+      ],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    },
+    {
+      "number": 96,
+      "title": "docs: the install command in the README has a typo",
+      "body": "`README.md:3` says `npm instal shop`. npm has no `instal` command, so the command fails. It must be `npm install shop`.\n\nFound in the review of the fix for #91. Out of scope there: the README is outside `src/parser/`.",
+      "state": "OPEN",
+      "labels": [],
+      "comments": [],
+      "assignees": [],
+      "milestone": null
+    }
+  ],
+  "log": [
+    "edit 91",
+    "develop 91",
+    "edit 12",
+    "create 92 +changes",
+    "create 93 +changes",
+    "create 94 +changes",
+    "create 95 +changes",
+    "create 96 +changes"
+  ]
+}

@@ -1,0 +1,7 @@
+Skill	craft:github
+Bash	cat <craft>/skills/github/take-in.md; ls <craft>/skills/github/scripts
+Bash	D=<craft>/skills/github; bash $D/scripts/take-in-check.sh 91; echo "exit=$?"; git remote -v
+Bash	gh issue view 91 --json title,body,assignees,labels 2>&1
+text	**#91 README: the install command says npm instal**  The README tells the reader to run `npm instal shop`. npm has no `instal` command, so that command fails. The work is done when the README says `npm install shop`.  The take-in check printed this:  ``` #91: branch fix/91-typo, 0 commits ahead of main, last commit 2026-11-03T00:00:00Z ```  Nobody is assigned to the issue and it has no `in progress` label. But a branch `fix/91-typo` is already linked to it. That branch has no commits beyond `main`, and its last commit is from 2026-11-03. GitHub does not record who made a branch, so I can't tell from here whether someone else is working on #91.  **Is `fix/91-typo` your branch, or someone else's?** If it's someone else's, I'll leave the issue alone. If it's yours, I'll ask one more question: does the work continue here, or somewhere else?
+person	It is mine.
+text	Thanks. Next question: **does the work on #91 continue here, or does it run somewhere else**, such as another session or another computer? If it runs somewhere else, I'll stop here. If it continues here, I'll set up the worktree on `fix/91-typo` and fix the README.

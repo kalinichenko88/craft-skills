@@ -1,0 +1,38 @@
+{
+  "me": "kim",
+  "repo": "acme/shop",
+  "origin": "<work>.origin",
+  "workspace": null,
+  "down": false,
+  "prs": [],
+  "labels": [
+    "bug",
+    "debt",
+    "enhancement"
+  ],
+  "visibility": "PUBLIC",
+  "issues": [
+    {
+      "number": 91,
+      "title": "README: the install command says npm instal",
+      "body": "The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.",
+      "state": "CLOSED",
+      "stateReason": "COMPLETED",
+      "assignees": [],
+      "labels": [],
+      "comments": [],
+      "linked": []
+    },
+    {
+      "number": 95,
+      "title": "Installing shop by the README leaves the app without the module",
+      "body": "I followed README.md to install shop, and the package did not install: the command there is `npm instal shop`, with one l.",
+      "state": "OPEN",
+      "stateReason": null,
+      "assignees": [],
+      "labels": [],
+      "comments": [],
+      "linked": []
+    }
+  ]
+}
