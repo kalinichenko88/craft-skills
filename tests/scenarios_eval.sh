@@ -197,7 +197,7 @@ run() {
   if [ -n "$pid" ]; then
     exec 7>&-
     for i in $(seq 10); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
-    kill "$pid" 2>/dev/null || true
+    ! kill -0 "$pid" 2>/dev/null || kill "$pid"
     wait "$pid" 2>/dev/null || true
   fi
   record "$w"

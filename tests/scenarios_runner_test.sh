@@ -206,8 +206,9 @@ case " $* " in
   *) [ -z "${STUB_BREAK:-}" ] || [ ! -f "$PWD.companion" ] || rm -rf .git ;;
 esac
 echo "{\"type\":\"result\",\"subtype\":\"$sub\",\"total_cost_usd\":$cost}"
-# A session that reads its texts reads them to their end, and notes the end.
-case " $* " in *" --input-format stream-json "*) cat >/dev/null; : >"$args.end" ;; esac
+# A session that reads its texts reads them to their end, and notes the end;
+# with STUB_HANG, it does not end there.
+case " $* " in *" --input-format stream-json "*) cat >/dev/null; : >"$args.end"; [ -z "${STUB_HANG:-}" ] || exec sleep 60 ;; esac
 EOF
 chmod +x "$tmp/stub/claude"
 [ "$(PATH="$tmp/stub:$PATH" command -v claude || true)" = "$tmp/stub/claude" ] || fail 'claude is not the stub'
@@ -267,6 +268,10 @@ got=$(stub free conv)
 got=$(STUB_COMPANION=error_max_budget_usd stub conv)
 { ! grep -q '^companion' "$tmp/stub.events" && grep -qxF 'conv: not checked, as its check says above' <<<"$got"; } ||
   fail 'an other conversation that ends with an error holds the Given of conv' "$got"
+# An other conversation that does not end at the end of its texts is stopped.
+SECONDS=0
+got=$(STUB_HANG=1 stub conv)
+{ [ "$SECONDS" -lt 30 ] && ! pgrep -f 'exec sleep 60|^sleep 60$' >/dev/null; } || fail 'an other conversation that does not end is not stopped' "$got"
 got=$(STUB_BREAK=1 stub free conv)
 { grep -q '^pass^1 free: ' <<<"$got" && grep -q '^runs: ' <<<"$got"; } || fail 'a run of conv that fails stops the eval' "$got"
 # A round of here can cost $8, a cap of $4 for each of its two messages.
