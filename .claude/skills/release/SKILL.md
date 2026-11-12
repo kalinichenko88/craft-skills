@@ -111,12 +111,12 @@ commit hash) into every later command.
 
    A squash merge makes a new commit, so the tag goes on the commit that the
    merge put on `main`: `gh pr view <PR> --json mergeCommit --jq .mergeCommit.oid`
-   is `$merge`. Run `git fetch origin main`, then the commands below. If
-   `git rev-parse "$merge^"` is not `$base`, commits landed between the check
-   and the merge: the release holds them, and its section does not. Run the
-   commands all the same, and show the person `git log --oneline "$base..$merge^"`: their
-   lines go into the section through a pull request of their own, merged as
-   *Pull requests* in `craft:github` says, before step 7.
+   is `$merge`. Run `git fetch origin main`. If `git rev-parse "$merge^"` is
+   not `$base`, commits landed between the check and the merge: the release
+   holds them, but its section, and maybe its level, do not. Stop before the
+   tag, and show the person `git log --oneline "$base..$merge^"` with the
+   level that step 3 gives for them: the person decides how to correct the
+   release. Otherwise:
 
    ```sh
    git tag -a "v$version" -m "v$version" "$merge"
