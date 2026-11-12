@@ -148,9 +148,9 @@ its verdict, its label, its milestone by its full title, the reply to
 its author, and for a duplicate the comment on the survivor, with each trace
 or log in it under the table as it will be posted, and the survivor's new
 milestone, when it takes one. An issue that the account `gh` is logged in as
-filed gets no reply. Every comment is public:
-apply *Public repositories* in `<github>/SKILL.md` to each one, so nothing
-from the conversation or from a private source goes in.
+filed gets no reply. Every comment is public: apply *Public repositories* in
+`<github>/SKILL.md` to each one, so nothing from the conversation or from a
+private source goes in.
 
 After the approval, read the `status:` line of each issue again. When one has
 an entry now, give its row and each row that names it again by the rules

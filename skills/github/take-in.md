@@ -97,10 +97,11 @@ words or not, about the same place — closes against the issue in hand before
 the work starts, once anything it adds (a repro, an error message, a surface)
 is carried into a comment on the survivor. Each stack trace or log in its
 text goes there whole, every line as it is, in a code block of its own, with a
-fence longer than any run of backticks in it. A secret in what it carries, as
-a token or a password, is replaced by `<secret>`: name the issue that still
-shows it in the final report. The comment never goes into a shell command:
-write it with the file tool to a new file outside the checkout, and post it
+fence of at least three backticks and longer than any run of backticks in it.
+A secret in what it carries, as a token or a password, is replaced by
+`<secret>`: in the final report, name the issue that still shows it. The
+survivor's comment never goes into a shell command: write it with the file
+tool to a new file outside the checkout, and post it
 with `--body-file`. In a shell command, a line of the log can end its quote or
 its heredoc and run as a command. A duplicate that is busy (`tracker.md`)
 stays open: say so. A report that gives only what someone saw — no cause, no
