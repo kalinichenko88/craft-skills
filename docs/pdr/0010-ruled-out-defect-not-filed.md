@@ -1,4 +1,4 @@
-# 0010 A failure that a check in the code keeps its input from is not filed
+# 0010 A failure that a check or a default in the code keeps its input from is not filed
 
 - Status: accepted
 - Level: feature
@@ -12,11 +12,9 @@ before the code, unless it is data loss or a security hole: real use does
 not reach it, so it is no defect. The run traces the input back through
 each caller to where it enters, and the final report names each check or
 default by its `path:line` in one line (`skills/github/filing.md`). A step
-of a skill's text is no such check. Data loss or a security hole is filed,
-as an edge case of that kind is in *A nit is not worth an issue*. A
-finding whose worth is unclear gets no worth check of its own and is filed
-as before, and a fix outside the task's module stays out of the pull
-request.
+of a skill's text is no such check. A finding whose worth is unclear gets
+no worth check of its own and is filed as before, and a fix outside the
+task's module stays out of the pull request.
 
 ## Rests on
 
