@@ -127,13 +127,14 @@ first of these that holds decides:
 3. It overlaps with the tasks of one lane: it goes into that lane, after
    them. A task off the main path waits instead of going into lane 1.
 4. It is on the main path, and lane 1 has no task yet: it starts lane 1.
-5. Lane 2 or lane 3 is not open yet: it opens the first of them.
+5. Lane 2 or lane 3 is not open yet: it opens the first of them that is not
+   open.
 6. It is on the main path: it goes into lane 1, after its tasks. Any other
    task waits.
 
-Say what each task that waits waits on. So a main-path task that can run
-beside lane 1 opens lane 2 before tests, bugs and improvements do, and with
-no main-path task to start, lane 1 stays empty.
+Say what holds each task that waits. So a main-path task that can run beside
+lane 1 takes a free lane before tests, bugs and improvements do, and with no
+main-path task to start, lane 1 stays empty.
 
 ## One task
 
@@ -149,12 +150,12 @@ checks the task, assigns it and marks it `in progress`.
 
 For the priority and for parallel work, answer with one table per lane: each
 task with its title, a few words on what it changes, its area and its files.
-After lane 1's tasks, list the held tasks of the main path, with what holds
-each; they are not offered. Then each overlap in one line, with the file and
-the function, and each task that waits. The first task of each lane starts
-through take-in, in its own worktree. The next task of a lane waits for it:
-when it is closed, the person asks again, as the lanes change with the work
-in progress. The file holds every main-path task, but only the top 5 of bugs
+After lane 1's tasks, also when lane 1 has none, list the held tasks of the
+main path, with what holds each; they are not offered. Then each overlap in
+one line, with the file and the function, and each task that waits. The
+first task of each lane starts through take-in, in its own worktree. The
+next task of a lane starts after it: when it is closed, the person asks
+again, as the lanes change with the work in progress. The file holds every main-path task, but only the top 5 of bugs
 and of secondary: when all five overlap, say so.
 
 ## The roadmap
