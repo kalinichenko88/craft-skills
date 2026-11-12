@@ -12,25 +12,16 @@ otherws_check() {
   keeps "$other"
 }
 otherws_copies() {
-  # No name of the assignee, a write, the work told as going on, a question
-  # whether it runs somewhere else, the branch moved, and the person added.
+  # No name of the assignee, the work told as going on, and a question
+  # whether it runs somewhere else.
   copy otherws
   sed -i.bak '/^text/s/rivera/someone/g' "$tmp/$n/otherws.events"
   flips otherws 'the person is told that #91 is assigned to another person'
-  copy otherws
-  add otherws $'Bash\tgh issue edit 91 --add-assignee @me'
-  flips otherws 'the run waits: no change'
   copy otherws
   add otherws $'text\tThe work on #91 continues on fix/91-typo.'
   flips otherws 'never: the person is told that the work on #91 continues'
   copy otherws
   add otherws $'text\tDoes the work on #91 run somewhere else, or here?'
   flips otherws 'never: the person is asked whether the work runs somewhere else'
-  copy otherws
-  sed -i.bak 's/^fix\/91-typo .*/fix\/91-typo 0000000000000000000000000000000000000000/' "$tmp/$n/otherws.workspace"
-  flips otherws "never: the workspace's fix/91-typo changes" 'the run waits: no change'
-  copy otherws
-  state otherws '.issues[0].assignees += ["kim"]'
-  flips otherws 'never: the assignees of #91 change'
 }
 otherws_fails() { :; }

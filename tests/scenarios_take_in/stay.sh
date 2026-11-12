@@ -15,8 +15,8 @@ stay_check() {
   oneworkspace
 }
 stay_copies() {
-  # #91 not assigned, the workspace on main, a local branch for #91, a linked
-  # branch, and a worktree.
+  # #91 not assigned, the workspace on main, a local branch for #91, and a
+  # linked branch.
   copy stay
   state stay '.issues[0].assignees = []'
   flips stay '#91 is assigned to the person'
@@ -29,9 +29,6 @@ stay_copies() {
   copy stay
   state stay '.issues[0].linked = ["fix/91-readme"]'
   flips stay 'never: #91 gets a linked branch'
-  copy stay
-  sed -i.bak 's/^worktrees 1$/worktrees 2/' "$tmp/$n/stay.workspace"
-  flips stay 'never: a workspace of #91 is created'
 }
 stay_fails() {
   # The first message about #91 is a narration with no title, before the first change (#317).

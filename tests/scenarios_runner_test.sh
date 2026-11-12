@@ -123,8 +123,16 @@ done
 w=$tmp/given/unread
 un_gh() { (cd "$w" && PATH="$w.bin:$PATH" gh "$@" 2>&1); }
 { [ "$(un_gh issue view 91 --json title,body || true)" = 'HTTP 502: Bad Gateway (https://api.github.com/graphql)' ] &&
+  [ "$(un_gh issue view 91 || true)" = 'HTTP 502: Bad Gateway (https://api.github.com/graphql)' ] &&
   [ "$(un_gh issue view 91 --json assignees)" = '{"assignees":[]}' ] && [ "$(un_gh issue list --json number)" = '[]' ]; } ||
   fail 'the fake gh gives the title or the body of a task that no read gives, or no other field of it'
+# The entries of collect.sh: none for that task, and the name of a linked
+# branch of another repository.
+entry='query { repository { n91: issueOrPullRequest(number: 91) { __typename } } }'
+[ "$(un_gh api graphql -f query="$entry" --jq .data.repository)" = '{}' ] || fail 'collect.sh gets an entry of a task that no read gives'
+w=$tmp/given/forkonly
+[ "$(cd "$w" && PATH="$w.bin:$PATH" gh api graphql -f query="$entry" --jq '.data.repository.n91.linkedBranches.nodes[0].ref.name')" = fix/91-typo ] ||
+  fail 'collect.sh gets no name of the linked branch of another repository'
 # A linked branch of another repository: its link names that repository.
 w=$tmp/given/forkonly
 [ "$(cd "$w" && PATH="$w.bin:$PATH" gh issue develop --list 91)" = "$(printf 'fix/91-typo\thttps://github.com/lee/shop/tree/fix/91-typo')" ] ||
@@ -274,6 +282,20 @@ got=$(STUB_HANG=1 stub conv)
 { [ "$SECONDS" -lt 30 ] && ! pgrep -f 'exec sleep 60|^sleep 60$' >/dev/null; } || fail 'an other conversation that does not end is not stopped' "$got"
 got=$(STUB_BREAK=1 stub free conv)
 { grep -q '^pass^1 free: ' <<<"$got" && grep -q '^runs: ' <<<"$got"; } || fail 'a run of conv that fails stops the eval' "$got"
+# A case named twice runs once.
+got=$(stub free free)
+{ [ "$(wc -l <"$tmp/stub.args")" -eq 1 ] && [ "$(grep -c '^pass^1 free:' <<<"$got")" = 1 ]; } || fail 'a case named twice runs twice' "$got"
+# A case whose setup fails gets no run: its session would have no fake gh.
+mkdir "$tmp/badgit"
+# shellcheck disable=SC2016 # the script is data
+printf '#!/usr/bin/env bash\n[ "$1" != clone ] || exit 1\nexec %q "$@"\n' "$(command -v git)" >"$tmp/badgit/git"
+chmod +x "$tmp/badgit/git"
+got=$(PATH="$tmp/badgit:$PATH" stub otherpr 2>/dev/null)
+{ [ ! -e "$tmp/stub.args" ] && grep -q '^otherpr: no run' <<<"$got"; } || fail 'a case whose setup fails runs' "$got"
+# A round of linkedhere can cost $12, a cap of $4 for each of its three messages.
+got=$(stub --max-cost 11 linkedhere)
+grep -qxF "stopped before round 1 of 1: \$0.00 spent, and a round can cost \$12.00 more, past the cap of \$11" <<<"$got" ||
+  fail 'the cap of a round does not count the three messages of linkedhere' "$got"
 # A round of here can cost $8, a cap of $4 for each of its two messages.
 got=$(stub --max-cost 7 here)
 { [ ! -e "$tmp/stub.args" ] && grep -qxF "stopped before round 1 of 1: \$0.00 spent, and a round can cost \$8.00 more, past the cap of \$7" <<<"$got"; } ||

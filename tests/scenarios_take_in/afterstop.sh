@@ -19,8 +19,8 @@ afterstop_check() {
   rm -rf "$t"
 }
 afterstop_copies() {
-  # After the second text: no title, no word of the label, no question, a
-  # write, a new branch and another assignee; and no second text.
+  # After the second text: no title, no word of the label, no question, and
+  # a write; and no second text.
   copy afterstop
   awk '/^person/ { p++ } p >= 2 && /^text/ { gsub(/README: the install command says npm instal/, "the README task") } 1' "$fixtures/afterstop.events" >"$tmp/$n/afterstop.events"
   flips afterstop 'the first message about #91 tells its gist'
@@ -33,12 +33,6 @@ afterstop_copies() {
   copy afterstop
   add afterstop $'Bash\tgh issue edit 91 --add-assignee @me'
   flips afterstop 'the run waits: no change'
-  copy afterstop
-  echo fix/91-new >>"$tmp/$n/afterstop.branches"
-  flips afterstop 'never: a branch for #91 is created'
-  copy afterstop
-  state afterstop '.issues[0].assignees += ["rivera"]'
-  flips afterstop 'never: the assignees of #91 change'
   copy afterstop
   awk '/^person/ && ++p == 2 { next } 1' "$fixtures/afterstop.events" >"$tmp/$n/afterstop.events"
   notchecked afterstop

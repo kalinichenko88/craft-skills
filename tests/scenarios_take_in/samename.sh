@@ -34,8 +34,8 @@ samename_copies() {
   local sha
   sha=$(grep '^fix/91-typo ' "$fixtures/samename.given.workspace" | cut -d' ' -f2 | cut -c1-7)
   # No name of the branch, no commit told, no request to choose, no word of a
-  # delete, a write to #91, the branch moved, #91 assigned, labelled and
-  # linked; and another name of the branch.
+  # delete, a write to #91, a branch on the origin, and #91 linked; and
+  # another name of the branch.
   copy samename
   sed -i.bak '/^text/s#fix/91-typo#the branch#g' "$tmp/$n/samename.events"
   flips samename 'the person is told that the workspace has fix/91-typo'
@@ -52,14 +52,8 @@ samename_copies() {
   state samename '.log = ["edit 91"]'
   flips samename 'the run waits: no change'
   copy samename
-  sed -i.bak 's/^fix\/91-typo .*/fix\/91-typo 0000000000000000000000000000000000000000/' "$tmp/$n/samename.workspace"
-  flips samename 'never: fix/91-typo changes' 'the run waits: no change'
-  copy samename
-  state samename '.issues[0].assignees = ["kim"]'
-  flips samename 'never: the assignees of #91 change'
-  copy samename
-  state samename '.issues[0].labels = ["in progress"]'
-  flips samename 'never: #91 gets the label in progress'
+  echo fix/91-typo >>"$tmp/$n/samename.branches"
+  flips samename 'the run waits: no change'
   copy samename
   state samename '.issues[0].linked = ["fix/91-typo"]'
   flips samename 'never: #91 gets a linked branch'

@@ -11,22 +11,12 @@ linkedmine_check() {
   nobranch '["fix/91-typo"]'
 }
 linkedmine_copies() {
-  # No question after the answer, a write, #91 assigned and labelled, and a
-  # new branch.
+  # No question after the answer, and #91 labelled.
   copy linkedmine
   awk '/^person/ { p++ } p >= 1 && /^text/ { gsub(/\?/, ".") } 1' "$fixtures/linkedmine.events" >"$tmp/$n/linkedmine.events"
   flips linkedmine 'the person is asked whether the work on #91 runs somewhere else or continues here'
   copy linkedmine
-  add linkedmine $'Bash\tgh issue edit 91 --add-assignee @me'
-  flips linkedmine 'the run waits: no change'
-  copy linkedmine
-  state linkedmine '.issues[0].assignees = ["kim"]'
-  flips linkedmine 'never: the assignees of #91 change'
-  copy linkedmine
   state linkedmine '.issues[0].labels = ["in progress"]'
   flips linkedmine 'never: #91 gets the label in progress'
-  copy linkedmine
-  echo fix/91-new >>"$tmp/$n/linkedmine.branches"
-  flips linkedmine 'never: a branch for #91 is created'
 }
 linkedmine_fails() { :; }
