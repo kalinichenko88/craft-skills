@@ -1,19 +1,30 @@
 # Review a change
 
 Reviews read the change on a branch in rounds: when the run ends the work on
-a task, when the person asks for a review or for a pull request, when a
-person writes review comments on the pull request, or when the person
-answers a question that an earlier run asked. The run fixes what the reviews
-report, and tells the person what they found. When the run took a task into
-work, the run then opens the pull request of the task and asks whether to
-merge it, in the same run. A spec and a plan that the run writes get their
-own reads before the person gets them.
+a task, when the person asks for a review or for a pull request, when the
+person asks the run to handle the review comments on the pull request, or
+when the person answers a question that an earlier run asked. The run fixes
+what the reviews report, and tells the person what they found. When the run
+took a task into work, or the person asked for a pull request, the run then
+opens the pull request and asks whether to merge it, in the same run. A spec
+and a plan that the run writes get their own reads before the person gets
+them. The scenarios of the second reader hold for an implementation that has
+one.
 
 Not covered yet:
 
 - the question whether a feature is worth it, on a branch of another person,
   or on the person's own branch when its task holds no worth report:
-  `product/worth.md` covers that question.
+  `product/worth.md` holds that question, in its own list;
+- an implementation with no review for code that is not necessary, and a
+  second reader that cannot run;
+- an app that does not start, and no way to show the app;
+- a change to documents only that changes a spec or the text of a skill,
+  and one that gets no second reader;
+- review comments on a change to documents only, and review comments
+  before the pull request opens;
+- a repository with no architecture file;
+- a move that a script or a test proves unchanged.
 
 ## A review with no defect
 
@@ -373,9 +384,11 @@ Given:
 - the work on #91 fixes `RowsTable` in `src/ui/rows-table.tsx`, which
   shows the rows of a CSV file on a screen of the app: it showed the header
   row twice; the work changes the tests of `RowsTable` too
-- the README of the repository says how to start the app on test data
-- after the work, on that screen, a field of 300 characters runs out of its
-  cell and covers the next cell; on the default branch, it stays in its cell
+- the README of the repository says how to start the app on test data, and
+  how to start it on the data of its real users
+- the test data holds a row whose first field has 300 characters
+- after the work, on that screen, that field runs out of its cell and
+  covers the next cell; on the default branch, it stays in its cell
 - the check passes on `fix/91-rows-table`
 When: the run ends the work on #91
 Then:
@@ -386,8 +399,9 @@ Then:
   in its cell
 - round 1 reads the whole branch after that commit
 - the workspace of #91 holds no file that the walk wrote
-- the text of the pull request of #91 names the walk and the one thing that
-  it found
+- the text of the pull request of #91 names the walk
+- the text of the pull request of #91 names the one thing that the walk
+  found
 - the person is asked whether to merge the pull request of #91
 Never:
 - the walk reads the data of the real users of the app
@@ -403,6 +417,7 @@ Given:
 - the work on #91 fixes `RowsTable` in `src/ui/rows-table.tsx`, which
   shows the rows of a CSV file on a screen of the app behind a login: it
   showed the header row twice; the work changes the tests of `RowsTable` too
+- the README of the repository says how to start the app on test data
 - the repository has no test account for that login, and its README names
   none
 - the check passes on `fix/91-rows-table`
@@ -411,6 +426,7 @@ Then:
 - round 1 reads the whole branch
 - the text of the pull request of #91 says that the walk did not reach the
   screen, because the login has no test account
+- the workspace of #91 holds no file that the walk wrote
 - the person is asked whether to merge the pull request of #91
 Never:
 - a commit adds a dependency to the repository
@@ -424,10 +440,10 @@ Given:
   is on it
 - the repository has an architecture file, `docs/ARCHITECTURE.md`, which
   says that only the code in `src/store/` reads the database
-- the endpoint `GET /rows` gives the rows of every file, and its documents
-  say that it gives only the rows of the file that the request names
+- the endpoint `GET /rows` gives the rows of a file in the order in which
+  they were saved, and its documents say that it gives them by line number
 - the work on #91 changes `readRows` in `src/api/rows.ts` and `loadRows` in
-  `src/store/rows.ts`, so that `GET /rows` gives only the rows of that file,
+  `src/store/rows.ts`, so that `GET /rows` gives the rows by line number,
   and the tests of both
 - the review of the architecture reports one defect: the work makes
   `readRows` in `src/api/rows.ts` read the database
@@ -451,10 +467,10 @@ Given:
 - the run took task #91 into work, and #91 is open, assigned to the person
 - branch `fix/91-rows-endpoint` is linked to #91, and the workspace of #91
   is on it
-- the endpoint `GET /rows` gives the rows of every file, and its documents
-  say that it gives only the rows of the file that the request names
+- the endpoint `GET /rows` gives the rows of a file in the order in which
+  they were saved, and its documents say that it gives them by line number
 - the work on #91 changes `readRows` in `src/api/rows.ts` and `loadRows` in
-  `src/store/rows.ts`, so that `GET /rows` gives only the rows of that file,
+  `src/store/rows.ts`, so that `GET /rows` gives the rows by line number,
   and the tests of both
 - the review of the tests reports one thing: two tests of `loadRows` check
   the same case
@@ -468,7 +484,7 @@ Then:
 - the text of the pull request of #91 names the review of the tests
 Never:
 - a round reads the commit that removes that test
-- the review of the tests reads the branch a second time
+- the review of the tests reads the tests a second time
 
 ## A defect that the second reader reports
 
@@ -529,6 +545,7 @@ Never:
 - `fix/91-token-expiry` fixes the defect of round 3
 - `fix/91-token-expiry` fixes the defect that the second reader reported
 - a last pass runs
+- the review of the tests runs
 
 ## A change to the words of an error message
 
@@ -678,9 +695,10 @@ Then:
 - a round reads only that commit
 - the run gives that round level medium
 - a review comment under the first one names that commit
-- a review comment under the second one says that `parseRows` keeps the
-  first line of a text
+- the text of #96 names the second review comment as declined, because
+  `parseRows` keeps the first line of a text
 - the text of #96 names the round on that commit
+- the person is asked whether to merge #96
 Never:
 - a commit changes what `parseRows` does with the first line of a text
 - #96 is merged
@@ -691,6 +709,8 @@ Given:
 - the run took task #91 into work, and #91 is open, assigned to the person
 - branch `fix/91-summary-prompt` is linked to #91, and the workspace of #91
   is on it
+- #91 reports that the summary that the product writes gives more than
+  five points, and its text asks for at most five
 - the work on #91 changes only `prompts/summary.md`, the text of a prompt
   that the product sends to a model
 - round 1 reports one defect: one sentence of `prompts/summary.md` asks for
@@ -717,6 +737,8 @@ Given:
 - the run took task #91 into work, and #91 is open, assigned to the person
 - branch `fix/91-summary-date` is linked to #91, and the workspace of #91 is
   on it
+- #91 reports that the summary that the product writes has no date, and its
+  text asks that the model gives the date in digits
 - the work on #91 changes `prompts/summary.md`, the text of a prompt that
   the product sends to a model, and 20 lines of `sendSummary` in
   `src/summary/send.ts`, which reads the answer of the model, and the tests
@@ -732,8 +754,6 @@ Then:
 - `fix/91-summary-date` has one commit that fixes that defect in
   `prompts/summary.md`
 - a review of text reads only that commit
-- the text of the pull request of #91 names the review of the code and the
-  review of text of round 1
 Never:
 - a review of the code reads only the commit that fixes that defect
 
@@ -750,16 +770,18 @@ Given:
   not merge
 - the last pass reports one false sentence: `docs/parser.md` says that
   `parseRows` keeps empty lines, and `parseRows` drops them
+- the check passes on `docs/91-parser-guide`
 When: the person writes "run a last pass and a security review on #96"
 Then:
 - a last pass reads the whole of `docs/91-parser-guide` against the default
   branch
 - `docs/91-parser-guide` has one commit that fixes that sentence
-- a round reads only that commit
-- the security review reads the branch after that round
-- the text of #96 names the last pass and the security review
+- the security review reads the branch after that commit
+- the text of #96 names the last pass
+- the text of #96 names the security review
 - the person is asked again whether to merge #96
 Never:
+- a round reads only the commit that fixes that sentence
 - #96 is merged
 - a second last pass runs
 
@@ -817,7 +839,8 @@ Then:
 - `fix/91-parse-rows` has one commit that fixes the defect of round 2
 - round 3 reads only the commit that fixes the defect of round 2
 - a last pass runs after round 3
-- the text of the pull request of #91 names three rounds and the last pass
+- the text of the pull request of #91 names three rounds
+- the text of the pull request of #91 names the last pass
 - the person is asked whether to merge the pull request of #91
 - the question has three answers: merge and remove the workspace of #91,
   merge only, and do not merge
@@ -940,11 +963,12 @@ Never:
 - that pull request closes a task
 - a task is created for `fix/csv-quotes`
 
-## The review of a spec
+## The reads of a spec
 
 Given:
 - the person and the run shaped a feature: the export of the rows of a
   table as a CSV file
+- the person got a worth report on the export, with the verdict do it
 - the run wrote the spec of that feature in `docs/specs/csv-export.md`
 When: the run ends the spec of the export
 Then:
@@ -955,7 +979,7 @@ Never:
 - a round reads the spec
 - a security review runs
 
-## The check of a plan against its spec
+## The read of a plan against its spec
 
 Given:
 - the spec of the export of the rows of a table as a CSV file is in
