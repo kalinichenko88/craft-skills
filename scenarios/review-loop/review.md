@@ -990,7 +990,6 @@ Given:
   holds a comma
 When: the run ends the plan of the export
 Then:
-- a reader that did not write the plan reads the spec and the plan
 - the plan has a step that quotes a field that holds a comma
 - that step is in the plan before the person gets the plan
 Never:
