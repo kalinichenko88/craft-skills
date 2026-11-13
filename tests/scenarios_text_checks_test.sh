@@ -304,20 +304,4 @@ out=$(PATH="$tmp/bin:$PATH" "$evalsh" --changed 1 HEAD 2>&1) || fail "--changed 
 [ "$(sed -n 's/^Scenario: //p' <<<"$out" | tr '\n' ' ')" = "$take scenarios/none/none.md " ] ||
   fail 'the rows do not run side by side, or their reports are not in the order of the rows' "$out"
 sed -n 's/^Runs: //p' <<<"$out" | while read -r d; do rm -rf "$d"; done
-
-# TERM to the eval stops each run of its rows, and nothing above the eval: a
-# stop of its whole process group would end this test too. Each stub run
-# writes its pid and sleeps.
-printf '#!/usr/bin/env bash\necho $$ >>%q\ncat >/dev/null\nexec sleep 60\n' "$tmp/runpids" >"$tmp/bin/claude"
-PATH="$tmp/bin:$PATH" "$evalsh" --changed 1 HEAD >"$tmp/out" 2>&1 &
-e=$!
-for _ in $(seq 50); do [ ! -f "$tmp/runpids" ] || [ "$(grep -c '' "$tmp/runpids")" -lt 4 ] || break; sleep 0.2; done
-[ "$(grep -c '' "$tmp/runpids")" = 4 ] || fail 'the two rows did not start their four runs' "$(cat "$tmp/out")"
-kill -TERM "$e"
-wait "$e" 2>/dev/null || true
-sleep 0.5
-while read -r p; do
-  ! kill -0 "$p" 2>/dev/null || fail 'a run of a row lives on after TERM to the eval' "$(cat "$tmp/out")"
-done <"$tmp/runpids"
-sed -n 's/^Runs: //p' "$tmp/out" | while read -r d; do rm -rf "$d"; done
 echo 'scenarios_text_checks_test: ok'

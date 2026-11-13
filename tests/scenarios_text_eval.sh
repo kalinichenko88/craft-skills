@@ -268,27 +268,8 @@ eval_row() {
 # with no answer stops the eval after its group.
 # ponytail: a group waits for its slowest row; a pool, if a group gets slow.
 outs=$(mktemp -d)
-pids=() status=0
-# tree <pid>: the process and each process under it.
-tree() {
-  local c
-  echo "$1"
-  for c in $(pgrep -P "$1"); do tree "$c"; done
-}
-# stop <signal>: a stop of the eval stops the runs of its rows too, as they
-# spend tokens, and nothing above the eval. Then the eval ends by the same
-# signal.
-stop() {
-  local p
-  # shellcheck disable=SC2046 # one pid a word
-  kill $(for p in ${pids[@]+"${pids[@]}"}; do tree "$p"; done) 2>/dev/null || true
-  trap - "$1"
-  kill -"$1" $$
-  exit 1
-}
 trap 'rm -rf "$outs"' EXIT
-trap 'stop INT' INT
-trap 'stop TERM' TERM
+pids=() status=0
 # group: waits for each row of the group and prints its report.
 group() {
   local k
