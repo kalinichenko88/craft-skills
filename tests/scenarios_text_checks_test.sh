@@ -147,8 +147,11 @@ evalsh=$root/tests/scenarios_text_eval.sh
 refused usage: 0
 refused usage: 1 HEAD 3
 refused 'no commit' 1 no-such-ref
-# Every row of this tree, so a scenario file here with no row fails here.
+# Every row of this tree, so a scenario file here with no row fails here. The
+# rows run five at a time, and a group with no answer stops the eval after
+# its five reports.
 refused 'no answer' 1 HEAD
+[ "$(grep -c '' "$tmp/runs")" = 5 ] || fail 'the first group with no answer does not stop the eval after its five rows' "$(cat "$tmp/out")"
 
 # A copy of the eval in a repository with the recorded scenario file, and no
 # skills/github/scout.md at its first commit. Each call names the take-in
@@ -296,7 +299,7 @@ d=$(dirname "$0")
 p=$(cat)
 case $p in *'A line of the row of none.'*) mine=none other=take ;; *) mine=take other=none ;; esac
 touch "$d/$mine"
-for _ in $(seq 50); do [ ! -e "$d/$other" ] || break; sleep 0.2; done
+for _ in $(seq 150); do [ ! -e "$d/$other" ] || break; sleep 0.2; done
 [ -e "$d/$other" ] || { echo '{"is_error": true, "result": "the other row did not run"}'; exit 1; }
 awk '/^=== The items/ { f = 1; next } /^=== / { f = 0 } f && NF { print $1, "x:1 \"y\"" }' <<<"$p" | jq -Rs '{result: .}'
 EOF
