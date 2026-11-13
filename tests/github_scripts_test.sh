@@ -589,6 +589,10 @@ jq --arg b "$partof"$'\n\nThen check the host, and close #14.' "$body = \$b" "$f
 out=$(bash "$scripts/keep-open.sh" 21 14) && fail 'keep-open.sh exits 0 on "close #14" in a sentence' "$out"
 case $out in *'  Then check the host, and close #14.'*) ;; *) fail 'keep-open.sh names "close #14" in a sentence' "$out" ;; esac
 case $out in *'then #14 closes'*) fail 'keep-open.sh names a line with the number before the word' "$out" ;; esac
+for kw in 'Fixes #14' 'fixed: #14' 'fix #14' 'RESOLVES #14' 'resolved #14' 'resolve #14' 'closed #14'; do
+  jq --arg b "$partof"$'\n'"$kw" "$body = \$b" "$fixtures/keep-open-21.json" >"$tmp/graphql.json"
+  if bash "$scripts/keep-open.sh" 21 14 >/dev/null; then fail "keep-open.sh exits 0 on \"$kw\""; fi
+done
 jq --arg b "$partof" "$body = \$b | $refs |= [{id: \"I_5\", number: 5, repository: .[0].repository},
   {id: \"I_other\", number: 14, repository: {id: \"R_other\"}}] + ." "$fixtures/keep-open-21.json" >"$tmp/graphql.json"
 : >"$tmp/calls"

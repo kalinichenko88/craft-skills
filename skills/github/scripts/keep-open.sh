@@ -2,10 +2,10 @@
 # Keeps an issue open when a pull request merges: removes the pull request's
 # link that would close it. A pull request from a branch that worktree.sh
 # linked to the issue gets that link when it opens, whatever its description
-# says: see Pull requests in SKILL.md. A description that closes the issue
-# with a keyword, as "and close #<n>.", is refused, and nothing is removed: a
-# merge closes the issue from the keyword whatever the link says, and only an
-# edit of the description removes it (#383).
+# says: see Pull requests in SKILL.md. A description with a closing keyword
+# before #<n>, as "and close #<n>.", is refused, and nothing is removed: a
+# merge closes the issue from the keyword also after its link is removed, and
+# only an edit of the description removes the keyword (#383).
 #
 #   keep-open.sh <pr> <n>
 #

@@ -14,12 +14,12 @@ commands and runs none.
 A script can stop with an error, from `gh` or from its own usage check. Then
 its step is not done: report the error and stop at that step. Do not do the
 step by hand with `gh`: that skips the checks the script makes. Some stops are
-not errors: a refusal from `take-in-check.sh`, `add-finding.sh` or
-`keep-open.sh`, and the two stops of `worktree.sh`: when every branch linked to
-the issue is in another repository, and when a local branch has the name you
-gave and the issue has no linked branch. `take-in.md` and `filing.md` say what
-to do then. A refusal from `keep-open.sh` says it itself: a merge closes the
-issue from a keyword in the description, whatever the link says.
+not errors: a refusal from `take-in-check.sh` or `add-finding.sh`, and the two
+stops of `worktree.sh`: when every branch linked to the issue is in another
+repository, and when a local branch has the name you gave and the issue has no
+linked branch. `take-in.md` and `filing.md` say what to do then. A refusal
+from `keep-open.sh` is not an error either: it names each line of the
+description that closes the issue with a keyword, and says what to do.
 
 ## Reading the tracker
 
