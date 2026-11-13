@@ -112,16 +112,16 @@ code=0
 out=$(FAKE_HANG=1 CODEX_REVIEW_LIMIT=1 review "$base" 2>"$tmp/err") || code=$?
 check 'a codex run past the time limit exits 1' 1 "$code"
 check 'a codex run past the time limit prints no findings' '' "$out"
-grep -qxF 'codex-review.sh: codex ran past 1 seconds and was stopped' "$tmp/err" ||
-  fail 'a codex run past the time limit says so on stderr' "$(cat "$tmp/err")"
-grep -qF 'codex prints its session here' "$tmp/err" || fail 'a codex run past the time limit shows its log on stderr' "$(cat "$tmp/err")"
+# Nothing else: bash's line on the killed job holds the whole codex command.
+check 'a codex run past the time limit shows its log and says so on stderr, and nothing else' \
+  "$(printf '%s\n' 'codex prints its session here' 'codex-review.sh: codex ran past 1 seconds and was stopped')" "$(cat "$tmp/err")"
 [ -s "$tmp/hung" ] || fail 'the hung fake codex wrote the pid of its child'
 if running "$(cat "$tmp/hung")"; then fail 'a codex run past the time limit leaves no child of codex running'; fi
 
 # A review that is stopped, as when the agent stops its background task, stops
-# its codex too.
+# its codex too. The limit keeps a failed case from leaving it running.
 rm -f "$tmp/hung"
-(cd "$repo" && FAKE_HANG=1 PATH="$tmp/bin:$PATH" exec bash "$script" "$base") >/dev/null 2>&1 &
+(cd "$repo" && FAKE_HANG=1 CODEX_REVIEW_LIMIT=5 PATH="$tmp/bin:$PATH" exec bash "$script" "$base") >/dev/null 2>&1 &
 reviewer=$!
 for _ in $(seq 50); do [ -s "$tmp/hung" ] && break; sleep 0.1; done
 [ -s "$tmp/hung" ] || fail 'the hung fake codex wrote the pid of its child'
