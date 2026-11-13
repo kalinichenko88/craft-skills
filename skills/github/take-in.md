@@ -211,7 +211,7 @@ thing as the old one: for "`parseRows` at `read.ts:42`", the line where
 `parseRows` starts now, not the line of the defect in it. In Claude Code a
 scout checks them: `Job: citations #91.` with the worktree as `Tree:`
 (`tracker.md`). A citation that holds needs no look of yours; check each one
-that moved or is gone before you edit. Then save the body with
+that moved or is gone before you edit the body. Then save the body with
 `gh issue view 91 --json body --jq .body > <file>`, in a new file outside
 every checkout, correct the citations there with the file tool, and post it
 with `gh issue edit 91 --body-file <file>`.

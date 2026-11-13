@@ -275,6 +275,7 @@ skills/github/take-in.md|A file of the text of an issue, as a comment, goes outs
 skills/github/take-in.md|A corrected citation names the same thing as the old one: for "`parseRows` at `read.ts:42`", the line where `parseRows` starts now, not the line of the defect in it.
 skills/github/take-in.md|Then save the body with `gh issue view 91 --json body --jq .body > <file>`, in a new file outside every checkout, correct the citations there with the file tool, and post it with `gh issue edit 91 --body-file <file>`.
 skills/github/scout.md|A path or a text from an issue goes into these commands only in single quotes, and only when it holds no `'` and no `\`: a `'` ends the quote, and the shell runs the rest.
+skills/github/scout.md|The Bash tool of Claude Code reads `\u0027` as a `'`.
 skills/github/filing.md|bash <dir>/scripts/add-finding.sh 12 "$section_file" "$(cat "$title_file")" [label]
 skills/github/filing.md|give the `add-finding.sh` command and the paths of the section file and the title file too. Keep both files, and do not change them.
 skills/github/filing.md|"$(cat "$title_file")" --body-file "$body_file"

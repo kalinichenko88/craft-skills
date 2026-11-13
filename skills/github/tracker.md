@@ -112,5 +112,7 @@ edit. Write it with the file tool, or save it from `gh` with `>`, to a new
 file outside every checkout, as the session's scratchpad or a folder from
 `mktemp -d`, and give it to `gh` with `--body-file`. A title that holds words
 of an issue goes into such a file too, and to `gh` or a script as
-`"$(cat <file>)"`: the shell does not read that text again. Outside every checkout, no `git add` takes the file into a
-commit, in Codex too.
+`"$(cat <file>)"`: the shell does not read that text again. Outside every
+checkout, no `git add` takes the file into a commit, in Codex too. The
+citations job of `scout.md` writes no file, and its two commands have a rule
+of their own.
