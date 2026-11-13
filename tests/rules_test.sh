@@ -224,6 +224,9 @@ done
 #   how, and it does not read tracker.md: a `printf '<title>'` ends its quote
 #   at a `'` of the title, and runs the rest. 30 of 216 titles here hold a
 #   `'` (#398).
+# - The merge moment is in merge.md since #397, and the skill load gives
+#   SKILL.md alone: the *Merging* row and the merge step of review-loop are
+#   the ways in. 5 of 5 Opus runs read merge.md before the merge.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
@@ -297,6 +300,8 @@ skills/github/filing.md|"$(cat "$title_file")" --body-file "$body_file"
 skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false; else in a later change, as its task or as a finding outside its task. Then add a line under `## Updates`, a heading right after the Status and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 skills/review-loop/architecture-lens.md|The one exception is *A fact that changed* in *ADRs*: a sentence that is false now, corrected in place, with its line under `## Updates` that quotes the old words, and with the same decision.
 skills/github/filing.md|After the yes, write the body, and the title of an issue, with the file tool to two files outside every checkout, not with the shell:
+skills/github/SKILL.md|*Cleanup* when the person asks for it | `merge.md`
+skills/review-loop/SKILL.md|show the `gh pr merge` command that `merge.md` in that skill gives
 EOF
 # After a compaction Claude Code attaches each skill again, but counts 4
 # characters a token against 5,000 tokens: it cuts the text past 20,000
