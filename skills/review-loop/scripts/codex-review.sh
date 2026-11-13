@@ -67,15 +67,27 @@ codex login status >/dev/null 2>&1 || {
 }
 
 tmp=$(mktemp -d)
+# stop <pid>: kills the process and each process under it.
+stop() {
+  local kids
+  kids=$(pgrep -P "$1") || true
+  kill -KILL "$1" 2>/dev/null || true
+  for kid in $kids; do stop "$kid"; done
+}
 # bash 3.2 runs this trap with $? at 0 when set -u stops the script, so a run
-# passes only when it set finished at its end.
+# passes only when it set finished at its end. It stops a codex that still
+# runs: past the time limit, or when the script itself is stopped. The
+# redirection keeps bash's line on the killed job, with the whole command, off
+# stderr.
 clean() {
   local code=$?
   [ "$code" != 0 ] || [ -n "${finished:-}" ] || code=1
+  [ -z "${pid:-}" ] || { stop "$pid"; wait "$pid"; } 2>/dev/null || true
   rm -rf "$tmp"
   exit "$code"
 }
 finished=
+pid=
 trap clean EXIT
 cat >"$tmp/schema.json" <<'EOF'
 {
@@ -120,14 +132,8 @@ fi
 
 # A codex exec that hangs writes nothing and never exits: one ran for 7.5
 # hours (#313). The runs measured took 45 to 204 seconds. macOS has no timeout
-# command, so the script stops codex and its children itself.
+# command, so the script stops codex and its children itself, in clean.
 limit=${CODEX_REVIEW_LIMIT:-600}
-stop() {
-  local kids
-  kids=$(pgrep -P "$1") || true
-  kill -KILL "$1" 2>/dev/null || true
-  for kid in $kids; do stop "$kid"; done
-}
 codex exec -s read-only --ephemeral --output-schema "$tmp/schema.json" \
   -o "$tmp/findings.json" "$prompt" </dev/null >"$tmp/log" 2>&1 &
 pid=$!
@@ -137,14 +143,14 @@ while kill -0 "$pid" 2>/dev/null && [ "$waited" -lt "$limit" ]; do
   waited=$((waited + 1))
 done
 if kill -0 "$pid" 2>/dev/null; then
-  # The redirection keeps bash's line on the killed job, with the whole
-  # command, off stderr.
-  { stop "$pid"; wait "$pid"; } 2>/dev/null || true
   tail -n 20 "$tmp/log" >&2
   echo "codex-review.sh: codex ran past $limit seconds and was stopped" >&2
   exit 1
 fi
-if ! wait "$pid" || [ ! -s "$tmp/findings.json" ]; then
+status=0
+wait "$pid" || status=$?
+pid=
+if [ "$status" != 0 ] || [ ! -s "$tmp/findings.json" ]; then
   tail -n 20 "$tmp/log" >&2
   exit 1
 fi
