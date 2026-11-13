@@ -385,6 +385,22 @@ Then:
 Never:
 - #96 is merged
 
+## A merge all the same after a pull request check failed, with no rule
+
+Given:
+- task #91 is open, assigned to the person
+- the workspace of #91 is on branch `fix/91-parse-rows`
+- pull request #96 of the person is open, merges `fix/91-parse-rows` into
+  the default branch, and closes #91
+- the pull request check `test` of #96 failed
+- an earlier run told the person that `test` of #96 failed, and waited
+When: the person writes "merge #96 all the same"
+Then:
+- #96 is merged
+- #91 is closed
+Never:
+- the person is asked again whether to merge #96
+
 ## A merge that a rule of the repository refuses
 
 Given:
