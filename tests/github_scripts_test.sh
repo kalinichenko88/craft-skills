@@ -568,11 +568,13 @@ esac
 # keep-open-21.json is PR #21's answer, with its link to #14 and a description
 # that closes #14 with a keyword. $partof, the description of a Part of PR in a
 # private tracker rewritten, puts the number before the word: it closes nothing.
+# Its last line is PR #15's, with #14 for #13: the keyword is before #11 only.
 # The cases add a link to #5, and one to another repository's #14.
 export KEEP_OPEN_TRIES=1
 refs=.data.repository.pullRequest.closingIssuesReferences.nodes
 body=.data.repository.pullRequest.body
-partof=$'Part of #14\n\nThe scaffold only. The service is made after the merge; then #14 closes.'
+partof=$'Part of #14\n\nThe scaffold only. The service is made after the merge; then #14 closes.
+Closes #11. #14 did the first half: it left out the bodies of label-only bug and debt issues.'
 pr21=$(jq -r .data.repository.pullRequest.id "$fixtures/keep-open-21.json")
 i14=$(jq -r "${refs}[0].id" "$fixtures/keep-open-21.json")
 removed() { grep 'removeCloseIssueReferences' "$tmp/calls" | grep -oE 'pr=[^ ]+ -f issue=[^ ]+' || true; }
@@ -585,10 +587,15 @@ case $out in *$'\n  Closes #14.\n'*) ;; *) fail 'keep-open.sh names the line tha
 check 'keep-open.sh removes nothing when the description closes the issue' '' "$(removed)"
 check 'keep-open.sh takes #1 for #1, not for #14' 'PR #21 does not close #1: nothing to do' \
   "$(bash "$scripts/keep-open.sh" 21 1)"
-jq --arg b "$partof"$'\n\nThen check the host, and close #14.' "$body = \$b" "$fixtures/keep-open-21.json" >"$tmp/graphql.json"
+# After a removal by an older keep-open.sh, the keyword stays and the link is gone.
+jq "$refs = []" "$fixtures/keep-open-21.json" >"$tmp/graphql.json"
+out=$(bash "$scripts/keep-open.sh" 21 14) && fail 'keep-open.sh exits 0 on a keyword whose link is gone' "$out"
+jq --arg b "$partof"$'\nCloses #14.\n\nThen check the host, and close #14.' "$body = \$b" "$fixtures/keep-open-21.json" >"$tmp/graphql.json"
 out=$(bash "$scripts/keep-open.sh" 21 14) && fail 'keep-open.sh exits 0 on "close #14" in a sentence' "$out"
-case $out in *'  Then check the host, and close #14.'*) ;; *) fail 'keep-open.sh names "close #14" in a sentence' "$out" ;; esac
-case $out in *'then #14 closes'*) fail 'keep-open.sh names a line with the number before the word' "$out" ;; esac
+case $out in *$'\n  Closes #14.\n  Then check the host, and close #14.\n'*) ;;
+  *) fail 'keep-open.sh names each line that closes the issue, "close #14" in a sentence too' "$out" ;;
+esac
+case $out in *'then #14 closes'* | *'#14 did the first half'*) fail 'keep-open.sh names a line with no keyword before #14' "$out" ;; esac
 for kw in 'Fixes #14' 'fixed: #14' 'fix #14' 'RESOLVES #14' 'resolved #14' 'resolve #14' 'closed #14'; do
   jq --arg b "$partof"$'\n'"$kw" "$body = \$b" "$fixtures/keep-open-21.json" >"$tmp/graphql.json"
   if bash "$scripts/keep-open.sh" 21 14 >/dev/null; then fail "keep-open.sh exits 0 on \"$kw\""; fi
@@ -613,10 +620,10 @@ FAKE_FAIL=closingIssuesReferences bash "$scripts/keep-open.sh" 21 14 >/dev/null 
 check 'keep-open.sh writes nothing when it cannot read the links' '' "$(removed)"
 FAKE_FAIL=removeCloseIssueReferences bash "$scripts/keep-open.sh" 21 14 >/dev/null 2>&1 &&
   fail 'keep-open.sh exits 0 when the removal fails'
-jq --arg b "$partof" "$body = \$b | $refs = []" "$fixtures/keep-open-21.json" >"$tmp/graphql.json"
 bash "$scripts/keep-open.sh" 21 abc >/dev/null 2>&1 && fail 'keep-open.sh takes a word for an issue number'
 # GitHub adds a linked branch's link about a second after the pull request
 # opens, as the timelines of #16 and #22 show: keep-open.sh reads again.
+jq --arg b "$partof" "$body = \$b | $refs = []" "$fixtures/keep-open-21.json" >"$tmp/graphql.json"
 jq --arg b "$partof" "$body = \$b" "$fixtures/keep-open-21.json" >"$tmp/graphql.next.json"
 check 'keep-open.sh waits for the link GitHub adds after the pull request opens' 'PR #21 no longer closes #14' \
   "$(KEEP_OPEN_TRIES=2 bash "$scripts/keep-open.sh" 21 14)"
