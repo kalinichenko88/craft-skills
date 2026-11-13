@@ -17,7 +17,9 @@ step by hand with `gh`: that skips the checks the script makes. Some stops are
 not errors: a refusal from `take-in-check.sh` or `add-finding.sh`, and the two
 stops of `worktree.sh`: when every branch linked to the issue is in another
 repository, and when a local branch has the name you gave and the issue has no
-linked branch. `take-in.md` and `filing.md` say what to do then.
+linked branch. `take-in.md` and `filing.md` say what to do then. A refusal
+from `keep-open.sh` is not an error either: it names each line of the
+description that closes the issue with a keyword, and says what to do.
 
 ## Reading the tracker
 
