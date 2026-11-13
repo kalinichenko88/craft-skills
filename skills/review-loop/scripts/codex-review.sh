@@ -13,7 +13,8 @@
 # "skipped: <why>" and exits 0: the review goes on without Codex. When codex
 # fails, writes no findings file, or runs past CODEX_REVIEW_LIMIT seconds (600
 # by default) and is stopped, it prints the end of Codex's log on stderr and
-# exits 1. It exits 2 and runs no Codex for a wrong call, as a base that is
+# exits 1. When the script itself is stopped, as by SIGTERM, it stops codex
+# too. It exits 2 and runs no Codex for a wrong call, as a base that is
 # not a commit or a working directory outside a repository, and for a range
 # that git cannot diff or that changes nothing.
 #

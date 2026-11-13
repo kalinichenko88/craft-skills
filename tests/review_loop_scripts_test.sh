@@ -45,6 +45,9 @@ fail() {
   exit 1
 }
 check() { [ "$2" = "$3" ] || fail "$1" "$(printf 'want: %s\ngot:  %s' "$2" "$3")"; }
+# running <pid>: the process runs. kill -0 also passes on a killed child that
+# its new parent has not reaped yet.
+running() { case $(ps -o stat= -p "$1") in '' | Z*) return 1 ;; esac; }
 
 # A branch with one commit past its base, which adds a file.
 repo=$tmp/repo
@@ -112,7 +115,7 @@ grep -qxF 'codex-review.sh: codex ran past 1 seconds and was stopped' "$tmp/err"
   fail 'a codex run past the time limit says so on stderr' "$(cat "$tmp/err")"
 grep -qF 'codex prints its session here' "$tmp/err" || fail 'a codex run past the time limit shows its log on stderr' "$(cat "$tmp/err")"
 [ -s "$tmp/hung" ] || fail 'the hung fake codex wrote the pid of its child'
-if kill -0 "$(cat "$tmp/hung")" 2>/dev/null; then fail 'a codex run past the time limit leaves no child of codex running'; fi
+if running "$(cat "$tmp/hung")"; then fail 'a codex run past the time limit leaves no child of codex running'; fi
 
 # A review that is stopped, as when the agent stops its background task, stops
 # its codex too.
@@ -122,7 +125,7 @@ reviewer=$!
 for _ in $(seq 50); do [ -s "$tmp/hung" ] && break; sleep 0.1; done
 [ -s "$tmp/hung" ] || fail 'the hung fake codex wrote the pid of its child'
 { kill "$reviewer"; wait "$reviewer"; } 2>/dev/null || true
-if kill -0 "$(cat "$tmp/hung")" 2>/dev/null; then fail 'a review that is stopped leaves no child of codex running'; fi
+if running "$(cat "$tmp/hung")"; then fail 'a review that is stopped leaves no child of codex running'; fi
 
 rm -f "$tmp/args"
 check 'not logged in: skipped, with the reason' 'skipped: codex is not logged in' "$(FAKE_LOGGED_IN=0 review "$base")"
