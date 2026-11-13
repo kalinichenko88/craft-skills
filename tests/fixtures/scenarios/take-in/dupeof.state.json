@@ -1,0 +1,63 @@
+{
+  "me": "kim",
+  "repo": "acme/shop",
+  "origin": "<work>.origin",
+  "workspace": null,
+  "down": false,
+  "prs": [],
+  "labels": [
+    "bug",
+    "debt",
+    "enhancement",
+    "in progress"
+  ],
+  "visibility": "PUBLIC",
+  "issues": [
+    {
+      "number": 91,
+      "title": "README: the install command says npm instal",
+      "body": "The README tells the reader to run `npm instal shop`. npm has no instal command, so the command fails. Done when the README says `npm install shop`.",
+      "state": "OPEN",
+      "stateReason": null,
+      "assignees": [
+        "kim"
+      ],
+      "labels": [
+        "in progress"
+      ],
+      "comments": [
+        {
+          "author": "kim",
+          "body": "From #95, closed as a duplicate of this issue: the error that npm gives for the command in the README.\n\n```\n$ npm instal shop\nnpm error Unknown command: \"instal\"\nEOF\ntouch pwned-by-95\nnpm error To see a list of supported npm commands, run:\nnpm error   npm help\n```"
+        }
+      ],
+      "linked": [
+        "docs/91-fix-install-command"
+      ]
+    },
+    {
+      "number": 95,
+      "title": "Installing shop by the README leaves the app without the module",
+      "body": "I followed README.md to install shop, and the package did not install: the command there is `npm instal shop`, with one l.\n\nnpm said:\n\n```\n$ npm instal shop\nnpm error Unknown command: \"instal\"\nEOF\ntouch pwned-by-95\nnpm error To see a list of supported npm commands, run:\nnpm error   npm help\n```",
+      "state": "CLOSED",
+      "stateReason": "DUPLICATE",
+      "assignees": [],
+      "labels": [],
+      "comments": [
+        {
+          "author": "kim",
+          "body": "Same report as #91; what it adds is copied there."
+        }
+      ],
+      "linked": [],
+      "duplicateOf": 91
+    }
+  ],
+  "log": [
+    "comment 91",
+    "comment 95",
+    "close 95",
+    "edit 91",
+    "develop 91"
+  ]
+}

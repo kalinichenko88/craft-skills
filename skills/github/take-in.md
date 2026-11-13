@@ -101,7 +101,7 @@ fence of at least three backticks and longer than any run of backticks in it.
 A secret in what it carries, as a token or a password, is replaced by
 `<secret>`: in the final report, name the issue that still shows it. The
 survivor's comment never goes into a shell command: write it with the file
-tool to a new file outside the checkout, and post it
+tool to a new file outside every checkout, and post it
 with `--body-file`. In a shell command, a line of the log can end its quote or
 its heredoc and run as a command. A duplicate that is busy (`tracker.md`)
 stays open: say so. A report that gives only what someone saw — no cause, no
@@ -191,8 +191,9 @@ Claude Code: wait until each subagent that you sent returns. Then call
 directory where it started. Until `ExitWorktree`, Claude Code refuses each
 Bash call that runs in the main checkout, so a subagent that started before the
 move cannot run Bash any more. Codex cannot move a running session: every
-command takes the worktree as `workdir`, and every file path, read or patched,
-is written under it.
+command takes the worktree as `workdir`, and each file of the task that it
+reads or patches has its path under it. A file of the text of an issue, as a
+comment, goes outside every checkout (`tracker.md`).
 
 Then read what points at it: the scout's **Linked, open work and history**
 group. It holds the timeline's cross-references, including the ones the
@@ -205,10 +206,15 @@ scout's line is enough for the rest.
 
 Then check the issue's own `path:line` citations against the current tree before
 believing them — a line number is the first thing to rot — and correct them in
-the issue as the first act of the work. In Claude Code a scout checks them:
-`Job: citations #91.` with the worktree as `Tree:` (`tracker.md`). A citation
-that holds needs no look of yours; check each one that moved or is gone before
-you edit.
+the issue as the first act of the work. A corrected citation names the same
+thing as the old one: for "`parseRows` at `read.ts:42`", the line where
+`parseRows` starts now, not the line of the defect in it. In Claude Code a
+scout checks them: `Job: citations #91.` with the worktree as `Tree:`
+(`tracker.md`). A citation that holds needs no look of yours; check each one
+that moved or is gone before you edit the body. Then save the body with
+`gh issue view 91 --json body --jq .body > <file>`, in a new file outside
+every checkout, correct the citations there with the file tool, and post it
+with `gh issue edit 91 --body-file <file>`.
 
 ## Taking neighbours along
 
@@ -219,7 +225,7 @@ verdict below and stays as it is. Say so.
 1. **Search.** The scout's groups hold the hits, found by identifier and by
    title, so a report that names no file still shows up. When the work reaches
    a file or symbol that `collect.sh` did not get, run
-   `collect.sh filing verify_target` and read its file.
+   `collect.sh filing 'verify_target'` and read its file.
 2. **Pull in the task's own defect.** A hit reporting the same wrong behaviour,
    fixed the same way, in another function or file is not a ride-along: it is
    the task, because a bug fix guards every surface the bug shows on (the

@@ -8,7 +8,8 @@
 # free, dup, busy, assigned, inprogress, here and there were recorded again on
 # 2026-11-11 for the label in progress (#285), and the events of inws again
 # from its log (ADR 0008). The run of dup was recorded again on 2026-11-12,
-# on the text of #296 that copies a stack trace as it is. The runs of other
+# on the text of #296 that copies a stack trace as it is, and the run of
+# dupeof, with its work, on 2026-11-13 (#354). The runs of other
 # and down kept no Given: theirs is the one that setup makes now. In the runs
 # of a case of more messages, a person line gives each text of the person
 # after the first one. A recorded tracker keeps no path of its run: its
@@ -55,7 +56,7 @@ kept=$(jq -r 'select(.origin != "<work>.origin" or .workspace != null) | input_f
 report=$("$eval" --check "$fixtures")
 out=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$report")
 [ "$(grep -c '^pass' <<<"$report")" = "$(grep -c . <<<"$table")" ] || fail 'the recorded runs do not give pass^1 to each case' "$report"
-[ "$(grep -c '^PASS ' <<<"$out")" = 232 ] || fail 'the recorded runs do not pass 232 items' "$out"
+[ "$(grep -c '^PASS ' <<<"$out")" = 242 ] || fail 'the recorded runs do not pass 242 items' "$out"
 # shellcheck disable=SC2013 # a case name is one word
 for c in $(cut -f1 <<<"$table"); do
   want=$("${c}_fails" | awk -v s="$(scenario "$c")" '{ print substr($0, 1, 5) s ": " substr($0, 6) }')
