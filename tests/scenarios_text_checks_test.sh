@@ -21,6 +21,8 @@
 # row in its output. With --changed, it runs only the rows with a skill file
 # that differs from the base, committed, changed or untracked, and none when
 # no skill file does; with no answer, it prints the reason of the first run.
+# It runs the rows side by side, and gives their reports in the order of the
+# rows.
 
 set -eu
 
@@ -131,8 +133,11 @@ refused() {
   rm -f "$tmp/called"
   err=$(PATH="$tmp/bin:$PATH" "$evalsh" "$@" 2>&1 >"$tmp/out") || code=$?
   printf '%s\n' "$err" >"$tmp/err"
-  logs=$(sed -n 's/^Runs: //p' "$tmp/out")
+  # A group of rows gives a runs folder for each row: the first one stays.
+  sed -n 's/^Runs: //p' "$tmp/out" >"$tmp/runs"
+  logs=$(head -n 1 "$tmp/runs")
   [ -z "$logs" ] || { rm -rf "$tmp/logs" && mv "$logs" "$tmp/logs"; }
+  tail -n +2 "$tmp/runs" | while read -r d; do rm -rf "$d"; done
   [ "$code" = 2 ] && [ "${err#*"$message"}" != "$err" ] || fail "'$*' exited $code with '$err', not 2 with '$message'"
   [ "$message" != 'no answer' ] || want=yes
   [ ! -e "$tmp/called" ] || got=yes
@@ -142,8 +147,11 @@ evalsh=$root/tests/scenarios_text_eval.sh
 refused usage: 0
 refused usage: 1 HEAD 3
 refused 'no commit' 1 no-such-ref
-# Every row of this tree, so a scenario file here with no row fails here.
+# Every row of this tree, so a scenario file here with no row fails here. The
+# rows run five at a time, and a group with no answer stops the eval after
+# its five reports.
 refused 'no answer' 1 HEAD
+[ "$(grep -c '' "$tmp/runs")" = 5 ] || fail 'the first group with no answer does not stop the eval after its five rows' "$(cat "$tmp/out")"
 
 # A copy of the eval in a repository with the recorded scenario file, and no
 # skills/github/scout.md at its first commit. Each call names the take-in
@@ -274,4 +282,29 @@ rm -rf "$(sed -n 's/^Runs: //p' "$tmp/out")"
 [ "$code" = 2 ] || fail "a second set with no answer exited $code, not 2" "$(cat "$tmp/err")"
 grep -qxF "$evalsh: the first run printed: Limit reached" "$tmp/err" ||
   fail 'a second set with no answer does not print the reason of its first run' "$(cat "$tmp/err")"
+
+# --changed runs the rows side by side (#392): a stub run of one row waits for
+# a run of the other row, so rows one after another get no answer. The
+# reports come in the order of the rows.
+rm -f "$tmp/bin/limit" "$tmp/bin/calls"
+# The line of the row of none is on both sides, so each run of a row knows
+# its row; then a line of each row's file is new on the working tree.
+echo 'A line of the row of none.' >>"$repo/skills/github/new.md"
+commit 'the row of none'
+echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
+echo 'A line of the working tree only.' >>"$repo/skills/github/new.md"
+cat >"$tmp/bin/claude" <<'EOF'
+#!/usr/bin/env bash
+d=$(dirname "$0")
+p=$(cat)
+case $p in *'A line of the row of none.'*) mine=none other=take ;; *) mine=take other=none ;; esac
+touch "$d/$mine"
+for _ in $(seq 150); do [ ! -e "$d/$other" ] || break; sleep 0.2; done
+[ -e "$d/$other" ] || { echo '{"is_error": true, "result": "the other row did not run"}'; exit 1; }
+awk '/^=== The items/ { f = 1; next } /^=== / { f = 0 } f && NF { print $1, "x:1 \"y\"" }' <<<"$p" | jq -Rs '{result: .}'
+EOF
+out=$(PATH="$tmp/bin:$PATH" "$evalsh" --changed 1 HEAD 2>&1) || fail "--changed with two rows exited $?" "$out"
+[ "$(sed -n 's/^Scenario: //p' <<<"$out" | tr '\n' ' ')" = "$take scenarios/none/none.md " ] ||
+  fail 'the rows do not run side by side, or their reports are not in the order of the rows' "$out"
+sed -n 's/^Runs: //p' <<<"$out" | while read -r d; do rm -rf "$d"; done
 echo 'scenarios_text_checks_test: ok'
