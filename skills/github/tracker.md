@@ -58,7 +58,7 @@ finding with its `path:line`.
 For citations, the `Job:` line is `Job: citations #91.`, or `Job: citations.`
 for the open issues that have an entry in the file, and under it `Tree: <the
 worktree>`. After a merge, `Tree:` is the new checkout of the merged code of
-*Finishing* in `SKILL.md`, and its `Decision <n>:` lines come under it too. In
+*Finishing* in `merge.md`, and its `Decision <n>:` lines come under it too. In
 Claude Code this job goes to a scout whatever the size of the file: the
 reading it saves is in the code, not in the file.
 
@@ -89,7 +89,7 @@ has none. Each other step that takes an issue into work puts it on too, with
 `--add-label "in progress"` next to `--add-assignee @me` (`take-in.md`).
 When `gh` says that the label is not found, create it first:
 `gh label create "in progress" --description "The work on it runs" --color fbca04`.
-*Finishing* in `SKILL.md` takes it off. No step takes it off work that stops
+*Finishing* in `merge.md` takes it off. No step takes it off work that stops
 before a merge: the person does.
 
 ## The text of an issue in a command

@@ -486,7 +486,7 @@ summary is not the turn's last message, the report starts that message too.
 
 - **Change:** what the branch changed as a whole, for a person who did not
   follow the session: one to five bullets. In English, they are the merge's
-  `--body` in *Pull requests* of the `craft:github` skill.
+  `--body` in `merge.md` of the `craft:github` skill.
 - **Rounds:** the verdict of *Worth first*, or why it did not run.
   `ponytail-review`'s lines saved, or why it did not run. The walk: its
   tool and the count of findings it confirmed, or why it did not run. Each
@@ -545,7 +545,7 @@ Then:
    through this section again, its conditions first.
 3. When the last push in step 1 succeeded, the pull request is open and no
    question on business logic is open, show the `gh pr merge` command that
-   *Pull requests* in that skill gives. Ask one question with three answers:
+   `merge.md` in that skill gives. Ask one question with three answers:
    merge and clean up, merge only, or do not merge. When
    `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints
    nothing or the first path of `git worktree list`, the branch has no linked
@@ -555,7 +555,7 @@ Then:
    first on the fix of the defects that step 4 left open. After those
    rounds come *The summary* and this section again, its conditions first.
    On a merge answer, run the merge in the checkout that holds the branch,
-   as that section says. When it succeeds, file the defects that step 4
+   as that file says. When it succeeds, file the defects that step 4
    left open, through that skill. Its Boy Scout check does not apply to
    them: the merged pull request takes no more fixes. Then do *Finishing*
    from that skill, and on merge and clean up, its *Cleanup* after that.

@@ -93,7 +93,7 @@ commit hash) into every later command.
 
    After the push succeeds, in a separate command:
    `gh pr create --assignee @me --title "chore(release): bump the Codex version to $version" --body "The version in .codex-plugin/plugin.json and the $version section of CHANGELOG.md."`.
-   Wait for its checks as *Pull requests* in `craft:github` says, and stop
+   Wait for its checks as `merge.md` of `craft:github` says, and stop
    where it stops. When the person drops the release there, close it:
    `gh pr close <PR> --delete-branch`, then `git switch main`. When the checks
    pass, run `git fetch origin main`. If `origin/main` is not `$base`, `main`
@@ -134,7 +134,7 @@ commit hash) into every later command.
    ```
 
    Empty notes mean the heading in step 4 does not read `## $version ` — fix
-   it through a pull request of its own, merged as *Pull requests* in
+   it through a pull request of its own, merged as `merge.md` of
    `craft:github` says, then run this again on `main`. Without `--verify-tag`, a tag
    missing on the remote does not stop `gh`: it tags the default branch's HEAD
    and publishes the release there. With it, `gh` stops: run the tag push from
