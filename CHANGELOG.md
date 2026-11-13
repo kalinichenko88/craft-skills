@@ -6,6 +6,26 @@ type, and the PR number when it has one. The `/release` skill writes the
 section and merges it through a pull request of its own; other pull requests
 leave this file alone.
 
+## 2.4.0 - 2026-11-13
+
+### Added
+
+- (github) rule out a failure whose input a check refuses before the code (#380)
+
+### Changed
+
+- (github) move the merge moment of SKILL.md into merge.md (#400)
+- (ci, scenarios) run the rows of the text eval side by side, and cancel the run of an older push (#396)
+
+### Fixed
+
+- (github) ask the person to choose for a small finding in the task's module, not file it (#402)
+- (github) send the words and the text of an issue into commands only by one rule (#391)
+- (github) run the merge all the same as a plain gh pr merge, with no --admin (#395)
+- (review-loop) push the branch in a command of its own, so a refused push stops gh pr create (#389)
+- (review-loop) stop a codex exec that runs past 10 minutes in codex-review.sh (#388)
+- (github) keep-open.sh refuses a Part of PR whose description closes the issue with a keyword (#386)
+
 ## 2.3.0 - 2026-11-12
 
 ### Added
