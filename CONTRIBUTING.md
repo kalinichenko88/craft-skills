@@ -42,7 +42,8 @@ when `bun` is installed. Without `node`, the test skips `clones.sh` and says
 so. One case runs `clones.sh` with no `TMPDIR`, so it makes and removes a
 directory in your `~/.cache`. The review-loop skill's `codex-review.sh` runs
 against a fake `codex` that answers with findings recorded from `codex exec`
-on this repository, in `tests/fixtures/review_loop/`. The session-title
+on this repository, in `tests/fixtures/review_loop/`, or that hangs, for the
+time limit. The session-title
 hook runs on prompts recorded from Claude Code and Codex, in
 `tests/fixtures/hooks/`, against a fake `gh`. The architecture skill's
 `invariants.sh` runs on repositories the tests build: each kind of check, the
