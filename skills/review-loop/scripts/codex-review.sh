@@ -11,12 +11,14 @@
 #
 # When the Codex CLI is not installed or not logged in, it prints
 # "skipped: <why>" and exits 0: the review goes on without Codex. When codex
-# fails or writes no findings file, it prints the end of Codex's log on stderr
-# and exits 1. It exits 2 and runs no Codex for a wrong call, as a base that is
+# fails, writes no findings file, or runs past CODEX_REVIEW_LIMIT seconds (600
+# by default) and is stopped, it prints the end of Codex's log on stderr and
+# exits 1. When the script itself is stopped, as by SIGTERM, it stops codex
+# too. It exits 2 and runs no Codex for a wrong call, as a base that is
 # not a commit or a working directory outside a repository, and for a range
 # that git cannot diff or that changes nothing.
 #
-# Needs bash, git and the Codex CLI.
+# Needs bash, git, pgrep and the Codex CLI.
 
 set -euo pipefail
 
@@ -66,15 +68,28 @@ codex login status >/dev/null 2>&1 || {
 }
 
 tmp=$(mktemp -d)
+# tree <pid>: the process and each process under it. The whole tree is read
+# before the kill: a stdio server under codex ends when codex ends, and the
+# processes under it then move to PID 1.
+tree() {
+  local kid
+  echo "$1"
+  for kid in $(pgrep -P "$1"); do tree "$kid"; done
+}
 # bash 3.2 runs this trap with $? at 0 when set -u stops the script, so a run
-# passes only when it set finished at its end.
+# passes only when it set finished at its end. It stops a codex that still
+# runs: past the time limit, or when the script itself is stopped. The
+# redirection keeps bash's line on the killed job, with the whole command, off
+# stderr.
 clean() {
   local code=$?
   [ "$code" != 0 ] || [ -n "${finished:-}" ] || code=1
+  [ -z "${pid:-}" ] || { tree "$pid" | xargs kill -KILL; wait "$pid"; } 2>/dev/null || true
   rm -rf "$tmp"
   exit "$code"
 }
 finished=
+pid=
 trap clean EXIT
 cat >"$tmp/schema.json" <<'EOF'
 {
@@ -117,9 +132,27 @@ else
   prompt="$ask Read the diff, and read the code around it as you need. Find defects: code that gives a wrong result, crashes, loses or corrupts data, opens a security hole, races, or breaks a contract that other code depends on. Look hardest at trust boundaries, partial failure and retries, concurrency and ordering, and empty, missing and timeout cases. Do not report style, names or cleanup. Report a finding only when you can name the input or the state that makes it fail, from the code. $tell"
 fi
 
-if ! codex exec -s read-only --ephemeral --output-schema "$tmp/schema.json" \
-  -o "$tmp/findings.json" "$prompt" </dev/null >"$tmp/log" 2>&1 ||
-  [ ! -s "$tmp/findings.json" ]; then
+# A codex exec that hangs writes nothing and never exits: one ran for 7.5
+# hours (#313). The runs measured took 45 to 204 seconds. macOS has no timeout
+# command, so the script stops codex and its children itself, in clean.
+limit=${CODEX_REVIEW_LIMIT:-600}
+codex exec -s read-only --ephemeral --output-schema "$tmp/schema.json" \
+  -o "$tmp/findings.json" "$prompt" </dev/null >"$tmp/log" 2>&1 &
+pid=$!
+waited=0
+while kill -0 "$pid" 2>/dev/null && [ "$waited" -lt "$limit" ]; do
+  sleep 1
+  waited=$((waited + 1))
+done
+if kill -0 "$pid" 2>/dev/null; then
+  tail -n 20 "$tmp/log" >&2
+  echo "codex-review.sh: codex ran past $limit seconds and was stopped" >&2
+  exit 1
+fi
+status=0
+wait "$pid" || status=$?
+pid=
+if [ "$status" != 0 ] || [ ! -s "$tmp/findings.json" ]; then
   tail -n 20 "$tmp/log" >&2
   exit 1
 fi

@@ -212,6 +212,9 @@ done
 #   parseRows to a line inside it: it names the same thing now. The review
 #   of #354 found the same class in the citations job of the scout, in a
 #   title that add-finding.sh takes, and in an input for a program.
+# - A push that the repository refused did not stop `gh pr create`: 5 of 5
+#   Opus runs put both in one command, after `git push … | tail -3;`. With
+#   the push in a command of its own, 0 of 5 called it (#356).
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
@@ -250,6 +253,7 @@ skills/github/SKILL.md|`gh pr merge --squash --delete-branch --subject --body`, 
 skills/github/SKILL.md|Add `--admin` or `--auto` only when the person asks for it: `--admin` merges past a red check, and `--auto` leaves the pull request open when the command ends.
 skills/github/SKILL.md|Run the merge in the checkout that holds the branch, whatever directory the session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints.
 skills/github/SKILL.md|`ExitWorktree` does nothing for a session that moved there in any other way, as with `cd` after `worktree.sh`: that session runs both commands itself, each with `git -C <the main checkout>`. Only a session that started in the worktree, as with `claude --worktree` or `codex --worktree`, cannot leave it: give the person the two commands below, to run after the session ends.
+skills/review-loop/SKILL.md|1. Push the branch, in a command of its own. When the push succeeds and the branch has an open pull request, add the summary's lines to its `## Review`. When it succeeds and the branch has none, open the pull request
 skills/review-loop/SKILL.md|When `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints nothing or the first path of `git worktree list`, the branch has no linked worktree
 skills/github/SKILL.md|and a number that it changed, as a count or a size that an issue can quote.
 skills/github/SKILL.md|Count again each number that the merged code holds: a description can be older than the last fix. When a check sets its limit, count it as that check counts it.
@@ -286,7 +290,7 @@ EOF
 # characters a token against 5,000 tokens: it cuts the text past 20,000
 # characters (ADR 0006). A file on the debt list waits for its split, and
 # must not grow past its size there. A path that is gone leaves the list.
-debt='skills/review-loop/SKILL.md 33557 #283'
+debt='skills/review-loop/SKILL.md 33556 #283'
 for f in "$root"/skills/*/SKILL.md; do
   path=${f#"$root/"}
   chars=$(jq -Rs length "$f")

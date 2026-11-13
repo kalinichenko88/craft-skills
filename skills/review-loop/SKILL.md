@@ -468,7 +468,7 @@ Run /security-review with the Skill tool, and return its report. Change no file.
 ```
 
 After its report and the rounds on its findings, go on to *The summary*, then
-to *The pull request* when the conditions of that section hold.
+to the conditions of *The pull request*.
 
 Why a subagent: the prompt of `/security-review` ends "Your final reply must
 contain the markdown report and nothing else." Run in the session, the agent
@@ -534,10 +534,11 @@ Go on in the same turn when all of these hold:
 
 Then:
 
-1. Push the branch. When the push succeeds and the branch has an open pull
-   request, add the summary's lines to its `## Review`. When the push
-   succeeds and the branch has none, open the pull request through the
-   `craft:github` skill, with the summary under `## Review`.
+1. Push the branch, in a command of its own. When the push succeeds and
+   the branch has an open pull request, add the summary's lines to its
+   `## Review`. When it succeeds and the branch has none, open the pull
+   request through the `craft:github` skill, with the summary under
+   `## Review`.
 2. When questions on business logic are still open, ask them. An answer that
    needs no fix goes into `## Review`. The fix for an answer, when it needs
    one, goes through *Fixes from other places* and *The summary*, and then
