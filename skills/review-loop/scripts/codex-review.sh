@@ -121,9 +121,9 @@ EOF
 ask="You review a change in this git repository: \`git diff $base...$head\`. You are one reviewer inside a review that another agent runs: start no review loop and no review skill, and file nothing."
 tell="Do not change files. For each finding give the file, the line, a one-sentence summary and the failure scenario. Return no findings when the change has none."
 if [ -n "$docs" ]; then
-  # What the review subagent for documents reads, from *The level* in
-  # SKILL.md, and what a defect in a document is (#152). It found a real
-  # defect on two of three branches.
+  # What the review subagent for documents read before docs-lens.md, and
+  # what a defect in a document is (#152). It found a real defect on two of
+  # three branches.
   prompt="$ask The change is to documents. Read the text that the diff changes against the code that it describes, the rest of its document, and the other documents that describe the same thing. Find defects: a statement that the code or another document contradicts; a name, a path, a flag or a number that is wrong; a step that a reader cannot follow, or can skip; two rules that say different things for one case. Do not report style, or wording that has only one meaning. Report a finding only when you can name the line that contradicts it, or the wrong action that a reader takes. $tell"
 else
   # The prompt that found three defects no /code-review round had reported, on

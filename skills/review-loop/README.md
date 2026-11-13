@@ -52,7 +52,10 @@ each task stays as that skill sets it. In place of the final review of
   one sentence that says why. `ultra` only when you ask for it. A change to a
   test file is never `low`: `/code-review low` skips test files. A change to
   documents only, the text of a skill or a prompt included, gets one review
-  subagent in place of `/code-review`. When a skill's or a prompt's text comes
+  subagent in place of `/code-review`. Its whole prompt is `docs-lens.md`,
+  with no limit on its report: it reads the text against the code and the
+  rules that it cites, follows each flow across the files, and runs each
+  command and pattern of the text on a small sample. When a skill's or a prompt's text comes
   with code, `/code-review` takes the level of the code, and the subagent
   reviews the text.
 - **Rounds that read less.** The first round reads the whole branch, with the
