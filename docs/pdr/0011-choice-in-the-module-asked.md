@@ -33,9 +33,10 @@ still (PDR 0010).
   module, larger than the task, or need a measurement first.
 - 10 Opus runs of `claude -p` on a copy of kalinichenko88/vaultmd after the
   merge of #55, with the finding of #54 from round 1: on the text before
-  #401, 5 of 5 filed it as an issue, each as "a design choice"; on the text
-  of #401, 5 of 5 asked the person to choose, with the cost of each way and
-  a recommendation. All 10 recommended the same way.
+  #401, 5 of 5 filed it as an issue, each as "a design choice"; on the first
+  text of #401, 5 of 5 asked the person to choose, with the cost of each way
+  and a recommendation; on its final text, which waits for the answer, 3 of
+  3 asked before any change. All 13 recommended the same way.
 
 ## Revisit when
 
