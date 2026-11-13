@@ -28,8 +28,9 @@ case $1 in
       shift
     done
     echo 'codex prints its session here'
-    # A run that hangs, as in #313, in a child process of codex.
-    [ -z "${FAKE_HANG:-}" ] || { sleep 30 & echo $! >"$FAKE/hung"; wait; }
+    # A run that hangs, as in #313. Under codex runs a server that ends when
+    # codex ends, as a stdio MCP server on EOF, and under it a process.
+    [ -z "${FAKE_HANG:-}" ] || { exec 3> >(sleep 30 & echo $! >"$FAKE/hung"; read -r _); sleep 30 3>&-; }
     [ -z "${FAKE_FAIL:-}" ] || { echo 'ERROR: stream disconnected before completion'; exit 1; }
     [ -z "${FAKE_NO_MESSAGE:-}" ] || exit 0
     cp "$FIXTURES/codex-findings.json" "$out" ;;

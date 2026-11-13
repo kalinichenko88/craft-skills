@@ -68,12 +68,13 @@ codex login status >/dev/null 2>&1 || {
 }
 
 tmp=$(mktemp -d)
-# stop <pid>: kills the process and each process under it.
-stop() {
-  local kids
-  kids=$(pgrep -P "$1") || true
-  kill -KILL "$1" 2>/dev/null || true
-  for kid in $kids; do stop "$kid"; done
+# tree <pid>: the process and each process under it. The whole tree is read
+# before the kill: a stdio server under codex ends when codex ends, and the
+# processes under it then move to PID 1.
+tree() {
+  local kid
+  echo "$1"
+  for kid in $(pgrep -P "$1"); do tree "$kid"; done
 }
 # bash 3.2 runs this trap with $? at 0 when set -u stops the script, so a run
 # passes only when it set finished at its end. It stops a codex that still
@@ -83,7 +84,7 @@ stop() {
 clean() {
   local code=$?
   [ "$code" != 0 ] || [ -n "${finished:-}" ] || code=1
-  [ -z "${pid:-}" ] || { stop "$pid"; wait "$pid"; } 2>/dev/null || true
+  [ -z "${pid:-}" ] || { tree "$pid" | xargs kill -KILL; wait "$pid"; } 2>/dev/null || true
   rm -rf "$tmp"
   exit "$code"
 }
