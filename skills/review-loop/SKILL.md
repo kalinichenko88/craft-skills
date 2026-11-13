@@ -468,7 +468,7 @@ Run /security-review with the Skill tool, and return its report. Change no file.
 ```
 
 After its report and the rounds on its findings, go on to *The summary*, then
-to *The pull request*, on its conditions.
+to the conditions of *The pull request*.
 
 Why a subagent: the prompt of `/security-review` ends "Your final reply must
 contain the markdown report and nothing else." Run in the session, the agent
