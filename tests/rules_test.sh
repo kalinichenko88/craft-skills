@@ -272,9 +272,12 @@ skills/github/tracker.md|Any other word, and any input from an issue for a progr
 skills/github/tracker.md|Such a text is a comment that copies a log or quotes an issue, and a body that you write back after an edit. Write it with the file tool, or save it from `gh` with `>`, to a new file outside every checkout
 skills/github/tracker.md|A title that holds words of an issue goes into such a file too, and to `gh` or a script as `"$(cat <file>)"`: the shell does not read that text again. Outside every checkout, no `git add` takes the file into a commit, in Codex too.
 skills/github/take-in.md|A file of the text of an issue, as a comment, goes outside every checkout (`tracker.md`).
-skills/github/take-in.md|A corrected citation names the same thing as the old one: for "`parseRows` at `read.ts:42`", the line where `parseRows` starts now, not the line of the defect in it. Save the body with `gh issue view 91 --json body --jq .body > <file>`, in a new file outside every checkout, correct the citation there with the file tool, and post it with `gh issue edit 91 --body-file <file>`.
-skills/github/scout.md|A path or a text from an issue goes into these commands only in single quotes, and only when it holds no `'`: a `'` ends the quote, and the shell runs the rest.
+skills/github/take-in.md|A corrected citation names the same thing as the old one: for "`parseRows` at `read.ts:42`", the line where `parseRows` starts now, not the line of the defect in it.
+skills/github/take-in.md|Then save the body with `gh issue view 91 --json body --jq .body > <file>`, in a new file outside every checkout, correct the citations there with the file tool, and post it with `gh issue edit 91 --body-file <file>`.
+skills/github/scout.md|A path or a text from an issue goes into these commands only in single quotes, and only when it holds no `'` and no `\`: a `'` ends the quote, and the shell runs the rest.
 skills/github/filing.md|bash <dir>/scripts/add-finding.sh 12 "$section_file" "$(cat "$title_file")" [label]
+skills/github/filing.md|give the `add-finding.sh` command and the paths of the section file and the title file too. Keep both files, and do not change them.
+skills/github/filing.md|"$(cat "$title_file")" --body-file "$body_file"
 skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false; else in a later change, as its task or as a finding outside its task. Then add a line under `## Updates`, a heading right after the Status and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 skills/review-loop/architecture-lens.md|The one exception is *A fact that changed* in *ADRs*: a sentence that is false now, corrected in place, with its line under `## Updates` that quotes the old words, and with the same decision.
 EOF

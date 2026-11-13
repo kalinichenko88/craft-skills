@@ -103,12 +103,13 @@ than it closes. Per finding, the scout's groups decide:
   A busy host or a full one it refuses, and writes nothing. When `gh` stops it
   with an error, the step is not done: report the error and stop, as
   `tracker.md` says. In the report, give the `add-finding.sh` command and the
-  path of the section file too. Keep the section file, and do not change it.
+  paths of the section file and the title file too. Keep both files, and do
+  not change them.
   A rerun waits until the person asks for it and the cause of the error is
   gone. If the error says that the label is not found, correct the label in
   the command or remove it. A debt finding keeps its debt label: when the
   repository has none, create `debt` as *No free host* says. Then run the
-  command again, with the same section file. The rerun finishes the step.
+  command again, with the same two files. The rerun finishes the step.
   When the body holds the section already, the rerun does not check for a full
   host and does not change the body or the title. It adds the label, if the
   command names one, and leaves the one-line comment. Run it for one host at a
@@ -292,12 +293,13 @@ repository can set them.
 it. Show the full text: the title and the body of an issue, or the body of a
 comment. Say that the repository is public. Write only after a yes for this
 text: a changed text needs a new yes. A no, or no answer, writes nothing; put
-the draft in the final report. After the yes, save the body to a file outside
-the checkout and run one of:
+the draft in the final report. After the yes, save the body, and the title of
+an issue, to two files outside every checkout: a backtick or a `$(` in double
+quotes runs a command. Then run one of:
 
 ```bash
 gh issue create --repo github.com/kalinichenko88/craft-skills \
-  --title "<title>" --body-file "$body_file"
+  --title "$(cat "$title_file")" --body-file "$body_file"
 gh issue comment <n> --repo github.com/kalinichenko88/craft-skills \
   --body-file "$body_file"
 ```

@@ -141,8 +141,9 @@ code block or a log: it tells where the code was then. Give it as `skipped`.
    with `git -C <tree> grep -n -F -e '<text>'`.
 
 A path or a text from an issue goes into these commands only in single
-quotes, and only when it holds no `'`: a `'` ends the quote, and the shell runs
-the rest. For a text with one, search for a part of it that has none.
+quotes, and only when it holds no `'` and no `\`: a `'` ends the quote, and
+the shell runs the rest. The Bash tool of Claude Code reads `\u0027` as a `'`.
+For a text with one of them, search for a part of it that has none.
 
 `git ls-files` and `git grep`, with `-C <tree>`, are the two commands this job
 adds. They only read. Run no other `git` command, and nothing else.
