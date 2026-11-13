@@ -267,18 +267,34 @@ eval_row() {
 # subscription. Each row's report comes in the order of the rows, and a row
 # with no answer stops the eval after its group.
 # ponytail: a group waits for its slowest row; a pool, if a group gets slow.
-# A stop by hand stops the runs too: they spend tokens.
 outs=$(mktemp -d)
-trap 'rm -rf "$outs"' EXIT
-trap 'trap - INT TERM; kill 0' INT TERM
 pids=() status=0
-# group: waits for each row of the group and prints its report. The first row
-# that fails gives the status that stops the eval.
+# tree <pid>: the process and each process under it.
+tree() {
+  local c
+  echo "$1"
+  for c in $(pgrep -P "$1"); do tree "$c"; done
+}
+# stop <signal>: a stop of the eval stops the runs of its rows too, as they
+# spend tokens, and nothing above the eval. Then the eval ends by the same
+# signal.
+stop() {
+  local p
+  # shellcheck disable=SC2046 # one pid a word
+  kill $(for p in ${pids[@]+"${pids[@]}"}; do tree "$p"; done) 2>/dev/null || true
+  trap - "$1"
+  kill -"$1" $$
+  exit 1
+}
+trap 'rm -rf "$outs"' EXIT
+trap 'stop INT' INT
+trap 'stop TERM' TERM
+# group: waits for each row of the group and prints its report.
 group() {
-  local k s
+  local k
   [ "${#pids[@]}" -gt 0 ] || return 0
   for k in "${!pids[@]}"; do
-    wait "${pids[$k]}" || { s=$?; [ "$status" != 0 ] || status=$s; }
+    wait "${pids[$k]}" || status=$?
     cat "$outs/$k.out"
     cat "$outs/$k.err" >&2
   done
