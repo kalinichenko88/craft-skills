@@ -31,7 +31,8 @@ spec. The agent fixes and decides by itself, except for a change to business
 logic and a choice for a finding outside the task, and writes a summary. When
 the task is an issue taken into work, or the person asked for a pull request,
 the push and the pull request follow in the same turn, on the conditions in
-*The pull request*.
+*The pull request*. In each command and prompt, `<dir>` is this skill's base
+directory.
 
 Why the rounds stop: on one project, nine rounds of `/code-review high`, each
 over the whole branch, gave 68 findings and 25 fixes. No fix went into the
@@ -61,7 +62,7 @@ never `low`: `/code-review low` skips test files.
 
 A change to documents only takes no `/code-review`: one review subagent reads
 the text the range changes, with this prompt alone, and no limit on its
-report. `<dir>` is this skill's base directory:
+report:
 
 ```
 Read <dir>/docs-lens.md and do what it says.
@@ -254,9 +255,9 @@ that code.
 
 The subagent is an `Agent` call of its own, not a job in the prompt of round
 1, with `model: "opus"`, and `effort` at the level of round 1, or `high` when
-that level is lower or there is none. `<dir>` is this skill's base
-directory, `<base>` is the base of step 1, and `<head>` is the SHA of `HEAD`
-that round 1 reads. It gets this prompt, with no other job:
+that level is lower or there is none. `<base>` is the base of step 1, and
+`<head>` is the SHA of `HEAD` that round 1 reads. It gets this prompt, with
+no other job:
 
 ```
 Read <dir>/architecture-lens.md and do what it says.
@@ -394,8 +395,8 @@ A change to documents only, as *The level* says, gets one round:
    bash <dir>/scripts/codex-review.sh --docs <base>
    ```
 
-   `<dir>`, `<base>`, where it runs and its exits are as in *A second model
-   for `xhigh` changes*. Change no file while it runs. Its findings go
+   `<base>`, where it runs and its exits are as in *A second model for
+   `xhigh` changes*. Change no file while it runs. Its findings go
    through *The findings*. Its fixes are one commit, and no round reads it.
    Other documents, as a README or a note in `docs/`, get no Codex read. In
    Codex, there is no Codex read.

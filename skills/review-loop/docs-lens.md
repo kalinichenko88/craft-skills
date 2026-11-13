@@ -7,7 +7,9 @@ that wrote the branch, so its reasons do not bias you.
 
 Your prompt gives the range and the tree. Read `git -C <tree> diff <range>`.
 In the tree, read each document that the range changes, whole. Change no
-file of the tree.
+file of the tree. When the range changes code too, review only the text of a
+skill or a prompt, and the text that names the code that the range changes:
+the code review reads the other documents of the range.
 
 Make each of these three checks, on all the text that the range changes, and
 on the text of the tree that names code that the range changes:
@@ -38,18 +40,22 @@ on the text of the tree that names code that the range changes:
    command that writes outside that folder, as a `git push` or a write with
    `gh`: read it against the tool's help. Do not run the code of the project.
 
-A finding is a defect or a nit:
+Report a finding of one of these kinds:
 
-- a defect: a statement that the code or another document contradicts; a
-  name, a path, a flag or a number that is wrong; a step that a reader cannot
-  follow, or can skip; two rules that say different things for one case; a
-  command or a pattern that gives a wrong result on an input that its source
-  can hold. In the text of a skill or a prompt: a rule that, followed as
-  written, gives a wrong result in a case that real use reaches;
-- a nit: wording that a reader can take in two ways with the same result, a
-  broken link, a wrong line number, line wrapping.
+- **False.** A statement that the code or another document contradicts: a
+  name, a path, a link, a flag, a number or a quote that is wrong, or a rule
+  of a source without its condition or its exception.
+- **Conflict.** Two rules that say different things for one case. Name the
+  case.
+- **Flow.** A step that a reader cannot follow, or can skip, or that needs
+  what an earlier step removed or replaced.
+- **Command.** A command or a pattern that gives a wrong result on an input
+  that its source can hold.
+- **Outside.** A finding in text that the range does not change, and that
+  the range did not make false. The agent that sent you files it.
 
-Do not report style, or wording that has only one meaning.
+Do not report style, or wording that has only one meaning. You do not say
+whether a finding is a defect: the agent that sent you decides that.
 
 Report every finding that you have evidence for. There is no limit on the
 count of findings or on the length of your report, also when the change is
@@ -59,10 +65,7 @@ Give the evidence for each finding: the line of the source that contradicts
 the text; the two rules and the case that they answer differently; the step
 and the earlier step that breaks it, each with its `path:line`; the command,
 its input and what it printed. A finding with no evidence is not a finding.
-A finding in text that the range does not change, and that the range did not
-make false, is of the kind Outside: the agent that sent you files it.
 
-Return one line per finding,
-`<defect, nit or Outside> | path:line | the claim | the evidence`, then one
-line for each command or pattern that you did not run, with the reason, then
-a last line `count: N`. No finding is a valid answer.
+Return one line per finding, `<kind> | path:line | the claim | the evidence`,
+then one line for each command or pattern that you did not run, with the
+reason, then a last line `count: N`. No finding is a valid answer.
