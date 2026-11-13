@@ -6,11 +6,11 @@
 # file, then the files of the skill that its flow reads. The eval runs each
 # row, or the row of the scenario file that its first argument names, or with
 # --changed each row with a skill file that differs between the base and the
-# working tree, also an untracked one. Both sides read the scenario file of the
-# working tree, so a change of it alone gives no LOST. CI runs the eval with
-# --changed on each pull request (ADR 0007). A scenario file with no row stops
-# the eval before a run, and so does a file of a row that is missing in the
-# working tree.
+# working tree, also an untracked one. The rows run side by side, five at a
+# time. Both sides read the scenario file of the working tree, so a change of
+# it alone gives no LOST. CI runs the eval with --changed on each pull request
+# (ADR 0007). A scenario file with no row stops the eval before a run, and so
+# does a file of a row that is missing in the working tree.
 #
 # Each run is one haiku session of `claude -p` with no tool. It gets the
 # scenario file, its Then and Never items with an id, and the files of the
@@ -237,8 +237,9 @@ for row in "${selected[@]}"; do
     [ -f "$root/$f" ] || { echo "$0: $f is not in the working tree: the row of ${files[0]} needs a change" >&2; exit 2; }
   done
 done
-for row in "${selected[@]}"; do
-  read -r -a files <<<"$row"
+# eval_row <row>: the runs of one row and its report.
+eval_row() {
+  read -r -a files <<<"$1"
   scenario=${files[0]}
   files=("${files[@]:1}")
   logs=$(mktemp -d)
@@ -260,4 +261,32 @@ for row in "${selected[@]}"; do
   # With no answer, the first run of the last set tells why, as a token that
   # expired: the CLI puts the reason in .result.
   check "$logs" || { echo "$0: the first run printed: $(jq -r '.result // empty' "$last/change1.json" 2>/dev/null || head -c 300 "$last/change1.json")" >&2; exit 2; }
+}
+# The rows run side by side, five at a time (#392): a row takes 3 to 7
+# minutes, and five rows, 50 runs at once, gave each run its answer on one
+# subscription. Each row's report comes in the order of the rows, and a row
+# with no answer stops the eval after its group.
+# ponytail: a group waits for its slowest row; a pool, if a group gets slow.
+outs=$(mktemp -d)
+pids=()
+group() {
+  local k
+  [ "${#pids[@]}" -gt 0 ] || return 0
+  for k in "${!pids[@]}"; do
+    wait "${pids[$k]}" || status=$?
+    cat "$outs/$k.out"
+    cat "$outs/$k.err" >&2
+  done
+  pids=()
+  rm -rf "$outs"
+  outs=$(mktemp -d)
+  [ "$status" = 0 ] || exit "$status"
+}
+status=0
+for row in "${selected[@]}"; do
+  eval_row "$row" >"$outs/${#pids[@]}.out" 2>"$outs/${#pids[@]}.err" &
+  pids+=("$!")
+  [ "${#pids[@]}" -lt 5 ] || group
 done
+group
+rm -rf "$outs"
