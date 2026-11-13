@@ -140,7 +140,8 @@ and no check at all gives 1.
 - The list is empty, and the list command printed no error: merge.
 - A `fail` or `cancel` line: do not merge. Give the person each line, and
   keep the worktree and the branch. The person decides: a fix, a new run of
-  the check, or the merge all the same.
+  the check, or the merge all the same: run the same `gh pr merge`, with no
+  new wait and no `--admin`.
 - Only `pending` lines: watch once more, the same way. Still `pending`: give
   the person each line, and wait for the person's word. A check can wait
   for days, for a person's approval or for a runner that is offline.
@@ -225,12 +226,10 @@ the end* in `filing.md`.
 deletes only the remote branch: it prints `skipping local delete`, and the
 worktree and the local branch stay. Run in another checkout, `gh` 2.103
 removes that worktree with `git worktree remove` and the local branch with
-`git branch -D`. git still refuses a tree with changes or untracked files, but
-`gh` does not list the ignored files or check the branch head, and when the
-removal succeeds, it prints nothing without a TTY. That is why the merge runs
-in the worktree. When the branch has no
-linked worktree, `gh` deletes the local branch itself, and nothing is left to
-clean up.
+`git branch -D`. `gh` does not list the ignored files or check the branch
+head, and when the removal succeeds, it prints nothing without a TTY. That is
+why the merge runs in the worktree. When the branch has no linked worktree,
+`gh` deletes the local branch itself, and nothing is left to clean up.
 
 First leave the worktree, the way the session came in. In Claude Code, a
 session that `EnterWorktree` moved there leaves with `ExitWorktree` and

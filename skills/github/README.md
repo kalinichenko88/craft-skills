@@ -62,7 +62,8 @@ time.
   and clean up, merge only, or do not merge. Before the merge, it waits for
   the PR's checks: a failed or cancelled check stops it, a check that still
   runs after about 20 minutes comes back to you, and a refusal of GitHub
-  stops it too. It adds `--admin` or `--auto` only when you ask. After a
+  stops it too. Merge all the same, after a failed check, is a plain merge:
+  it adds `--admin` or `--auto` only when you ask for that flag. After a
   stop at round 3, more rounds is one more answer. Clean up removes the
   worktree and the local branch after the merge, when nothing in them would
   be lost.

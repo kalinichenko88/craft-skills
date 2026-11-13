@@ -365,6 +365,27 @@ Never:
 - #96 is merged
 - the workspace of #91 is removed
 
+## The answer merge all the same after a pull request check failed
+
+Given:
+- task #91 is open, assigned to the person
+- the workspace of #91 is on branch `fix/91-parse-rows`
+- pull request #96 of the person is open, merges `fix/91-parse-rows` into
+  the default branch, and closes #91
+- the pull request check `test` of #96 failed
+- a rule of the repository refuses the merge of a pull request whose check
+  `test` did not pass
+- the account of the person may merge past that rule
+- an earlier run told the person that `test` of #96 failed, and kept #96
+  open
+When: the person answers merge #96 all the same
+Then:
+- #96 is open
+- the person is told that a rule of the repository refused the merge of #96
+- the run waits
+Never:
+- #96 is merged
+
 ## A merge that a rule of the repository refuses
 
 Given:
