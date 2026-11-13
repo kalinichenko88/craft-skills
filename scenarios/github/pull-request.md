@@ -399,7 +399,7 @@ Then:
 - #96 is merged
 - #91 is closed
 Never:
-- the person is asked again whether to merge #96
+- the person is asked whether to merge #96
 
 ## A merge that a rule of the repository refuses
 
