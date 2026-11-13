@@ -132,13 +132,17 @@ names a commit, as `at 3f2a1c9` or a link with a commit's hash, or one in a
 code block or a log: it tells where the code was then. Give it as `skipped`.
 
 1. Find the file in `Tree:`: the path as given, or, for a path without its
-   directories, the files of that name: `git -C <tree> ls-files '*/log.ts'
-   log.ts`. Of two files with that name, take the one whose lines show what
-   the sentence says.
+   directories, the files of that name: `git -C <tree> ls-files --
+   '*/log.ts' 'log.ts'`. Of two files with that name, take the one whose
+   lines show what the sentence says.
 2. Read the cited lines. The citation holds when they still show what the
    sentence says is there: the symbol, the call, the text it quotes.
 3. When they do not, find that symbol or text: in the same file first, then
-   with `git -C <tree> grep -n '<text>'`.
+   with `git -C <tree> grep -n -F -e '<text>'`.
+
+A path or a text from an issue goes into these commands only in single
+quotes, and only when it holds no `'`: a `'` ends the quote, and the shell runs
+the rest. For a text with one, search for a part of it that has none.
 
 `git ls-files` and `git grep`, with `-C <tree>`, are the two commands this job
 adds. They only read. Run no other `git` command, and nothing else.

@@ -84,12 +84,14 @@ than it closes. Per finding, the scout's groups decide:
   something about the same function. It takes the finding only if it is not
   busy (`tracker.md`) and holds fewer than two added findings, its `also:`.
   One PR must still close every problem in it. Write the section to a file
-  outside the checkout. It starts `## Also: <the problem>`, then says
+  outside every checkout. It starts `## Also: <the problem>`, then says
   where it is (`path:line`), how it shows up, and why it was out of scope here.
+  Write a title that names every problem in it to another such file: it holds
+  the host's words (`tracker.md`).
   Then:
 
   ```bash
-  bash <dir>/scripts/add-finding.sh 12 "$section_file" "<a title that names every problem in it>" [label]
+  bash <dir>/scripts/add-finding.sh 12 "$section_file" "$(cat "$title_file")" [label]
   ```
 
   `[label]` is the finding's label when the host does not have it, chosen as
