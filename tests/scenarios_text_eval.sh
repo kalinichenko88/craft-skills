@@ -267,6 +267,8 @@ eval_row() {
 # subscription. Each row's report comes in the order of the rows, and a row
 # with no answer stops the eval after its group.
 # ponytail: a group waits for its slowest row; a pool, if a group gets slow.
+# A stop of the eval leaves the runs of its rows going, and they spend tokens
+# (#394).
 outs=$(mktemp -d)
 trap 'rm -rf "$outs"' EXIT
 pids=() status=0
