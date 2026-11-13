@@ -56,7 +56,8 @@ each task stays as that skill sets it. In place of the final review of
   `docs-lens.md`, with no limit on its report: it reads the text against the
   code and the rules that it cites, follows each flow across the files, and
   tries the commands and patterns that the change adds or changes on a small
-  sample, in a temporary folder. When a skill's or a prompt's text comes with
+  sample, in a temporary folder, except a command that writes outside it.
+  When a skill's or a prompt's text comes with
   code, `/code-review` takes the level of the code, and the subagent reviews
   the text.
 - **Rounds that read less.** The first round reads the whole branch, with the

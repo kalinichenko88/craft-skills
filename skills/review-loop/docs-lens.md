@@ -11,8 +11,8 @@ file of the tree.
 
 The text under review is all the text that the range changes in documents.
 When the range changes code too, it is the text of a skill or a prompt only:
-the text of one that the range changes, and the text of one in the tree that
-names code that the range changes. The code review reads the other documents
+the lines of one that the range changes, and the passages of one in the tree
+that name code that the range changes. The code review reads the other documents
 of such a range.
 
 Make each of these three checks on the text under review:
@@ -43,6 +43,9 @@ Make each of these three checks on the text under review:
    command that writes outside that folder, as a `git push` or a write with
    `gh`: read it against the tool's help. Do not run the code of the project.
 
+While you make them, follow each rule that the range adds or changes in the
+text of a skill or a prompt, in the cases that real use reaches.
+
 Report a finding of one of these kinds:
 
 - **False.** A statement that the code or another document contradicts: a
@@ -71,7 +74,8 @@ large: do not drop the smaller ones, and do not merge two findings into one.
 Give the evidence for each finding: the line of the source that contradicts
 the text; the two rules and the case that they answer differently; the step
 and the earlier step that breaks it, each with its `path:line`; the command,
-its input and what it printed. A finding with no evidence is not a finding.
+its input and what it printed; the rule, the case and its wrong result. A
+finding with no evidence is not a finding.
 
 Return one line per finding, `<kind> | path:line | the claim | the evidence`,
 then one line for each command or pattern that you did not run, with the
