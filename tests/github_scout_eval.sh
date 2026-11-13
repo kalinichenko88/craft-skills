@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sends the citations job of skills/github/scout.md to one recorded case, with
-# the prompt that *Finishing* of skills/github/SKILL.md gives it, at model
+# the prompt that *Finishing* of skills/github/merge.md gives it, at model
 # haiku. The case is PR #217 of this repository: its merge commit is the tree,
 # and the `Decision` lines come from its description. #217 added a section to
 # rules.md: its description says 9,931 of the 10,000 characters, and the check

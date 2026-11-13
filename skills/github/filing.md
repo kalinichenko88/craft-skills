@@ -151,7 +151,7 @@ second opinion. When the other side is busy, it gets the one-line comment
 only: it stays open, its body stays as it is, and the final report names it.
 When the other side is a host that holds two added findings, it gets the
 one-line comment only: its body stays as it is. After a merge, *Finishing* in
-`SKILL.md` still corrects the false text and the false title of a full host
+`merge.md` still corrects the false text and the false title of a full host
 that is not busy.
 
 ## A defect in this plugin
@@ -293,9 +293,10 @@ repository can set them.
 it. Show the full text: the title and the body of an issue, or the body of a
 comment. Say that the repository is public. Write only after a yes for this
 text: a changed text needs a new yes. A no, or no answer, writes nothing; put
-the draft in the final report. After the yes, save the body, and the title of
-an issue, to two files outside every checkout: a backtick or a `$(` in double
-quotes runs a command. Then run one of:
+the draft in the final report. After the yes, write the body, and the title of
+an issue, with the file tool to two files outside every checkout, not with the
+shell: in a quote or a heredoc, a word of the text can end it and run as a
+command. Then run one of:
 
 ```bash
 gh issue create --repo github.com/kalinichenko88/craft-skills \
@@ -311,7 +312,7 @@ call fails, give the person the draft and the link: for an issue,
 
 List the issue number and its title in the final report.
 
-**The session at the end.** *Finishing* in `SKILL.md` runs this step after the
+**The session at the end.** *Finishing* in `merge.md` runs this step after the
 merge. It finds the steps that the person pointed out during the work, and
 the scripts of the plugin that failed.
 In Claude Code, send one `Agent` call with `subagent_type: "Explore"`,

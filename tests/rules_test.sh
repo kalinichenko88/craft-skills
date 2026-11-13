@@ -220,6 +220,10 @@ done
 #   5 of 5 runs after a failed check and 4 of 5 after a check that still
 #   ran (#327). The merge all the same is the same `gh pr merge`, and the
 #   flags come only when the person names them.
+# - The step for a plugin defect said where to save its title and body, not
+#   how, and it does not read tracker.md: a `printf '<title>'` ends its quote
+#   at a `'` of the title, and runs the rest. 30 of 216 titles here hold a
+#   `'` (#398).
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
@@ -251,24 +255,24 @@ rules.md|For a report of data loss or a security hole, a zero count does not sto
 skills/review-loop/SKILL.md|A zero count does not decline a finding of data loss or a security hole: an attacker can make the input, and the test of its fix uses the input of the finding.
 rules.md|With no real source to sample, the count stops nothing, and the test uses the input of the report.
 skills/review-loop/SKILL.md|With no real source to sample, the count declines nothing, and the test of the fix uses the input of the finding.
-skills/github/SKILL.md|gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
-skills/github/SKILL.md|The list decides, not the exit code of the watch: a cancelled check gives 0, and no check at all gives 1.
-skills/github/SKILL.md|with `--subject` and `--body` in English, as every commit message is, also when the PR is in another language. `--subject` is the PR title in English, then ` (#<PR>)`
+skills/github/merge.md|gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
+skills/github/merge.md|The list decides, not the exit code of the watch: a cancelled check gives 0, and no check at all gives 1.
+skills/github/merge.md|with `--subject` and `--body` in English, as every commit message is, also when the PR is in another language. `--subject` is the PR title in English, then ` (#<PR>)`
 skills/github/SKILL.md|`gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch
-skills/github/SKILL.md|The merge all the same, after a `fail`, `cancel` or `pending` line, is the same `gh pr merge`, with no new wait.
-skills/github/SKILL.md|Add `--admin` or `--auto` only when the person names that flag: `--admin` merges past a red check, and `--auto` leaves the pull request open when the command ends.
+skills/github/merge.md|The merge all the same, after a `fail`, `cancel` or `pending` line, is the same `gh pr merge`, with no new wait.
+skills/github/merge.md|Add `--admin` or `--auto` only when the person names that flag: `--admin` merges past a red check, and `--auto` leaves the pull request open when the command ends.
 skills/github/SKILL.md|`--admin` or `--auto` only when the person names the flag.
-skills/github/SKILL.md|Run the merge in the checkout that holds the branch, whatever directory the session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints.
-skills/github/SKILL.md|`ExitWorktree` does nothing for a session that moved there in any other way, as with `cd` after `worktree.sh`: that session runs both commands itself, each with `git -C <the main checkout>`. Only a session that started in the worktree, as with `claude --worktree` or `codex --worktree`, cannot leave it: give the person the two commands below, to run after the session ends.
+skills/github/merge.md|Run the merge in the checkout that holds the branch, whatever directory the session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints.
+skills/github/merge.md|`ExitWorktree` does nothing for a session that moved there in any other way, as with `cd` after `worktree.sh`: that session runs both commands itself, each with `git -C <the main checkout>`. Only a session that started in the worktree, as with `claude --worktree` or `codex --worktree`, cannot leave it: give the person the two commands below, to run after the session ends.
 skills/review-loop/SKILL.md|1. Push the branch, in a command of its own. When the push succeeds and the branch has an open pull request, add the summary's lines to its `## Review`. When it succeeds and the branch has none, open the pull request
 skills/review-loop/SKILL.md|When `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints nothing or the first path of `git worktree list`, the branch has no linked worktree
-skills/github/SKILL.md|and a number that it changed, as a count or a size that an issue can quote.
-skills/github/SKILL.md|Count again each number that the merged code holds: a description can be older than the last fix. When a check sets its limit, count it as that check counts it.
-skills/github/SKILL.md|For each changed file with a size limit of its own, as a cap on its characters that a test sets, or on the `debt` list of a size check, add a decision with its new size and the check's limit, also when the description does not give them.
-skills/github/SKILL.md|*Finishing* reads the merged code in a new checkout, outside every checkout. The branch's worktree is not the merged code when the default branch moved after the branch's last push.
-skills/github/SKILL.md|git worktree add --detach <the mktemp path> origin/<the default branch>
-skills/github/SKILL.md|Remove it when *Finishing* ends or stops, with `git worktree remove --force <the mktemp path>`.
-skills/github/SKILL.md|A problem marked `Done in #<PR>.` needs no other correction, and an issue with a problem left in it stays open.
+skills/github/merge.md|and a number that it changed, as a count or a size that an issue can quote.
+skills/github/merge.md|Count again each number that the merged code holds: a description can be older than the last fix. When a check sets its limit, count it as that check counts it.
+skills/github/merge.md|For each changed file with a size limit of its own, as a cap on its characters that a test sets, or on the `debt` list of a size check, add a decision with its new size and the check's limit, also when the description does not give them.
+skills/github/merge.md|*Finishing* reads the merged code in a new checkout, outside every checkout. The branch's worktree is not the merged code when the default branch moved after the branch's last push.
+skills/github/merge.md|git worktree add --detach <the mktemp path> origin/<the default branch>
+skills/github/merge.md|Remove it when *Finishing* ends or stops, with `git worktree remove --force <the mktemp path>`.
+skills/github/merge.md|A problem marked `Done in #<PR>.` needs no other correction, and an issue with a problem left in it stays open.
 skills/github/scout.md|Then read the title and the whole body of each issue against them, the sentences with no citation too.
 rules.md|`craft:react-conventions` too. A subagent invokes them itself. No pattern to copy and no rule to keep the work short skips these calls.
 rules.md|A read-only subagent, as a review or an `Explore` subagent, files nothing, whatever the rules below say.
@@ -292,12 +296,13 @@ skills/github/filing.md|give the `add-finding.sh` command and the paths of the s
 skills/github/filing.md|"$(cat "$title_file")" --body-file "$body_file"
 skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false; else in a later change, as its task or as a finding outside its task. Then add a line under `## Updates`, a heading right after the Status and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 skills/review-loop/architecture-lens.md|The one exception is *A fact that changed* in *ADRs*: a sentence that is false now, corrected in place, with its line under `## Updates` that quotes the old words, and with the same decision.
+skills/github/filing.md|After the yes, write the body, and the title of an issue, with the file tool to two files outside every checkout, not with the shell:
 EOF
 # After a compaction Claude Code attaches each skill again, but counts 4
 # characters a token against 5,000 tokens: it cuts the text past 20,000
 # characters (ADR 0006). A file on the debt list waits for its split, and
 # must not grow past its size there. A path that is gone leaves the list.
-debt='skills/review-loop/SKILL.md 33556 #283'
+debt='skills/review-loop/SKILL.md 33543 #283'
 for f in "$root"/skills/*/SKILL.md; do
   path=${f#"$root/"}
   chars=$(jq -Rs length "$f")

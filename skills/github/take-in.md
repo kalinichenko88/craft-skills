@@ -252,7 +252,7 @@ verdict below and stays as it is. Say so.
      file of the screen, window or command the task changes, or a test of that
      screen, window or command.
    - **Stays open** — none of these. If it names a file that the change
-     touches, *Finishing* in `SKILL.md` checks its text against the merged
+     touches, *Finishing* in `merge.md` checks its text against the merged
      code and the decisions of the PR.
 4. **Check every other hit.** It rides along only if it passes all four,
    measured against the fix for the issue in hand alone:
