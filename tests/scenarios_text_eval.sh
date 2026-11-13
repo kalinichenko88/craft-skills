@@ -267,26 +267,27 @@ eval_row() {
 # subscription. Each row's report comes in the order of the rows, and a row
 # with no answer stops the eval after its group.
 # ponytail: a group waits for its slowest row; a pool, if a group gets slow.
+# A stop by hand stops the runs too: they spend tokens.
 outs=$(mktemp -d)
-pids=()
+trap 'rm -rf "$outs"' EXIT
+trap 'trap - INT TERM; kill 0' INT TERM
+pids=() status=0
+# group: waits for each row of the group and prints its report. The first row
+# that fails gives the status that stops the eval.
 group() {
-  local k
+  local k s
   [ "${#pids[@]}" -gt 0 ] || return 0
   for k in "${!pids[@]}"; do
-    wait "${pids[$k]}" || status=$?
+    wait "${pids[$k]}" || { s=$?; [ "$status" != 0 ] || status=$s; }
     cat "$outs/$k.out"
     cat "$outs/$k.err" >&2
   done
   pids=()
-  rm -rf "$outs"
-  outs=$(mktemp -d)
   [ "$status" = 0 ] || exit "$status"
 }
-status=0
 for row in "${selected[@]}"; do
   eval_row "$row" >"$outs/${#pids[@]}.out" 2>"$outs/${#pids[@]}.err" &
   pids+=("$!")
   [ "${#pids[@]}" -lt 5 ] || group
 done
 group
-rm -rf "$outs"

@@ -284,7 +284,12 @@ grep -qxF "$evalsh: the first run printed: Limit reached" "$tmp/err" ||
 # a run of the other row, so rows one after another get no answer. The
 # reports come in the order of the rows.
 rm -f "$tmp/bin/limit" "$tmp/bin/calls"
+# The line of the row of none is on both sides, so each run of a row knows
+# its row; then a line of each row's file is new on the working tree.
 echo 'A line of the row of none.' >>"$repo/skills/github/new.md"
+commit 'the row of none'
+echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
+echo 'A line of the working tree only.' >>"$repo/skills/github/new.md"
 cat >"$tmp/bin/claude" <<'EOF'
 #!/usr/bin/env bash
 d=$(dirname "$0")
