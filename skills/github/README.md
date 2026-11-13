@@ -64,8 +64,8 @@ time.
   runs after about 20 minutes comes back to you, and a refusal of GitHub
   stops it too. Merge all the same, after a check that failed, was
   cancelled or still runs, is a plain merge: it adds `--admin` or `--auto`
-  only when you name that flag. After a
-  stop at round 3, more rounds is one more answer. Clean up removes the
+  only when you name that flag. After a stop at round 3, more rounds is one
+  more answer. Clean up removes the
   worktree and the local branch after the merge, when nothing in them would
   be lost.
   Only the merge and the open questions on business logic wait for you, and

@@ -146,13 +146,12 @@ and no check at all gives 1.
 - `no checks reported`: a check can start late. Read again after a minute,
   and with still none, merge.
 
-The merge all the same, after a `fail`, `cancel` or `pending` line, is the
-same `gh pr merge`, with no new wait. When the list command fails with
-another error, or GitHub refuses the merge, as for a rule of the branch that
-the pull request does not meet, give the error, and do not merge. Add
-`--admin` or `--auto` only when the person names that flag: `--admin` merges
-past a red check, and `--auto` leaves the pull request open when the command
-ends.
+When the list command fails with another error, or GitHub refuses the merge,
+as for a rule of the branch that the pull request does not meet, give the
+error, and do not merge. The merge all the same, after a `fail`, `cancel` or
+`pending` line, is the same `gh pr merge`, with no new wait. Add `--admin` or
+`--auto` only when the person names that flag: `--admin` merges past a red
+check, and `--auto` leaves the pull request open when the command ends.
 
 Run the merge in the checkout that holds the branch, whatever directory the
 session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what

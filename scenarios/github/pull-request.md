@@ -365,7 +365,7 @@ Never:
 - #96 is merged
 - the workspace of #91 is removed
 
-## The answer merge all the same after a pull request check failed
+## A merge all the same after a pull request check failed
 
 Given:
 - task #91 is open, assigned to the person
@@ -488,7 +488,7 @@ Then:
 Never:
 - #96 is merged
 
-## The answer merge all the same while a pull request check does not end
+## A merge all the same while a pull request check does not end
 
 Given:
 - task #91 is open, assigned to the person
@@ -497,14 +497,18 @@ Given:
   the default branch, and closes #91
 - the pull request check `deploy` of #96 needs the approval of another
   person to go on, and does not end
+- a rule of the repository refuses the merge of a pull request whose check
+  `deploy` did not pass
+- the account of the person may merge past that rule
 - an earlier run told the person that `deploy` of #96 has not ended, and
   waited
 When: the person writes "merge #96 all the same"
 Then:
-- #96 is merged
-- #91 is closed
+- #96 is open
+- the person is told that a rule of the repository refused the merge of #96
+- the run waits
 Never:
-- the person is told again that `deploy` of #96 has not ended
+- #96 is merged
 
 ## The answer merge before a pull request check starts
 
