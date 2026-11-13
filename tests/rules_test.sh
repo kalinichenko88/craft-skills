@@ -206,10 +206,11 @@ done
 # - A push that the repository refused did not stop `gh pr create`: 5 of 5
 #   Opus runs put both in one command, after `git push … | tail -3;`. With
 #   the push in a command of its own, 0 of 5 called it (#356).
-# - After a failed check, the person's "merge anyway" read as the request
-#   for `--admin`: 5 of 5 Opus runs merged with it, past a rule of the
-#   branch, with no plain merge first (#327). The merge all the same is the
-#   same `gh pr merge`, and a refusal goes back to the person.
+# - The person's "merge anyway" read as the request for `--admin`: Opus
+#   merged with it past a rule of the branch, with no plain merge first, in
+#   5 of 5 runs after a failed check and 4 of 5 after a check that still
+#   ran (#327). The merge all the same is the same `gh pr merge`, and the
+#   flags come only when the person names them.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
@@ -245,8 +246,9 @@ skills/github/SKILL.md|gh pr checks <PR> --json name,bucket,link --jq '.[] | sel
 skills/github/SKILL.md|The list decides, not the exit code of the watch: a cancelled check gives 0, and no check at all gives 1.
 skills/github/SKILL.md|with `--subject` and `--body` in English, as every commit message is, also when the PR is in another language. `--subject` is the PR title in English, then ` (#<PR>)`
 skills/github/SKILL.md|`gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch
-skills/github/SKILL.md|Add `--admin` or `--auto` only when the person asks for it: `--admin` merges past a red check, and `--auto` leaves the pull request open when the command ends.
-skills/github/SKILL.md|or the merge all the same: run the same `gh pr merge`, with no new wait and no `--admin`.
+skills/github/SKILL.md|The merge all the same, after a `fail`, `cancel` or `pending` line, is the same `gh pr merge`, with no new wait.
+skills/github/SKILL.md|Add `--admin` or `--auto` only when the person names that flag: `--admin` merges past a red check, and `--auto` leaves the pull request open when the command ends.
+skills/github/SKILL.md|`--admin` or `--auto` only when the person names the flag.
 skills/github/SKILL.md|Run the merge in the checkout that holds the branch, whatever directory the session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints.
 skills/github/SKILL.md|`ExitWorktree` does nothing for a session that moved there in any other way, as with `cd` after `worktree.sh`: that session runs both commands itself, each with `git -C <the main checkout>`. Only a session that started in the worktree, as with `claude --worktree` or `codex --worktree`, cannot leave it: give the person the two commands below, to run after the session ends.
 skills/review-loop/SKILL.md|1. Push the branch, in a command of its own. When the push succeeds and the branch has an open pull request, add the summary's lines to its `## Review`. When it succeeds and the branch has none, open the pull request

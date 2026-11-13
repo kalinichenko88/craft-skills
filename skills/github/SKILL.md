@@ -16,7 +16,7 @@ there.
 | --- | --- | --- |
 | Writing a commit message | `type: one sentence`, at most 5 bullets under it, no `Co-Authored-By:` | *Commits* below |
 | `gh pr create` | `--assignee @me`; assign every issue it closes too; `Part of #15`: `keep-open.sh` after it; then read what it closes | *Pull requests* below |
-| Merging | Wait for the PR's checks first: a failed or cancelled one, one still running after two watches, or a refusal, stops the merge, and `--admin` or `--auto` only on the person's word. `gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch, run in the checkout that holds the branch; then *Finishing*, and *Cleanup* when the person asks for it | *Pull requests* below |
+| Merging | Wait for the PR's checks first: a failed or cancelled one, one still running after two watches, or a refusal, stops the merge, and `--admin` or `--auto` only when the person names the flag. `gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch, run in the checkout that holds the branch; then *Finishing*, and *Cleanup* when the person asks for it | *Pull requests* below |
 | Finding something out of scope | In the task's module, clear and smaller than the task: fix it in this PR, list it in the description under **Also fixed**. Otherwise add it to an open issue on the same code with `add-finding.sh`, or file a new one. A nit, or a failure that `filing.md` rules out: one line in the final report, no issue | `filing.md` |
 | A rule, a skill or a script of this plugin is wrong | Search `kalinichenko88/craft-skills`; show the person the issue, with nothing from their project; file it only after a yes. A step the person had to point out: do it at once, and *Finishing* drafts it. In a checkout of `craft-skills`: the row above | `filing.md` |
 | Filing next to an existing issue | Name the relation, and correct the other side | `filing.md` |
@@ -71,8 +71,7 @@ Never add a `Co-Authored-By:` trailer: no Claude, no model name, no
 ## Pull requests
 
 Every PR opened with `gh pr create` carries an assignee — always pass
-`--assignee @me`, so the authenticated account owns it. An unassigned PR has
-nobody's name on it in the list view, which is how review requests get lost.
+`--assignee @me`, so the authenticated account owns it.
 
 If the PR closes an issue — `Closes #12`, `Fixes #12` — assign that issue the
 same way *before* the PR merges and closes it: `gh issue edit 12 --add-assignee
@@ -140,19 +139,20 @@ and no check at all gives 1.
 - The list is empty, and the list command printed no error: merge.
 - A `fail` or `cancel` line: do not merge. Give the person each line, and
   keep the worktree and the branch. The person decides: a fix, a new run of
-  the check, or the merge all the same: run the same `gh pr merge`, with no
-  new wait and no `--admin`.
+  the check, or the merge all the same.
 - Only `pending` lines: watch once more, the same way. Still `pending`: give
   the person each line, and wait for the person's word. A check can wait
   for days, for a person's approval or for a runner that is offline.
 - `no checks reported`: a check can start late. Read again after a minute,
   and with still none, merge.
 
-When the list command fails with another error, or GitHub refuses the merge,
-as for a rule of the branch that the pull request does not meet, give the
-error, and do not merge. Add `--admin` or `--auto` only when the person asks
-for it: `--admin` merges past a red check, and `--auto` leaves the pull
-request open when the command ends.
+The merge all the same, after a `fail`, `cancel` or `pending` line, is the
+same `gh pr merge`, with no new wait. When the list command fails with
+another error, or GitHub refuses the merge, as for a rule of the branch that
+the pull request does not meet, give the error, and do not merge. Add
+`--admin` or `--auto` only when the person names that flag: `--admin` merges
+past a red check, and `--auto` leaves the pull request open when the command
+ends.
 
 Run the merge in the checkout that holds the branch, whatever directory the
 session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what

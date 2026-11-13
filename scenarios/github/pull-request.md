@@ -376,9 +376,8 @@ Given:
 - a rule of the repository refuses the merge of a pull request whose check
   `test` did not pass
 - the account of the person may merge past that rule
-- an earlier run told the person that `test` of #96 failed, and kept #96
-  open
-When: the person answers merge #96 all the same
+- an earlier run told the person that `test` of #96 failed, and waited
+When: the person writes "merge #96 all the same"
 Then:
 - #96 is open
 - the person is told that a rule of the repository refused the merge of #96
@@ -488,6 +487,24 @@ Then:
 - the run waits
 Never:
 - #96 is merged
+
+## The answer merge all the same while a pull request check does not end
+
+Given:
+- task #91 is open, assigned to the person
+- the workspace of #91 is on branch `fix/91-parse-rows`
+- pull request #96 of the person is open, merges `fix/91-parse-rows` into
+  the default branch, and closes #91
+- the pull request check `deploy` of #96 needs the approval of another
+  person to go on, and does not end
+- an earlier run told the person that `deploy` of #96 has not ended, and
+  waited
+When: the person writes "merge #96 all the same"
+Then:
+- #96 is merged
+- #91 is closed
+Never:
+- the person is told again that `deploy` of #96 has not ended
 
 ## The answer merge before a pull request check starts
 
