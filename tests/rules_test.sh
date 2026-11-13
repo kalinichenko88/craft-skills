@@ -220,13 +220,8 @@ done
 #   5 of 5 runs after a failed check and 4 of 5 after a check that still
 #   ran (#327). The merge all the same is the same `gh pr merge`, and the
 #   flags come only when the person names them.
-# - The step for a plugin defect said where to save its title and body, not
-#   how, and it does not read tracker.md: a `printf '<title>'` ends its quote
-#   at a `'` of the title, and runs the rest. 30 of 216 titles here hold a
-#   `'` (#398).
-# - The merge moment is in merge.md since #397, and the skill load gives
-#   SKILL.md alone: the *Merging* row and the merge step of review-loop are
-#   the ways in. 5 of 5 Opus runs read merge.md before the merge.
+# - #398: the plugin-defect step said where to write its title, not how.
+# - #397: the Merging row and review-loop are the ways into merge.md.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
