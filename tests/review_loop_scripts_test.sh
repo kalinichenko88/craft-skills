@@ -28,6 +28,8 @@ case $1 in
       shift
     done
     echo 'codex prints its session here'
+    # A run that hangs, as in #313, in a child process of codex.
+    [ -z "${FAKE_HANG:-}" ] || { sleep 30 & echo $! >"$FAKE/hung"; wait; }
     [ -z "${FAKE_FAIL:-}" ] || { echo 'ERROR: stream disconnected before completion'; exit 1; }
     [ -z "${FAKE_NO_MESSAGE:-}" ] || exit 0
     cp "$FIXTURES/codex-findings.json" "$out" ;;
@@ -99,6 +101,17 @@ code=0
 out=$(FAKE_NO_MESSAGE=1 review "$base" 2>"$tmp/err") || code=$?
 check 'codex that ends with no findings file exits 1, not with no output' 1 "$code"
 grep -qF 'codex prints its session here' "$tmp/err" || fail 'codex with no findings file shows its log on stderr' "$(cat "$tmp/err")"
+
+# Without the limit, the fake's sleep ends after 30 seconds and its findings
+# come out with exit 0.
+code=0
+out=$(FAKE_HANG=1 CODEX_REVIEW_LIMIT=1 review "$base" 2>"$tmp/err") || code=$?
+check 'a codex run past the time limit exits 1' 1 "$code"
+check 'a codex run past the time limit prints no findings' '' "$out"
+grep -qxF 'codex-review.sh: codex ran past 1 seconds and was stopped' "$tmp/err" ||
+  fail 'a codex run past the time limit says so on stderr' "$(cat "$tmp/err")"
+grep -qF 'codex prints its session here' "$tmp/err" || fail 'a codex run past the time limit shows its log on stderr' "$(cat "$tmp/err")"
+if kill -0 "$(cat "$tmp/hung")" 2>/dev/null; then fail 'a codex run past the time limit leaves no child of codex running'; fi
 
 rm -f "$tmp/args"
 check 'not logged in: skipped, with the reason' 'skipped: codex is not logged in' "$(FAKE_LOGGED_IN=0 review "$base")"

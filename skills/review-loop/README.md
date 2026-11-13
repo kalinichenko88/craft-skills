@@ -86,7 +86,8 @@ each task stays as that skill sets it. In place of the final review of
   needed only one round, or after the stop at round 3. Its findings go
   through the same checks. After that stop, its defects stay unfixed, as
   round 3's do, and the summary names them. Without the Codex CLI or its
-  login, or when Codex fails, the step is skipped, and the summary says so.
+  login, or when Codex fails or runs past 10 minutes, the step is skipped,
+  and the summary says so.
 - **A review of the tests.** For `high` and `xhigh` changes, and a change to
   tests only, one review subagent, or `/review` in Codex, reads the tests of
   the whole branch once:
@@ -194,7 +195,8 @@ have, it stops and says so.
 
 ## The Codex step
 
-The Codex step needs the Codex CLI, logged in:
+The Codex step needs the Codex CLI, logged in, and `pgrep`, to stop a run
+and its child processes at the time limit:
 
 ```sh
 npm install -g @openai/codex
@@ -202,7 +204,9 @@ codex login
 ```
 
 It runs `codex exec` in Codex's read-only sandbox, with your Codex config: your
-model and reasoning effort apply. It does not need OpenAI's
+model and reasoning effort apply. A run past 10 minutes is stopped, and the
+review goes on without Codex; `CODEX_REVIEW_LIMIT` sets the limit in seconds.
+It does not need OpenAI's
 `codex@openai-codex` plugin for Claude Code: the agent cannot call that
 plugin's review commands. You can still run its `/codex:adversarial-review`
 yourself.

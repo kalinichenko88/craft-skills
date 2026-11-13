@@ -11,12 +11,13 @@
 #
 # When the Codex CLI is not installed or not logged in, it prints
 # "skipped: <why>" and exits 0: the review goes on without Codex. When codex
-# fails or writes no findings file, it prints the end of Codex's log on stderr
-# and exits 1. It exits 2 and runs no Codex for a wrong call, as a base that is
+# fails, writes no findings file, or runs past CODEX_REVIEW_LIMIT seconds (600
+# by default) and is stopped, it prints the end of Codex's log on stderr and
+# exits 1. It exits 2 and runs no Codex for a wrong call, as a base that is
 # not a commit or a working directory outside a repository, and for a range
 # that git cannot diff or that changes nothing.
 #
-# Needs bash, git and the Codex CLI.
+# Needs bash, git, pgrep and the Codex CLI.
 
 set -euo pipefail
 
@@ -117,9 +118,33 @@ else
   prompt="$ask Read the diff, and read the code around it as you need. Find defects: code that gives a wrong result, crashes, loses or corrupts data, opens a security hole, races, or breaks a contract that other code depends on. Look hardest at trust boundaries, partial failure and retries, concurrency and ordering, and empty, missing and timeout cases. Do not report style, names or cleanup. Report a finding only when you can name the input or the state that makes it fail, from the code. $tell"
 fi
 
-if ! codex exec -s read-only --ephemeral --output-schema "$tmp/schema.json" \
-  -o "$tmp/findings.json" "$prompt" </dev/null >"$tmp/log" 2>&1 ||
-  [ ! -s "$tmp/findings.json" ]; then
+# A codex exec that hangs writes nothing and never exits: one ran for 7.5
+# hours (#313). The runs measured took 45 to 204 seconds. macOS has no timeout
+# command, so the script stops codex and its children itself.
+limit=${CODEX_REVIEW_LIMIT:-600}
+stop() {
+  local kids
+  kids=$(pgrep -P "$1") || true
+  kill -KILL "$1" 2>/dev/null || true
+  for kid in $kids; do stop "$kid"; done
+}
+codex exec -s read-only --ephemeral --output-schema "$tmp/schema.json" \
+  -o "$tmp/findings.json" "$prompt" </dev/null >"$tmp/log" 2>&1 &
+pid=$!
+waited=0
+while kill -0 "$pid" 2>/dev/null && [ "$waited" -lt "$limit" ]; do
+  sleep 1
+  waited=$((waited + 1))
+done
+if kill -0 "$pid" 2>/dev/null; then
+  # The redirection keeps bash's line on the killed job, with the whole
+  # command, off stderr.
+  { stop "$pid"; wait "$pid"; } 2>/dev/null || true
+  tail -n 20 "$tmp/log" >&2
+  echo "codex-review.sh: codex ran past $limit seconds and was stopped" >&2
+  exit 1
+fi
+if ! wait "$pid" || [ ! -s "$tmp/findings.json" ]; then
   tail -n 20 "$tmp/log" >&2
   exit 1
 fi
