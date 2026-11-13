@@ -28,9 +28,10 @@ too. A security review comes last.
 A change to documents only gets one round and no security review. In Claude
 Code, Codex reads it once when it changes the text of a skill, a prompt or a
 spec. The agent fixes and decides by itself, except for a change to business
-logic, and writes a summary. When the task is an issue taken into work, or the
-person asked for a pull request, the push and the pull request follow in the
-same turn, on the conditions in *The pull request*.
+logic and a choice for a finding outside the task, and writes a summary. When
+the task is an issue taken into work, or the person asked for a pull request,
+the push and the pull request follow in the same turn, on the conditions in
+*The pull request*.
 
 Why the rounds stop: on one project, nine rounds of `/code-review high`, each
 over the whole branch, gave 68 findings and 25 fixes. No fix went into the
@@ -147,9 +148,8 @@ and for a move that a script or a test proves unchanged.
    console errors and the failed requests too. Then look again at the near
    states that the change can reach: long data, as a long name or many
    rows, and the empty state.
-5. **The fixes.** Its findings go through *The findings*: the obvious ones
-   are fixed, and only business logic is a question. Fix them while the app
-   runs, and look again at each screen that a fix changed.
+5. **The fixes.** Its findings go through *The findings*. Fix them while
+   the app runs, and look again at each screen that a fix changed.
 6. **The end.** Stop the app. Delete each file that the tool wrote into the
    working tree, as the `.playwright-mcp/` folder with its screenshots,
    snapshots and logs: `git status --short` shows them. Then commit the
@@ -444,9 +444,9 @@ a real defect on two, in 53 to 204 seconds.
    with the finding as its new proof, and ask with its options.
 5. **Fix at the root.** When the same defect is in sibling call sites or in a
    shared token, fix it there, and count the places.
-6. **A finding outside the task is an issue**, through the
-   `craft:github` skill, unless the Boy Scout Rule takes it into this
-   change, or that skill gives it no issue.
+6. **A finding outside the task goes by `craft:github`**, not by steps
+   2 to 4: an issue, unless the Boy Scout Rule or the person's choice
+   takes it in, or that skill gives it no issue.
 
 ## The security review
 
@@ -561,7 +561,7 @@ Then:
    from that skill, and on merge and clean up, its *Cleanup* after that.
    When it fails, give the error, and keep the worktree and the branch.
 
-Only the merge and the open questions on business logic wait for the person.
+Only the merge and the open questions wait for the person.
 
 ## A spec and a plan
 

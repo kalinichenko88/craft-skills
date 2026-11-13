@@ -1,15 +1,16 @@
 # File a finding
 
 The run works on a task, or on a change that the person asked for, and
-meets a finding. Without a question to the person, it fixes the finding in
-the pull request of the task, adds it to an open task on the same code, adds
-a comment to an open task with the same report, or creates a task for it.
+meets a finding. It fixes the finding in the pull request of the task, adds
+it to an open task on the same code, adds a comment to an open task with the
+same report, or creates a task for it. When a finding that it would fix in
+the pull request of the task needs a choice, it asks the person first.
 When a task already reports the finding or decided it, or an open pull
 request fixes it, the run files nothing. The last message names a name or a
 wording that no rule of the repository asks for, a failure on an input that
 the program refuses first, and a finding that the run cannot file. A defect
-of the implementation is the exception to the question: it goes to the
-tracker of the repository of the implementation, after the person says yes.
+of the implementation goes to the tracker of the repository of the
+implementation, after the person says yes.
 
 Not covered yet:
 
@@ -21,6 +22,8 @@ Not covered yet:
   default first, or on an input that only a text of the repository forbids,
   and data loss or a security hole on an input that the program refuses
   first;
+- a question on business logic in the module of the task, and the answer to
+  create a task for a finding that needs a choice;
 - a defect of the implementation that the default branch of its repository
   no longer has, a defect of the implementation that the run meets in the
   repository of the implementation, and the answer no to a task for a
@@ -246,6 +249,47 @@ Given:
 - `splitHeader` drops a comma inside quotes, and `splitLine` keeps it; the
   fix can make `splitHeader` call `splitLine`, or change the code of
   `splitHeader`
+When: the run meets that defect in `src/parser/header.ts`
+Then:
+- the person is asked which of the two ways fixes `splitHeader`
+- the question gives the cost of each way, and recommends one
+- the run waits
+Never:
+- a task is created for the defect
+
+## The choice of a way for a defect in the module of the task
+
+Given:
+- the outcomes of A free task hold for #91
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- `parseRows` calls `splitHeader` in `src/parser/header.ts` for the first
+  line of a text
+- `splitHeader` drops a comma inside quotes, and `splitLine` in
+  `src/parser/split.ts` keeps it
+- an earlier run asked the person whether `splitHeader` calls `splitLine` or
+  its own code changes, with the cost of each way and a recommendation
+When: the person answers that `splitHeader` calls `splitLine`
+Then:
+- the pull request of #91 makes `splitHeader` call `splitLine`
+- the pull request of #91 adds a test that fails on the old `splitHeader`
+  and passes on the new one
+- the text of the pull request of #91 names the finding as not part of #91,
+  and names the choice
+Never:
+- a task is created for the defect
+
+## A defect with two ways to fix it, and no person to answer
+
+Given:
+- the outcomes of A free task hold for #91
+- the person gave #91 to the run as "#91. Do not ask questions."
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+- the run read `splitHeader` in `src/parser/header.ts` and `splitLine` in
+  `src/parser/split.ts`
+- `parseRows` calls `splitHeader` for the first line of a text
+- `splitHeader` drops a comma inside quotes, and `splitLine` keeps it; the
+  fix can make `splitHeader` call `splitLine`, or change the code of
+  `splitHeader`
 - the repository has the label `bug`
 When: the run meets that defect in `src/parser/header.ts`
 Then:
@@ -254,7 +298,7 @@ Then:
 - the new task has the label `bug`
 Never:
 - the pull request of #91 changes `src/parser/header.ts`
-- the person is asked before the task is created
+- the run waits
 
 ## A defect in the module of the task that code outside the module relies on
 

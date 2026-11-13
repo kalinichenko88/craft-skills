@@ -34,7 +34,9 @@ time.
   still open under the issue's name, and stops when it finds one.
 - **A finding goes to the tracker, a nit or a ruled-out failure to the
   report.** A fix in the task's module that needs no decision and is smaller
-  than the task goes into the current PR. Anything else joins an open issue
+  than the task goes into the current PR. When it needs only a choice that
+  the code already shows, as between two ways to fix it, the agent asks you at
+  once, and the fix goes into the PR after your answer. Anything else joins an open issue
   on the same code, up to two added findings per issue. Only when no issue
   can take it is a new one filed. A nit, as a name or a wording that no rule
   of the project asks for, gets no issue: the final report names it, so that

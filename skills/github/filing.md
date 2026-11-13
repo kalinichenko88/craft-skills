@@ -31,7 +31,20 @@ another module, a bug that shows outside the module too, a design choice, a
 question on business logic (what the product should do where its docs, tests
 and names do not say it; a bug is code that crashes or does not do what they
 say), a change that code outside the module relies on — and it is an issue,
-however small it looks, unless it is a nit or ruled out, below.
+however small it looks, unless the person's choice takes it in, as the next
+paragraph says, it is a nit, or it is ruled out, below.
+
+**A choice in the task's module goes to the person.** A finding that meets
+*Same module*, *Smaller* and *Separable*, and fails *Clear* only because it
+needs a choice — two or three ways to fix it, or a question on business
+logic — is asked, not filed, when the code you read gives each way and its
+cost: no new search, no run of code and no measurement. Ask at once, with
+the ways, the cost of each and your recommendation, and wait for the answer.
+After the choice, it is a fix of this PR, with its test and its review: it
+joins the total above, and its line under **Also fixed** names the choice.
+When the person says to file it, or there is no person, as in a run that a
+script starts or one that the person told not to ask questions, it is an
+issue, filed as below.
 
 **A nit is not worth an issue.** A finding that the Boy Scout check leaves,
 and that is a nit, is not filed and goes into no host. A nit here is a
