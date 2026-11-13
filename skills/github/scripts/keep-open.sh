@@ -2,7 +2,10 @@
 # Keeps an issue open when a pull request merges: removes the pull request's
 # link that would close it. A pull request from a branch that worktree.sh
 # linked to the issue gets that link when it opens, whatever its description
-# says: see Pull requests in SKILL.md.
+# says: see Pull requests in SKILL.md. A description that closes the issue
+# with a keyword, as "and close #<n>.", is refused, and nothing is removed: a
+# merge closes the issue from the keyword whatever the link says, and only an
+# edit of the description removes it (#383).
 #
 #   keep-open.sh <pr> <n>
 #
@@ -19,26 +22,42 @@ pr=${1#\#} n=${2#\#}
 
 run() { if [ "${DRY_RUN:-}" = 1 ]; then echo "dry run:$(printf ' %q' "$@")"; else "$@"; fi; }
 
-# The pull request's id and the issue's, when the pull request closes that
-# issue of this repository.
+# Each line of the description with a closing keyword before #<n>, as
+# "line <text>", and the pull request's id and the issue's, when the pull
+# request closes that issue of this repository, as "ids <pr> <issue>".
 closing() {
   # shellcheck disable=SC2016 # GraphQL and jq, not shell
   N=$n gh api graphql -F owner='{owner}' -F name='{repo}' -F pr="$pr" -f query='
     query($owner: String!, $name: String!, $pr: Int!) {
       repository(owner: $owner, name: $name) { id pullRequest(number: $pr) {
-        id closingIssuesReferences(first: 100) { nodes { id number repository { id } } }
+        id body closingIssuesReferences(first: 100) { nodes { id number repository { id } } }
       } }
-    }' --jq '.data.repository | .id as $repo | .pullRequest | .id as $pr | .closingIssuesReferences.nodes[]
-      | select(.number == ($ENV.N | tonumber) and .repository.id == $repo) | "\($pr) \(.id)"'
+    }' --jq '.data.repository | .id as $repo | .pullRequest | .id as $pr
+      | (.body // "" | split("\n")[]
+        | select(test("(?i)\\b(close[sd]?|fix(e[sd])?|resolve[sd]?):?\\s+#" + $ENV.N + "\\b")) | "line \(.)"),
+        (.closingIssuesReferences.nodes[]
+        | select(.number == ($ENV.N | tonumber) and .repository.id == $repo) | "ids \($pr) \(.id)")'
 }
 # GitHub adds a linked branch's link about a second after the pull request
 # opens, so an empty answer is read again, for about ten seconds.
 # KEEP_OPEN_TRIES is for the tests.
 for ((try = ${KEEP_OPEN_TRIES:-6}; ; try--)); do
-  ids=$(closing)
-  [ -z "$ids" ] && [ "$try" -gt 1 ] || break
+  out=$(closing)
+  ids='' lines=''
+  while IFS= read -r line; do
+    case $line in
+      'ids '*) ids=${line#ids } ;;
+      'line '*) lines+=$'\n'"  ${line#line }" ;;
+    esac
+  done <<<"$out"
+  [ -z "$ids$lines" ] && [ "$try" -gt 1 ] || break
   sleep 2
 done
+if [ -n "$lines" ]; then
+  echo "PR #$pr closes #$n with a keyword in its description, and a merge closes it whatever this script removes:$lines"
+  echo "Write each line without the keyword, then run keep-open.sh again."
+  exit 1
+fi
 if [ -z "$ids" ]; then
   echo "PR #$pr does not close #$n: nothing to do"
   exit 0
