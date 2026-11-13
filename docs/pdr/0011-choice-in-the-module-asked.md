@@ -12,10 +12,10 @@ that is not clear only because it needs a choice: between two or three ways
 to fix it, or of what the product does there. The run asks only when the
 code that it read gives each way and its cost, with no new search, run or
 measurement. It asks at once, with the ways, the cost of each and a
-recommendation, and goes on with the task. The merge waits for the answer.
-After the choice, the fix goes into the pull request of the task, with its
-test and its review, and counts in the total of the Boy Scout fixes. When
-the person says to file it, merges with no answer, or there is no person,
+recommendation, and waits for the answer. After the choice, the fix goes
+into the pull request of the task, with its test and its review, and counts
+in the total of the Boy Scout fixes. When the person says to file it, or
+there is no person, as in a scripted run or one told not to ask questions,
 the finding is an issue, as before. A finding in another module is an issue
 still (PDR 0010).
 
@@ -40,7 +40,7 @@ still (PDR 0010).
 ## Revisit when
 
 Of the first 5 real questions by this rule, the person calls 2 not worth a
-question, or 2 answers come after the review rounds and start a new round.
+question, or answers 2 of them with "file it".
 
 ## Options considered
 
@@ -49,7 +49,10 @@ question, or 2 answers come after the review rounds and start a new round.
   scripted run can measure it; the person sees the choice only in the
   description, and asked to decide together.
 - No change: each such finding costs a new session.
-- A question, with the merge waiting for the answer: chosen.
+- A question that waits until the merge, while the work goes on: the
+  summary, the pull request and a later session must carry it as open, and
+  an answer after the review rounds starts a new count of rounds.
+- A question at once, and a wait for the answer: chosen.
 
 ## Links
 

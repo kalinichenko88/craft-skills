@@ -175,9 +175,9 @@ description as not part of the task. A finding that fails one condition is an
 issue, except one that is not clear only because it needs a choice: between
 ways to fix it, or of what the product does there. When the code you read
 gives each way and its cost, with no new search, run or measurement, ask the
-person to choose before the merge. The choice takes it into this change; no
-person or no answer leaves it an issue. Cleaner than you found it is not the
-same as rebuilt.
+person at once, and wait. The choice takes it into this change; an answer to
+file it, or no person to ask, leaves it an issue. Cleaner than you found it
+is not the same as rebuilt.
 
 ## Code conventions (always)
 
@@ -204,9 +204,8 @@ later — gets filed as an issue instead of being fixed inline or dropped in the
 chat. Do not derail the task to fix it; do not ask whether to file it. If the
 Boy Scout Rule above takes it, it goes into the current PR instead, listed in
 the description as not part of the task. The github skill's `filing.md`
-carries the how. Where
-there is no GitHub remote or `gh auth status` fails, name the finding in the
-final report instead of filing it.
+carries the how. Where there is no GitHub remote or `gh auth status` fails,
+name the finding in the final report instead of filing it.
 
 **A defect in this plugin goes to its tracker, after the person says yes.**
 Both parts of these rules, the hooks, a `craft:` skill and its scripts are

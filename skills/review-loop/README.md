@@ -126,6 +126,8 @@ each task stays as that skill sets it. In place of the final review of
 - **Fewer questions.** The agent fixes the obvious findings and decides the
   rest by itself. It asks only about a change to business logic: a rule, a
   calculation, a state, a permission, the data the product keeps or deletes.
+  It asks too when a small finding next to the task needs a choice before it
+  goes into the PR, as which of two ways fixes it.
 - **A security review last.** `/security-review` runs once on the final
   branch, in a subagent in Claude Code, so that its report does not end the
   turn. Its fixes get rounds of their own, as the later fixes above. A
