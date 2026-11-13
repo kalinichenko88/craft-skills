@@ -55,11 +55,10 @@ each task stays as that skill sets it. In place of the final review of
   subagent in place of `/code-review`. Its prompt only sends it to
   `docs-lens.md`, with no limit on its report: it reads the text against the
   code and the rules that it cites, follows each flow across the files, and
-  runs each command and pattern that the change adds on a small sample,
-  unless the command writes outside a temporary folder. When a skill's or a
-  prompt's text comes with code, `/code-review` takes the level of the code,
-  and the subagent
-  reviews the text.
+  tries the commands and patterns that the change adds or changes on a small
+  sample, in a temporary folder. When a skill's or a prompt's text comes with
+  code, `/code-review` takes the level of the code, and the subagent reviews
+  the text.
 - **Rounds that read less.** The first round reads the whole branch, with the
   docs that the change made false already fixed. Each round of fixes is one
   commit, and the next round reads only that commit.

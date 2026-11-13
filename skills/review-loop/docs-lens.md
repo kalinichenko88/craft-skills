@@ -7,12 +7,15 @@ that wrote the branch, so its reasons do not bias you.
 
 Your prompt gives the range and the tree. Read `git -C <tree> diff <range>`.
 In the tree, read each document that the range changes, whole. Change no
-file of the tree. When the range changes code too, review only the text of a
-skill or a prompt, and the text that names the code that the range changes:
-the code review reads the other documents of the range.
+file of the tree.
 
-Make each of these three checks, on all the text that the range changes, and
-on the text of the tree that names code that the range changes:
+The text under review is all the text that the range changes in documents.
+When the range changes code too, it is the text of a skill or a prompt only:
+the text of one that the range changes, and the text of one in the tree that
+names code that the range changes. The code review reads the other documents
+of such a range.
+
+Make each of these three checks on the text under review:
 
 1. **Against the sources.** Read the code that the text describes, and each
    rule that the text cites or depends on, in the file that holds it: a
@@ -49,10 +52,14 @@ Report a finding of one of these kinds:
   case.
 - **Flow.** A step that a reader cannot follow, or can skip, or that needs
   what an earlier step removed or replaced.
+- **Rule.** In the text of a skill or a prompt, a rule that, followed as
+  written, gives a wrong result in a case that real use reaches, also with no
+  source against it; and a rule that a reader can take in two ways, with a
+  different result for each. Name the case.
 - **Command.** A command or a pattern that gives a wrong result on an input
   that its source can hold.
 - **Outside.** A finding in text that the range does not change, and that
-  the range did not make false. The agent that sent you files it.
+  the range did not make false. The agent that sent you decides on it.
 
 Do not report style, or wording that has only one meaning. You do not say
 whether a finding is a defect: the agent that sent you decides that.
