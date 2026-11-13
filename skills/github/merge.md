@@ -9,8 +9,9 @@ takes the same `type: sentence` shape. Without it, GitHub takes the title, or a
 one-commit branch's subject, as it is. `--body` is one list in the shape of
 *Commits* in `SKILL.md` — at most five bullets — that sums up every commit on
 the branch, not just the first: without it GitHub fills the squash commit from
-a repository setting, by default every branch commit's full message in turn. One commit per PR keeps `main` readable, and the
-branch has nothing left to say once it is in. A closing word before a number in
+a repository setting, by default every branch commit's full message in turn.
+One commit per PR keeps `main` readable, and the branch has nothing left to say
+once it is in. A closing word before a number in
 the subject or the `--body` closes that issue when the commit lands, and
 `closingIssuesReferences` does not show it: write both without one.
 

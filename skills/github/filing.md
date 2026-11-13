@@ -295,8 +295,8 @@ comment. Say that the repository is public. Write only after a yes for this
 text: a changed text needs a new yes. A no, or no answer, writes nothing; put
 the draft in the final report. After the yes, write the body, and the title of
 an issue, with the file tool to two files outside every checkout, not with the
-shell: in a quote or a heredoc, a word of the text can end it and run as a
-command. Then run one of:
+shell: a quote, a backtick or a `$(` in the text can run a command. Then run
+one of:
 
 ```bash
 gh issue create --repo github.com/kalinichenko88/craft-skills \

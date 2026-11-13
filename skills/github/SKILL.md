@@ -26,8 +26,8 @@ there.
 
 A file in the last column sits next to this one, in this skill's base
 directory. Read all of it before the first step of that moment: the row above
-is its summary, not its rules. `take-in.md`, `filing.md` and `merge.md` send
-you on to `tracker.md`, which runs the scripts and reads the tracker.
+is its summary, not its rules. `take-in.md` and `filing.md` both send you on to
+`tracker.md`, which runs the scripts and reads the tracker.
 
 ## Commits
 

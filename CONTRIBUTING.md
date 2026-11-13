@@ -157,7 +157,8 @@ logs in `tests/fixtures/product/logs`.
 `tests/review_loop_lens_checks_test.sh` checks that the lens eval refuses a
 wrong call before it starts a paid run.
 `tests/github_scout_eval.sh` sends the citations job of the github skill's
-scout to Haiku, with the decisions of #217, as *Finishing* sends it. The
+scout to Haiku, with the decisions of #217, as *Finishing* in
+`skills/github/merge.md` sends it. The
 tree is the merge commit of #217, and the issues are #117, #205 and #179 with
 the title, the body and the comments they had then, recorded in
 `tests/fixtures/github/`. #117 still says that `rules.md` has 337 characters
@@ -166,7 +167,8 @@ citation that moved, and no sentence that a decision made false. The eval
 checks that the scout gives a sentence of #117 and the title of #205 as false,
 no sentence of #179, and the moved citation of #179.
 It needs the history of the checkout down to #217. Run it after a change to
-the citations job of `skills/github/scout.md` or to *Finishing*.
+the citations job of `skills/github/scout.md` or to *Finishing* in
+`skills/github/merge.md`.
 `tests/scenarios_eval.sh` runs craft on each of the 37 scenarios of
 `scenarios/github/take-in.md`: those that the first message of the person
 starts, from a free task and a closed task to a task of another repository

@@ -1,7 +1,6 @@
 # Scripts and the tracker
 
-`take-in.md`, `filing.md` and `merge.md` send you here before they read the
-tracker.
+`take-in.md` and `filing.md` send you here before they read the tracker.
 
 ## Scripts
 
