@@ -191,8 +191,9 @@ Claude Code: wait until each subagent that you sent returns. Then call
 directory where it started. Until `ExitWorktree`, Claude Code refuses each
 Bash call that runs in the main checkout, so a subagent that started before the
 move cannot run Bash any more. Codex cannot move a running session: every
-command takes the worktree as `workdir`, and every file path, read or patched,
-is written under it.
+command takes the worktree as `workdir`, and every file of the task, read or
+patched, is written under it. A file that a step writes outside the checkout,
+as the text of a comment, stays outside it.
 
 Then read what points at it: the scout's **Linked, open work and history**
 group. It holds the timeline's cross-references, including the ones the
@@ -205,7 +206,11 @@ scout's line is enough for the rest.
 
 Then check the issue's own `path:line` citations against the current tree before
 believing them — a line number is the first thing to rot — and correct them in
-the issue as the first act of the work. In Claude Code a scout checks them:
+the issue as the first act of the work. A corrected citation names the same
+thing as the old one: for "`parseRows` at `read.ts:42`", the line where
+`parseRows` starts now, not a line inside it. The body goes back to the issue
+from a file, as *The text of an issue in a command* in `tracker.md` says.
+In Claude Code a scout checks them:
 `Job: citations #91.` with the worktree as `Tree:` (`tracker.md`). A citation
 that holds needs no look of yours; check each one that moved or is gone before
 you edit.

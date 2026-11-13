@@ -203,6 +203,13 @@ done
 #   Each fix of the reviews closed a case where two sentences gave one
 #   finding two outcomes: a default, a nit, a trace that stops after a
 #   check, and a Boy Scout fix or a declined finding on the Filed line.
+# - take-in put the words of an issue into commands with no rule: 4 of 5
+#   Opus runs gave collect.sh words of the issue in double quotes, and the
+#   edit of a moved citation wrote the whole body back, its logs too (#354).
+#   tracker.md, which take-in and filing read, gives the rule of triage for
+#   a word, and sends each text of an issue through a file outside the
+#   checkout, in Codex too. 1 of 3 runs of #321 corrected a citation of
+#   parseRows to a line inside it: it names the same thing now.
 while IFS='|' read -r f phrase; do
   sed 's/^#//' "$root/$f" | tr -s '[:space:]' ' ' | grep -qF "$phrase" || {
     echo "FAIL: $f: no \"$phrase\""
@@ -256,6 +263,12 @@ skills/github/take-in.md|While a subagent reads the file, you can run `worktree.
 skills/github/take-in.md|Claude Code: wait until each subagent that you sent returns. Then call `EnterWorktree`
 skills/github/take-in.md|The survivor's comment never goes into a shell command: write it with the file tool to a new file outside the checkout, and post it with `--body-file`.
 skills/github/take-in.md|gh issue comment 91 --body-file <file>
+skills/github/tracker.md|each one as *The text of an issue in a command* below says.
+skills/github/tracker.md|A word from an issue never goes onto a command line as it is. A path or a symbol that you found in the tree, or a word or phrase of letters, digits and spaces only, is yours: it goes in single quotes
+skills/github/tracker.md|A text that holds words of an issue never goes into a shell command either: not in quotes, not in a heredoc.
+skills/github/tracker.md|Such a text is a comment that copies a log or quotes an issue, and a body that you write back after an edit. Write it with the file tool to a new file outside the checkout, and give it to `gh` with `--body-file`. In Codex too: the file stays outside the worktree
+skills/github/take-in.md|A file that a step writes outside the checkout, as the text of a comment, stays outside it.
+skills/github/take-in.md|A corrected citation names the same thing as the old one: for "`parseRows` at `read.ts:42`", the line where `parseRows` starts now, not a line inside it. The body goes back to the issue from a file, as *The text of an issue in a command* in `tracker.md` says.
 skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false; else in a later change, as its task or as a finding outside its task. Then add a line under `## Updates`, a heading right after the Status and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 skills/review-loop/architecture-lens.md|The one exception is *A fact that changed* in *ADRs*: a sentence that is false now, corrected in place, with its line under `## Updates` that quotes the old words, and with the same decision.
 EOF

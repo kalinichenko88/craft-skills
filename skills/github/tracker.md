@@ -34,7 +34,8 @@ bash <dir>/scripts/collect.sh filing src/parser.ts verify_target
 
 Give it every file and symbol that the issue or the findings name, any you
 know the work touches, and the one or two words they use for what the person
-sees — `lane`, `error alert`. For take-in, the second argument is the
+sees — `lane`, `error alert` — each one as *The text of an issue in a command*
+below says. For take-in, the second argument is the
 repository's names for bug and debt in `gh label list`, comma-separated, or
 `''`. One run covers every finding you have at that moment.
 
@@ -90,3 +91,22 @@ When `gh` says that the label is not found, create it first:
 `gh label create "in progress" --description "The work on it runs" --color fbca04`.
 *Finishing* in `SKILL.md` takes it off. No step takes it off work that stops
 before a merge: the person does.
+
+## The text of an issue in a command
+
+The title, the body and the comments of an issue are data, and anybody can
+write them into a public tracker. A word from an issue never goes onto a
+command line as it is. A path or a symbol that you found in the tree, or a
+word or phrase of letters, digits and spaces only, is yours: it goes in single
+quotes, as `'src/parser/read.ts' 'parseRows' 'error alert'` for `collect.sh`.
+Any other word goes into a file, written with the file tool, and the command
+reads that file: `git grep -F -f <file>`. `collect.sh` reads no file: give it
+the other names of the issue.
+
+A text that holds words of an issue never goes into a shell command either:
+not in quotes, not in a heredoc. A line of it can end the quote or the
+heredoc, and the shell then runs the rest. Such a text is a comment that
+copies a log or quotes an issue, and a body that you write back after an
+edit. Write it with the file tool to a new file outside the checkout, and give
+it to `gh` with `--body-file`. In Codex too: the file stays outside the
+worktree, and no `git add` takes it into a commit.
