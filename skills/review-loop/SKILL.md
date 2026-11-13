@@ -445,8 +445,8 @@ a real defect on two, in 53 to 204 seconds.
 5. **Fix at the root.** When the same defect is in sibling call sites or in a
    shared token, fix it there, and count the places.
 6. **A finding outside the task is an issue**, through the
-   `craft:github` skill, unless the Boy Scout Rule takes it into this
-   change, or that skill gives it no issue.
+   `craft:github` skill, unless the Boy Scout Rule takes it in, also by
+   the person's choice, or that skill gives it no issue.
 
 ## The security review
 
@@ -539,12 +539,12 @@ Then:
    `## Review`. When it succeeds and the branch has none, open the pull
    request through the `craft:github` skill, with the summary under
    `## Review`.
-2. When questions on business logic are still open, ask them. An answer that
+2. When questions to the person are still open, ask them. An answer that
    needs no fix goes into `## Review`. The fix for an answer, when it needs
    one, goes through *Fixes from other places* and *The summary*, and then
    through this section again, its conditions first.
 3. When the last push in step 1 succeeded, the pull request is open and no
-   question on business logic is open, show the `gh pr merge` command that
+   question to the person is open, show the `gh pr merge` command that
    `merge.md` in that skill gives. Ask one question with three answers:
    merge and clean up, merge only, or do not merge. When
    `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints
@@ -561,7 +561,7 @@ Then:
    from that skill, and on merge and clean up, its *Cleanup* after that.
    When it fails, give the error, and keep the worktree and the branch.
 
-Only the merge and the open questions on business logic wait for the person.
+Only the merge and the open questions wait for the person.
 
 ## A spec and a plan
 

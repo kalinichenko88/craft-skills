@@ -1,9 +1,11 @@
 # File a finding
 
 The run works on a task, or on a change that the person asked for, and
-meets a finding. Without a question to the person, it fixes the finding in
-the pull request of the task, adds it to an open task on the same code, adds
-a comment to an open task with the same report, or creates a task for it.
+meets a finding. It fixes the finding in the pull request of the task, adds
+it to an open task on the same code, adds a comment to an open task with the
+same report, or creates a task for it. It asks the person only when a finding
+that it would fix in the pull request of the task needs a choice between
+ways.
 When a task already reports the finding or decided it, or an open pull
 request fixes it, the run files nothing. The last message names a name or a
 wording that no rule of the repository asks for, a failure on an input that
@@ -249,12 +251,47 @@ Given:
 - the repository has the label `bug`
 When: the run meets that defect in `src/parser/header.ts`
 Then:
+- the person is asked which of the two ways fixes `splitHeader`
+- the question gives the cost of each way, and recommends one
+Never:
+- a task is created for the defect
+- the pull request of #91 merges before the person answers
+
+## The choice of a way for a defect in the module of the task
+
+Given:
+- the outcomes of A defect in the module of the task with two ways to fix it
+  hold
+When: the person answers that `splitHeader` calls `splitLine`
+Then:
+- the pull request of #91 makes `splitHeader` call `splitLine`
+- the pull request of #91 adds a test that fails on the old `splitHeader`
+  and passes on the new one
+- the text of the pull request of #91 names the finding as not part of #91,
+  and names the choice
+Never:
+- a task is created for the defect
+
+## A defect with two ways to fix it, and no person to answer
+
+Given:
+- task #91 is open, with no assignee and no label
+- the run read `splitHeader` in `src/parser/header.ts` and `splitLine` in
+  `src/parser/split.ts`
+- `parseRows` in `src/parser/read.ts` calls `splitHeader` for the first line
+  of a text, and #91 asks for a change of 40 lines in `parseRows`
+- `splitHeader` drops a comma inside quotes, and `splitLine` keeps it; the
+  fix can make `splitHeader` call `splitLine`, or change the code of
+  `splitHeader`
+- the repository has the label `bug`
+When: the person writes "#91. Do not ask questions."
+Then:
 - one new task is created for the defect
 - the text of the new task names `splitHeader`
 - the new task has the label `bug`
 Never:
 - the pull request of #91 changes `src/parser/header.ts`
-- the person is asked before the task is created
+- the run waits for an answer
 
 ## A defect in the module of the task that code outside the module relies on
 

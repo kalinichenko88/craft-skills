@@ -172,7 +172,12 @@ and nothing outside the module relies on what it changes. It is smaller than
 the task's own diff, and all such fixes together are smaller too. Dropping it
 leaves the task whole. A bug brings its test. List each one in the PR
 description as not part of the task. A finding that fails one condition is an
-issue. Cleaner than you found it is not the same as rebuilt.
+issue, except one that is not clear only because it needs a choice: between
+ways to fix it, or of what the product does there. When the code you read
+gives each way and its cost, with no new search, run or measurement, ask the
+person to choose before the merge. The choice takes it into this change; no
+person or no answer leaves it an issue. Cleaner than you found it is not the
+same as rebuilt.
 
 ## Code conventions (always)
 
@@ -196,9 +201,10 @@ follows that file instead.
 **Out-of-scope findings become issues.** Anything worth fixing that is **not**
 part of the current task — a bug, a latent defect, an improvement worth making
 later — gets filed as an issue instead of being fixed inline or dropped in the
-chat. Do not derail the task to fix it; do not ask first. If the Boy Scout Rule
-above takes it, it goes into the current PR instead, listed in the description
-as not part of the task. The github skill's `filing.md` carries the how. Where
+chat. Do not derail the task to fix it; do not ask whether to file it. If the
+Boy Scout Rule above takes it, it goes into the current PR instead, listed in
+the description as not part of the task. The github skill's `filing.md`
+carries the how. Where
 there is no GitHub remote or `gh auth status` fails, name the finding in the
 final report instead of filing it.
 
