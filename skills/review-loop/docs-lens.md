@@ -10,7 +10,7 @@ In the tree, read each document that the range changes, whole. Change no
 file of the tree.
 
 The text under review is all the text that the range changes in documents.
-When the range changes code too, it is the text of a skill or a prompt only:
+When the range changes code, it is the text of a skill or a prompt only:
 the lines of one that the range changes, and the passages of one in the tree
 that name code that the range changes. The code review reads the other documents
 of such a range.
