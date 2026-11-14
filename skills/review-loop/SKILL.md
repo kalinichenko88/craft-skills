@@ -31,7 +31,8 @@ spec. The agent fixes and decides by itself, except for a change to business
 logic and a choice for a finding outside the task, and writes a summary. When
 the task is an issue taken into work, or the person asked for a pull request,
 the push and the pull request follow in the same turn, on the conditions in
-*The pull request*.
+*The pull request*. In each command and prompt, `<dir>` is this skill's base
+directory.
 
 Why the rounds stop: on one project, nine rounds of `/code-review high`, each
 over the whole branch, gave 68 findings and 25 fixes. No fix went into the
@@ -60,10 +61,19 @@ run only when the person asks; `ultra` is billed. A change to a test file is
 never `low`: `/code-review low` skips test files.
 
 A change to documents only takes no `/code-review`: one review subagent reads
-the text the range changes against the code it describes, the rest of its
-document, and the other documents that describe the same thing. It gets one
-round, as *A change to documents only* says. The text of a skill or a prompt,
-as a `SKILL.md` or `rules.md`, counts as a document, though it is the product.
+the text the range changes, with this prompt alone, and no limit on its
+report:
+
+```
+Read <dir>/docs-lens.md and do what it says.
+Range: <the range of the round>
+Tree: <the working tree of the branch>
+```
+
+In Codex: `/review` with the same three lines as its custom instructions.
+The change gets one round, as *A change to documents only* says. The text of
+a skill or a prompt, as a `SKILL.md` or `rules.md`, counts as a document,
+though it is the product.
 Why: on a skill's own branch, eight runs of `/code-review high` found 9 or 10
 findings each. From the second run on, most were in the sentences the run
 before had written. The rounds stopped only when the person stopped them.
@@ -181,12 +191,10 @@ to revisit it.
    `git merge-base <default branch> HEAD` where there is no `origin`. Name the
    range: with no target, `/code-review` reads only the commits ahead of the
    upstream, and after a push that is not the whole branch. In Codex:
-   `/review`, *Review against a base branch*. A review subagent gets
-   `git diff <base>..HEAD`.
+   `/review`, *Review against a base branch*.
 2. **The fixes of a round are one commit.** The next round reads only that
    commit: `/code-review <level> <sha>^..<sha>`. In Codex: `/review`, *Review a
-   commit*. A review subagent gets `git show <sha>`. Inside the loop, never
-   send the whole branch again.
+   commit*. Inside the loop, never send the whole branch again.
 3. **Stop at the first round that confirms no defect**, whatever that round
    declines, for the first time or again. A round whose report says it read
    no file of its range confirms nothing and does not count. When its level
@@ -247,9 +255,9 @@ that code.
 
 The subagent is an `Agent` call of its own, not a job in the prompt of round
 1, with `model: "opus"`, and `effort` at the level of round 1, or `high` when
-that level is lower or there is none. `<dir>` is this skill's base
-directory, `<base>` is the base of step 1, and `<head>` is the SHA of `HEAD`
-that round 1 reads. It gets this prompt, with no other job:
+that level is lower or there is none. `<base>` is the base of step 1, and
+`<head>` is the SHA of `HEAD` that round 1 reads. It gets this prompt, with
+no other job:
 
 ```
 Read <dir>/architecture-lens.md and do what it says.
@@ -291,10 +299,9 @@ the merge question, it does not run again. Change no file while Codex runs.
 bash <dir>/scripts/codex-review.sh <base>
 ```
 
-`<dir>` is this skill's base directory, and `<base>` is the base of step 1.
-Run it from the working tree of the branch under review. The script prints
-Codex's findings as JSON. Each one goes through *The findings*, also one in
-the text of a skill or a prompt.
+`<base>` is the base of step 1. Run it from the working tree of the branch.
+The script prints Codex's findings as JSON. Each one goes through *The
+findings*, also one in the text of a skill or a prompt.
 
 - Exit 2: the script did not run Codex. When the call is wrong, as a wrong
   base, working directory or argument, correct it and run the script again.
@@ -322,9 +329,8 @@ change to documents only gets no review of the tests. Start it when the last
 pass starts. When the loop had one round, start it when that round confirms
 no defect and its nits are committed. When step 4 skips the last pass, skip
 this step too. Change no file while it runs.
-`<dir>` is this skill's base directory, `<base>` is the base of step 1, and
-`<head>` is the SHA of `HEAD`. Its findings go through *The findings*. The
-subagent gets this prompt:
+`<base>` is the base of step 1, and `<head>` is the SHA of `HEAD`. Its
+findings go through *The findings*. The subagent gets this prompt:
 
 ```
 Read <dir>/tests-lens.md and do what it says.
@@ -389,8 +395,8 @@ A change to documents only, as *The level* says, gets one round:
    bash <dir>/scripts/codex-review.sh --docs <base>
    ```
 
-   `<dir>`, `<base>`, where it runs and its exits are as in *A second model
-   for `xhigh` changes*. Change no file while it runs. Its findings go
+   `<base>`, where it runs and its exits are as in *A second model for
+   `xhigh` changes*. Change no file while it runs. Its findings go
    through *The findings*. Its fixes are one commit, and no round reads it.
    Other documents, as a README or a note in `docs/`, get no Codex read. In
    Codex, there is no Codex read.

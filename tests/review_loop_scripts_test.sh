@@ -74,8 +74,8 @@ grep -qF "git diff $base...$head" "$tmp/args" ||
   fail 'the prompt names the range of the whole branch, from the merge base to the SHA of HEAD' "$(cat "$tmp/args")"
 if grep -qF 'the code that it describes' "$tmp/args"; then fail 'without --docs, the prompt has no brief for documents' "$(cat "$tmp/args")"; fi
 
-# A change to documents only gets one Codex read with the brief of the review
-# subagent for documents (#152).
+# A change to documents only gets one Codex read with the brief that its
+# review subagent had before docs-lens.md (#152).
 rm -f "$tmp/args"
 check 'with --docs: prints the findings that codex wrote' "$(cat "$fixtures/codex-findings.json")" "$(review --docs "$base")"
 grep -qF 'the code that it describes' "$tmp/args" ||
