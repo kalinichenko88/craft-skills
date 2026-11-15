@@ -67,6 +67,7 @@ few of its sentences.
   a skill's name. An area whose tests read no recorded data has no folder.
 - `docs/<skill>/` — the pictures that a README links, and the brief they
   are drawn from. `docs/superpowers/` — the specs and plans of past work.
+  `docs/research/` — the studies that ADRs and issues cite.
 - `docs/migrating-from-kalinichenko.md` — the steps for those who installed
   the plugin under its old name.
 - `docs/PRODUCT.md` — the product's direction and constraints, and the
