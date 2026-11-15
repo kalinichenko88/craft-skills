@@ -98,8 +98,8 @@ bad=$(jq -nrR --slurpfile rules "$root/.claude/skills/sessions/scripts/rules.jso
 # count. r2 has each first moment before the text, or the text in another
 # file, in the same call or only in a grep or a write: a code-reviewer
 # subagent, gh pr create after a read of another github skill, take-in.md
-# read in the call of the check, tracker.md, a grep and a sed -i for
-# filing.md, c.ts before the load and use-cart.ts with no react-conventions.
+# read in the call of the check, tracker.md, a grep, a sed -i and pipelines
+# into wc and into a file for filing.md, c.ts before the load and use-cart.ts with no react-conventions.
 # Its github SKILL.md names no merge.md, so its merge is no moment. Its
 # subagent has a TypeScript edit after the load, and a gh api write with a
 # field before the github load; a review and a gh call in a subagent are no

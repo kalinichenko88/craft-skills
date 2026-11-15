@@ -23,20 +23,21 @@ def moments($f; $key; $s):
   | select((.value[$key] // empty) as $e | ($s | test($e)) and (.value.main != true or ($f | test("/subagents/") | not)))
   | .key + 1;
 
-# The commands of a Bash call, in the order they end. It splits at ; & | and
-# new lines, but not in quotes and not at the & of a redirection, as 2>&1. A
-# command in $(...), <(...) or backquotes comes before the command around it,
-# which runs after it. A heredoc body is no command.
+# The commands of a Bash call, in the order they end, each with the sign
+# that ends it, sep. It splits at ; & | and new lines, but not in quotes and
+# not at the & of a redirection, as 2>&1. A command in $(...), <(...) or
+# backquotes comes before the command around it, which runs after it. A
+# heredoc body is no command.
 def parts:
   gsub("<<-?[ \t]*['\"]?(?<w>[A-Za-z_]+)['\"]?(?<r>[^\n]*)\n[\\s\\S]*?\n[ \t]*\\k<w>(?=\n|$)"; "\(.r)")
   | [scan("'[^']*'|\"(?:\\\\.|[^\"\\\\$]|[$](?![(]))*\"|[0-9]*[<>]&[0-9-]*|[&]>{1,2}|[$<>][(]|[`;&|\n)]|[^'\"`;&|\n$<>)]+|[\\s\\S]")]
   | reduce .[] as $t ({out: [], stack: [{text: "", close: ""}]};
       if ($t | test("^[$<>][(]$")) or ($t == "`" and .stack[-1].close != "`") then
         .stack += [{text: "", close: (if $t == "`" then "`" else ")" end)}]
-      elif $t == .stack[-1].close then .out += [.stack[-1].text] | .stack |= .[:-1]
-      elif $t | test("^[;&|\n]$") then .out += [.stack[-1].text] | .stack[-1].text = ""
+      elif $t == .stack[-1].close then .out += [{text: .stack[-1].text, sep: $t}] | .stack |= .[:-1]
+      elif $t | test("^[;&|\n]$") then .out += [{text: .stack[-1].text, sep: $t}] | .stack[-1].text = ""
       else .stack[-1].text += $t end)
-  | .out + [.stack[].text];
+  | .out + [.stack[] | {text, sep: ""}];
 def subst($vars): reduce ($vars | to_entries[]) as $e (.; gsub("[$][{]?" + $e.key + "\\b[}]?"; $e.value));
 def word: sub("^\\s+"; "") | sub("\\s+$"; "") | gsub("['\"]"; "");
 def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . else $dir + "/" + . end;
@@ -50,15 +51,17 @@ def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . els
 # relative path takes the folder of a cd before it. Then each command, in
 # cmds, and the .md files of skills that a command shows whole or in part, in
 # reads: not grep, and not a command with -i, or with a > outside its quotes
-# that does not follow a digit or &, as 2> does. A gh -R
-# <repo> before its command, as pr or issue, is gh.
+# that does not follow a digit or &, as 2> does. A pipeline shows the output
+# of its last command, so its reads count only when that command is no count
+# as wc and sends no output to a file. A gh -R <repo> before its command, as
+# pr or issue, is gh.
 # ponytail: a variable that $(...) sets stays empty, so f=$(ls <skill>/x.md);
 # cat "$f" is no read: 4 of 2,645 calls on 2026-11-09. Resolve it when it
 # grows.
 def commands:
-  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null, cmds: [], reads: []};
+  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null, cmds: [], reads: [], pipe: [], drop: false};
     .vars as $v | .dir as $d
-    | ($p | subst($v) | sub("^([\\s(){}!]|(do|then|else|time|if|while|until|export)\\s)*"; "")) as $q
+    | ($p.text | subst($v) | sub("^([\\s(){}!]|(do|then|else|time|if|while|until|export)\\s)*"; "")) as $q
     | if $q | test("^[A-Za-z_][A-Za-z0-9_]*=\\S*\\s*$") then
         .vars[$q | capture("^(?<k>[^=]+)").k] = ($q | sub("^[^=]+="; "") | word)
       elif $q | test("^cd\\s") then .dir = ($q | sub("^cd\\s+"; "") | word | resolve($d))
@@ -68,13 +71,15 @@ def commands:
           | sub("^gh\\s+(-R|--repo)(=|\\s+)\\S+"; "gh")) as $q
         | (($q | capture("^(bash(\\s+-[A-Za-z]+)*\\s+)?[\"']?(?<p>[^\\s\"']*scripts/[a-z-]+[.]sh)\\b") | .p | resolve($d)) // null) as $r
         | (if $q | test("^(cat|sed|head|tail|grep|awk)\\s") then [$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d)] else [] end) as $m
+        | ($q | gsub("'[^']*'|\"[^\"]*\""; "") | test("\\s-i\\b|(^|[^0-9&])>")) as $writes
         | .cmds += [$q]
-        | .reads += (if $q | test("^grep\\s") or (gsub("'[^']*'|\"[^\"]*\""; "") | test("\\s-i\\b|(^|[^0-9&])>")) then []
-            else [$m[] | capture(file) | .skill + "/" + .rest] end)
+        | .pipe += (if ($q | test("^grep\\s")) or $writes then [] else [$m[] | capture(file) | .skill + "/" + .rest] end)
+        | .drop = ($writes or ($q | test("^(wc|cksum|md5|md5sum|sha[0-9]*sum|shasum)\\b")))
         | if $r and ($r | test(skill + "/scripts/[a-z-]+[.]sh$")) then
             .run = [($r | capture(skill).skill), ($r | sub(".*/"; ""))]
           else .run = null | .read //= ([$m[] | capture(skill).skill] | first) end
-      end);
+      end
+    | if $p.sep == "|" then . else (if .drop then . else .reads += .pipe end) | .pipe = [] | .drop = false end);
 
 input_filename as $f
 | if .type == "system" and .subtype == "compact_boundary" then [$f, "compact"]
