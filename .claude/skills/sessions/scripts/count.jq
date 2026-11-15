@@ -49,7 +49,8 @@ def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . els
 # variable takes its value from an assignment before it in the call, and a
 # relative path takes the folder of a cd before it. Then each command, in
 # cmds, and the .md files of skills that a command shows whole or in part, in
-# reads: not grep, and not a command with -i or > outside its quotes. A gh -R
+# reads: not grep, and not a command with -i, or with a > outside its quotes
+# that does not follow a digit or &, as 2> does. A gh -R
 # <repo> before its command, as pr or issue, is gh.
 # ponytail: a variable that $(...) sets stays empty, so f=$(ls <skill>/x.md);
 # cat "$f" is no read: 4 of 2,645 calls on 2026-11-09. Resolve it when it

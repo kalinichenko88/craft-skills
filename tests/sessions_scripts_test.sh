@@ -71,12 +71,16 @@ actual=$(PATH="$tmp/bin:$PATH" bash "$count" 14 "$tmp/projects") || true
 }
 
 # Each moment of rules.json on its samples in moments.tsv: the rule, its key,
-# a command or a path as count.jq gives it, and 1 for a moment.
-bad=$(jq -rR --slurpfile rules "$root/.claude/skills/sessions/scripts/rules.json" '
-  split("\t") as [$r, $k, $s, $want]
-  | ($rules[0][] | select(.rule == $r) | .[$k]) as $e
-  | (if $s | test($e) then "1" else "0" end) as $got
-  | select($got != $want) | "\($r): \($s) gives \($got)"' "$root/tests/fixtures/sessions/moments.tsv")
+# a command or a path as count.jq gives it, and 1 for a moment. A sample of
+# no rule or no key, and a rule with no sample, fail too.
+bad=$(jq -nrR --slurpfile rules "$root/.claude/skills/sessions/scripts/rules.json" '
+  [inputs | split("\t")] as $rows
+  | ($rows[] as [$r, $k, $s, $want]
+      | ([$rules[0][] | select(.rule == $r) | .[$k] // empty] | first) as $e
+      | if $e == null then "\($r): no rule with the key \($k)"
+        else (if $s | test($e) then "1" else "0" end) as $got | select($got != $want) | "\($r): \($s) gives \($got)" end),
+    ($rules[0][].rule | select(. as $r | any($rows[]; .[0] == $r) | not) | "\(.): no sample")' \
+  "$root/tests/fixtures/sessions/moments.tsv")
 [ -z "$bad" ] || {
   echo "FAIL: a moment of rules.json on its samples:"
   echo "$bad"

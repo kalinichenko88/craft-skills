@@ -65,7 +65,8 @@ correct result, so a script makes them, and no model reads a transcript.
    100 % is a candidate too: the steps of ADR 0009 decide what its misses
    change. A new rule in `rules.json` comes with a case in
    `tests/fixtures/sessions/rules/` where its text comes first and one where
-   it does not.
+   it does not, and a new moment with its samples in
+   `tests/fixtures/sessions/moments.tsv`.
 4. **The output stays on this computer.** The transcripts are of private
    projects too. A finding goes to the public tracker only as its shape and
    its counts (*Public repositories* in `skills/github/SKILL.md`). Ask the
