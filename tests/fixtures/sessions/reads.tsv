@@ -1,0 +1,27 @@
+cat /h/skills/github/filing.md	github/filing.md
+D=/h/skills; cat $D/github/filing.md	github/filing.md
+cat /h/skills/github/filing.md 2>/dev/null	github/filing.md
+cat /h/skills/github/SKILL.md	github/SKILL.md
+cat /h/skills/x/skills/github/filing.md	github/filing.md
+cat /home/u/.claude/skills/github/SKILL.md	
+grep -n issue /h/skills/github/filing.md	github/filing.md
+sed -i '' s/a/b/ /h/skills/github/filing.md	
+cat /h/skills/github/filing.md > /tmp/x	
+awk 'NR>1' /h/skills/github/filing.md	github/filing.md
+awk -F: '{print $1}' /h/skills/github/filing.md	github/filing.md
+awk 'length > 80 {print FILENAME}' /h/skills/github/filing.md	
+awk -F'\t' '{print FILENAME}' /h/skills/github/filing.md	
+sed -n 1,40p /h/skills/github/filing.md | grep -n -i issue	github/filing.md
+cat /h/skills/github/filing.md | wc -l	
+cat /h/skills/github/filing.md | head -5 > /tmp/x	
+sed -n 1,9p /h/skills/github/filing.md | head -0	
+cat /h/skills/github/filing.md | jq -R length 2>/dev/null	
+cat /h/skills/github/filing.md | head -n "$(echo 20)"	github/filing.md
+x=$(cat /h/skills/github/filing.md)	
+echo "$(cat /h/skills/github/filing.md)"	github/filing.md
+cat <(sed -n 1,40p /h/skills/github/filing.md)	github/filing.md
+grep -c issue /h/skills/github/filing.md	
+grep -rl issue /h/skills/github/filing.md	
+awk '/^## Filing/{f=1} /^## Next/{f=0} f' /h/skills/github/filing.md	github/filing.md
+awk 'NR==1{next} 1' /h/skills/github/filing.md	github/filing.md
+awk 'END {print NR}' /h/skills/github/filing.md	

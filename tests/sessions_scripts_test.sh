@@ -87,6 +87,25 @@ bad=$(jq -nrR --slurpfile rules "$root/.claude/skills/sessions/scripts/rules.jso
   exit 1
 }
 
+# Each read form of count.jq on its samples in reads.tsv: a Bash command, and
+# the rule texts that it shows, or none.
+scripts=$root/.claude/skills/sessions/scripts
+jq -cR 'split("\t")[0] as $c | {type: "assistant", timestamp: "2999-01-01T00:00:00Z",
+  message: {id: ($c | @base64), content: [{type: "tool_use", id: ($c | @base64), name: "Bash", input: {command: $c}}]}}' \
+  "$root/tests/fixtures/sessions/reads.tsv" >"$tmp/reads.jsonl"
+bad=$(jq -r --slurpfile rules "$scripts/rules.json" -f "$scripts/count.jq" "$tmp/reads.jsonl" |
+  awk -F '\t' '$2 == "trace" { print $4 "\t" $3 }' |
+  jq -nrR --slurpfile rules "$scripts/rules.json" --rawfile want "$root/tests/fixtures/sessions/reads.tsv" '
+    ([inputs | split("\t")] | group_by(.[0])
+      | map({key: .[0][0], value: ([.[][1] | tonumber | $rules[0][. - 1].text] | unique | join(","))}) | from_entries) as $got
+    | $want | split("\n")[] | select(. != "") | split("\t") as [$c, $w]
+    | ($got[$c | @base64] // "") as $g | select($g != ($w // "")) | "\($c) shows \($g), not \($w // "")"')
+[ -z "$bad" ] || {
+  echo "FAIL: a read form of count.jq on its samples:"
+  echo "$bad"
+  exit 1
+}
+
 # The rules. r1 has each rule's text before its first moment, in the result
 # of a call of an earlier message: the github load, take-in.md by Read,
 # filing.md through a variable that holds the skills folder before
@@ -97,23 +116,21 @@ bad=$(jq -nrR --slurpfile rules "$root/.claude/skills/sessions/scripts/rules.jso
 # Its first gh write is older than the days, and its first take-in-check.sh
 # comes before the github SKILL.md that states its rule, so the next ones
 # count. r2 has each first moment before the text, or the text in another
-# file, in the same call or only in a grep or a write: a code-reviewer
-# subagent, gh pr create after a read of another github skill, take-in.md
-# read in the call of the check, tracker.md, and for filing.md a grep, a
-# sed -i, pipelines into wc, a file and head -0, a $(...) and an awk that
-# prints only names, c.ts before the load and use-cart.ts with no react-conventions.
-# Its github SKILL.md names no merge.md, so its merge is no moment. Its
-# subagent has a TypeScript edit after the load, and a gh api write with a
-# field before the github load; a review and a gh call in a subagent are no
-# moment. r3 reads with gh api --hostname <host> graphql, which is no
-# write, then loads github in the message of a gh read, a moment of the gh
-# call only, then reads merge.md in the message of a gh -R merge: each
-# result comes before the next call, as in Claude Code. n1 has moments but
-# no rules.md.
+# file or in the same call: a code-reviewer subagent, gh pr create after a
+# read of another github skill, take-in.md read in the call of the check,
+# tracker.md for filing.md, c.ts before the load and use-cart.ts with no
+# react-conventions. Its github SKILL.md names no merge.md, so its merge is
+# no moment. Its subagent has a TypeScript edit after the load, and a gh api
+# write with a field before the github load; a review and a gh call in a
+# subagent are no moment. r3 loads github in the message of a gh read, a
+# moment of the gh call only, then reads merge.md in the message of a gh -R
+# merge: each result comes before the next call, as in Claude Code. r4 reads
+# with gh api --hostname <host> graphql, no write, before the github load
+# and a gh write. n1 has moments but no rules.md.
 cp -R "$root/tests/fixtures/sessions/rules" "$tmp/"
 expected="rule	contexts	kept	share	subagents	kept	share
-github before a gh write	3	2	67%	1	0	0%
-github before a gh call	3	1	33%	0	0	-
+github before a gh write	4	3	75%	1	0	0%
+github before a gh call	4	1	25%	0	0	-
 typescript-conventions before a TypeScript edit	2	1	50%	1	1	100%
 react-conventions before a React edit	2	1	50%	0	0	-
 review-loop before a review	2	1	50%	0	0	-
