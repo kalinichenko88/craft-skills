@@ -92,8 +92,8 @@ for event in SessionStart SubagentStart; do
     exit 1
   }
 done
-# A review subagent gets these rules too, as the loop above proves, and
-# *Out-of-scope findings* tells it to file an issue without asking. One
+# A review subagent gets these rules too, unless its type is Explore (PDR
+# 0012), and *Out-of-scope findings* tells it to file with no question. One
 # sentence must tell every read-only subagent, a review one included, to file
 # nothing.
 tr '\n' ' ' <"$root/rules.md" | grep -qE 'read-only subagent[^.]* review[^.]* files nothing' || {

@@ -137,29 +137,26 @@ for part in 1 2; do
   while IFS= read -r input; do
     type=$(jq -r .agent_type <<<"$input")
     if [ "$type" = Explore ]; then
-      check "SubagentStart $part, recorded Explore: no output" '' \
-        "$("$root/hooks/rules.sh" SubagentStart $part <<<"$input")"
+      out=$("$root/hooks/rules.sh" SubagentStart $part <<<"$input") || fail "recorded Explore: exit $?"
+      check "SubagentStart $part, recorded Explore: no output" '' "$out"
     else
       check "SubagentStart $part, recorded $type" "$whole" "$(rules SubagentStart $part <<<"$input")"
     fi
   done <"$fixtures/claude-subagents.jsonl"
   # Inputs made from the recorded one. Each line is the name|the sed program.
-  # Codex names its types default, explorer and worker, and gives a turn_id.
-  # No input of Codex is recorded: in a run of Codex 0.169.0 with two
-  # subagents, no SubagentStart hook fired.
+  # An input of Codex has a turn_id. None is recorded: in a run of Codex
+  # 0.169.0 with two subagents, no SubagentStart hook fired. An empty input
+  # runs in tests/rules_test.sh.
   while IFS='|' read -r name program; do
     input=$(sed "$program" <<<"$explore")
     [ "$input" != "$explore" ] || fail "$name: the sed program changes nothing"
     check "SubagentStart $part, $name" "$whole" "$(rules SubagentStart $part <<<"$input")"
   done <<'EOF'
-the type explorer of Codex|s/"Explore"/"explorer"/
 the type Explore in an input with a turn_id|s/"agent_type"/"turn_id":"x","agent_type"/
 the type under another field|s/"agent_type"/"agent_kind"/
 a type that ends in Explore|s/"Explore"/"my-plugin:Explore"/
 a type that starts with Explore|s/"Explore"/"Explorer"/
-no agent type|s/"agent_type":"Explore",//
 EOF
-  check "SubagentStart $part, an empty input" "$whole" "$(rules SubagentStart $part </dev/null)"
 done
 
 echo 'hooks_scripts_test: ok'
