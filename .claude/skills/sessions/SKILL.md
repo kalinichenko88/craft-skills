@@ -19,7 +19,7 @@ correct result, so a script makes them, and no model reads a transcript.
    The script reads `~/.claude/projects/`. It takes a transcript that
    changed in those days and that a person's session wrote: a `claude -p`
    run is left out. A subagent's transcript is a context of its own.
-2. **Show the table**, with these meanings:
+2. **Show the tables.** The first has these meanings:
 
    | Column | What it counts |
    | --- | --- |
@@ -41,14 +41,16 @@ correct result, so a script makes them, and no model reads a transcript.
    the text that states the rule (`from` and `says` in `rules.json`:
    `rules.md` from a hook, or a `SKILL.md` that loaded); a context with an
    old version of that text has no moment. The first such moment decides:
-   `kept` counts the contexts where the rule's `text` came before it, in the
-   order of the records, and in a call in the order in which its commands
-   end: a load from the plugin cache, when the `text` is a `SKILL.md`, or a
-   read of the file by `Read` or by a command of the `read` column, from the
-   plugin cache or from a checkout, not from a folder `claude/skills`, where
-   a skill of the same name is another one. `share` is `kept` of
-   `contexts`, and `-` with no moment. The next three columns count the
-   subagents the same way. A rule with `main` has no moment there: a
+   `kept` counts the contexts where the rule's `text` came before it. That
+   is a load from the plugin cache, when the `text` is a `SKILL.md`, or a
+   read of all or part of the file whose result came before the call of
+   the moment: by `Read`, or by `cat`, `sed`, `head`, `tail` or `awk` with
+   no `-i` and no `>`, not by `grep`. A read in the same call or the same
+   message as the moment comes after it. The file can be in the plugin
+   cache or in a checkout, not in a folder `claude/skills`, where a skill of
+   the same name is another one. `share` is `kept` of `contexts`, and `-`
+   with no moment. The next three columns count the subagents the same way.
+   A rule with `main` has no moment there: a
    read-only subagent does not load review-loop for a review or github for
    a `gh` call, and the type of a subagent does not show that it is
    read-only, as a review runs as `general-purpose`.

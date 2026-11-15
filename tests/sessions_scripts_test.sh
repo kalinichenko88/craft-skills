@@ -28,16 +28,10 @@ touch -t 200001010000 "$tmp/projects/-home-u-proj/old.jsonl"
 # that quotes a run, roadmap.sh before a tail and a failed gh call, a diff and
 # a cat that only name a script, a call with .mdx, the failed call of the
 # checkout's copy, a call that the worktree refused before it ran and the
-# superpowers load count nothing. No hook gave rules.md, so no rule counts.
+# superpowers load count nothing. No hook gave rules.md, and the records
+# have no time, so no rule counts: each rule of rules.json has a row of 0.
 none="rule	contexts	kept	share	subagents	kept	share
-github before a gh write	0	0	-	0	0	-
-github before a gh call	0	0	-	0	0	-
-typescript-conventions before a TypeScript edit	0	0	-	0	0	-
-react-conventions before a React edit	0	0	-	0	0	-
-review-loop before a review	0	0	-	0	0	-
-take-in.md before take-in-check.sh	0	0	-	0	0	-
-merge.md before gh pr merge	0	0	-	0	0	-
-filing.md before a new issue or add-finding.sh	0	0	-	0	0	-"
+$(jq -r '.[] | .rule + "\t0\t0\t-\t0\t0\t-"' "$root/.claude/skills/sessions/scripts/rules.json")"
 expected="14 days: 2 transcripts, 1 of them subagents
 skill	contexts	loads	twice	chars	compacted	read	failed
 github	1	2	1	294	1	178	5
@@ -76,22 +70,24 @@ actual=$(PATH="$tmp/bin:$PATH" bash "$count" 14 "$tmp/projects") || true
   exit 1
 }
 
-# The rules. r1 has each rule's text before its first moment: the github
-# load, take-in.md by Read, filing.md through a variable that holds the
-# skills folder before add-finding.sh, merge.md from a checkout under another
-# skills folder before a gh --repo=<repo> merge, the
-# conventions loaded or read as the architecture lens does, and review-loop.
-# Its first gh write is older than the days, so the next one counts; a gh
-# read before the load is a moment of the gh call only. r2 has each first
-# moment before the text, or another file than the rule's: a code-reviewer
+# The rules. r1 has each rule's text before its first moment, in the result
+# of a call before it: the github load, take-in.md by Read, filing.md through
+# a variable that holds the skills folder before add-finding.sh, merge.md
+# from a checkout under another skills folder before a gh --repo=<repo>
+# merge, the conventions loaded or read as the architecture lens does, and
+# review-loop. Its first gh write is older than the days, and its first
+# take-in-check.sh comes before the github SKILL.md that states its rule, so
+# the next ones count; a gh read before the load is a moment of the gh call
+# only. r2 has each first moment before the text, or the text in another
+# file, in the same call or only in a grep or a write: a code-reviewer
 # subagent, gh pr create after a read of another github skill, take-in.md
-# after the check in the same call, tracker.md for filing.md, c.ts before
-# the load and useCart.ts with no react-conventions. Its github SKILL.md
-# names no merge.md, so its merge is no moment. Its subagent has a
-# TypeScript edit after the load and a gh write with none; a review and a gh
-# call in a subagent are no moment. r3 reads with gh after the load, then
-# merges with -R before merge.md and runs add-finding.sh before filing.md.
-# n1 has moments but no rules.md.
+# read in the call of the check, tracker.md, a grep and a sed -i for
+# filing.md, c.ts before the load and use-cart.ts with no react-conventions.
+# Its github SKILL.md names no merge.md, so its merge is no moment. Its
+# subagent has a TypeScript edit after the load, and gh issue develop before
+# the github load; a review and a gh call in a subagent are no moment. r3
+# reads with gh after the load, then reads merge.md in the message of a gh
+# -R merge. n1 has moments but no rules.md.
 cp -R "$root/tests/fixtures/sessions/rules" "$tmp/"
 expected="rule	contexts	kept	share	subagents	kept	share
 github before a gh write	3	2	67%	1	0	0%
@@ -101,7 +97,7 @@ react-conventions before a React edit	2	1	50%	0	0	-
 review-loop before a review	2	1	50%	0	0	-
 take-in.md before take-in-check.sh	2	1	50%	0	0	-
 merge.md before gh pr merge	2	1	50%	0	0	-
-filing.md before a new issue or add-finding.sh	3	1	33%	0	0	-"
+filing.md before a new issue or add-finding.sh	2	1	50%	0	0	-"
 actual=$(bash "$count" 14 "$tmp/rules" | sed -n '/^rule	/,$p')
 [ "$actual" = "$expected" ] || {
   echo "FAIL: count.sh printed for the rules:"

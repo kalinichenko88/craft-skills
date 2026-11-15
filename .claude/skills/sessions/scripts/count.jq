@@ -13,13 +13,15 @@ def file: "(^|/)(?<!claude/)skills/(?<skill>[a-z-]+)/(?<rest>[^\\s\"'/]*[.]md)\\
 
 # The rules that $text, the text of $from, states: rules.md or a SKILL.md, as
 # github/SKILL.md. The rules whose text is $file, as github/take-in.md. The
-# rules whose moment f finds, with the rule as its input: a rule with main is
-# no moment in a subagent.
+# rules whose regex at $key, edit, call or bash, matches $s: a rule with main
+# is no moment in a subagent.
 def given($from; $text):
   $rules[0] | to_entries[] | .value as $r | select($r.from == $from and ($text | test($r.says))) | .key + 1;
 def traces($file): $rules[0] | to_entries[] | select(.value.text == $file) | .key + 1;
-def moments($f; f):
-  $rules[0] | to_entries[] | select((.value | f) and (.value.main != true or ($f | test("/subagents/") | not))) | .key + 1;
+def moments($f; $key; $s):
+  $rules[0] | to_entries[]
+  | select((.value[$key] // empty) as $e | ($s | test($e)) and (.value.main != true or ($f | test("/subagents/") | not)))
+  | .key + 1;
 
 # The commands of a Bash call, in the order they end. It splits at ; & | and
 # new lines, but not in quotes and not at the & of a redirection, as 2>&1. A
@@ -45,15 +47,15 @@ def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . els
 # awk. An assignment, a cd, an empty command, a comment, and done, fi or esac
 # with their redirections are no last command. A
 # variable takes its value from an assignment before it in the call, and a
-# relative path takes the folder of a cd before it. And each command, with
-# the .md files of skills that it reads, in cmds: so a read and a moment of
-# one call keep their order. A gh -R <repo> before its command, as pr or
-# issue, is gh.
+# relative path takes the folder of a cd before it. Then each command, in
+# cmds, and the .md files of skills that a command shows whole or in part, in
+# reads: not grep, and not a command that writes, with -i or >. A gh -R
+# <repo> before its command, as pr or issue, is gh.
 # ponytail: a variable that $(...) sets stays empty, so f=$(ls <skill>/x.md);
 # cat "$f" is no read: 4 of 2,645 calls on 2026-11-09. Resolve it when it
 # grows.
 def commands:
-  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null, cmds: []};
+  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null, cmds: [], reads: []};
     .vars as $v | .dir as $d
     | ($p | subst($v) | sub("^([\\s(){}!]|(do|then|else|time|if|while|until|export)\\s)*"; "")) as $q
     | if $q | test("^[A-Za-z_][A-Za-z0-9_]*=\\S*\\s*$") then
@@ -65,7 +67,8 @@ def commands:
           | sub("^gh\\s+(-R|--repo)(=|\\s+)\\S+"; "gh")) as $q
         | (($q | capture("^(bash(\\s+-[A-Za-z]+)*\\s+)?[\"']?(?<p>[^\\s\"']*scripts/[a-z-]+[.]sh)\\b") | .p | resolve($d)) // null) as $r
         | (if $q | test("^(cat|sed|head|tail|grep|awk)\\s") then [$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d)] else [] end) as $m
-        | .cmds += [{q: $q, reads: [$m[] | capture(file) | .skill + "/" + .rest]}]
+        | .cmds += [$q]
+        | .reads += (if $q | test("^grep\\s|\\s-i\\b|(^|[^0-9&])>") then [] else [$m[] | capture(file) | .skill + "/" + .rest] end)
         | if $r and ($r | test(skill + "/scripts/[a-z-]+[.]sh$")) then
             .run = [($r | capture(skill).skill), ($r | sub(".*/"; ""))]
           else .run = null | .read //= ([$m[] | capture(skill).skill] | first) end
@@ -85,11 +88,11 @@ input_filename as $f
     .timestamp as $t | .message.content[]? | select(.type == "tool_use") | .id as $id
     | if .name == "Read" then
         .input.file_path // "" | select(test("[.]md\\b"))
-        | (capture(skill) | [$f, "read", $id, .skill]), (capture(file) | traces(.skill + "/" + .rest) as $n | [$f, "trace", $n])
+        | (capture(skill) | [$f, "read", $id, .skill]), (capture(file) | traces(.skill + "/" + .rest) as $n | [$f, "trace", $n, $id])
       elif .name | test("^(Edit|Write|MultiEdit)$") then
-        .input.file_path // "" | . as $p | moments($f; (.edit // empty) as $e | $p | test($e)) as $n | [$f, "moment", $n, $t]
+        .input.file_path // "" | moments($f; "edit"; .) as $n | [$f, "moment", $n, $t]
       elif .name == "Skill" or .name == "Agent" then
-        .input.skill // .input.subagent_type // "" | . as $c | moments($f; (.call // empty) as $e | $c | test($e)) as $n | [$f, "moment", $n, $t]
+        .input.skill // .input.subagent_type // "" | moments($f; "call"; .) as $n | [$f, "moment", $n, $t]
       elif .name == "Bash" then
         # A call has one output and one exit code, so a failure goes to the
         # script of its last command. ponytail: in a && b, the code is that of
@@ -97,12 +100,13 @@ input_filename as $f
         # 2026-11-09. The output is a read when a command reads, also when
         # another runs a script: in such calls the .md file is most of it.
         # A call that names no skills folder and no gh has no row; a variable
-        # can hold the folder, as D=<cache>/skills; cat $D/github/x.md. Its
-        # traces and moments come in the order of its commands.
+        # can hold the folder, as D=<cache>/skills; cat $D/github/x.md. A trace
+        # of a Read or a Bash call names its call: its text reaches the context
+        # with the result, after each moment of the same message.
         .input.command // "" | select(test("(^|[^-\\w])skills\\b|\\bgh\\b")) | commands
         | (.run // empty | [$f, "run", $id] + .), (.read // empty | [$f, "read", $id, .]),
-          (.cmds[] | (.reads[] | traces(.) as $n | [$f, "trace", $n]),
-            (.q as $q | moments($f; (.bash // empty) as $e | $q | test($e)) as $n | [$f, "moment", $n, $t]))
+          (.reads[] | traces(.) as $n | [$f, "trace", $n, $id]),
+          (.cmds[] | moments($f; "bash"; .) as $n | [$f, "moment", $n, $t])
       else empty end
   elif .type == "user" then
     # An error with no exit code is a call that the harness, a hook or the

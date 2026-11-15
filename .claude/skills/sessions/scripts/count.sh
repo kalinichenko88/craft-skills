@@ -61,14 +61,16 @@ printf "%s" "$list" | tr "\n" "\0" | xargs -0 jq -r --slurpfile rules "$table" -
   $2 == "run" { run[$3] = $4 "/" $5; runskill[$3] = $4 }
   $2 == "read" { read[$3] = $4 }
   # The first moment of a rule in a context decides: kept when the text of
-  # the rule came before it. Column 1 is the main sessions, 2 the subagents.
+  # the rule came before it, a load at once and a read with the result of its
+  # call. Column 1 is the main sessions, 2 the subagents.
   $2 == "given" { given[file, $3] = 1 }
-  $2 == "trace" { traced[file, $3] = 1 }
+  $2 == "trace" { if ($4 == "") traced[file, $3] = 1; else pending[$4] = pending[$4] " " $3 }
   $2 == "moment" && $4 >= start && ((file, $3) in given) && !((file, $3) in moment) {
     moment[file, $3] = 1; k = (file ~ /\/subagents\//) ? 2 : 1
     moments[$3, k]++; if ((file, $3) in traced) kept[$3, k]++
   }
   $2 == "result" {
+    if ($3 in pending) { np = split(pending[$3], got, " "); for (i = 1; i <= np; i++) traced[file, got[i]] = 1; delete pending[$3] }
     if ($3 in read) { reads[read[$3]] += $4; seen[read[$3]] = 1 }
     if (($3 in run) && $5 == "true") { failed[runskill[$3]]++; fails[run[$3]]++; seen[runskill[$3]] = 1 }
   }
