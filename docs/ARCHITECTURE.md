@@ -35,8 +35,8 @@ they see is the other text files: the bash and awk under `skills/`,
 as `LICENSE` and `data.ere`. The text of a skill is the product, but no
 `Check:` line sees it: an invariant on it is review only.
 `tests/rules_test.sh` checks the size of each `SKILL.md` (ADR 0006) and a
-few of its sentences, and `tests/text_size_test.sh` fails on a text past
-its recorded size (ADR 0009).
+few of its sentences, and `tests/text_size_test.sh` fails on a text whose
+size is not its recorded size (ADR 0009).
 
 ## Codemap
 
@@ -260,9 +260,11 @@ hold 10. A new number needs an ADR.
   cap, each at its size there (ADR 0006). ADR 0009 holds the rule that
   admits a sentence for a case into the text of a skill, and the size
   targets of a `SKILL.md`, a side file, a flow and `rules.md`: review
-  only. Each of these texts has its recorded size in `tests/text_size.txt`,
-  and `tests/text_size_test.sh` fails on one that grows past it, until the
-  same pull request changes its line. Pictures are WebP, since the
+  only. `rules.md`, each `SKILL.md`, each side file and the take-in flow
+  have a recorded size in `tests/text_size.txt`,
+  and `tests/text_size_test.sh` fails on one whose size is not that number,
+  until the same pull request changes its line: a text that shrinks changes
+  it too, so that a later growth shows in a diff. Pictures are WebP, since the
   plugin installs as a copy of the repository.
 - **Safety.** No step of the debt and architecture skills runs the code of
   the project it reads. Nothing from a private source goes into a public

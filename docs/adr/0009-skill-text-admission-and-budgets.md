@@ -127,6 +127,7 @@ None: no `Check:` line sees a `.md` file.
 
 `tests/rules_test.sh` for the cap of 20,000. The record of sizes is
 `tests/text_size.txt`, and `tests/text_size_test.sh` checks it in
-`make check`. The admission rule: review only; #417 puts the
+`make check`: a text below its record fails too, so the record holds the
+size of each text. The admission rule: review only; #417 puts the
 ask for a failing run into review-loop, and #418 gives the rule to an agent
 that edits the text of a skill.
