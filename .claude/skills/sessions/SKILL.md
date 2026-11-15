@@ -42,22 +42,23 @@ correct result, so a script makes them, and no model reads a transcript.
    `rules.md` from a hook, or a `SKILL.md` that loaded); a context with an
    old version of that text has no moment. The first such moment decides:
    `kept` counts the contexts where the rule's `text` came before it, in the
-   order of the records and of the commands of a call: a load from the
-   plugin cache, when the `text` is a `SKILL.md`, or a read of the file by
-   `Read` or by a command of the `read` column, from the plugin cache or
-   from a checkout. `share` is `kept` of `contexts`, and `-` with no
-   moment. The next three columns count the subagents the same way; a rule
-   with `main` has no moment there, as a review or a `gh` call that a
-   read-only subagent makes.
+   order of the records, and in a call in the order in which its commands
+   end: a load from the plugin cache, when the `text` is a `SKILL.md`, or a
+   read of the file by `Read` or by a command of the `read` column, from the
+   plugin cache or from a checkout, not from a folder `claude/skills`, where
+   a skill of the same name is another one. `share` is `kept` of
+   `contexts`, and `-` with no moment. The next three columns count the
+   subagents the same way. A rule with `main` has no moment there: a
+   read-only subagent loads no skill for a review or a `gh` call, and a
+   transcript does not show which subagent is read-only.
 3. **Read it.** About 3 characters are one token of the model.
    `tests/rules_test.sh` caps each `skills/*/SKILL.md` at 20,000 characters
    (ADR 0006), with a debt list of the files over it. A failed call is a
    candidate, not a defect: `invariants.sh` exits 1 at a failing invariant
    and `take-in-check.sh` at a refusal. Each one is a defect only by *Make
    sure the plugin is wrong* in `skills/github/filing.md`. A share under
-   100 % is a candidate too: a miss that holds when you read its transcript
-   is a failing run of the rule, and step 3 of ADR 0009 then fixes the load
-   of its text, not the rule. A new rule in `rules.json` comes with a case in
+   100 % is a candidate too: the steps of ADR 0009 decide what its misses
+   change. A new rule in `rules.json` comes with a case in
    `tests/fixtures/sessions/rules/` where its text comes first and one where
    it does not.
 4. **The output stays on this computer.** The transcripts are of private

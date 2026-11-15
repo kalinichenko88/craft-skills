@@ -5,9 +5,10 @@
 
 def text: if type == "string" then . else [.[]? | .text? // empty] | join("") end;
 def skill: "/plugins/cache/[^/]+/(craft|kalinichenko)/[^/]+/skills/(?<skill>[a-z-]+)";
-# A .md file of a skill as a trace of a rule: from the cache or from a
-# checkout, since the text is the same; not from a .claude/skills folder,
-# where a skill of the same name is another one.
+# A .md file at the top of a skill's folder as a trace of a rule: from the
+# cache or from a checkout, since the text is the same; not from a folder
+# claude/skills, as ~/.claude/skills or a copy of it, where a skill of the
+# same name is another one.
 def file: "(^|/)(?<!claude/)skills/(?<skill>[a-z-]+)/(?<rest>[^\\s\"'/]*[.]md)\\b";
 
 # The rules that $text, the text of $from, states: rules.md or a SKILL.md, as
@@ -44,7 +45,9 @@ def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . els
 # awk. An assignment, a cd, an empty command, a comment, and done, fi or esac
 # with their redirections are no last command. A
 # variable takes its value from an assignment before it in the call, and a
-# relative path takes the folder of a cd before it.
+# relative path takes the folder of a cd before it. And each command, with
+# the .md files of skills that it reads, in cmds: so a read and a moment of
+# one call keep their order. A gh -R <repo> before its group is gh.
 # ponytail: a variable that $(...) sets stays empty, so f=$(ls <skill>/x.md);
 # cat "$f" is no read: 4 of 2,645 calls on 2026-11-09. Resolve it when it
 # grows.
@@ -57,7 +60,8 @@ def commands:
       elif $q | test("^cd\\s") then .dir = ($q | sub("^cd\\s+"; "") | word | resolve($d))
       elif $q | test("^(done|fi|esac)?(\\s*[0-9]*[<>]+&?\\s*[^\\s;&|]*)*\\s*(#.*)?$") then .
       else
-        ($q | sub("^([A-Za-z_][A-Za-z0-9_]*=(\\S*|'[^']*'|\"[^\"]*\")\\s+|timeout\\s+\\S+\\s+|xargs(\\s+-\\S+)*\\s+)*"; "")) as $q
+        ($q | sub("^([A-Za-z_][A-Za-z0-9_]*=(\\S*|'[^']*'|\"[^\"]*\")\\s+|timeout\\s+\\S+\\s+|xargs(\\s+-\\S+)*\\s+)*"; "")
+          | sub("^gh\\s+(-R|--repo)(=|\\s+)\\S+"; "gh")) as $q
         | (($q | capture("^(bash(\\s+-[A-Za-z]+)*\\s+)?[\"']?(?<p>[^\\s\"']*scripts/[a-z-]+[.]sh)\\b") | .p | resolve($d)) // null) as $r
         | (if $q | test("^(cat|sed|head|tail|grep|awk)\\s") then [$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d)] else [] end) as $m
         | .cmds += [{q: $q, reads: [$m[] | capture(file) | .skill + "/" + .rest]}]
