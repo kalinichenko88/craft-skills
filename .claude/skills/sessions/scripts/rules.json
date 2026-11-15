@@ -1,0 +1,60 @@
+[
+  {
+    "rule": "github before a gh write",
+    "from": "rules.md",
+    "says": "(craft|kalinichenko):github",
+    "text": "github/SKILL.md",
+    "bash": "^gh\\s+(((pr|issue)\\s+(create|edit|comment|close|reopen|merge|review|develop|delete|ready|transfer|lock|unlock|pin|unpin|update-branch)|(release|label)\\s+(create|edit|delete|upload)|repo\\s+(create|edit|delete|rename)|workflow\\s+(run|enable|disable)|run\\s+(rerun|cancel)|(secret|variable)\\s+(set|delete))\\b|api\\s(.*\\s)?graphql\\s.*mutation|api\\s+(?!graphql)(?!.*(-X|--method)[=\\s]*(?i:get)\\b).*(\\s(-[fF]|--field|--raw-field|--input)[\\s=]|(-X|--method)[=\\s]*(?i:post|patch|put|delete)\\b))"
+  },
+  {
+    "rule": "github before a gh call",
+    "from": "rules.md",
+    "says": "(craft|kalinichenko):github",
+    "text": "github/SKILL.md",
+    "bash": "^gh\\s",
+    "main": true
+  },
+  {
+    "rule": "typescript-conventions before a TypeScript edit",
+    "from": "rules.md",
+    "says": "typescript-conventions",
+    "text": "typescript-conventions/SKILL.md",
+    "edit": "[.]([cm]?ts|tsx)$"
+  },
+  {
+    "rule": "react-conventions before a React edit",
+    "from": "rules.md",
+    "says": "react-conventions",
+    "text": "react-conventions/SKILL.md",
+    "edit": "[.][jt]sx$|/use([A-Z][A-Za-z0-9]*|-[a-z0-9-]+)[.][jt]s$"
+  },
+  {
+    "rule": "review-loop before a review",
+    "from": "rules.md",
+    "says": "review-loop",
+    "text": "review-loop/SKILL.md",
+    "call": "^(code-review|security-review)$|code-reviewer$",
+    "main": true
+  },
+  {
+    "rule": "take-in.md before take-in-check.sh",
+    "from": "github/SKILL.md",
+    "says": "take-in[.]md",
+    "text": "github/take-in.md",
+    "bash": "^(bash(\\s+-\\S+)*\\s+)?\\S*scripts/take-in-check[.]sh\\b"
+  },
+  {
+    "rule": "merge.md before gh pr merge",
+    "from": "github/SKILL.md",
+    "says": "merge[.]md",
+    "text": "github/merge.md",
+    "bash": "^gh\\s+pr\\s+merge\\b"
+  },
+  {
+    "rule": "filing.md before a new issue or add-finding.sh",
+    "from": "github/SKILL.md",
+    "says": "filing[.]md",
+    "text": "github/filing.md",
+    "bash": "^gh\\s+issue\\s+create\\b|^gh\\s+api\\s+\\S*repos/[^/\\s]+/[^/\\s]+/issues(?=\\s|$)(?=.*\\s(-[fF]|--field|--raw-field|--input)[\\s=])|^(bash(\\s+-\\S+)*\\s+)?\\S*scripts/add-finding[.]sh\\b"
+  }
+]
