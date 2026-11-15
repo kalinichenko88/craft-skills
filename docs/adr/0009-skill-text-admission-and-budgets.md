@@ -9,6 +9,8 @@
 - 2026-11-15 #412: Confirmation. Was: "The record of sizes and its check in `make check`: #412".
 - 2026-11-15 #413: Context. Was: "`rules.md`, 11,672 characters, goes into each session and each subagent".
 - 2026-11-15 #413: Options considered. Was: "five side files, three `SKILL.md` files and `rules.md` are past their numbers".
+- 2026-11-15 #414: Context. Was: "goes into each session and each subagent".
+- 2026-11-15 #414: Decision, the table of budgets. Was: "It goes into each session and each subagent".
 
 ## Context
 
@@ -21,7 +23,8 @@ ADR 0006 caps each `SKILL.md` at 20,000 characters, and lets a file under
 the cap grow up to it. The cap does not see where the cost is. In 14 days
 the github skill put 9.7 million characters of its `SKILL.md` into context,
 and 15.2 million of its side files. `rules.md`, 11,672 characters on
-2026-11-15, goes into each session and each subagent. A side file is a file beside a `SKILL.md`
+2026-11-15, goes into each session and each subagent, but an `Explore`
+subagent of Claude Code (PDR 0012). A side file is a file beside a `SKILL.md`
 that the skill sends the agent to read; a `README.md` is not one. On
 2026-11-15, five side files have more than 10,000 characters, the largest
 19,704, and three `SKILL.md` files have more than 15,000.
@@ -91,7 +94,7 @@ We will keep these budgets, in characters as `jq -Rs length` counts them:
 | A `SKILL.md`, target | 15,000 | Cost: 5,000 model tokens at 3 characters a token |
 | A side file | 10,000 | Set by the study, not measured: Anthropic warns that an agent reads a long file in part |
 | A flow: the files that one scenario reads | No growth; a target after the map of its files (#415) | The side files of github cost more than its `SKILL.md` |
-| `rules.md` | 6,000 | It goes into each session and each subagent |
+| `rules.md` | 6,000 | It goes into each session and each subagent, but an `Explore` subagent of Claude Code |
 
 Of these numbers, only the cap of 20,000 fails a check. The others are
 targets: a text past its target fails nothing. The host's cap of 10,000

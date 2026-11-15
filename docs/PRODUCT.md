@@ -35,7 +35,7 @@ The first user is the author.
   from public repositories, or from a fake tracker that a test builds.
 - **The hosts:** Claude Code caps the context of one hook at 10,000
   characters, and `rules.md` loads through two hooks for each event, one for
-  each part. After a compaction, Claude Code keeps only the first 20,000
+  each part. An `Explore` subagent of Claude Code gets none (PDR 0012). After a compaction, Claude Code keeps only the first 20,000
   characters of each skill (ADR 0006). Codex runs plugin hooks only after the
   person trusts them.
 - **Money:** the plugin is free and earns nothing. Its cost is the user's
@@ -60,3 +60,4 @@ None.
 - [0009 The next task and the parallel work come from the goal of the nearest milestone, in at most three lanes](pdr/0009-next-task-from-the-goal.md) — accepted; revisit when: a lane 1 on a real tracker leaves out a task that the goal needs twice, or the person declines the re-plan that a note offers twice
 - [0010 A failure that a check or a default in the code keeps its input from is not filed](pdr/0010-ruled-out-failure-not-filed.md) — accepted; revisit when: a finding that the trace ruled out turns out to be a defect that real use reaches, or a tracker that uses craft closes two issues in a month because their input never reaches the code
 - [0011 A finding in the task's module that needs only a choice goes to the person as a question](pdr/0011-choice-in-the-module-asked.md) — accepted; revisit when: of the first 5 real questions by this rule, the person calls 2 not worth a question, or answers 2 of them with "file it"
+- [0012 An Explore subagent of Claude Code gets no rules](pdr/0012-explore-subagent-gets-no-rules.md) — accepted; revisit when: a transcript of an `Explore` subagent shows a write of `gh`, a commit or a push that its prompt did not ask for, or 10 of 100 subagents in 14 days are `Plan`

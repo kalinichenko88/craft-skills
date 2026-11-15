@@ -13,7 +13,8 @@ It is for a solo developer or a small team that keeps its work on GitHub.
 ## What it does
 
 **The rules.** [`rules.md`](rules.md) loads at the start of every session and
-every subagent. It tells the agent to run the project's own check before it
+every subagent, except an `Explore` subagent of Claude Code, which only
+reads. It tells the agent to run the project's own check before it
 calls work done, to ship each bug fix with its test, to use the platform
 before a new dependency, to move the docs with the change, to correct an
 open issue at once when the person decides something that makes it false,
@@ -171,7 +172,7 @@ not.
 
 The hooks are plain bash. The four that inject the rules, two parts of
 `rules.md` at the start of a session and of a subagent, have no other
-dependency. The fifth names a Claude Code session after an issue: it calls
+dependency. For an `Explore` subagent of Claude Code they print nothing. The fifth names a Claude Code session after an issue: it calls
 `gh`, and in Codex it does nothing.
 
 ## Update

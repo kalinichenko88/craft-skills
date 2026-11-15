@@ -15,6 +15,14 @@ case ${2:-} in
 2) rules=${rules#*"$marker"} ;;
 *) echo "usage: rules.sh <event> 1|2" >&2; exit 1 ;; # hooks.json names a part
 esac
+# An Explore subagent of Claude Code only reads, so it gets no rules (PDR
+# 0012). The host gives the agent type on stdin; any other input, an empty
+# one too, gives the rules, and so does an input of Codex, which has a
+# turn_id. hooks.json has no matcher for it: its entry runs for each type.
+if [ "$1" = SubagentStart ]; then
+  IFS= read -r -d '' input || true
+  [[ $input == *'"agent_type":"Explore"'* && $input != *'"turn_id":'* ]] && exit 0
+fi
 rules=${rules//\\/\\\\}
 rules=${rules//\"/\\\"}
 rules=${rules//$'\n'/\\n}

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # The session-title hook, run on the prompts that Claude Code and Codex send:
 # recorded payloads with their paths replaced, and a fake gh that answers from
-# a recorded issue.
+# a recorded issue. Then the rules hook, run on the inputs that Claude Code
+# 2.1.325 gave a SubagentStart hook for three agent types.
 
 set -eu
 
@@ -118,5 +119,44 @@ for payload in no-ids.json both-ids.json; do
 done
 out=$(FAKE_FAIL=1 run claude-prompt.json '#133') || fail "gh fails: exit $?"
 check 'gh fails: no title' '' "$out"
+
+# An Explore subagent of Claude Code gets no rules (#414). Each other input
+# gives the part that a session gets.
+# rules <event> <part>: the context that the rules hook gives for the input
+# on stdin, and nothing when the hook prints nothing.
+rules() {
+  local json
+  json=$("$root/hooks/rules.sh" "$1" "$2") || fail "rules.sh $1 $2: exit $?"
+  [ -z "$json" ] || jq -r --arg e "$1" \
+    '.hookSpecificOutput | select(.hookEventName == $e) | .additionalContext' <<<"$json"
+}
+explore=$(head -1 "$fixtures/claude-subagents.jsonl")
+for part in 1 2; do
+  whole=$(rules SessionStart $part <<<"$explore")
+  [ -n "$whole" ] || fail "SessionStart $part: no rules for a session of the Explore agent"
+  while IFS= read -r input; do
+    type=$(jq -r .agent_type <<<"$input")
+    if [ "$type" = Explore ]; then
+      out=$("$root/hooks/rules.sh" SubagentStart $part <<<"$input") || fail "recorded Explore: exit $?"
+      check "SubagentStart $part, recorded Explore: no output" '' "$out"
+    else
+      check "SubagentStart $part, recorded $type" "$whole" "$(rules SubagentStart $part <<<"$input")"
+    fi
+  done <"$fixtures/claude-subagents.jsonl"
+  # Inputs made from the recorded one. Each line is the name|the sed program.
+  # An input of Codex has a turn_id. None is recorded: in a run of Codex
+  # 0.169.0 with two subagents, no SubagentStart hook fired. An empty input
+  # runs in tests/rules_test.sh.
+  while IFS='|' read -r name program; do
+    input=$(sed "$program" <<<"$explore")
+    [ "$input" != "$explore" ] || fail "$name: the sed program changes nothing"
+    check "SubagentStart $part, $name" "$whole" "$(rules SubagentStart $part <<<"$input")"
+  done <<'EOF'
+the type Explore in an input with a turn_id|s/"agent_type"/"turn_id":"x","agent_type"/
+the type under another field|s/"agent_type"/"agent_kind"/
+a type that ends in Explore|s/"Explore"/"my-plugin:Explore"/
+a type that starts with Explore|s/"Explore"/"Explorer"/
+EOF
+done
 
 echo 'hooks_scripts_test: ok'

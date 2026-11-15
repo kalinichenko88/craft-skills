@@ -3,10 +3,15 @@
 - Status: accepted
 - Date: 2026-11-15
 
+## Updates
+
+- 2026-11-15 #414: Context. Was: "and on SubagentStart (ADR 0004)".
+
 ## Context
 
 `hooks/rules.sh` gives all of `rules.md` on SessionStart (startup, clear and
-compact) and on SubagentStart (ADR 0004). In the 14 days to 2026-11-15, the
+compact) and on SubagentStart (ADR 0004), but not to an `Explore` subagent
+of Claude Code (PDR 0012). In the 14 days to 2026-11-15, the
 count of `.claude/skills/sessions` gives 2,980 transcripts. At the 11,672
 characters of 2026-11-15 in each, that is about 35 M characters, with no
 compaction counted: an estimate, since the file grew from 9,664 characters
