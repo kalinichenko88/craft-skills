@@ -35,7 +35,8 @@ they see is the other text files: the bash and awk under `skills/`,
 as `LICENSE` and `data.ere`. The text of a skill is the product, but no
 `Check:` line sees it: an invariant on it is review only.
 `tests/rules_test.sh` checks the size of each `SKILL.md` (ADR 0006) and a
-few of its sentences.
+few of its sentences, and `tests/text_size_test.sh` fails on a text whose
+size is not its recorded size (ADR 0009, ADR 0010).
 
 ## Codemap
 
@@ -89,7 +90,7 @@ module too: the text that the flows are checked against.
 
 | Module | Folder | Its test, fixtures and pictures |
 | --- | --- | --- |
-| rules | `rules.md`, `hooks/` | `tests/rules_test.sh`, `tests/hooks_scripts_test.sh`, `tests/rules_decision_eval.sh`, `tests/rules_decision_checks_test.sh`, `tests/fixtures/hooks/`, `tests/fixtures/rules_decision/` |
+| rules | `rules.md`, `hooks/` | `tests/rules_test.sh`, `tests/text_size_test.sh` with the recorded size of each text of the plugin in `tests/text_size.txt`, `tests/hooks_scripts_test.sh`, `tests/rules_decision_eval.sh`, `tests/rules_decision_checks_test.sh`, `tests/fixtures/hooks/`, `tests/fixtures/rules_decision/` |
 | github | `skills/github/` | `tests/github_scripts_test.sh`, `tests/github_scout_eval.sh`, `tests/github_filing_eval.sh`, `tests/github_filing_checks_test.sh`, `tests/fixtures/github/`, `tests/fixtures/github_filing/`, `docs/github/` |
 | roadmap | `skills/roadmap/` | `tests/roadmap_scripts_test.sh`, `tests/fixtures/roadmap/`, `docs/roadmap/` |
 | review-loop | `skills/review-loop/` | `tests/review_loop_scripts_test.sh`, `tests/review_loop_eval.sh`, `tests/review_loop_lens_eval.sh`, `tests/review_loop_lens_checks_test.sh`, `tests/fixtures/review_loop/` |
@@ -258,8 +259,13 @@ hold 10. A new number needs an ADR.
   `tests/rules_test.sh` checks it, with a debt list of the files over the
   cap, each at its size there (ADR 0006). ADR 0009 holds the rule that
   admits a sentence for a case into the text of a skill, and the size
-  targets of a `SKILL.md`, a side file, a flow and `rules.md`; no check
-  holds them yet (#412). Pictures are WebP, since the
+  targets of a `SKILL.md`, a side file and `rules.md`: review
+  only. `rules.md`, each `SKILL.md` and each side file
+  have a recorded size in `tests/text_size.txt`, which also names the files
+  of the take-in flow,
+  and `tests/text_size_test.sh` fails on one whose size is not that number,
+  until the same pull request changes its line: a text that shrinks changes
+  it too, so that a later growth shows in a diff (ADR 0010). Pictures are WebP, since the
   plugin installs as a copy of the repository.
 - **Safety.** No step of the debt and architecture skills runs the code of
   the project it reads. Nothing from a private source goes into a public
@@ -285,4 +291,5 @@ status of an ADR that is not accepted, or that a later one narrows.
 - [0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps](adr/0006-skill-text-within-the-compaction-budget.md) — narrowed by 0009
 - [0007 CI runs the text eval on each scenario row whose skill files a pull request changes](adr/0007-text-eval-in-ci.md)
 - [0008 The flows are specified as host-neutral scenarios, and a run is checked by the words that the person reads](adr/0008-scenarios-read-narration-as-messages.md)
-- [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md)
+- [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md) — narrowed by 0010
+- [0010 The recorded size of a text is its exact size, and a flow is a list of files](adr/0010-recorded-size-is-exact.md)

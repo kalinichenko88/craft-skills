@@ -1,7 +1,12 @@
 # 0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget
 
-- Status: accepted
+- Status: accepted, narrowed by 0010
 - Date: 2026-11-15
+
+## Updates
+
+- 2026-11-15 #412: Consequences, Bad. Was: "Until the checks exist, review alone keeps the rule, and compares a text with its size at the base (#412, #417)".
+- 2026-11-15 #412: Confirmation. Was: "The record of sizes and its check in `make check`: #412".
 
 ## Context
 
@@ -110,9 +115,8 @@ Bad: step 1 costs 10 runs before an edit, and step 8 the runs after it. The
 numbers other than 20,000, and the 3 of 10 of step 1, have no measurement
 behind them and can be wrong. A
 record of sizes changes in most pull requests that edit a skill, and two
-branches that edit one text conflict on its line. Until the checks exist,
-review alone keeps the rule, and compares a text with its size at the base
-(#412, #417). The rule
+branches that edit one text conflict on its line. Review alone keeps
+the admission rule until review-loop asks for a failing run (#417). The rule
 moves cases into evals and tests, and those have defects of their own.
 
 ## Invariants
@@ -121,7 +125,8 @@ None: no `Check:` line sees a `.md` file.
 
 ## Confirmation
 
-`tests/rules_test.sh` for the cap of 20,000. The record of sizes and its
-check in `make check`: #412. The admission rule: review only; #417 puts the
+`tests/rules_test.sh` for the cap of 20,000. The record of sizes is
+`tests/text_size.txt`, and `tests/text_size_test.sh` checks it in
+`make check`, as ADR 0010 narrows it. The admission rule: review only; #417 puts the
 ask for a failing run into review-loop, and #418 gives the rule to an agent
 that edits the text of a skill.
