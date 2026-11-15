@@ -6,7 +6,7 @@
 # that one flow reads: its size is the sum of their lines. The take-in flow is the five
 # files that one take-in puts into the context of the session (#275), the
 # rules and the review among them. More flows come with their maps (#415).
-11672 rules.md
+5993 rules.md
 10513 skills/architecture/first-file.md
 4637 skills/architecture/invariants.md
 19911 skills/architecture/SKILL.md
