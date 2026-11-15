@@ -24,7 +24,8 @@ The study of 2026-11-15
 Anthropic and OpenAI with the project's runs. Both vendors advise against a
 list of edge cases in a prompt, and for a rule that follows a measured
 failure. In the project, one reported gap failed 0 of 10 runs and was
-closed, and another failed 9 of 10 and was fixed (#186, #260). About a third
+closed (#186), and a gap that a review found failed 9 of 10 and was fixed
+(PR #261). About a third
 of 19 open issues were false results of the project's own evals or gaps in
 the scenario texts. In a measurement by OpenAI, 23 of 108 cases changed
 their result between repeats of one configuration, so 1 failure in 10 runs
@@ -66,11 +67,11 @@ decides:
 6. A rule covers the class but is unclear: rewrite that rule in place, with
    its trigger, action, result, scope or reason. No new sentence.
 7. The behaviour depends on a condition: one condition on a sign that can be
-   seen, in an ordered list, at the point of the decision. Not a rule and an
-   exception.
-8. Else a new sentence, with a run before and a run after, no worse on the
-   neighbouring cases, and a search for a sentence to remove in the same
-   pull request.
+   seen, in an ordered list, at the point of the decision, in the file of
+   the moment where it occurs. Not a rule and an exception.
+8. Else a new sentence, with a run that fails before it and a run that
+   passes after it, no worse on the neighbouring cases, and a search for a
+   sentence to remove in the same pull request.
 
 A false fact in a text, as a wrong path or a wrong number, is not a case: it
 is corrected at once.

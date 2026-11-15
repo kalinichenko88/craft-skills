@@ -258,8 +258,8 @@ hold 10. A new number needs an ADR.
   `tests/rules_test.sh` checks it, with a debt list of the files over the
   cap, each at its size there (ADR 0006). ADR 0009 holds the rule that
   admits a sentence for a case into the text of a skill, and the size
-  budgets of a `SKILL.md`, a side file, a flow and `rules.md`: review
-  only. Pictures are WebP, since the
+  targets of a `SKILL.md`, a side file, a flow and `rules.md`; no check
+  holds them yet (#412). Pictures are WebP, since the
   plugin installs as a copy of the repository.
 - **Safety.** No step of the debt and architecture skills runs the code of
   the project it reads. Nothing from a private source goes into a public
