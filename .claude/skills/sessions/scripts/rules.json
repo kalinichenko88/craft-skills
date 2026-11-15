@@ -33,7 +33,7 @@
     "from": "github/SKILL.md",
     "says": "take-in[.]md",
     "text": "github/take-in.md",
-    "script": "github/take-in-check.sh"
+    "bash": "^(bash(\\s+-\\S+)*\\s+)?\\S*scripts/take-in-check[.]sh\\b"
   },
   {
     "rule": "merge.md before gh pr merge",

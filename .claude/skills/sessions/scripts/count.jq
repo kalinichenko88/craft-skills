@@ -48,7 +48,7 @@ def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . els
 # cat "$f" is no read: 4 of 2,645 calls on 2026-11-09. Resolve it when it
 # grows.
 def commands:
-  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null, cmds: [], runs: [], reads: []};
+  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null, cmds: [], reads: []};
     .vars as $v | .dir as $d
     | ($p | subst($v) | sub("^([\\s(){}!]|(do|then|else|time|if|while|until|export)\\s)*"; "")) as $q
     | if $q | test("^[A-Za-z_][A-Za-z0-9_]*=\\S*\\s*$") then
@@ -60,7 +60,7 @@ def commands:
         | .cmds += [$q]
         | (($q | capture("^(bash(\\s+-[A-Za-z]+)*\\s+)?[\"']?(?<p>[^\\s\"']*scripts/[a-z-]+[.]sh)\\b") | .p | resolve($d)) // null) as $r
         | if $r and ($r | test(skill + "/scripts/[a-z-]+[.]sh$")) then
-            .run = [($r | capture(skill).skill), ($r | sub(".*/"; ""))] | .runs += [.run | join("/")]
+            .run = [($r | capture(skill).skill), ($r | sub(".*/"; ""))]
           else .run = null
             | if $q | test("^(cat|sed|head|tail|grep|awk)\\s") then
                 [$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d)] as $m
@@ -100,8 +100,7 @@ input_filename as $f
         .input.command // "" | select(test("skills\\b|\\bgh\\b")) | commands | . as $c
         | (.run // empty | [$f, "run", $id] + .), (.read // empty | [$f, "read", $id, .]),
           (.reads[] | traces(.) as $n | [$f, "trace", $n]),
-          (moments($f; (.bash // empty) as $e | any($c.cmds[]; test($e))) as $n | [$f, "moment", $n, $t]),
-          (moments($f; (.script // empty) as $s | any($c.runs[]; . == $s)) as $n | [$f, "moment", $n, $t])
+          (moments($f; (.bash // empty) as $e | any($c.cmds[]; test($e))) as $n | [$f, "moment", $n, $t])
       else empty end
   elif .type == "user" then
     # An error with no exit code is a call that the harness, a hook or the
