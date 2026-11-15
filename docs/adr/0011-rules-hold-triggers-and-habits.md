@@ -14,8 +14,9 @@ a budget of 6,000 characters.
 About a third of the text was neither the trigger of a skill nor a habit for
 each turn (#413). *The Boy Scout Rule* repeated *In the task's module and
 clear* of `skills/github/filing.md`. *A bug fix ships with its test* held a
-story and the steps of the count. *GitHub* repeated parts of `filing.md`,
-and its trailer rule repeated *Commits* of `skills/github/SKILL.md`.
+story and the steps of the count. *GitHub* repeated parts of `filing.md`.
+The rest of the cut, to about half of the text, shortens the rules that
+stay.
 
 `rules.md` does not go away. One sentence in it moved #253 from 0 of 7 runs
 to 5 of 5. A skill that only its description calls was not invoked in 56 %
@@ -50,13 +51,16 @@ rules that stay:
 ## Options considered
 
 - Give each sentence one label, and keep only the triggers and the habits:
-  the text goes under its budget, and each rule keeps one place.
+  the text goes under its budget.
 - Shorten in place, as PR #163 did: it frees a few hundred characters, and
   the next rules fill them.
 - Move the general habits into skills, as ADR 0004 considered: a habit that
   must hold in each turn then fires only when a description matches.
 - A short part for an `Explore` or `Plan` subagent only (#414): it cuts the
   cost of one kind of subagent, and needs a trimmed text first.
+- A machine check in place of the trailer rule (ADR 0009, step 4): Claude
+  Code's setting for the trailer is the person's, not the plugin's, and a
+  hook that refuses such a commit is a change of its own.
 
 ## Decision
 
@@ -69,12 +73,15 @@ The other labels leave the text:
 
 - A procedure of one moment goes into the skill of that moment. A procedure
   whose moment has no skill, as the count before a bug fix, stays as one
-  sentence.
+  sentence, and so does one that a skill already cites in the global prompt,
+  as the search for the docs that a change makes false.
 - A story or a reason goes into an ADR: this one, for the text of
   2026-11-15.
-- A repeat of a skill that loads at that moment is removed: the tests of the
-  Boy Scout Rule (`filing.md`) and the trailer rule (*Commits* of
-  `skills/github/SKILL.md`).
+- A repeat of a skill that loads at that moment in real sessions is
+  removed: the full conditions of the Boy Scout Rule, in `filing.md`. The
+  trailer rule stays, though *Commits* of `skills/github/SKILL.md` repeats
+  it: in 14 days of transcripts on one computer, 44 of 78 subagents that ran
+  `git commit` in other projects loaded no github skill.
 - A rule for one repository goes into that repository's instruction file:
   the clause for a checkout of `craft-skills` went to `.claude/CLAUDE.md` and
   `AGENTS.md`.
@@ -82,10 +89,16 @@ The other labels leave the text:
 A sentence that `tests/rules_test.sh` pins stays word for word. A new
 sentence needs a failing run first (ADR 0009).
 
+These details left with no new place: the column of a table and the goal of
+a milestone in *An issue by its title*, the follow-up for a broader sweep in
+*Docs move with the change*, "the newest API that the pinned version
+supports", the examples of the platform and of English code, and the mark
+`(always)` on each heading, since the whole file is always on.
+
 ## Consequences
 
-Good: `rules.md` has 5,993 characters, under the 6,000 of ADR 0009, about
-half of what each session and each subagent got before. The rules that stay
+Good: `rules.md` has 6,000 characters, the budget of ADR 0009, about half
+of what each session and each subagent got before. The rules that stay
 are the ones that a session needs before a skill loads.
 
 Bad: a habit has fewer words and no examples, so its behaviour can change in
@@ -100,4 +113,6 @@ None: no `Check:` line sees a `.md` file.
 ## Confirmation
 
 Review only for the labels. `tests/text_size_test.sh` holds the size of
-`rules.md`, and `tests/rules_test.sh` the sentences that it pins.
+`rules.md`, and `tests/rules_test.sh` the sentences that it pins. The evals
+that `CONTRIBUTING.md` names for the changed sections ran on the base and on
+the new text; the pull request of #413 gives their counts.

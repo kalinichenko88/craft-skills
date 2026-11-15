@@ -7,6 +7,7 @@
 
 - 2026-11-15 #412: Consequences, Bad. Was: "Until the checks exist, review alone keeps the rule, and compares a text with its size at the base (#412, #417)".
 - 2026-11-15 #412: Confirmation. Was: "The record of sizes and its check in `make check`: #412".
+- 2026-11-15 #413: Context. Was: "`rules.md`, 11,672 characters, goes into each session and each subagent".
 
 ## Context
 
@@ -18,8 +19,8 @@ earns a sentence.
 ADR 0006 caps each `SKILL.md` at 20,000 characters, and lets a file under
 the cap grow up to it. The cap does not see where the cost is. In 14 days
 the github skill put 9.7 million characters of its `SKILL.md` into context,
-and 15.2 million of its side files. `rules.md`, 11,672 characters, goes into
-each session and each subagent. A side file is a file beside a `SKILL.md`
+and 15.2 million of its side files. `rules.md`, 11,672 characters in those
+days, goes into each session and each subagent. A side file is a file beside a `SKILL.md`
 that the skill sends the agent to read; a `README.md` is not one. On
 2026-11-15, five side files have more than 10,000 characters, the largest
 19,704, and three `SKILL.md` files have more than 15,000.
