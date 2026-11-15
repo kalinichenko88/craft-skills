@@ -7,7 +7,6 @@
 
 - 2026-11-11 #343: Consequences, Good. Was: "part 1 has 5,416 and part 2 has 4,585 of 10,000 characters".
 - 2026-11-11 #343: Consequences, Good. Was: "Each part is far under the Codex limit of about 2,500 tokens: about 1,300 and 1,100".
-- 2026-11-15 #413: Decision. Was: "part 2 the calls of the plugin's skills, the Boy Scout Rule and the trailer rule".
 
 ## Context
 
@@ -49,7 +48,7 @@ stands between two sections. `rules.sh <event> 1` gives the text before it,
 and `rules.sh <event> 2` the text after it. `hooks/hooks.json` runs both for
 SessionStart and for SubagentStart. The marker stands before *Code review*:
 part 1 holds the general habits from the gate to the docs, and part 2 the
-calls of the plugin's skills and the Boy Scout Rule. Each
+calls of the plugin's skills, the Boy Scout Rule and the trailer rule. Each
 part starts with a heading of its own, as
 "# Global instructions, part 2 of 2", so that a part that comes after the
 context of another plugin is not read as a part of it.

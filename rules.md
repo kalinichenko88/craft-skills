@@ -3,8 +3,8 @@
 ## The repository's own gate
 
 Before you call a task done, run the repository's own check, as `make check`
-or what CI calls, or with none the closest equivalent, and report its actual
-outcome.
+or what CI calls, or with none the closest equivalent and say so. Report its
+actual outcome.
 
 ## A bug fix ships with its test
 
@@ -38,9 +38,9 @@ the repository already does.
 
 ## Plain technical prose
 
-Write all prose, in every language, in ASD-STE100 Simplified Technical
-English: short sentences, each word only in its direct meaning, no text with
-two meanings, no complex grammar.
+Apply the rules of ASD-STE100 Simplified Technical English to all prose, in
+any language: short sentences, each word only in its direct meaning, no text
+with two meanings, no complex grammar.
 
 ## An issue by its title
 
@@ -92,10 +92,8 @@ brainstorming, invoke the `craft:product` skill. Not in a subagent.
 ## The Boy Scout Rule
 
 Leave the code you touch cleaner than you found it, not rebuilt. A finding in
-the task's module that is clear (one way to fix it), smaller than the task
-and separable from it goes into this change, listed in the PR description as
-not part of the task; one that needs only a choice goes to the person first.
-`filing.md` of `craft:github` has the conditions.
+the task's module goes into this change, or to the person when it needs only
+a choice, by the conditions of `filing.md` in `craft:github`; read them first.
 
 ## Code conventions
 

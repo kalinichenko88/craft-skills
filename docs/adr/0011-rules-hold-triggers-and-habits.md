@@ -7,9 +7,10 @@
 
 `hooks/rules.sh` gives all of `rules.md` on SessionStart (startup, clear and
 compact) and on SubagentStart (ADR 0004). In the 14 days to 2026-11-15, the
-count of `.claude/skills/sessions` gives 2,980 transcripts, so `rules.md`, at
-11,672 characters, put about 35 M characters into context. ADR 0009 gives it
-a budget of 6,000 characters.
+count of `.claude/skills/sessions` gives 2,980 transcripts. At the 11,672
+characters of 2026-11-15 in each, that is about 35 M characters, with no
+compaction counted: an estimate, since the file grew from 9,664 characters
+in those days. ADR 0009 gives it a budget of 6,000 characters.
 
 About a third of the text was neither the trigger of a skill nor a habit for
 each turn (#413). *The Boy Scout Rule* repeated *In the task's module and
@@ -67,21 +68,23 @@ rules that stay:
 We will give each sentence of `rules.md` one label, and keep two of them:
 
 - a trigger of a skill: at moment X, invoke skill Y;
-- a habit for each turn, in one to three lines: when X, do Y, which gives Z.
+- a habit for each turn, in a few sentences: when X, do Y, which gives Z.
 
 The other labels leave the text:
 
-- A procedure of one moment goes into the skill of that moment. A procedure
-  whose moment has no skill, as the count before a bug fix, stays as one
-  sentence, and so does one that a skill already cites in the global prompt,
-  as the search for the docs that a change makes false.
+- A procedure of one moment goes into the skill of that moment. The steps
+  of a procedure whose moment has no skill, as the subagent that counts
+  before a bug fix, stay as one sentence, and so do the steps that a skill
+  already cites in the global prompt, as the subagent that finds the docs
+  that a change makes false.
 - A story or a reason goes into an ADR: this one, for the text of
   2026-11-15.
-- A repeat of a skill that loads at that moment in real sessions is
-  removed: the full conditions of the Boy Scout Rule, in `filing.md`. The
-  trailer rule stays, though *Commits* of `skills/github/SKILL.md` repeats
-  it: in 14 days of transcripts on one computer, 44 of 78 subagents that ran
-  `git commit` in other projects loaded no github skill.
+- A repeat of a skill is removed, and the trigger sends the agent to read
+  it: the conditions of the Boy Scout Rule, in `filing.md`. A repeat stays
+  when the agent can act with no skill loaded: the trailer rule, though
+  *Commits* of `skills/github/SKILL.md` holds it too. In 14 days of
+  transcripts on one computer, 44 of 78 subagents that ran `git commit` in
+  other projects loaded no github skill.
 - A rule for one repository goes into that repository's instruction file:
   the clause for a checkout of `craft-skills` went to `.claude/CLAUDE.md` and
   `AGENTS.md`.
@@ -89,16 +92,30 @@ The other labels leave the text:
 A sentence that `tests/rules_test.sh` pins stays word for word. A new
 sentence needs a failing run first (ADR 0009).
 
-These details left with no new place: the column of a table and the goal of
-a milestone in *An issue by its title*, the follow-up for a broader sweep in
-*Docs move with the change*, "the newest API that the pinned version
-supports", the examples of the platform and of English code, and the mark
-`(always)` on each heading, since the whole file is always on.
+The rest of the cut shortens the rules that stay. These parts left with no
+new place:
+
+- the gate: the sentence that "should pass" is not a result;
+- the bug fix: "not the internals of the fix", "pretty-printing", "not a
+  string typed to make the assertion pass", and the brief of the counting
+  subagent: the sample size and the shape, "the count and the ids", "write
+  the case against one";
+- the platform: "(context7, the release notes)", "the newest API the pinned
+  version actually supports", and its examples;
+- English code: its examples;
+- an issue by its title: "or which area it touches", the column of a table,
+  the goal of a milestone;
+- the docs: the follow-up for a broader sweep, and of the brief of the
+  subagent: the sentence and why, "none" with the files that it read, and
+  "The edits are yours";
+- the review: "It sets every step, from the level to the pull request";
+- GitHub: "Do not derail the task", twice;
+- the mark `(always)` on each heading: the whole file is always on.
 
 ## Consequences
 
-Good: `rules.md` has 6,000 characters, the budget of ADR 0009, about half
-of what each session and each subagent got before. The rules that stay
+Good: `rules.md` has 5,894 characters, under the 6,000 of ADR 0009, about
+half of what each session and each subagent got before. The rules that stay
 are the ones that a session needs before a skill loads.
 
 Bad: a habit has fewer words and no examples, so its behaviour can change in
@@ -112,7 +129,8 @@ None: no `Check:` line sees a `.md` file.
 
 ## Confirmation
 
-Review only for the labels. `tests/text_size_test.sh` holds the size of
-`rules.md`, and `tests/rules_test.sh` the sentences that it pins. The evals
+Review only for the labels. `tests/text_size.txt` records the size of
+`rules.md`, and `tests/text_size_test.sh` checks it; `tests/rules_test.sh`
+holds the sentences that it pins. The evals
 that `CONTRIBUTING.md` names for the changed sections ran on the base and on
 the new text; the pull request of #413 gives their counts.
