@@ -17,10 +17,11 @@ case ${2:-} in
 esac
 # An Explore subagent of Claude Code only reads, so it gets no rules (PDR
 # 0012). The host gives the agent type on stdin; any other input, an empty
-# one too, gives the rules. No matcher in hooks.json can leave one type out.
+# one too, gives the rules, and so does an input of Codex, which has a
+# turn_id. hooks.json has no matcher for it: its entry runs for each type.
 if [ "$1" = SubagentStart ]; then
   IFS= read -r -d '' input || true
-  [[ $input == *'"agent_type":"Explore"'* ]] && exit 0
+  [[ $input == *'"agent_type":"Explore"'* && $input != *'"turn_id":'* ]] && exit 0
 fi
 rules=${rules//\\/\\\\}
 rules=${rules//\"/\\\"}

@@ -37,7 +37,9 @@ writes.
   11 of 11 with none. Told by its prompt to file each bug with
   `gh issue create`, it filed in 0 of 5 runs with the rules and in 1 of 5
   with none. The counter saw 5 writes in a run with a `general-purpose`
-  subagent and the same prompt.
+  subagent and the same prompt. With the `Explore` subagent on Opus and no
+  rules, 5 of 5 more runs that asked for the bugs wrote nothing and loaded
+  no skill.
 - ADR 0009 admits a sentence only after a failure in 3 of 10 runs. No run
   gives one for a short text.
 
@@ -59,8 +61,9 @@ transcripts of 14 days are `Plan`.
 - No rules for `Explore`, chosen in `hooks/rules.sh`: chosen.
 - The same, chosen by a matcher in `hooks/hooks.json`: in a run of Claude
   Code 2.1.325, the entry with no matcher fired for an `Explore` subagent
-  beside the entry with the matcher. A matcher for each type but one needs a
-  look-ahead, which the regex of Codex does not have.
+  beside the entry with the matcher. A matcher with a look-ahead fired for
+  each type but that one there, but the regex of Codex has no look-ahead,
+  and a pattern with none must spell out each other string.
 
 ## Links
 

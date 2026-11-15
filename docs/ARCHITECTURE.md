@@ -250,9 +250,10 @@ hold 10. A new number needs an ADR.
   as `sessionTitle`. Such a hook prints only for a Claude Code input: one
   with `prompt_id`, which Claude Code sends, and with no `turn_id`, which
   only Codex sends. A hook whose output depends on the agent type reads
-  `agent_type` from its input, as `hooks/rules.sh` does. A matcher in
-  `hooks/hooks.json` cannot leave one type out: an entry with no matcher
-  fires for each type, and the regex of Codex has no look-ahead.
+  `agent_type` from its input, as `hooks/rules.sh` does. In
+  `hooks/hooks.json`, an entry with no matcher fires for each type, beside
+  an entry with a matcher. A matcher for each type but one is a look-ahead
+  in Claude Code, and the regex of Codex has none.
 - **Portability.** bash 3.2 on macOS, three kinds of awk, Git Bash on
   Windows, NixOS with no `/bin/bash`: every script starts with
   `#!/usr/bin/env bash`, and every file is LF (`.gitattributes`).
