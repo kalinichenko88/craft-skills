@@ -71,23 +71,25 @@ actual=$(PATH="$tmp/bin:$PATH" bash "$count" 14 "$tmp/projects") || true
 }
 
 # The rules. r1 has each rule's text before its first moment, in the result
-# of a call before it: the github load, take-in.md by Read, filing.md through
-# a variable that holds the skills folder before add-finding.sh, merge.md
-# from a checkout under another skills folder before a gh --repo=<repo>
-# merge, the conventions loaded or read as the architecture lens does, and
-# review-loop. Its first gh write is older than the days, and its first
-# take-in-check.sh comes before the github SKILL.md that states its rule, so
-# the next ones count; a gh read before the load is a moment of the gh call
-# only. r2 has each first moment before the text, or the text in another
+# of a call of an earlier message: the github load, take-in.md by Read,
+# filing.md through a variable that holds the skills folder before
+# add-finding.sh, merge.md by an awk with > in its program, from a checkout
+# under another skills folder, before a gh --repo=<repo> merge, the
+# conventions loaded or read as the architecture lens does, and review-loop.
+# Its first gh write is older than the days, and its first take-in-check.sh
+# comes before the github SKILL.md that states its rule, so the next ones
+# count. r2 has each first moment before the text, or the text in another
 # file, in the same call or only in a grep or a write: a code-reviewer
 # subagent, gh pr create after a read of another github skill, take-in.md
 # read in the call of the check, tracker.md, a grep and a sed -i for
 # filing.md, c.ts before the load and use-cart.ts with no react-conventions.
 # Its github SKILL.md names no merge.md, so its merge is no moment. Its
-# subagent has a TypeScript edit after the load, and gh issue develop before
-# the github load; a review and a gh call in a subagent are no moment. r3
-# reads with gh after the load, then reads merge.md in the message of a gh
-# -R merge. n1 has moments but no rules.md.
+# subagent has a TypeScript edit after the load, and a gh api write with a
+# field before the github load; a review and a gh call in a subagent are no
+# moment. r3 loads github in the message of a gh read, a moment of the gh
+# call only, then reads merge.md in the message of a gh -R merge: each
+# result comes before the next call, as in Claude Code. n1 has moments but
+# no rules.md.
 cp -R "$root/tests/fixtures/sessions/rules" "$tmp/"
 expected="rule	contexts	kept	share	subagents	kept	share
 github before a gh write	3	2	67%	1	0	0%

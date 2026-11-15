@@ -68,7 +68,8 @@ def commands:
         | (($q | capture("^(bash(\\s+-[A-Za-z]+)*\\s+)?[\"']?(?<p>[^\\s\"']*scripts/[a-z-]+[.]sh)\\b") | .p | resolve($d)) // null) as $r
         | (if $q | test("^(cat|sed|head|tail|grep|awk)\\s") then [$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d)] else [] end) as $m
         | .cmds += [$q]
-        | .reads += (if $q | test("^grep\\s|\\s-i\\b|(^|[^0-9&])>") then [] else [$m[] | capture(file) | .skill + "/" + .rest] end)
+        | .reads += (if $q | test("^grep\\s") or (gsub("'[^']*'|\"[^\"]*\""; "") | test("\\s-i\\b|(^|[^0-9&])>")) then []
+            else [$m[] | capture(file) | .skill + "/" + .rest] end)
         | if $r and ($r | test(skill + "/scripts/[a-z-]+[.]sh$")) then
             .run = [($r | capture(skill).skill), ($r | sub(".*/"; ""))]
           else .run = null | .read //= ([$m[] | capture(skill).skill] | first) end
@@ -80,19 +81,25 @@ input_filename as $f
     select(.attachment.hookEvent? // "" | test("^(SessionStart|SubagentStart)$"))
     | .attachment.stdout? // "" | strings | select(test("# Global instructions")) | given("rules.md"; .) as $n | [$f, "given", $n]
   elif .type == "user" and .isMeta == true then
-    (.message.content | text) as $t
+    # A load names the Skill call that made it, so its trace takes that
+    # call's message. A load that the person typed has none.
+    (.sourceToolUseID // "") as $src | (.message.content | text) as $t
     | ($t | capture("^Base directory for this skill: [^\n]*" + skill + "\n")) | .skill as $s
-    | [$f, "load", $s, ($t | length)], (traces($s + "/SKILL.md") as $n | [$f, "trace", $n]),
+    | [$f, "load", $s, ($t | length)], (traces($s + "/SKILL.md") as $n | [$f, "trace", $n, "", $src]),
       (given($s + "/SKILL.md"; $t) as $n | [$f, "given", $n])
   elif .type == "assistant" then
-    .timestamp as $t | .message.content[]? | select(.type == "tool_use") | .id as $id
+    # The model writes every call of a message before it reads a result, so
+    # a trace and a moment carry the message.
+    .timestamp as $t | (.message.id // .uuid // "") as $msg
+    | .message.content[]? | select(.type == "tool_use") | .id as $id
     | if .name == "Read" then
         .input.file_path // "" | select(test("[.]md\\b"))
-        | (capture(skill) | [$f, "read", $id, .skill]), (capture(file) | traces(.skill + "/" + .rest) as $n | [$f, "trace", $n, $id])
+        | (capture(skill) | [$f, "read", $id, .skill]), (capture(file) | traces(.skill + "/" + .rest) as $n | [$f, "trace", $n, $id, $msg])
       elif .name | test("^(Edit|Write|MultiEdit)$") then
-        .input.file_path // "" | moments($f; "edit"; .) as $n | [$f, "moment", $n, $t]
+        .input.file_path // "" | moments($f; "edit"; .) as $n | [$f, "moment", $n, $t, $msg]
       elif .name == "Skill" or .name == "Agent" then
-        .input.skill // .input.subagent_type // "" | moments($f; "call"; .) as $n | [$f, "moment", $n, $t]
+        (select(.name == "Skill") | [$f, "skill", $id, $msg]),
+        (.input.skill // .input.subagent_type // "" | moments($f; "call"; .) as $n | [$f, "moment", $n, $t, $msg])
       elif .name == "Bash" then
         # A call has one output and one exit code, so a failure goes to the
         # script of its last command. ponytail: in a && b, the code is that of
@@ -102,11 +109,11 @@ input_filename as $f
         # A call that names no skills folder and no gh has no row; a variable
         # can hold the folder, as D=<cache>/skills; cat $D/github/x.md. A trace
         # of a Read or a Bash call names its call: its text reaches the context
-        # with the result, after each moment of the same message.
+        # with the result.
         .input.command // "" | select(test("(^|[^-\\w])skills\\b|\\bgh\\b")) | commands
         | (.run // empty | [$f, "run", $id] + .), (.read // empty | [$f, "read", $id, .]),
-          (.reads[] | traces(.) as $n | [$f, "trace", $n, $id]),
-          (.cmds[] | moments($f; "bash"; .) as $n | [$f, "moment", $n, $t])
+          (.reads[] | traces(.) as $n | [$f, "trace", $n, $id, $msg]),
+          (.cmds[] | moments($f; "bash"; .) as $n | [$f, "moment", $n, $t, $msg])
       else empty end
   elif .type == "user" then
     # An error with no exit code is a call that the harness, a hook or the

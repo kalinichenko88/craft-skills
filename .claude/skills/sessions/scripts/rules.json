@@ -4,7 +4,7 @@
     "from": "rules.md",
     "says": "(craft|kalinichenko):github",
     "text": "github/SKILL.md",
-    "bash": "^gh\\s+((pr|issue)\\s+(create|edit|comment|close|reopen|merge|review|develop|delete|ready)|(release|label)\\s+create|api\\s.*(-X|--method)[=\\s]*(POST|PATCH|PUT|DELETE))\\b"
+    "bash": "^gh\\s+(((pr|issue)\\s+(create|edit|comment|close|reopen|merge|review|develop|delete|ready|transfer|lock|pin)|(release|label)\\s+(create|edit|delete|upload)|repo\\s+create|workflow\\s+run)\\b|api\\s+graphql\\s.*mutation|api\\s+(?!graphql)(?!.*(-X|--method)[=\\s]*(?i:get)\\b).*(\\s(-[fF]|--field|--raw-field|--input)\\s|(-X|--method)[=\\s]*(?i:post|patch|put|delete)\\b))"
   },
   {
     "rule": "github before a gh call",
@@ -55,6 +55,6 @@
     "from": "github/SKILL.md",
     "says": "filing[.]md",
     "text": "github/filing.md",
-    "bash": "^gh\\s+issue\\s+create\\b|^(bash(\\s+-\\S+)*\\s+)?\\S*scripts/add-finding[.]sh\\b"
+    "bash": "^gh\\s+issue\\s+create\\b|^gh\\s+api\\s+\\S*repos/[^/\\s]+/[^/\\s]+/issues(?=\\s|$)(?=.*\\s(-[fF]|--field|--raw-field|--input)\\s)|^(bash(\\s+-\\S+)*\\s+)?\\S*scripts/add-finding[.]sh\\b"
   }
 ]

@@ -44,9 +44,11 @@ correct result, so a script makes them, and no model reads a transcript.
    `kept` counts the contexts where the rule's `text` came before it. That
    is a load from the plugin cache, when the `text` is a `SKILL.md`, or a
    read of all or part of the file whose result came before the call of
-   the moment: by `Read`, or by `cat`, `sed`, `head`, `tail` or `awk` with
-   no `-i` and no `>`, not by `grep`. A read in the same call or the same
-   message as the moment comes after it. The file can be in the plugin
+   the moment: by `Read`, or by `cat`, `sed`, `head`, `tail` or `awk` that
+   writes no file, with no `-i` and no `>` outside quotes, as `2>` is no
+   write; not by a `grep` of the file. A read or a load in the same call or
+   the same message of the model as the moment comes after it, since the
+   model writes every call of a message first. The file can be in the plugin
    cache or in a checkout, not in a folder `claude/skills`, where a skill of
    the same name is another one. `share` is `kept` of `contexts`, and `-`
    with no moment. The next three columns count the subagents the same way.
