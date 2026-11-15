@@ -48,7 +48,8 @@ correct result, so a script makes them, and no model reads a transcript.
    `awk` when it shows lines of the file: not `sed -i`, not a `grep` that
    counts or lists, not an `awk` that prints no line or field of it, and not
    with its output sent to a file by `>`. In a pipeline, the last command
-   decides: none into `wc`, a checksum, `head -0` or a file, and none in an
+   decides: none into a count (`wc`, a counting `grep`, a checksum,
+   `head -0`, a `jq` length) or a file, and none in an
    `x=$(...)`, whose output a variable takes. A read or a load in the
    same call or the same message of the model as the moment comes after it,
    since the model writes every call of a message first. The file can be in
@@ -68,8 +69,9 @@ correct result, so a script makes them, and no model reads a transcript.
    100 % is a candidate too: the steps of ADR 0009 decide what its misses
    change. A new rule in `rules.json` comes with a case in
    `tests/fixtures/sessions/rules/` where its text comes first and one where
-   it does not, and a new moment with its samples in
-   `tests/fixtures/sessions/moments.tsv`.
+   it does not, a new moment with its samples in
+   `tests/fixtures/sessions/moments.tsv`, and a new read form with its
+   samples in `tests/fixtures/sessions/reads.tsv`.
 4. **The output stays on this computer.** The transcripts are of private
    projects too. A finding goes to the public tracker only as its shape and
    its counts (*Public repositories* in `skills/github/SKILL.md`). Ask the
