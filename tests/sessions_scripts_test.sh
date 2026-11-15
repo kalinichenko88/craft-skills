@@ -31,12 +31,13 @@ touch -t 200001010000 "$tmp/projects/-home-u-proj/old.jsonl"
 # superpowers load count nothing. No hook gave rules.md, so no rule counts.
 none="rule	contexts	kept	share	subagents	kept	share
 github before a gh write	0	0	-	0	0	-
+github before a gh call	0	0	-	0	0	-
 typescript-conventions before a TypeScript edit	0	0	-	0	0	-
 react-conventions before a React edit	0	0	-	0	0	-
 review-loop before a review	0	0	-	0	0	-
 take-in.md before take-in-check.sh	0	0	-	0	0	-
 merge.md before gh pr merge	0	0	-	0	0	-
-filing.md before gh issue create	0	0	-	0	0	-"
+filing.md before a new issue or add-finding.sh	0	0	-	0	0	-"
 expected="14 days: 2 transcripts, 1 of them subagents
 skill	contexts	loads	twice	chars	compacted	read	failed
 github	1	2	1	294	1	178	5
@@ -77,24 +78,29 @@ actual=$(PATH="$tmp/bin:$PATH" bash "$count" 14 "$tmp/projects") || true
 
 # The rules. r1 has each rule's text before its first moment: the github
 # load, take-in.md by Read, filing.md through a variable that holds the
-# skills folder, merge.md from a checkout, the conventions loaded or read as
-# the architecture lens does, and review-loop. Its first gh write is older
-# than the days, so the next one counts. r2 has each first moment before the
-# text, or another file than the rule's: a code-reviewer subagent, gh pr
-# create before the load, tracker.md for filing.md, c.ts before the load and
-# useCart.ts with no react-conventions. Its github SKILL.md names no
-# merge.md, so its merge is no moment. Its subagent has a TypeScript edit
-# after the load and a gh write with none; a review in a subagent is no
-# moment. n1 has moments but no rules.md.
+# skills folder, merge.md from a checkout under another skills folder, the
+# conventions loaded or read as the architecture lens does, and review-loop.
+# Its first gh write is older than the days, so the next one counts; a gh
+# read before the load is a moment of the gh call only. r2 has each first
+# moment before the text, or another file than the rule's: a code-reviewer
+# subagent, gh pr create after a read of another github skill, take-in.md
+# after the check in the same call, tracker.md for filing.md, c.ts before
+# the load and useCart.ts with no react-conventions. Its github SKILL.md
+# names no merge.md, so its merge is no moment. Its subagent has a
+# TypeScript edit after the load and a gh write with none; a review and a gh
+# call in a subagent are no moment. r3 reads with gh after the load, then
+# merges with -R before merge.md and runs add-finding.sh before filing.md.
+# n1 has moments but no rules.md.
 cp -R "$root/tests/fixtures/sessions/rules" "$tmp/"
 expected="rule	contexts	kept	share	subagents	kept	share
-github before a gh write	2	1	50%	1	0	0%
+github before a gh write	3	2	67%	1	0	0%
+github before a gh call	3	1	33%	0	0	-
 typescript-conventions before a TypeScript edit	2	1	50%	1	1	100%
 react-conventions before a React edit	2	1	50%	0	0	-
 review-loop before a review	2	1	50%	0	0	-
 take-in.md before take-in-check.sh	2	1	50%	0	0	-
-merge.md before gh pr merge	1	1	100%	0	0	-
-filing.md before gh issue create	2	1	50%	0	0	-"
+merge.md before gh pr merge	2	1	50%	0	0	-
+filing.md before a new issue or add-finding.sh	3	1	33%	0	0	-"
 actual=$(bash "$count" 14 "$tmp/rules" | sed -n '/^rule	/,$p')
 [ "$actual" = "$expected" ] || {
   echo "FAIL: count.sh printed for the rules:"

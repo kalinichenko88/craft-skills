@@ -4,7 +4,15 @@
     "from": "rules.md",
     "says": "(craft|kalinichenko):github",
     "text": "github/SKILL.md",
-    "bash": "^gh\\s+(pr|issue)\\s+(create|edit|comment|close|reopen|merge|review)\\b"
+    "bash": "^gh(\\s+(-R|--repo)[=\\s]\\S+)?\\s+(pr|issue)\\s+(create|edit|comment|close|reopen|merge|review)\\b"
+  },
+  {
+    "rule": "github before a gh call",
+    "from": "rules.md",
+    "says": "(craft|kalinichenko):github",
+    "text": "github/SKILL.md",
+    "bash": "^gh\\s",
+    "main": true
   },
   {
     "rule": "typescript-conventions before a TypeScript edit",
@@ -40,13 +48,13 @@
     "from": "github/SKILL.md",
     "says": "merge[.]md",
     "text": "github/merge.md",
-    "bash": "^gh\\s+pr\\s+merge\\b"
+    "bash": "^gh(\\s+(-R|--repo)[=\\s]\\S+)?\\s+pr\\s+merge\\b"
   },
   {
-    "rule": "filing.md before gh issue create",
+    "rule": "filing.md before a new issue or add-finding.sh",
     "from": "github/SKILL.md",
     "says": "filing[.]md",
     "text": "github/filing.md",
-    "bash": "^gh\\s+issue\\s+create\\b"
+    "bash": "^gh(\\s+(-R|--repo)[=\\s]\\S+)?\\s+issue\\s+create\\b|^(bash(\\s+-\\S+)*\\s+)?\\S*scripts/add-finding[.]sh\\b"
   }
 ]

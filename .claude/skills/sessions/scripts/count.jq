@@ -6,8 +6,9 @@
 def text: if type == "string" then . else [.[]? | .text? // empty] | join("") end;
 def skill: "/plugins/cache/[^/]+/(craft|kalinichenko)/[^/]+/skills/(?<skill>[a-z-]+)";
 # A .md file of a skill as a trace of a rule: from the cache or from a
-# checkout, since the text is the same.
-def file: "(^|/)skills/(?<skill>[a-z-]+)/(?<rest>[^\\s\"']*[.]md)\\b";
+# checkout, since the text is the same; not from a .claude/skills folder,
+# where a skill of the same name is another one.
+def file: "(^|/)(?<!claude/)skills/(?<skill>[a-z-]+)/(?<rest>[^\\s\"'/]*[.]md)\\b";
 
 # The rules that $text, the text of $from, states: rules.md or a SKILL.md, as
 # github/SKILL.md. The rules whose text is $file, as github/take-in.md. The
@@ -48,7 +49,7 @@ def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . els
 # cat "$f" is no read: 4 of 2,645 calls on 2026-11-09. Resolve it when it
 # grows.
 def commands:
-  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null, cmds: [], reads: []};
+  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null, cmds: []};
     .vars as $v | .dir as $d
     | ($p | subst($v) | sub("^([\\s(){}!]|(do|then|else|time|if|while|until|export)\\s)*"; "")) as $q
     | if $q | test("^[A-Za-z_][A-Za-z0-9_]*=\\S*\\s*$") then
@@ -57,16 +58,12 @@ def commands:
       elif $q | test("^(done|fi|esac)?(\\s*[0-9]*[<>]+&?\\s*[^\\s;&|]*)*\\s*(#.*)?$") then .
       else
         ($q | sub("^([A-Za-z_][A-Za-z0-9_]*=(\\S*|'[^']*'|\"[^\"]*\")\\s+|timeout\\s+\\S+\\s+|xargs(\\s+-\\S+)*\\s+)*"; "")) as $q
-        | .cmds += [$q]
         | (($q | capture("^(bash(\\s+-[A-Za-z]+)*\\s+)?[\"']?(?<p>[^\\s\"']*scripts/[a-z-]+[.]sh)\\b") | .p | resolve($d)) // null) as $r
+        | (if $q | test("^(cat|sed|head|tail|grep|awk)\\s") then [$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d)] else [] end) as $m
+        | .cmds += [{q: $q, reads: [$m[] | capture(file) | .skill + "/" + .rest]}]
         | if $r and ($r | test(skill + "/scripts/[a-z-]+[.]sh$")) then
             .run = [($r | capture(skill).skill), ($r | sub(".*/"; ""))]
-          else .run = null
-            | if $q | test("^(cat|sed|head|tail|grep|awk)\\s") then
-                [$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d)] as $m
-                | .read //= ([$m[] | capture(skill).skill] | first) | .reads += [$m[] | capture(file) | .skill + "/" + .rest]
-              else . end
-          end
+          else .run = null | .read //= ([$m[] | capture(skill).skill] | first) end
       end);
 
 input_filename as $f
@@ -96,11 +93,11 @@ input_filename as $f
         # another runs a script: in such calls the .md file is most of it.
         # A call that names no skills folder and no gh has no row; a variable
         # can hold the folder, as D=<cache>/skills; cat $D/github/x.md. Its
-        # traces come before its moments.
-        .input.command // "" | select(test("skills\\b|\\bgh\\b")) | commands | . as $c
+        # traces and moments come in the order of its commands.
+        .input.command // "" | select(test("(^|[^-\\w])skills\\b|\\bgh\\b")) | commands
         | (.run // empty | [$f, "run", $id] + .), (.read // empty | [$f, "read", $id, .]),
-          (.reads[] | traces(.) as $n | [$f, "trace", $n]),
-          (moments($f; (.bash // empty) as $e | any($c.cmds[]; test($e))) as $n | [$f, "moment", $n, $t])
+          (.cmds[] | (.reads[] | traces(.) as $n | [$f, "trace", $n]),
+            (.q as $q | moments($f; (.bash // empty) as $e | $q | test($e)) as $n | [$f, "moment", $n, $t]))
       else empty end
   elif .type == "user" then
     # An error with no exit code is a call that the harness, a hook or the
