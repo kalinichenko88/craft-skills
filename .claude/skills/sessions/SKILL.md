@@ -1,6 +1,6 @@
 ---
 name: sessions
-description: Use when counting what the text of the craft skills costs in the local Claude Code sessions, which of their scripts failed, and how often a rule's moment came with no load of its text.
+description: Use when counting what the text of the craft skills costs in the local Claude Code sessions, which of their scripts failed, and how often a rule's text came before its moment.
 disable-model-invocation: true
 argument-hint: "[days]"
 ---
