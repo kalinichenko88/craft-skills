@@ -293,3 +293,4 @@ status of an ADR that is not accepted, or that a later one narrows.
 - [0008 The flows are specified as host-neutral scenarios, and a run is checked by the words that the person reads](adr/0008-scenarios-read-narration-as-messages.md)
 - [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md) — narrowed by 0010
 - [0010 The recorded size of a text is its exact size, and a flow is a list of files](adr/0010-recorded-size-is-exact.md)
+- [0011 rules.md holds the triggers of the skills and the habits of each turn](adr/0011-rules-hold-triggers-and-habits.md)

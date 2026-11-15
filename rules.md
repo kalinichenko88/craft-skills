@@ -1,126 +1,63 @@
 # Global instructions, part 1 of 2
 
-## The repository's own gate (always)
+## The repository's own gate
 
-Before claiming a task done, run the repository's own check command — the single
-target that chains lint, typecheck and tests (`make check`, `bun run check`, the
-`check`/`ci` script in `package.json`, whatever CI calls). If there is none, run
-the closest equivalent and say so. Report the actual outcome — "should pass" is
-not a result.
+Before you call a task done, run the repository's own check, as `make check`
+or what CI calls, or with none the closest equivalent and say so. Report its
+actual outcome.
 
-## A bug fix ships with its test (always)
+## A bug fix ships with its test
 
-Every bug fix carries the test that would have caught it: written before the
-fix, seen failing against the unfixed code, passing after. It asserts the
-behaviour that was reported, not the internals of the fix.
+A bug fix carries the test that would have caught it: written first, seen
+failing on the unfixed code, passing after, and asserting the reported
+behaviour. Guard each surface the bug shows on.
 
-If the bug shows on several surfaces, guard each one. Fixing the surface the
-report named and leaving its siblings is how the bug comes back under a new
-name.
+**The input comes from the source, not from your head.** Before you believe
+the report, count how many of a sample of real payloads carry its shape: zero
+means that the fix does not need to exist. Else write the case against a
+recorded payload, whitespace and all. For a report of data loss or a security
+hole, a zero count does not stop the fix. An attacker can make the input, so
+the test of that fix uses the input of the report. With no real source to
+sample, the count stops nothing, and the test uses the input of the report.
+In Claude Code, an `Explore` subagent with `model: "haiku"` counts; check one
+or two of its payloads yourself.
 
-**The input comes from the source, not from your head.** Red-then-green proves
-the test exercises the code. It does not prove the case exists. A guard built on
-an input the real source never emits goes green forever while the real shape
-stays unchecked — and the fix underneath it can be doing nothing, or harm.
+## The platform first
 
-So before the report is even believed, count it: pull a sample of real payloads
-and say how many carry the shape. Zero means the fix does not need to exist, and
-that is the finding. Then write the case against a recorded payload — whitespace,
-pretty-printing and all — not a string typed to make the assertion pass. For a
-report of data loss or a security hole, a zero count does not stop the fix. An
-attacker can make the input, so the test of that fix uses the input of the
-report. With no real source to sample, the count stops nothing, and the test
-uses the input of the report.
+Before you write a helper or add a dependency, check in current docs, not
+from memory, what the standard library of the pinned version does. A
+dependency earns its place only where the platform has no answer: name the
+API you checked.
 
-In Claude Code, a Haiku subagent does the counting: one `Agent` call with
-`subagent_type: "Explore"` and `model: "haiku"`, given the source, the sample
-size and the shape. It returns the count and the ids that carry the shape. Fetch
-one or two of those payloads yourself, check the shape on them, and write the
-case against one.
+## Code speaks English
 
-Measured, the one time this was skipped: a "list items run together" bug, filed
-off a hand-written `<li>a</li><li>b</li>`, tested green, shipped. The sources
-turned out never to emit two block tags without whitespace between them — 0 of
-100 bodies — so the fix changed no table it claimed to fix and put a blank line
-inside 6 of 10 real lists. The test was green over data that never moved.
+Inside the code everything is English, in every project: identifiers, files,
+branches, comments and commit messages. Another language appears only in the
+data, as user-facing copy and fixtures. The rest of the prose follows what
+the repository already does.
 
-## Use the platform before reaching past it (always)
+## Plain technical prose
 
-Whatever the project runs on — Node, Bun, Deno, Go, the browser — check what its
-standard library already does at the version the project pins, before writing a
-helper by hand or adding a dependency. Runtimes ship faster than training data:
-verify against current docs (context7, the release notes), not memory, and take
-the newest API the pinned version actually supports.
+Apply the rules of ASD-STE100 Simplified Technical English to all prose, in
+any language: short sentences, each word only in its direct meaning, no text
+with two meanings, no complex grammar.
 
-`Intl.NumberFormat` instead of a hand-written currency formatter,
-`structuredClone` instead of a deep-clone package, `slices`/`maps` instead of a
-copied generic helper. A dependency earns its place only where the platform has
-no answer — name the API you checked before concluding that.
+## An issue by its title
 
-## Code speaks English (always)
+Each time you name an issue, a pull request or a milestone to the person, in
+a list too, give its title next to its number at its first mention in the
+message: `#44 Store the rate of a partner`, `M1 · First demo`. When you ask
+the person to decide on an issue, or you move, take, close or propose it, add
+a few words in the person's language on what it changes. Commands and the
+text for GitHub keep the form of `craft:github`.
 
-Inside the code everything is English: identifiers — variables, functions,
-types, files, branches — and every comment, docstring and TODO. This holds in
-every project, whatever language the team speaks. Mixed-language symbols are
-ungreppable and split a codebase into dialects.
+## Docs move with the change
 
-Another language appears only in the data layer: user-facing copy, translation
-catalogues, fixtures and seed data, and values that simply *are* text in that
-language. The key stays `greeting.ru`; the string it holds does not have to be
-English.
-
-Commit messages are English too, in every repository. They are the log of the
-code: `git log` and `git blame` are read long after the team that wrote them,
-and a history in two languages is as ungreppable as a codebase in two.
-
-The rest of the prose — README, docs, issues, PR titles and descriptions — is
-the project's own call. Match what the repository already does rather than
-imposing English on it.
-
-## Plain technical prose (always)
-
-Write like ASD-STE100, the Simplified Technical English of aircraft maintenance
-manuals. This applies to all prose: replies, docs, comments, commit messages,
-issues. The same rules apply in other languages.
-
-- Write short sentences.
-- Use each word only in its direct meaning.
-- Do not write text that can have two meanings.
-- Do not use complex grammar.
-
-## An issue by its title (always)
-
-Each time you name an issue, a pull request or a milestone to the person, in a
-reply, a table, a question or a final report, give its title, as the issue
-has it, next to its number: `#44 Store the rate of a partner`, not `#44`;
-`M1 · First demo`, not `M1`. An issue named in passing or in a list counts
-too: "two issues wait on it: #42 Show the commission, #46 Pay out the
-partners", not "#42 and #46 wait on it". The person does not keep the tracker
-in mind, and a bare number sends them to GitHub. In one message, the first
-mention carries the title.
-
-When you ask the person to decide on an issue, or you move it, take it, close
-it or give it as the next task, add a few words in the person's language: what
-it changes, or which area it touches. A table of such issues gets a column for
-them. For the milestone that an issue moves into, the words are its goal, from
-its description, once in the message; with no description, say so. Commands
-and the text that goes to GitHub keep the form that `craft:github` sets.
-
-## Docs move with the change (always)
-
-A change that alters user-visible behaviour, a public contract, or how the thing
-is installed updates the documents that describe it — in the same change, not a
-follow-up. README, the project's instruction file, API docs, ADRs: whichever
-ones now say something false.
-
-- Before finishing, name the docs the change touched, or say "docs impact: none"
-  with a one-line why. Saying nothing is not an answer.
-- In Claude Code, the same kind of subagent finds them: give it what the
-  change alters — behaviour, names, commands, install steps — and the files it
-  changed. It returns each passage that is now false as `file:line`, the
-  sentence and why, or "none" with the files it read. The edits are yours.
-- A follow-up is allowed only for a broader sweep the change merely brushes
-  against — never for the document that describes the very behaviour changed.
+A change that alters user-visible behaviour, a public contract or the install
+updates each document that it makes false, in the same change. In Claude
+Code, the same kind of subagent finds those documents: give it the change and
+its files; it returns each false passage as `file:line`. Before finishing,
+name the docs touched, or say "docs impact: none" with a one-line why.
 
 A decision that the person makes in talk can make an open issue false. Correct
 each such issue in the same turn, as the github skill's `filing.md` says. Do not
@@ -130,15 +67,13 @@ ask first.
 
 # Global instructions, part 2 of 2
 
-## Code review (always)
+## Code review
 
 Before the first review of a change — `/code-review` or `/security-review` in
-Claude Code, `/review` in Codex, a review subagent — and when a person's review
-comments arrive, invoke the `craft:review-loop` skill. It sets every
-step, from the level to the pull request. A read-only review subagent does not
-load it. An agent that acts on a finding, with the skill or without it, first
-verifies it against the real code: a confident wrong fix is worse than the
-defect.
+Claude Code, `/review` in Codex, a review subagent — and when a person's
+review comments arrive, invoke the `craft:review-loop` skill. A read-only
+review subagent does not load it. Whoever acts on a finding, with the skill
+or without it, first verifies it against the real code.
 
 `craft:review-loop` replaces `superpowers:requesting-code-review` and
 `superpowers:receiving-code-review`. In
@@ -148,38 +83,19 @@ after the last task, in place of the final review. In Claude Code, invoke it
 also in place of the builder check of `superpowers:brainstorming`, and after
 the self-review of `superpowers:writing-plans`.
 
-## Worth before work (always)
+## Worth before work
 
 Before the first edit of a feature — a new capability, or a change of what the
 product does for its users — with no report of it yet, and at each fork in
 brainstorming, invoke the `craft:product` skill. Not in a subagent.
 
-## The Boy Scout Rule (always)
+## The Boy Scout Rule
 
-Leave the code you touch cleaner than you found it. The rule is the Scouts'
-campground rule as Robert C. Martin put it in *Clean Code*: every check-in
-leaves the module a little better than the check-out found it, and a codebase
-that only ever receives that kind of care does not rot.
+Leave the code you touch cleaner than you found it, not rebuilt. A finding in
+the task's module goes into this change, or to the person when it needs only
+a choice, by the conditions of `filing.md` in `craft:github`; read them first.
 
-It covers the files the task edits and the files next to them in the same
-module: the module as the project's instruction file or a conventions skill
-draws it, or else the directory of a file the task edits. For a test, that is
-the directory of the code it tests; a test helper gives no directory. A test
-belongs only to the module of the code it tests. A finding there, from
-a stale comment or a broken link to a bug in the next function, goes into this
-change when it meets three conditions. It is clear: there is one way to fix it,
-and nothing outside the module relies on what it changes. It is smaller than
-the task's own diff, and all such fixes together are smaller too. Dropping it
-leaves the task whole. A bug brings its test. List each one in the PR
-description as not part of the task. A finding that fails one condition is an
-issue, except one that is not clear only because it needs a choice: between
-ways to fix it, or of what the product does there. When the code you read
-gives each way and its cost, with no new search, run or measurement, ask the
-person at once, and wait. The choice takes it into this change; an answer to
-file it, or no person to ask, leaves it an issue. Cleaner than you found it
-is not the same as rebuilt.
-
-## Code conventions (always)
+## Code conventions
 
 Before the first write or edit to a TypeScript file (`.ts`, `.tsx`, `.mts`,
 `.cts`) in a session, invoke the `craft:typescript-conventions` skill.
@@ -187,33 +103,26 @@ Before the first write or edit to a React component or hook, invoke
 `craft:react-conventions` too. A subagent invokes them itself. No pattern to
 copy and no rule to keep the work short skips these calls.
 
-## GitHub (always)
+## GitHub
 
-A commit message, a pull request, an issue, a workflow file — anything that
-touches a repository's GitHub surface goes through the `craft:github`
-skill. Invoke it before the first `git commit`, `gh` call or workflow edit, not
-after. A read-only subagent, as a review or an `Explore` subagent,
-files nothing, whatever the rules below say. It does not load the skill. It names
-each finding in its report, and the agent that sent it decides on each one.
-One sent with the skill's `scout.md`, or with the roadmap skill's `lanes.md`,
-follows that file instead.
+Anything that touches GitHub, as a commit, a pull request, an issue or a
+workflow file, goes through the `craft:github` skill, invoked before the
+first `git commit`, `gh` call or workflow edit. A
+read-only subagent, as a review or an `Explore` subagent, files nothing,
+whatever the rules below say. It does not load the skill, and names each
+finding in its report. One sent with the skill's `scout.md`, or with the
+roadmap skill's `lanes.md`, follows that file instead.
 
-**Out-of-scope findings become issues.** Anything worth fixing that is **not**
-part of the current task — a bug, a latent defect, an improvement worth making
-later — gets filed as an issue instead of being fixed inline or dropped in the
-chat. Do not derail the task to fix it; do not ask whether to file it. If the
-Boy Scout Rule above takes it, it goes into the current PR instead, listed in
-the description as not part of the task. The github skill's `filing.md`
-carries the how. Where there is no GitHub remote or `gh auth status` fails,
-name the finding in the final report instead of filing it.
+**Out-of-scope findings become issues.** A finding worth fixing outside the
+task that the Boy Scout Rule does not take is an issue: do not fix it inline
+or ask whether to file it. Where there is no GitHub remote or
+`gh auth status` fails, name the finding in the final report instead of
+filing it.
 
 **A defect in this plugin goes to its tracker, after the person says yes.**
-Both parts of these rules, the hooks, a `craft:` skill and its scripts are
-the plugin.
-A defect in one of them is an issue for `kalinichenko88/craft-skills`, not for
-the project you work in. In a checkout of `craft-skills`, the rule above
-applies instead. Do not derail the task. Unlike the rule above, ask the person
-first: show the text that the github skill's `filing.md` writes.
+The plugin is both parts of these rules, the hooks and each `craft:` skill
+with its scripts; its tracker is `kalinichenko88/craft-skills`. Unlike the
+rule above, ask the person first: show the text that the github skill's
+`filing.md` writes.
 
-**Never add a `Co-Authored-By:` trailer** to a commit message — no Claude, no
-model name, no `noreply@anthropic.com`.
+**Never add a `Co-Authored-By:` trailer** to a commit message.
