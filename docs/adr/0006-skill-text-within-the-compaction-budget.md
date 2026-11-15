@@ -7,6 +7,7 @@
 
 - 2026-11-11 #284: Consequences, Good. Was: "The debt list holds two files, review-loop (#283) and architecture (#284), and neither can grow".
 - 2026-11-11 #284: Consequences, Bad. Was: "each sentence added to review-loop or architecture needs a cut in the same file until its split".
+- 2026-11-15 #412: Consequences, Bad. Was: "The files beside `SKILL.md` and the text of a whole flow have no cap (#280)".
 
 ## Context
 
@@ -66,7 +67,7 @@ which cannot grow; architecture left it with its split (#284).
 
 Bad: each sentence added to review-loop needs a cut in the same file until
 its split. The files beside `SKILL.md` and the text of a whole flow have no
-cap (#280). The number moves when Claude Code changes its
+cap yet (#412). The number moves when Claude Code changes its
 budget or its count of a token.
 
 ## Invariants
