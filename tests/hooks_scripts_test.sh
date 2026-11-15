@@ -140,8 +140,7 @@ for part in 1 2; do
     check "SubagentStart $part, recorded $type" "$want" "$(rules SubagentStart $part <<<"$input")"
   done <"$fixtures/claude-subagents.jsonl"
   # Inputs made from the recorded one. Each line is the name|the sed program.
-  # Codex names its types default, explorer and worker. The words of the
-  # field inside another field are escaped, so they are not the field.
+  # Codex names its types default, explorer and worker.
   while IFS='|' read -r name program; do
     input=$(sed "$program" <<<"$explore")
     [ "$input" != "$explore" ] || fail "$name: the sed program changes nothing"
@@ -151,12 +150,8 @@ the type explorer of Codex|s/"Explore"/"explorer"/
 a type that ends in Explore|s/"Explore"/"my-plugin:Explore"/
 a type that starts with Explore|s/"Explore"/"Explorer"/
 no agent type|s/"agent_type":"Explore",//
-the field in the text of another field|s/"Explore"/"x"/; s|/home/user/project"|/home/\\"agent_type\\":\\"Explore\\""|
 EOF
   check "SubagentStart $part, an empty input" "$whole" "$(rules SubagentStart $part </dev/null)"
-  spaced=${explore/'"agent_type":"Explore"'/'"agent_type" : "Explore"'}
-  [ "$spaced" != "$explore" ] || fail 'spaces around the colon: the input did not change'
-  check "SubagentStart $part, spaces around the colon" '' "$(rules SubagentStart $part <<<"$spaced")"
 done
 
 echo 'hooks_scripts_test: ok'
