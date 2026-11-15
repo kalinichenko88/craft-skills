@@ -13,7 +13,11 @@ starts with its own heading, and runs under each event from
 `hooks/hooks.json`. It checks that each `skills/*/SKILL.md` stays within
 20,000 characters, the text that Claude Code keeps of a skill after a
 compaction (ADR 0006): a file on the test's debt list must not grow past its
-size there. It checks that a checkout with `core.autocrlf=true`, the
+size there. `tests/text_size.txt` records the size of `rules.md`, of each
+`SKILL.md`, of each `.md` file beside one except its `README.md`, and of the
+files that a take-in reads together. `make check` fails on a text past its
+number (ADR 0009): when you grow a text, change its line in the same pull
+request, and give a new `.md` file of a skill a line. It checks that a checkout with `core.autocrlf=true`, the
 Git for Windows default, keeps every text file in LF, that the hook still
 gives the rules from a CRLF `rules.md`, that every script starts with
 `#!/usr/bin/env bash`, and that every `- ` line of `CHANGELOG.md` starts with
