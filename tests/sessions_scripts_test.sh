@@ -70,6 +70,19 @@ actual=$(PATH="$tmp/bin:$PATH" bash "$count" 14 "$tmp/projects") || true
   exit 1
 }
 
+# Each moment of rules.json on its samples in moments.tsv: the rule, its key,
+# a command or a path as count.jq gives it, and 1 for a moment.
+bad=$(jq -rR --slurpfile rules "$root/.claude/skills/sessions/scripts/rules.json" '
+  split("\t") as [$r, $k, $s, $want]
+  | ($rules[0][] | select(.rule == $r) | .[$k]) as $e
+  | (if $s | test($e) then "1" else "0" end) as $got
+  | select($got != $want) | "\($r): \($s) gives \($got)"' "$root/tests/fixtures/sessions/moments.tsv")
+[ -z "$bad" ] || {
+  echo "FAIL: a moment of rules.json on its samples:"
+  echo "$bad"
+  exit 1
+}
+
 # The rules. r1 has each rule's text before its first moment, in the result
 # of a call of an earlier message: the github load, take-in.md by Read,
 # filing.md through a variable that holds the skills folder before

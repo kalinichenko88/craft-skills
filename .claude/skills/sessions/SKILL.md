@@ -44,15 +44,15 @@ correct result, so a script makes them, and no model reads a transcript.
    `kept` counts the contexts where the rule's `text` came before it. That
    is a load from the plugin cache, when the `text` is a `SKILL.md`, or a
    read of all or part of the file whose result came before the call of
-   the moment: by `Read`, or by `cat`, `sed`, `head`, `tail` or `awk` that
-   writes no file, with no `-i` and no `>` outside quotes, as `2>` is no
-   write; not by a `grep` of the file. A read or a load in the same call or
-   the same message of the model as the moment comes after it, since the
-   model writes every call of a message first. The file can be in the plugin
-   cache or in a checkout, not in a folder `claude/skills`, where a skill of
-   the same name is another one. `share` is `kept` of `contexts`, and `-`
-   with no moment. The next three columns count the subagents the same way.
-   A rule with `main` has no moment there: a
+   the moment: by `Read`, or by `cat`, `sed`, `head`, `tail` or `awk` when
+   it shows the file, not with `sed -i` and not with its output sent to a
+   file by `>`; not by a `grep` that reads the file. A read or a load in the
+   same call or the same message of the model as the moment comes after it,
+   since the model writes every call of a message first. The file can be in
+   the plugin cache or in a checkout, not in a folder `claude/skills`, where
+   a skill of the same name is another one. `share` is `kept` of
+   `contexts`, and `-` with no moment. The next three columns count the
+   subagents the same way. A rule with `main` has no moment there: a
    read-only subagent does not load review-loop for a review or github for
    a `gh` call, and the type of a subagent does not show that it is
    read-only, as a review runs as `general-purpose`.
