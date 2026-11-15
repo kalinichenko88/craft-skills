@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # The session-title hook, run on the prompts that Claude Code and Codex send:
 # recorded payloads with their paths replaced, and a fake gh that answers from
-# a recorded issue.
+# a recorded issue. Then the rules hook, run on the inputs that Claude Code
+# 2.1.325 gave a SubagentStart hook for three agent types.
 
 set -eu
 
@@ -118,5 +119,44 @@ for payload in no-ids.json both-ids.json; do
 done
 out=$(FAKE_FAIL=1 run claude-prompt.json '#133') || fail "gh fails: exit $?"
 check 'gh fails: no title' '' "$out"
+
+# An Explore subagent of Claude Code gets no rules (#414). Each other input
+# gives the part that a session gets.
+# rules <event> <part>: the context that the rules hook gives for the input
+# on stdin, and nothing when the hook prints nothing.
+rules() {
+  local json
+  json=$("$root/hooks/rules.sh" "$1" "$2") || fail "rules.sh $1 $2: exit $?"
+  [ -z "$json" ] || jq -r --arg e "$1" \
+    '.hookSpecificOutput | select(.hookEventName == $e) | .additionalContext' <<<"$json"
+}
+explore=$(head -1 "$fixtures/claude-subagents.jsonl")
+for part in 1 2; do
+  whole=$(rules SessionStart $part <<<"$explore")
+  [ -n "$whole" ] || fail "SessionStart $part: no rules for a session of the Explore agent"
+  while IFS= read -r input; do
+    type=$(jq -r .agent_type <<<"$input")
+    case $type in Explore) want='' ;; *) want=$whole ;; esac
+    check "SubagentStart $part, recorded $type" "$want" "$(rules SubagentStart $part <<<"$input")"
+  done <"$fixtures/claude-subagents.jsonl"
+  # Inputs made from the recorded one. Each line is the name|the sed program.
+  # Codex names its types default, explorer and worker. The words of the
+  # field inside another field are escaped, so they are not the field.
+  while IFS='|' read -r name program; do
+    input=$(sed "$program" <<<"$explore")
+    [ "$input" != "$explore" ] || fail "$name: the sed program changes nothing"
+    check "SubagentStart $part, $name" "$whole" "$(rules SubagentStart $part <<<"$input")"
+  done <<'EOF'
+the type explorer of Codex|s/"Explore"/"explorer"/
+a type that ends in Explore|s/"Explore"/"my-plugin:Explore"/
+a type that starts with Explore|s/"Explore"/"Explorer"/
+no agent type|s/"agent_type":"Explore",//
+the field in the text of another field|s/"Explore"/"x"/; s|/home/user/project"|/home/\\"agent_type\\":\\"Explore\\""|
+EOF
+  check "SubagentStart $part, an empty input" "$whole" "$(rules SubagentStart $part </dev/null)"
+  spaced=${explore/'"agent_type":"Explore"'/'"agent_type" : "Explore"'}
+  [ "$spaced" != "$explore" ] || fail 'spaces around the colon: the input did not change'
+  check "SubagentStart $part, spaces around the colon" '' "$(rules SubagentStart $part <<<"$spaced")"
+done
 
 echo 'hooks_scripts_test: ok'

@@ -7,6 +7,7 @@
 
 - 2026-11-11 #343: Consequences, Good. Was: "part 1 has 5,416 and part 2 has 4,585 of 10,000 characters".
 - 2026-11-11 #343: Consequences, Good. Was: "Each part is far under the Codex limit of about 2,500 tokens: about 1,300 and 1,100".
+- 2026-11-15 #414: Consequences, Bad. Was: "Each session and each subagent pays for each rule added".
 
 ## Context
 
@@ -65,7 +66,8 @@ leaves the always-on prompt. Each part is under the Codex limit of about
 2,500 tokens.
 
 Bad: `hooks/hooks.json` changes, so the release is major and Codex users
-trust the hooks again. Each session and each subagent pays for each rule
+trust the hooks again. Each session and each subagent, but an `Explore`
+subagent of Claude Code (PDR 0012), pays for each rule
 added, and no cap stops the total before 20,000 characters. A third part
 needs another change of `hooks/hooks.json`. An editor puts a new rule in the
 part that has room, not only where it reads best. The test counts characters,

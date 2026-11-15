@@ -15,6 +15,16 @@ case ${2:-} in
 2) rules=${rules#*"$marker"} ;;
 *) echo "usage: rules.sh <event> 1|2" >&2; exit 1 ;; # hooks.json names a part
 esac
+# An Explore subagent of Claude Code edits nothing and files nothing, so it
+# gets no rules (PDR 0012). The host gives the agent type on stdin. Any other
+# input gives the rules, an empty one too. A matcher in hooks.json cannot
+# decide: an entry with no matcher fires for each type, and the regex of
+# Codex has no look-ahead to leave one type out.
+if [ "$1" = SubagentStart ]; then
+  IFS= read -r -d '' input || true
+  explore='"agent_type"[[:space:]]*:[[:space:]]*"Explore"'
+  [[ $input =~ $explore ]] && exit 0
+fi
 rules=${rules//\\/\\\\}
 rules=${rules//\"/\\\"}
 rules=${rules//$'\n'/\\n}

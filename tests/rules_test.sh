@@ -55,7 +55,7 @@ if "$root/hooks/rules.sh" SessionStart >/dev/null 2>&1; then
 fi
 for event in SessionStart SubagentStart; do
   for part in 1 2; do
-    output=$("$root/hooks/rules.sh" "$event" $part)
+    output=$("$root/hooks/rules.sh" "$event" $part </dev/null)
     [ "$(jq -r .hookSpecificOutput.hookEventName <<<"$output")" = "$event" ] || {
       echo "FAIL: $event $part: wrong hookEventName"
       exit 1
