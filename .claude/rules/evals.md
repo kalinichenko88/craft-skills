@@ -12,8 +12,9 @@ paths:
 An eval calls the model, and one run proves neither a failure nor a fix.
 A result counts only against a control that ran in the same way.
 
-1. Run an eval alone, with no review or other eval in the same session: a
-   skill-load eval beside `/code-review` loaded the skill in fewer runs.
+1. Run an eval alone, with no review or other eval at the same time: on
+   2026-10-28, `tests/skill_load_eval.sh` beside `/code-review` loaded the
+   skill in 12 of 30 runs, and alone in 28 of 30.
 2. Before a zero counts, run the counter on a known positive: a regex that
    stops early counts zero too.
 3. Run a control on the base text with the same number of runs as the

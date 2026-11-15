@@ -1,15 +1,17 @@
 ---
 paths:
-  - "skills/**"
+  - "skills/**/*.md"
   - "rules.md"
-  - "hooks/**"
 ---
 
 # The text of a skill
 
-`rules.md`, each `SKILL.md` and each file beside it are the product: a model
-reads them in each run. These rules apply to each edit of them. The sources
-and the measurements are in `docs/research/2026-11-15-skill-text-breadth.md`.
+`rules.md`, each `SKILL.md` and each side file, a `.md` file beside a
+`SKILL.md` that the skill sends the agent to read, are the product: a model
+reads them in each run. A `README.md` is not one. These rules apply to each
+edit of them. The sources and the measurements are in
+`docs/research/2026-11-15-skill-text-breadth.md`. Before a run of an eval,
+read `.claude/rules/evals.md`.
 
 ## When a case gets a sentence
 
@@ -26,12 +28,14 @@ order, and the first step that holds decides:
 4. A machine can check the behaviour, and it has no exception: a script, a
    validator or a hook. Remove the prose about it.
 5. The case is an input of a script: a test of the script, with no prose.
-6. A rule covers the class but is unclear: rewrite that rule in place.
+6. A rule covers the class but is unclear: rewrite that rule in place, with
+   its trigger, action, result, scope or reason. No new sentence.
 7. The behaviour depends on a condition: one condition on a sign that can
-   be seen, in an ordered list, at the point of the decision.
+   be seen, in an ordered list, at the point of the decision, in the file of
+   the moment where it occurs. Not a rule and an exception.
 8. Else a new sentence, with a run that fails before it and a run that
-   passes after it, and a search for a sentence to remove in the same pull
-   request.
+   passes after it, no worse on the neighbouring cases, and a search for a
+   sentence to remove in the same pull request.
 
 A false fact, as a wrong path or a wrong number, is not a case: correct it
 at once.
@@ -47,7 +51,9 @@ In characters, as `jq -Rs length` counts them (ADR 0009):
 | `rules.md` | 6,000; each of its two parts under 10,000 (ADR 0004) |
 | A flow: the files that one scenario reads | No growth |
 
-Each change of the size of a text, a cut too, changes its line in
+Only the cap of 20,000 and the 10,000 of a part of `rules.md` fail a check.
+The other numbers are targets: a text past its target fails nothing. Each
+change of the size of a text, a cut too, changes its line in
 `tests/text_size.txt` in the same pull request (ADR 0010).
 
 ## What Anthropic and OpenAI advise
@@ -67,8 +73,8 @@ Each change of the size of a text, a cut too, changes its line in
   ([Anthropic](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)),
   and a rule that cannot bend into a hook
   ([Claude Code](https://code.claude.com/docs/en/best-practices)).
-- No words of emphasis, as MUST in capitals: "piling on emphasis mostly
-  makes Claude over-apply the rule"
+- Write no rule in capitals for emphasis, as "you MUST": "piling on
+  emphasis mostly makes Claude over-apply the rule"
   ([Claude Code](https://code.claude.com/docs/en/best-practices)). Give an
   absolute rule its scope and its reason
   ([Anthropic](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2)).
@@ -78,6 +84,6 @@ Each change of the size of a text, a cut too, changes its line in
   add a block "only when they fix a measured failure mode"
   ([OpenAI](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4)).
 - The rules of the whole task go at the top of a `SKILL.md`: after a
-  compaction, the host keeps only the start of each skill
-  ([Claude Code](https://code.claude.com/docs/en/skills)), 20,000
-  characters by ADR 0006.
+  compaction, the host keeps only the first 5,000 tokens of each skill that
+  it keeps, about 20,000 characters (ADR 0006)
+  ([Claude Code](https://code.claude.com/docs/en/skills)).
