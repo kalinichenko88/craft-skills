@@ -25,10 +25,10 @@ days=${1:-14} projects=${2:-$HOME/.claude/projects}
   exit 2
 }
 
-# grep exits 1 when no file matches, and xargs then 123: that is an empty
-# list, not an error.
+# grep exits 1 when no file of its batch matches, and xargs then 123, or 1 on
+# macOS: that is a batch with no person's session, not an error.
 list=$(find "$projects" -name '*.jsonl' -mtime -"$days" -print0 |
-  xargs -0 grep -lE '"entrypoint":"(cli|claude-desktop)"' || [ $? = 123 ])
+  xargs -0 grep -lE '"entrypoint":"(cli|claude-desktop)"' || { s=$?; [ $s = 1 ] || [ $s = 123 ]; })
 transcripts=$(grep -c . <<<"$list" || true)
 subagents=$(grep -c '/subagents/' <<<"$list" || true)
 

@@ -51,6 +51,19 @@ actual=$(bash "$count" 14 "$tmp/projects")
   exit 1
 }
 
+# macOS xargs exits 1, not 123, when one grep finds nothing. A fake runs one
+# file per grep, as many batches do, with that exit code.
+mkdir "$tmp/bin"
+printf '#!/usr/bin/env bash\n%s -n 1 "$@" || { s=$?; [ $s = 123 ] && exit 1; exit $s; }\n' \
+  "$(command -v xargs)" >"$tmp/bin/xargs"
+chmod +x "$tmp/bin/xargs"
+actual=$(PATH="$tmp/bin:$PATH" bash "$count" 14 "$tmp/projects") || true
+[ "$actual" = "$expected" ] || {
+  echo "FAIL: count.sh printed with a grep that finds nothing in its batch:"
+  echo "$actual"
+  exit 1
+}
+
 mkdir "$tmp/empty"
 expected="14 days: 0 transcripts, 0 of them subagents
 skill	contexts	loads	twice	chars	compacted	read	failed
