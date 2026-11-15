@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Counts what the text of the craft skills costs in the local Claude Code
-# sessions, and which of their scripts failed: one row per skill.
+# sessions, and which of their scripts failed: one row per skill. Then, for
+# each rule of rules.json, the contexts where its moment came, and how many
+# of them had its text before the first moment.
 #
 #   count.sh [days] [projects]
 #
@@ -10,6 +12,10 @@
 # subagent has a transcript, and a context, of its own. A skill of craft is
 # one that loads from the plugin cache, under its name craft or its old name
 # kalinichenko; a copy run from a checkout of this repository does not count.
+# A moment of a rule counts when it came in those days, and after the text
+# that states the rule reached the context: rules.md from a hook, or a
+# SKILL.md that loaded. A transcript that changed in those days can hold
+# records of weeks before, and an old version of a text can lack the rule.
 #
 # Needs bash, jq and awk.
 
@@ -32,12 +38,15 @@ list=$(find "$projects" -name '*.jsonl' -mtime -"$days" -print0 |
 transcripts=$(grep -c . <<<"$list" || true)
 subagents=$(grep -c '/subagents/' <<<"$list" || true)
 
-program=$(dirname "$0")/count.jq
+program=$(dirname "$0")/count.jq table=$(dirname "$0")/rules.json
+rules=$(jq -r '.[].rule' "$table")
+start=$(jq -nr --argjson days "$days" 'now - $days * 86400 | todate')
 
 # The files go to jq in the order of the list, so the rows of one transcript
 # come together.
-printf "%s" "$list" | tr "\n" "\0" | xargs -0 jq -r -f "$program" | awk -F '\t' \
-  -v days="$days" -v transcripts="$transcripts" -v subagents="$subagents" '
+printf "%s" "$list" | tr "\n" "\0" | xargs -0 jq -r --slurpfile rules "$table" -f "$program" | rules=$rules awk -F '\t' \
+  -v days="$days" -v transcripts="$transcripts" -v subagents="$subagents" -v start="$start" '
+  BEGIN { nrules = split(ENVIRON["rules"], rule, "\n") }
   $1 != file { file = $1; loaded = "" }
   $2 == "load" {
     k = file SUBSEP $3
@@ -51,6 +60,14 @@ printf "%s" "$list" | tr "\n" "\0" | xargs -0 jq -r -f "$program" | awk -F '\t' 
   }
   $2 == "run" { run[$3] = $4 "/" $5; runskill[$3] = $4 }
   $2 == "read" { read[$3] = $4 }
+  # The first moment of a rule in a context decides: kept when the text of
+  # the rule came before it. Column 1 is the main sessions, 2 the subagents.
+  $2 == "given" { given[file, $3] = 1 }
+  $2 == "trace" { traced[file, $3] = 1 }
+  $2 == "moment" && $4 >= start && ((file, $3) in given) && !((file, $3) in moment) {
+    moment[file, $3] = 1; k = (file ~ /\/subagents\//) ? 2 : 1
+    moments[$3, k]++; if ((file, $3) in traced) kept[$3, k]++
+  }
   $2 == "result" {
     if ($3 in read) { reads[read[$3]] += $4; seen[read[$3]] = 1 }
     if (($3 in run) && $5 == "true") { failed[runskill[$3]]++; fails[run[$3]]++; seen[runskill[$3]] = 1 }
@@ -79,4 +96,11 @@ printf "%s" "$list" | tr "\n" "\0" | xargs -0 jq -r -f "$program" | awk -F '\t' 
     k = 0; for (r in fails) scripts[++k] = r
     sort(scripts, k, fails)
     for (i = 1; i <= k; i++) printf "%s\t%d\n", scripts[i], fails[scripts[i]]
+    print "rule\tcontexts\tkept\tshare\tsubagents\tkept\tshare"
+    for (i = 1; i <= nrules; i++) {
+      printf "%s", rule[i]
+      for (c = 1; c <= 2; c++)
+        printf "\t%d\t%d\t%s", moments[i, c], kept[i, c], moments[i, c] ? int(100 * kept[i, c] / moments[i, c] + 0.5) "%" : "-"
+      print ""
+    }
   }'

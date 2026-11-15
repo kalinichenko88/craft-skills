@@ -1,6 +1,6 @@
 ---
 name: sessions
-description: Use when counting what the text of the craft skills costs in the local Claude Code sessions, and which of their scripts failed.
+description: Use when counting what the text of the craft skills costs in the local Claude Code sessions, which of their scripts failed, and how often a rule's moment came with no load of its text.
 disable-model-invocation: true
 argument-hint: "[days]"
 ---
@@ -9,12 +9,13 @@ argument-hint: "[days]"
 
 This skill counts the local Claude Code transcripts of all projects on this
 computer. For each skill of craft, it gives what its text costs and which of
-its scripts failed. The counts have one correct result, so a script makes
-them, and no model reads a transcript.
+its scripts failed. For each rule of `scripts/rules.json`, it gives how often
+the rule's text reached the context before its moment. The counts have one
+correct result, so a script makes them, and no model reads a transcript.
 
 1. **Count.** The argument is a number of days, 14 when there is none. Run
    `bash <dir>/scripts/count.sh <days>` with a timeout of 10 minutes, where
-   `<dir>` is this skill's base directory: 14 days take about 40 seconds.
+   `<dir>` is this skill's base directory: 14 days take about 70 seconds.
    The script reads `~/.claude/projects/`. It takes a transcript that
    changed in those days and that a person's session wrote: a `claude -p`
    run is left out. A subagent's transcript is a context of its own.
@@ -33,12 +34,29 @@ them, and no model reads a transcript.
    The line under the table gives, for each context that loaded a
    `SKILL.md`, the sum of their characters: the median, the 90th percentile
    and the maximum. Then each script with failed calls.
+
+   The last table has one row per rule of `scripts/rules.json`: a rule that
+   names a tool call as its moment, and the text that must come before it.
+   `contexts` counts the main sessions where the first moment came in those
+   days, after the text that states the rule (`from` and `says` in
+   `rules.json`: `rules.md` from a hook, or a `SKILL.md` that loaded); a
+   context with an old version of that text has no moment. `kept` counts
+   those where the rule's `text` came first: a load of its skill, or a read
+   of the file by `Read` or by a command of the `read` column, from the
+   plugin cache or from a checkout. `share` is `kept` of `contexts`, and `-`
+   with no moment. The next three columns count the subagents the same way;
+   a rule with `main` has no moment there, as a review that a read-only
+   subagent runs.
 3. **Read it.** About 3 characters are one token of the model.
    `tests/rules_test.sh` caps each `skills/*/SKILL.md` at 20,000 characters
    (ADR 0006), with a debt list of the files over it. A failed call is a
    candidate, not a defect: `invariants.sh` exits 1 at a failing invariant
    and `take-in-check.sh` at a refusal. Each one is a defect only by *Make
-   sure the plugin is wrong* in `skills/github/filing.md`.
+   sure the plugin is wrong* in `skills/github/filing.md`. So is a share
+   under 100 %: a moment can be outside the rule, as a `.ts` file in the
+   scratchpad. A new rule in `rules.json` comes with a case in
+   `tests/fixtures/sessions/rules/` where its text comes first and one where
+   it does not.
 4. **The output stays on this computer.** The transcripts are of private
    projects too. A finding goes to the public tracker only as its shape and
    its counts (*Public repositories* in `skills/github/SKILL.md`). Ask the

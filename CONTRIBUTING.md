@@ -306,9 +306,11 @@ in `.claude/skills/` and does not ship with the plugin.
 
 `/sessions` counts the local Claude Code transcripts of all projects on the
 computer: for each skill, the characters of its text in the context, its
-loads, the compactions after them, and the failed calls of its scripts. Run
-it before you decide on the size of a skill, or instead of a count by hand
-from the transcripts. It lives in `.claude/skills/` too. Its output stays on
+loads, the compactions after them, and the failed calls of its scripts; and
+for each rule of `.claude/skills/sessions/scripts/rules.json`, the share of
+its moments with its text before them. Run it before you decide on the size
+of a skill or on a rule's text, or instead of a count by hand from the
+transcripts. It lives in `.claude/skills/` too. Its output stays on
 the computer: a finding reaches the tracker only as its shape and its counts.
 
 ## Release

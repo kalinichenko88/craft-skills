@@ -1,9 +1,23 @@
 # The program of count.sh: one row per event, in the order of the records. A
 # load of a SKILL.md, a compaction, a run of a script, a read of a .md file of
-# a skill, and the result of a tool call.
+# a skill, the result of a tool call, and for a rule of $rules, the table of
+# rules.json, by its number: the text that states it, its trace and its moment.
 
 def text: if type == "string" then . else [.[]? | .text? // empty] | join("") end;
 def skill: "/plugins/cache/[^/]+/(craft|kalinichenko)/[^/]+/skills/(?<skill>[a-z-]+)";
+# A .md file of a skill as a trace of a rule: from the cache or from a
+# checkout, since the text is the same.
+def file: "(^|/)skills/(?<skill>[a-z-]+)/(?<rest>[^\\s\"']*[.]md)\\b";
+
+# The rules that $text, the text of $from, states: rules.md or a SKILL.md, as
+# github/SKILL.md. The rules whose text is $file, as github/take-in.md. The
+# rules whose moment f finds, with the rule as its input: a rule with main is
+# no moment in a subagent.
+def given($from; $text):
+  $rules[0] | to_entries[] | .value as $r | select($r.from == $from and ($text | test($r.says))) | .key + 1;
+def traces($file): $rules[0] | to_entries[] | select(.value.text == $file) | .key + 1;
+def moments($f; f):
+  $rules[0] | to_entries[] | select((.value | f) and (.value.main != true or ($f | test("/subagents/") | not))) | .key + 1;
 
 # The commands of a Bash call, in the order they end. It splits at ; & | and
 # new lines, but not in quotes and not at the & of a redirection, as 2>&1. A
@@ -34,7 +48,7 @@ def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . els
 # cat "$f" is no read: 4 of 2,645 calls on 2026-11-09. Resolve it when it
 # grows.
 def commands:
-  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null};
+  reduce parts[] as $p ({vars: {}, dir: "", run: null, read: null, cmds: [], runs: [], reads: []};
     .vars as $v | .dir as $d
     | ($p | subst($v) | sub("^([\\s(){}!]|(do|then|else|time|if|while|until|export)\\s)*"; "")) as $q
     | if $q | test("^[A-Za-z_][A-Za-z0-9_]*=\\S*\\s*$") then
@@ -43,33 +57,51 @@ def commands:
       elif $q | test("^(done|fi|esac)?(\\s*[0-9]*[<>]+&?\\s*[^\\s;&|]*)*\\s*(#.*)?$") then .
       else
         ($q | sub("^([A-Za-z_][A-Za-z0-9_]*=(\\S*|'[^']*'|\"[^\"]*\")\\s+|timeout\\s+\\S+\\s+|xargs(\\s+-\\S+)*\\s+)*"; "")) as $q
+        | .cmds += [$q]
         | (($q | capture("^(bash(\\s+-[A-Za-z]+)*\\s+)?[\"']?(?<p>[^\\s\"']*scripts/[a-z-]+[.]sh)\\b") | .p | resolve($d)) // null) as $r
         | if $r and ($r | test(skill + "/scripts/[a-z-]+[.]sh$")) then
-            .run = [($r | capture(skill).skill), ($r | sub(".*/"; ""))]
+            .run = [($r | capture(skill).skill), ($r | sub(".*/"; ""))] | .runs += [.run | join("/")]
           else .run = null
             | if $q | test("^(cat|sed|head|tail|grep|awk)\\s") then
-                .read //= ([$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d) | capture(skill).skill] | first)
+                [$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d)] as $m
+                | .read //= ([$m[] | capture(skill).skill] | first) | .reads += [$m[] | capture(file) | .skill + "/" + .rest]
               else . end
           end
       end);
 
 input_filename as $f
 | if .type == "system" and .subtype == "compact_boundary" then [$f, "compact"]
+  elif .type == "attachment" then
+    select(.attachment.hookEvent? // "" | test("^(SessionStart|SubagentStart)$"))
+    | .attachment.stdout? // "" | strings | select(test("# Global instructions")) | given("rules.md"; .) as $n | [$f, "given", $n]
   elif .type == "user" and .isMeta == true then
     (.message.content | text) as $t
-    | ($t | capture("^Base directory for this skill: [^\n]*" + skill + "\n")) | [$f, "load", .skill, ($t | length)]
+    | ($t | capture("^Base directory for this skill: [^\n]*" + skill + "\n")) | .skill as $s
+    | [$f, "load", $s, ($t | length)], (traces($s + "/SKILL.md") as $n | [$f, "trace", $n]),
+      (given($s + "/SKILL.md"; $t) as $n | [$f, "given", $n])
   elif .type == "assistant" then
-    .message.content[]? | select(.type == "tool_use") | .id as $id
+    .timestamp as $t | .message.content[]? | select(.type == "tool_use") | .id as $id
     | if .name == "Read" then
-        .input.file_path // "" | select(test("[.]md\\b")) | capture(skill) | [$f, "read", $id, .skill]
+        .input.file_path // "" | select(test("[.]md\\b"))
+        | (capture(skill) | [$f, "read", $id, .skill]), (capture(file) | traces(.skill + "/" + .rest) as $n | [$f, "trace", $n])
+      elif .name | test("^(Edit|Write|MultiEdit)$") then
+        .input.file_path // "" | . as $p | moments($f; (.edit // empty) as $e | $p | test($e)) as $n | [$f, "moment", $n, $t]
+      elif .name == "Skill" or .name == "Agent" then
+        .input.skill // .input.subagent_type // "" | . as $c | moments($f; (.call // empty) as $e | $c | test($e)) as $n | [$f, "moment", $n, $t]
       elif .name == "Bash" then
         # A call has one output and one exit code, so a failure goes to the
         # script of its last command. ponytail: in a && b, the code is that of
         # a when a fails; 0 of 40 failed calls had a script before && on
         # 2026-11-09. The output is a read when a command reads, also when
         # another runs a script: in such calls the .md file is most of it.
-        .input.command // "" | select(test(skill)) | commands
-        | (.run // empty | [$f, "run", $id] + .), (.read // empty | [$f, "read", $id, .])
+        # A call that names no skills folder and no gh has no row; a variable
+        # can hold the folder, as D=<cache>/skills; cat $D/github/x.md. Its
+        # traces come before its moments.
+        .input.command // "" | select(test("skills\\b|\\bgh\\b")) | commands | . as $c
+        | (.run // empty | [$f, "run", $id] + .), (.read // empty | [$f, "read", $id, .]),
+          (.reads[] | traces(.) as $n | [$f, "trace", $n]),
+          (moments($f; (.bash // empty) as $e | any($c.cmds[]; test($e))) as $n | [$f, "moment", $n, $t]),
+          (moments($f; (.script // empty) as $s | any($c.runs[]; . == $s)) as $n | [$f, "moment", $n, $t])
       else empty end
   elif .type == "user" then
     # An error with no exit code is a call that the harness, a hook or the

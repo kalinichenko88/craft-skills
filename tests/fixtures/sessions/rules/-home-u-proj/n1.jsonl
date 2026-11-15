@@ -1,0 +1,2 @@
+{"type":"assistant","timestamp":"2999-01-01T00:00:01Z","message":{"role":"assistant","content":[{"type":"tool_use","id":"toolu_01","name":"Bash","input":{"command":"gh pr create --title z --body-file /tmp/b.md","description":"x"}}]},"entrypoint":"cli"}
+{"type":"assistant","timestamp":"2999-01-01T00:00:02Z","message":{"role":"assistant","content":[{"type":"tool_use","id":"toolu_02","name":"Edit","input":{"file_path":"/home/u/proj/src/e.ts","old_string":"a","new_string":"b"}}]},"entrypoint":"cli"}

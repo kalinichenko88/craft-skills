@@ -1,0 +1,52 @@
+[
+  {
+    "rule": "github before a gh write",
+    "from": "rules.md",
+    "says": "(craft|kalinichenko):github",
+    "text": "github/SKILL.md",
+    "bash": "^gh\\s+(pr|issue)\\s+(create|edit|comment|close|reopen|merge|review)\\b"
+  },
+  {
+    "rule": "typescript-conventions before a TypeScript edit",
+    "from": "rules.md",
+    "says": "typescript-conventions",
+    "text": "typescript-conventions/SKILL.md",
+    "edit": "[.]([cm]?ts|tsx)$"
+  },
+  {
+    "rule": "react-conventions before a React edit",
+    "from": "rules.md",
+    "says": "react-conventions",
+    "text": "react-conventions/SKILL.md",
+    "edit": "[.][jt]sx$|/use[A-Z][A-Za-z0-9]*[.][jt]s$"
+  },
+  {
+    "rule": "review-loop before a review",
+    "from": "rules.md",
+    "says": "review-loop",
+    "text": "review-loop/SKILL.md",
+    "call": "^(code-review|security-review)$|code-reviewer$",
+    "main": true
+  },
+  {
+    "rule": "take-in.md before take-in-check.sh",
+    "from": "github/SKILL.md",
+    "says": "take-in[.]md",
+    "text": "github/take-in.md",
+    "script": "github/take-in-check.sh"
+  },
+  {
+    "rule": "merge.md before gh pr merge",
+    "from": "github/SKILL.md",
+    "says": "merge[.]md",
+    "text": "github/merge.md",
+    "bash": "^gh\\s+pr\\s+merge\\b"
+  },
+  {
+    "rule": "filing.md before gh issue create",
+    "from": "github/SKILL.md",
+    "says": "filing[.]md",
+    "text": "github/filing.md",
+    "bash": "^gh\\s+issue\\s+create\\b"
+  }
+]
