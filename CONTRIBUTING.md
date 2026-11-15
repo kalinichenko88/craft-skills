@@ -15,9 +15,9 @@ starts with its own heading, and runs under each event from
 compaction (ADR 0006): a file on the test's debt list must not grow past its
 size there. `tests/text_size.txt` records the size of `rules.md`, of each
 `SKILL.md` and of each other `.md` file under `skills/` except a
-`README.md`, and names the files that a take-in reads together.
+`README.md`, and names the five files that a take-in puts into the session.
 `make check` fails on a text whose
-size is not its number (ADR 0009): when you change a text, put the number
+size is not its number (ADR 0009, ADR 0010): when you change a text, put the number
 that the failure prints on its line in the same pull request, and give a new
 `.md` file of a skill a line. It checks that a checkout with `core.autocrlf=true`, the
 Git for Windows default, keeps every text file in LF, that the hook still

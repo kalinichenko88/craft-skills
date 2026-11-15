@@ -1,6 +1,6 @@
 # 0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget
 
-- Status: accepted
+- Status: accepted, narrowed by 0010
 - Date: 2026-11-15
 
 ## Updates
@@ -127,7 +127,6 @@ None: no `Check:` line sees a `.md` file.
 
 `tests/rules_test.sh` for the cap of 20,000. The record of sizes is
 `tests/text_size.txt`, and `tests/text_size_test.sh` checks it in
-`make check`: a text below its record fails too, so the record holds the
-size of each text. The admission rule: review only; #417 puts the
+`make check`, as ADR 0010 narrows it. The admission rule: review only; #417 puts the
 ask for a failing run into review-loop, and #418 gives the rule to an agent
 that edits the text of a skill.

@@ -1,7 +1,7 @@
 # The recorded size of each text that an agent reads in a run, in characters
 # as `jq -Rs length` counts them (ADR 0009). tests/text_size_test.sh fails on
 # a text whose size is not its number: a pull request that changes a text
-# changes its line, so the review sees each growth.
+# changes its line, so the review sees each growth (ADR 0010).
 # A line is "<characters> <path>", or "flow <name> <path>...", the files
 # that one flow reads: its size is the sum of their lines. The take-in flow is the five
 # files that one take-in puts into the context of the session (#275), the

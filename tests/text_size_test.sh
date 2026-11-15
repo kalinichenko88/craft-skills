@@ -6,7 +6,8 @@
 # size is the sum of their lines. A text
 # whose size is not its recorded size fails, so a pull request that changes
 # one changes its line, and the review sees each growth (ADR 0009). A text
-# below its record fails too: else it can grow back with no line in a diff.
+# below its record fails too: else it can grow back with no line in a diff
+# (ADR 0010).
 # First checks the counter on small trees, then the repository.
 
 set -eu
@@ -19,16 +20,16 @@ fail() { printf 'FAIL: %s\n%s\n' "$1" "$2"; exit 1; }
 check() { [ "$2" = "$3" ] || fail "$1" "want: $2
 got:  $3"; }
 
+# listed <tree> <path>: the record of <tree> has a size line for <path>.
+listed() {
+  awk -v p="$2" '$1 ~ /^[0-9]+$/ && $2 == p { found = 1 } END { exit !found }' "$1/tests/text_size.txt"
+}
+
 # sizes <tree>: each fault of <tree>/tests/text_size.txt against the texts of
 # <tree>, one per line. A line of the record is "<characters> <path>" or
 # "flow <name> <path>...", where each path has a line of its own.
-# listed <tree> <path>: the record of <tree> has a line for <path>.
-listed() {
-  awk -v p="$2" '$1 !~ /^#/ && $2 == p { found = 1 } END { exit !found }' "$1/tests/text_size.txt"
-}
-
 sizes() {
-  local tree=$1 record=$1/tests/text_size.txt size kind rest sum f path
+  local tree=$1 record=$1/tests/text_size.txt size kind rest chars f path
   [ -f "$record" ] || { echo 'tests/text_size.txt does not exist'; return; }
   while read -r size kind rest || [ -n "$size" ]; do
     case $size in '' | '#'*) continue ;; esac
@@ -39,9 +40,9 @@ sizes() {
     elif [ ! -f "$tree/$kind" ]; then
       echo "$kind has a line, but does not exist"
     else
-      sum=$(jq -Rs length "$tree/$kind")
-      [ "$sum" -eq "$size" ] ||
-        echo "$kind has $sum characters, and its line says $size"
+      chars=$(jq -Rs length "$tree/$kind")
+      [ "$chars" -eq "$size" ] ||
+        echo "$kind has $chars characters, and its line says $size"
     fi
   done <"$record"
   { echo "$tree/rules.md"; find "$tree/skills" -name '*.md' ! -name README.md | sort; } |
@@ -83,8 +84,10 @@ tree '6 rules.md' '8 skills/a/SKILL.md' '4 skills/a/side.md' '9 skills/a/gone.md
 check 'a line for a file that is gone, and a flow that names a file with no line' 'skills/a/gone.md has a line, but does not exist
 the flow all names skills/a/other.md, which has no line' "$(sizes "$tmp/t")"
 
-tree '6 rules.md' '8 skills/a/SKILL.md' '# 4 skills/a/side.md'
-check 'a side file whose line is a comment' 'skills/a/side.md has no line' "$(sizes "$tmp/t")"
+# Neither a commented line nor the name of a flow is the line of a path.
+tree '8 skills/a/SKILL.md' '#4 skills/a/side.md' 'flow rules.md skills/a/SKILL.md'
+check 'a comment and a flow name in the place of a size line' 'rules.md has no line
+skills/a/side.md has no line' "$(sizes "$tmp/t")"
 
 tree '6 rules.md' '8 skills/a/SKILL.md' '4 skills/a/side.md'
 mkdir "$tmp/t/skills/a/deep"
@@ -97,6 +100,6 @@ check 'a last line with no newline' 'skills/a/side.md has 4 characters, and its 
 
 faults=$(sizes "$root")
 [ -z "$faults" ] || fail 'tests/text_size.txt does not hold the texts' "$faults
-A text that changes gets its new number on its line, in the same pull request (ADR 0009)."
+A text that changes gets its new number on its line, in the same pull request (ADR 0010)."
 
 echo 'text_size_test: ok'

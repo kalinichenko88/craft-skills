@@ -68,9 +68,9 @@ which cannot grow; architecture left it with its split (#284).
 
 Bad: each sentence added to review-loop needs a cut in the same file until
 its split. The files beside `SKILL.md` and the text of a whole flow have no
-cap: each has a recorded size, which a change of the text changes in the
-same pull request (ADR 0009). The
-number moves when Claude Code changes its
+cap: each such file has a recorded size, which a change of the file
+changes in the same pull request, and a flow is a recorded list of its
+files (ADR 0009, ADR 0010). The number moves when Claude Code changes its
 budget or its count of a token.
 
 ## Invariants

@@ -36,7 +36,7 @@ as `LICENSE` and `data.ere`. The text of a skill is the product, but no
 `Check:` line sees it: an invariant on it is review only.
 `tests/rules_test.sh` checks the size of each `SKILL.md` (ADR 0006) and a
 few of its sentences, and `tests/text_size_test.sh` fails on a text whose
-size is not its recorded size (ADR 0009).
+size is not its recorded size (ADR 0009, ADR 0010).
 
 ## Codemap
 
@@ -259,13 +259,13 @@ hold 10. A new number needs an ADR.
   `tests/rules_test.sh` checks it, with a debt list of the files over the
   cap, each at its size there (ADR 0006). ADR 0009 holds the rule that
   admits a sentence for a case into the text of a skill, and the size
-  targets of a `SKILL.md`, a side file, a flow and `rules.md`: review
+  targets of a `SKILL.md`, a side file and `rules.md`: review
   only. `rules.md`, each `SKILL.md` and each side file
   have a recorded size in `tests/text_size.txt`, which also names the files
   of the take-in flow,
   and `tests/text_size_test.sh` fails on one whose size is not that number,
   until the same pull request changes its line: a text that shrinks changes
-  it too, so that a later growth shows in a diff. Pictures are WebP, since the
+  it too, so that a later growth shows in a diff (ADR 0010). Pictures are WebP, since the
   plugin installs as a copy of the repository.
 - **Safety.** No step of the debt and architecture skills runs the code of
   the project it reads. Nothing from a private source goes into a public
@@ -291,4 +291,5 @@ status of an ADR that is not accepted, or that a later one narrows.
 - [0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps](adr/0006-skill-text-within-the-compaction-budget.md) — narrowed by 0009
 - [0007 CI runs the text eval on each scenario row whose skill files a pull request changes](adr/0007-text-eval-in-ci.md)
 - [0008 The flows are specified as host-neutral scenarios, and a run is checked by the words that the person reads](adr/0008-scenarios-read-narration-as-messages.md)
-- [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md)
+- [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md) — narrowed by 0010
+- [0010 The recorded size of a text is its exact size, and a flow is a list of files](adr/0010-recorded-size-is-exact.md)
