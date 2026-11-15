@@ -256,7 +256,10 @@ hold 10. A new number needs an ADR.
   "below" (ADR 0004): review only. Each `skills/*/SKILL.md` stays at most
   20,000 characters, what Claude Code keeps of a skill after a compaction;
   `tests/rules_test.sh` checks it, with a debt list of the files over the
-  cap, each at its size there (ADR 0006). Pictures are WebP, since the
+  cap, each at its size there (ADR 0006). ADR 0009 holds the rule that
+  admits a sentence for a case into the text of a skill, and the size
+  targets of a `SKILL.md`, a side file, a flow and `rules.md`; no check
+  holds them yet (#412). Pictures are WebP, since the
   plugin installs as a copy of the repository.
 - **Safety.** No step of the debt and architecture skills runs the code of
   the project it reads. Nothing from a private source goes into a public
@@ -272,13 +275,14 @@ hold 10. A new number needs an ADR.
 ## ADRs
 
 An ADR goes in `docs/adr/NNNN-title.md` and on this list. A line names the
-status of an ADR that is not accepted.
+status of an ADR that is not accepted, or that a later one narrows.
 
 - [0001 Each script prints its usage from its header](adr/0001-usage-from-the-header.md)
 - [0002 The plugin is named craft](adr/0002-plugin-name-craft.md)
 - [0003 The flows are specified as host-neutral scenarios in scenarios/](adr/0003-host-neutral-scenarios.md) — superseded by 0008
 - [0004 rules.md reaches the session in two hook outputs](adr/0004-rules-in-two-hook-outputs.md)
 - [0005 A pinned tool prints the import graph for the architecture checks](adr/0005-import-graph-from-a-pinned-tool.md) — rejected
-- [0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps](adr/0006-skill-text-within-the-compaction-budget.md)
+- [0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps](adr/0006-skill-text-within-the-compaction-budget.md) — narrowed by 0009
 - [0007 CI runs the text eval on each scenario row whose skill files a pull request changes](adr/0007-text-eval-in-ci.md)
 - [0008 The flows are specified as host-neutral scenarios, and a run is checked by the words that the person reads](adr/0008-scenarios-read-narration-as-messages.md)
+- [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md)

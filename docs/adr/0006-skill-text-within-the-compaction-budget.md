@@ -1,6 +1,6 @@
 # 0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps
 
-- Status: accepted
+- Status: accepted, narrowed by 0009
 - Date: 2026-11-09
 
 ## Updates
