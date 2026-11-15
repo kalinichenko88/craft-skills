@@ -91,19 +91,22 @@ bad=$(jq -nrR --slurpfile rules "$root/.claude/skills/sessions/scripts/rules.jso
 # of a call of an earlier message: the github load, take-in.md by Read,
 # filing.md through a variable that holds the skills folder before
 # add-finding.sh, merge.md by an awk with > in its program, from a checkout
-# under another skills folder, before a gh --repo=<repo> merge, the
-# conventions loaded or read as the architecture lens does, and review-loop.
+# under another skills folder, before a gh --repo=<repo> merge,
+# typescript-conventions loaded, react-conventions by a sed into grep -i,
+# and review-loop.
 # Its first gh write is older than the days, and its first take-in-check.sh
 # comes before the github SKILL.md that states its rule, so the next ones
 # count. r2 has each first moment before the text, or the text in another
 # file, in the same call or only in a grep or a write: a code-reviewer
 # subagent, gh pr create after a read of another github skill, take-in.md
-# read in the call of the check, tracker.md, a grep, a sed -i and pipelines
-# into wc and into a file for filing.md, c.ts before the load and use-cart.ts with no react-conventions.
+# read in the call of the check, tracker.md, and for filing.md a grep, a
+# sed -i, pipelines into wc, a file and head -0, a $(...) and an awk that
+# prints only names, c.ts before the load and use-cart.ts with no react-conventions.
 # Its github SKILL.md names no merge.md, so its merge is no moment. Its
 # subagent has a TypeScript edit after the load, and a gh api write with a
 # field before the github load; a review and a gh call in a subagent are no
-# moment. r3 loads github in the message of a gh read, a moment of the gh
+# moment. r3 reads with gh api --hostname <host> graphql, which is no
+# write, then loads github in the message of a gh read, a moment of the gh
 # call only, then reads merge.md in the message of a gh -R merge: each
 # result comes before the next call, as in Claude Code. n1 has moments but
 # no rules.md.

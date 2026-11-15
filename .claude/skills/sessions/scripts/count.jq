@@ -50,11 +50,13 @@ def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . els
 # variable takes its value from an assignment before it in the call, and a
 # relative path takes the folder of a cd before it. Then each command, in
 # cmds, and the .md files of skills that a command shows whole or in part, in
-# reads: not grep, and not a command with -i, or with a > outside its quotes
-# that does not follow a digit or &, as 2> does. A pipeline shows the output
-# of its last command, so its reads count only when that command is no count
-# as wc and sends no output to a file. A gh -R <repo> before its command, as
-# pr or issue, is gh.
+# reads: not grep, not sed -i, not an awk that prints no line or field of the
+# file, and not a command with a > outside its quotes that does not follow a
+# digit or &, as 2> does. A pipeline shows the output of its last command, so
+# its reads count only when that command is no count, as wc, head -0 or a
+# jq length, and sends no output to a file; and not in $(...), whose output
+# a variable or a command takes. A gh -R <repo> before its command, as pr or
+# issue, is gh, and a gh api --hostname <host> is gh api.
 # ponytail: a variable that $(...) sets stays empty, so f=$(ls <skill>/x.md);
 # cat "$f" is no read: 4 of 2,645 calls on 2026-11-09. Resolve it when it
 # grows.
@@ -68,18 +70,21 @@ def commands:
       elif $q | test("^(done|fi|esac)?(\\s*[0-9]*[<>]+&?\\s*[^\\s;&|]*)*\\s*(#.*)?$") then .
       else
         ($q | sub("^([A-Za-z_][A-Za-z0-9_]*=(\\S*|'[^']*'|\"[^\"]*\")\\s+|timeout\\s+\\S+\\s+|xargs(\\s+-\\S+)*\\s+)*"; "")
-          | sub("^gh\\s+(-R|--repo)(=|\\s+)\\S+"; "gh")) as $q
+          | sub("^gh\\s+(-R|--repo)(=|\\s+)\\S+"; "gh") | sub("^gh\\s+api\\s+--hostname(=|\\s+)\\S+"; "gh api")) as $q
         | (($q | capture("^(bash(\\s+-[A-Za-z]+)*\\s+)?[\"']?(?<p>[^\\s\"']*scripts/[a-z-]+[.]sh)\\b") | .p | resolve($d)) // null) as $r
         | (if $q | test("^(cat|sed|head|tail|grep|awk)\\s") then [$q | scan("[^\\s\"'=]*[.]md\\b") | resolve($d)] else [] end) as $m
-        | ($q | gsub("'[^']*'|\"[^\"]*\""; "") | test("\\s-i\\b|(^|[^0-9&])>")) as $writes
+        | ($q | gsub("'[^']*'|\"[^\"]*\""; "")) as $bare
+        | (($bare | test("(^|[^0-9&])>")) or (($q | test("^sed\\s")) and ($bare | test("\\s(-[A-Za-z]*i|--in-place)\\b")))) as $writes
+        | ($q | test("^awk\\s") and ([scan("'[^']*'|\"[^\"]*\"")] | first // "" | test("[{]") and (test("print(f)?\\s*($|[;}(]|[^;}]*[$])") | not))) as $blind
         | .cmds += [$q]
-        | .pipe += (if ($q | test("^grep\\s")) or $writes then [] else [$m[] | capture(file) | .skill + "/" + .rest] end)
-        | .drop = ($writes or ($q | test("^(wc|cksum|md5|md5sum|sha[0-9]*sum|shasum)\\b")))
+        | .pipe += (if ($q | test("^grep\\s")) or $writes or $blind then [] else [$m[] | capture(file) | .skill + "/" + .rest] end)
+        | .drop = ($writes or ($q | test("^(wc|cksum|md5|md5sum|sha[0-9]*sum|shasum)\\b|^head\\s+(-n\\s*)?-?0\\b|^jq\\s.*\\blength['\"]?\\s*$")))
         | if $r and ($r | test(skill + "/scripts/[a-z-]+[.]sh$")) then
             .run = [($r | capture(skill).skill), ($r | sub(".*/"; ""))]
           else .run = null | .read //= ([$m[] | capture(skill).skill] | first) end
       end
-    | if $p.sep == "|" then . else (if .drop then . else .reads += .pipe end) | .pipe = [] | .drop = false end);
+    | if $p.sep == "|" then .
+      else (if .drop or $p.sep == ")" or $p.sep == "`" then . else .reads += .pipe end) | .pipe = [] | .drop = false end);
 
 input_filename as $f
 | if .type == "system" and .subtype == "compact_boundary" then [$f, "compact"]

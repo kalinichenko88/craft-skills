@@ -26,8 +26,8 @@ github before a gh write	bash	gh workflow disable check.yml	1
 github before a gh write	bash	gh variable set X --body y	1
 github before a gh write	bash	gh repo delete o/r --yes	1
 github before a gh write	bash	gh api repos/o/r/labels --raw-field=name=x	1
-github before a gh write	bash	gh api --hostname github.com graphql -f query='{ repository(owner: "o") { name } }'	0
-github before a gh write	bash	gh api --hostname github.com graphql -f query='mutation { x }'	1
+github before a gh write	bash	gh api repos/o/r/issues/1/comments -f body='the graphql query fails'	1
+github before a gh write	bash	gh api --paginate graphql -f query='mutation { x }'	1
 github before a gh call	bash	gh pr view 3	1
 github before a gh call	bash	git commit -m x	0
 typescript-conventions before a TypeScript edit	edit	/p/src/a.mts	1

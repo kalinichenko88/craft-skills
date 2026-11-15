@@ -46,8 +46,10 @@ correct result, so a script makes them, and no model reads a transcript.
    read of all or part of the file whose result came before the call of
    the moment: by `Read`, or by `cat`, `sed`, `head`, `tail` or `awk` when
    it shows the file, not with `sed -i` and not with its output sent to a
-   file by `>`; not by a `grep` that reads the file. In a pipeline, the last
-   command decides: none into `wc` or into a file. A read or a load in the
+   file by `>`; not by a `grep` that reads the file, nor by an `awk` that
+   prints no line or field of it. In a pipeline, the last command decides:
+   none into a count, as `wc`, `head -0` or a checksum, or into a file, and
+   none in `$(...)`, whose output a variable takes. A read or a load in the
    same call or the same message of the model as the moment comes after it,
    since the model writes every call of a message first. The file can be in
    the plugin cache or in a checkout, not in a folder `claude/skills`, where
