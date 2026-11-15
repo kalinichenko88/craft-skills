@@ -68,7 +68,8 @@ which cannot grow; architecture left it with its split (#284).
 
 Bad: each sentence added to review-loop needs a cut in the same file until
 its split. The files beside `SKILL.md` and the text of a whole flow have no
-cap: each has a recorded size that it must not grow past (ADR 0009). The
+cap: each has a recorded size, which a change of the text changes in the
+same pull request (ADR 0009). The
 number moves when Claude Code changes its
 budget or its count of a token.
 

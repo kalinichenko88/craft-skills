@@ -2,8 +2,8 @@
 # as `jq -Rs length` counts them (ADR 0009). tests/text_size_test.sh fails on
 # a text whose size is not its number: a pull request that changes a text
 # changes its line, so the review sees each growth.
-# A line is "<characters> <path>", or "<characters> flow <name> <path>...",
-# the sum of the files that one flow reads. The take-in flow is the five
+# A line is "<characters> <path>", or "flow <name> <path>...", the files
+# that one flow reads: its size is the sum of their lines. The take-in flow is the five
 # files that one take-in puts into the context of the session (#275), the
 # rules and the review among them. More flows come with their maps (#415).
 11672 rules.md
@@ -32,4 +32,4 @@
 12426 skills/roadmap/SKILL.md
 10239 skills/roadmap/triage.md
 11970 skills/typescript-conventions/SKILL.md
-81121 flow take-in rules.md skills/github/SKILL.md skills/github/take-in.md skills/github/tracker.md skills/review-loop/SKILL.md
+flow take-in rules.md skills/github/SKILL.md skills/github/take-in.md skills/github/tracker.md skills/review-loop/SKILL.md

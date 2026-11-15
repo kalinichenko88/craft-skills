@@ -260,8 +260,9 @@ hold 10. A new number needs an ADR.
   cap, each at its size there (ADR 0006). ADR 0009 holds the rule that
   admits a sentence for a case into the text of a skill, and the size
   targets of a `SKILL.md`, a side file, a flow and `rules.md`: review
-  only. `rules.md`, each `SKILL.md`, each side file and the take-in flow
-  have a recorded size in `tests/text_size.txt`,
+  only. `rules.md`, each `SKILL.md` and each side file
+  have a recorded size in `tests/text_size.txt`, which also names the files
+  of the take-in flow,
   and `tests/text_size_test.sh` fails on one whose size is not that number,
   until the same pull request changes its line: a text that shrinks changes
   it too, so that a later growth shows in a diff. Pictures are WebP, since the

@@ -14,8 +14,9 @@ starts with its own heading, and runs under each event from
 20,000 characters, the text that Claude Code keeps of a skill after a
 compaction (ADR 0006): a file on the test's debt list must not grow past its
 size there. `tests/text_size.txt` records the size of `rules.md`, of each
-`SKILL.md`, of each other `.md` file under `skills/` except a `README.md`, and of the
-files that a take-in reads together. `make check` fails on a text whose
+`SKILL.md` and of each other `.md` file under `skills/` except a
+`README.md`, and names the files that a take-in reads together.
+`make check` fails on a text whose
 size is not its number (ADR 0009): when you change a text, put the number
 that the failure prints on its line in the same pull request, and give a new
 `.md` file of a skill a line. It checks that a checkout with `core.autocrlf=true`, the
