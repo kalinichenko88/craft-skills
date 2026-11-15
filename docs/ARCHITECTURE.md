@@ -78,8 +78,11 @@ size is not its recorded size (ADR 0009, ADR 0010).
 - `.claude/skills/` — `release`, `infographic` and `sessions`: skills of this
   repository, not of the plugin.
 - `.claude/CLAUDE.md`, `AGENTS.md` — the instructions for an agent that
-  works in this repository. No host loads them from the installed plugin:
-  its users get `rules.md`.
+  works in this repository. `.claude/rules/` — the rules for an edit of the
+  text of a skill, of a scenario or of an eval: Claude Code loads one when
+  the agent reads a file that its `paths` match, and `AGENTS.md` sends
+  Codex to them. No host loads them from the installed plugin: its users
+  get `rules.md`.
 - `.claude-plugin/`, `.codex-plugin/` — the manifests. `Makefile` — `check:
   lint invariants test`. `.github/workflows/check.yml` — CI.
 
