@@ -47,7 +47,8 @@ def resolve($dir): sub("^[.]/"; "") | if test("^[/~$]") or $dir == "" then . els
 # variable takes its value from an assignment before it in the call, and a
 # relative path takes the folder of a cd before it. And each command, with
 # the .md files of skills that it reads, in cmds: so a read and a moment of
-# one call keep their order. A gh -R <repo> before its group is gh.
+# one call keep their order. A gh -R <repo> before its command, as pr or
+# issue, is gh.
 # ponytail: a variable that $(...) sets stays empty, so f=$(ls <skill>/x.md);
 # cat "$f" is no read: 4 of 2,645 calls on 2026-11-09. Resolve it when it
 # grows.

@@ -78,7 +78,8 @@ actual=$(PATH="$tmp/bin:$PATH" bash "$count" 14 "$tmp/projects") || true
 
 # The rules. r1 has each rule's text before its first moment: the github
 # load, take-in.md by Read, filing.md through a variable that holds the
-# skills folder, merge.md from a checkout under another skills folder, the
+# skills folder before add-finding.sh, merge.md from a checkout under another
+# skills folder before a gh --repo=<repo> merge, the
 # conventions loaded or read as the architecture lens does, and review-loop.
 # Its first gh write is older than the days, so the next one counts; a gh
 # read before the load is a moment of the gh call only. r2 has each first

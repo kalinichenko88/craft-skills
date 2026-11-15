@@ -308,10 +308,11 @@ in `.claude/skills/` and does not ship with the plugin.
 computer: for each skill, the characters of its text in the context, its
 loads, the compactions after them, and the failed calls of its scripts; and
 for each rule of `.claude/skills/sessions/scripts/rules.json`, the share of
-the contexts where its text came before its first moment. Run it before you decide on the size
-of a skill or on a rule's text, or instead of a count by hand from the
-transcripts. It lives in `.claude/skills/` too. Its output stays on
-the computer: a finding reaches the tracker only as its shape and its counts.
+the contexts where its text came before its first moment. Run it before you
+decide on the size of a skill or on a rule's text, or instead of a count by
+hand from the transcripts. It lives in `.claude/skills/` too. Its output
+stays on the computer: a finding reaches the tracker only as its shape and
+its counts.
 
 ## Release
 

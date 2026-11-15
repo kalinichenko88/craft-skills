@@ -49,8 +49,9 @@ correct result, so a script makes them, and no model reads a transcript.
    a skill of the same name is another one. `share` is `kept` of
    `contexts`, and `-` with no moment. The next three columns count the
    subagents the same way. A rule with `main` has no moment there: a
-   read-only subagent loads no skill for a review or a `gh` call, and a
-   transcript does not show which subagent is read-only.
+   read-only subagent does not load review-loop for a review or github for
+   a `gh` call, and the type of a subagent does not show that it is
+   read-only, as a review runs as `general-purpose`.
 3. **Read it.** About 3 characters are one token of the model.
    `tests/rules_test.sh` caps each `skills/*/SKILL.md` at 20,000 characters
    (ADR 0006), with a debt list of the files over it. A failed call is a
