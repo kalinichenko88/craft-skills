@@ -62,13 +62,13 @@ $url\n|$url
 #133\r\n|133
 EOF
 
-# A quote or a backslash in the title must leave the JSON valid. A tab, a
-# newline or a carriage return, the control characters that gh keeps in a
-# title, becomes a space.
-jq '.title = "a \"b\" \\ c\td\ne\rf"' "$fixtures/issue.json" >"$tmp/issue.json"
+# A quote or a backslash in the title must leave the JSON valid. A control
+# character becomes a space: a tab, a newline and a carriage return, which gh
+# keeps in a title, and NEL, a C1 one.
+jq '.title = "a \"b\" \\ c\td\ne\rf\u0085g"' "$fixtures/issue.json" >"$tmp/issue.json"
 out=$(run claude-prompt.json '#133') || fail "escape: exit $?"
-check 'escape: the title' '#133 a "b" \ c d e f' "$(field sessionTitle)"
-check 'escape: the notice' '#133 a "b" \ c d e f' "$(jq -r .systemMessage <<<"$out")"
+check 'escape: the title' '#133 a "b" \ c d e f g' "$(field sessionTitle)"
+check 'escape: the notice' '#133 a "b" \ c d e f g' "$(jq -r .systemMessage <<<"$out")"
 
 # The name keeps the number and the first part of the title whole up to 50
 # characters, and cuts a longer part at a word end to 40. Each line is the

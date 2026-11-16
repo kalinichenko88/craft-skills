@@ -35,8 +35,9 @@ FAIL.
 - The agent cannot choose the words of a narration: the API writes them. A
   rule in the text of the skill cannot make the title reach the person.
 - A message that ends a turn is never a narration: 0 of 3,865 in the
-  sessions of Opus of the last 10 days of those transcripts. But a gist that ends the turn makes each take-in wait for the
-  person's answer before its work.
+  sessions of Opus of the last 10 days of those transcripts. But a gist
+  that ends the turn makes each take-in wait for the person's answer
+  before its work.
 - The `systemMessage` of a `UserPromptSubmit` hook reaches the person
   (https://code.claude.com/docs/en/hooks). In a run of `claude -p` of Claude
   Code 2.1.325, it reached stream-json as a `system` event of the subtype

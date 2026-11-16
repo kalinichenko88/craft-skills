@@ -45,8 +45,8 @@ got=$("$eval" --check "$tmp/old" 2>/dev/null)
 # A stub claude records its arguments and starts session s1. A first session
 # gives the notice of a hook, thinks, then asks whether the work runs
 # somewhere else, in a thinking block that narration_block_indexes names, as
-# Claude Code gives a message before a tool call (ADR 0008), and costs $1.50; a resumed one says that it stops, in
-# a text block, and gives $2.50, the cost of both of its messages. A folder
+# Claude Code gives a message before a tool call (ADR 0008), and costs $1.50;
+# a resumed one says that it stops, in a text block, and gives $2.50, the cost of both of its messages. A folder
 # that cannot run it, or a claude function, would leave the real claude in its
 # place.
 mkdir "$tmp/stub"

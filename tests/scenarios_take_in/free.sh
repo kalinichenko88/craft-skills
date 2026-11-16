@@ -26,6 +26,16 @@ free_copies() {
   { printf '%s\n' "$notice" $'text\tOn it: #91.'; cat "$fixtures/free.events"; } >"$tmp/$n/free.events"
   stays
 
+  # The notice after the first message about #91.
+  copy free
+  add free "$notice"
+  stays
+
+  # A notice with the title of another task.
+  copy free
+  first free $'notice\tUserPromptSubmit says: #95 Installing shop by the README leaves the app without the module'
+  stays
+
   # A think line before the first message about #91: the log cannot show
   # whether the person read it.
   copy free
