@@ -73,10 +73,11 @@ time.
   stops it too. Merge all the same, after a check that failed, was
   cancelled or still runs, is a plain merge: it adds `--admin` or `--auto`
   only when you name that flag. After a stop at round 3, more rounds is one
-  more answer. When `gh` older than 2.99 merges in the worktree and then
-  exits with an error, the agent reads the state of the PR, and deletes the
-  remote branch itself. Clean up removes the worktree and the local branch
-  after the merge, when nothing in them would be lost.
+  more answer. With `gh` older than 2.99, a merge in the worktree can go
+  through and still exit with an error: the agent reads the state of the PR,
+  and deletes the remote branch itself only after a merge. Clean up removes
+  the worktree and the local branch after the merge, when nothing in them
+  would be lost, also the worktree that such a `gh` left on the base branch.
   Only the merge and the open questions on business logic wait for you, and
   after the merge, the drafts for the plugin's tracker.
 - **A task finishes with a true tracker.** The PR and every issue it closes are

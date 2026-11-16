@@ -51,13 +51,14 @@ session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what
 Codex, give `<path>` as the `workdir`. When the command prints nothing, no
 checkout holds the branch, and any directory will do. In the branch's linked
 worktree, `gh` 2.99 and later keeps the worktree and the local branch, and
-*Cleanup* decides on them. An older `gh` checks out the base branch there
-after the merge: it can exit 1 with the merge done, as when another checkout
-holds the base branch, and else it deletes the local branch too. So when
-`gh pr merge` exits with an error, read `gh pr view <PR> --json state` first:
-`MERGED` means that the merge succeeded. Then, when
-`git ls-remote --heads origin refs/heads/<branch>` still prints the branch,
-delete it with `git push origin --delete <branch>`.
+*Cleanup* decides on them. An older `gh` checks out the base branch in that
+worktree after the merge, and deletes both branches only when that works:
+the worktree then stays on the base branch. Else it exits 1, as when another
+checkout holds the base branch, and keeps both branches. So when
+`gh pr merge` exits with an error, read `gh pr view <PR> --json state`: any
+state but `MERGED` is a merge that failed. With `MERGED`, the merge
+succeeded, and when `git ls-remote --heads origin refs/heads/<branch>` still
+prints the branch, delete it with `git push origin --delete <branch>`.
 
 **Finishing.** An issue goes stale the moment the code moves under it, and
 GitHub does not notice: nothing corrects its text. So the PR closes the task,
@@ -126,8 +127,11 @@ of `gh` 2.99 and later deletes only the remote branch: it prints
 another checkout, `gh` 2.103 removes that worktree with `git worktree remove`
 and the local branch with `git branch -D`. `gh` does not list the ignored files
 or check the branch head, and when the removal succeeds, it prints nothing
-without a TTY. That is why the merge runs in the worktree. When the branch has no linked worktree,
-`gh` deletes the local branch itself, and nothing is left to clean up.
+without a TTY. That is why the merge runs in the worktree. When no linked
+worktree held the branch before the merge, `gh` deletes the local branch
+itself, and nothing is left to clean up. A worktree that held it is the
+`<path>` of the merge, also when an older `gh` deleted the branch: remove it
+as below.
 
 First leave the worktree, the way the session came in. In Claude Code, a
 session that `EnterWorktree` moved there leaves with `ExitWorktree` and
