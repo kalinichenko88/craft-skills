@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Names a Claude Code session after the issue that it takes in: when the prompt
 # is only an issue, as #91 or its github.com URL, the title becomes
-# "#91 <a short form of the issue title>".
+# "#91 <a short form of the issue title>". It also shows the person a notice
+# with the number and the whole title: Claude Code can give the agent's first
+# message about the issue in other words, with no number and no title.
 # Codex marks a hook run as failed when its output has a field that Codex does
 # not know, as sessionTitle. So the hook prints only for a Claude Code input:
 # prompt_id, which Claude Code sends, and no turn_id, which only Codex sends.
@@ -34,8 +36,9 @@ short='"#\(.number) " as $n | (40 - ($n | length)) as $max
       | sub("( (a|an|and|at|by|for|from|in|of|on|or|the|to|with))+$"; "")
     else . end | sub(" *\\([^)]*$"; "")
   | if ([match("\""; "g")] | length) % 2 == 1 then sub(" *\"[^\"]*$"; "") else . end)'
-title=$(gh issue view "$issue" --json number,title --jq "$short" 2>/dev/null) || exit 0
-title=${title//[[:cntrl:]]/ }
-title=${title//\\/\\\\}
-title=${title//\"/\\\"}
-printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","sessionTitle":"%s"}}\n' "$title"
+# One line each: the short form, then the whole title. A GitHub title holds
+# no newline.
+both=$(gh issue view "$issue" --json number,title --jq "($short), \"#\(.number) \(.title)\"" 2>/dev/null) || exit 0
+json() { local s=${1//[[:cntrl:]]/ }; s=${s//\\/\\\\}; printf '%s' "${s//\"/\\\"}"; }
+printf '{"systemMessage":"%s","hookSpecificOutput":{"hookEventName":"UserPromptSubmit","sessionTitle":"%s"}}\n' \
+  "$(json "${both#*$'\n'}")" "$(json "${both%%$'\n'*}")"

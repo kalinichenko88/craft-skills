@@ -19,7 +19,8 @@ start of each session and each subagent, in two parts split at its marker
 line (ADR 0004). An `Explore` subagent of Claude Code gets none (PDR 0012).
 In Claude Code,
 `hooks/session-title.sh` names the session after an issue when the prompt
-is the issue alone. A skill loads when its
+is the issue alone, and shows the person the issue's number and title
+(PDR 0014). A skill loads when its
 `description` matches the moment. The plugin installs as a copy of the whole
 repository.
 
@@ -43,7 +44,7 @@ size is not its recorded size (ADR 0009, ADR 0010).
 
 - `rules.md` — the base prompt. `hooks/rules.sh` and `hooks/hooks.json`
   inject it. `hooks/session-title.sh` names a Claude Code session after an
-  issue.
+  issue, and shows the person its number and title.
 - `skills/<name>/` — one skill: `SKILL.md`, `README.md`, its other `.md`
   files, and `scripts/`.
 - `scenarios/` — what the flows do, as seen from outside, with no word of an

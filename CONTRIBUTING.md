@@ -206,8 +206,9 @@ of Haiku with no tools, on the text "#91", which the run sees through
 `ListAgents`. It checks each Then and Never
 item of the scenarios against the tracker, the branches, the workspace, and
 the session's messages and tool calls, and prints PASS, FAIL or SKIP for
-each. A message is a text block, or a thinking block that Claude Code marks
-as a narration, in the words that the person reads; SKIP where only other
+each. A message is a text block, a thinking block that Claude Code marks
+as a narration, or the notice of a hook, in the words that the person
+reads; SKIP where only other
 thinking comes before the message (ADR 0008). `--runs k`
 runs each case k times, and a case passes pass^k only when no item fails in
 any of its k runs. `--model` sets the model, Opus by default. The report

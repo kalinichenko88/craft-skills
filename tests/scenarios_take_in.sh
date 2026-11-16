@@ -169,7 +169,8 @@ snapshot() {
 
 # check <dir> <case>: one line for each item, PASS, FAIL or SKIP, with the scenario.
 # The gist is the first message that names #91, its title or its typo (a
-# narration can drop the id and title, ADR 0008), when it holds the title. A
+# narration can drop the id and title, ADR 0008), when it holds the title:
+# with a prompt that is #91 alone, the notice of hooks/session-title.sh. A
 # think line before it, or before a change with no such message, gives SKIP.
 # "The run waits" and "the run stops" have the same check, "no change": one
 # run cannot show the difference (scenarios/README.md), so a run that stops

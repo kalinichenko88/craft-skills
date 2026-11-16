@@ -172,8 +172,9 @@ not.
 
 The hooks are plain bash. The four that inject the rules, two parts of
 `rules.md` at the start of a session and of a subagent, have no other
-dependency. For an `Explore` subagent of Claude Code they print nothing. The fifth names a Claude Code session after an issue: it calls
-`gh`, and in Codex it does nothing.
+dependency. For an `Explore` subagent of Claude Code they print nothing. The fifth names a Claude Code session after an issue,
+and shows you the issue's number and title: it calls `gh`, and in Codex it
+does nothing.
 
 ## Update
 
