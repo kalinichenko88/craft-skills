@@ -106,12 +106,12 @@ of a size check, add a decision with its new size and the check's limit, also
 when the description does not give them.
 
 Check each citation that moved or is gone, and each sentence that the scout
-gives as false. Correct each one in the body, and leave a one-line comment
-that says what moved and why: a body edit notifies nobody. The body says what
-was decided and in which PR, and a false title is rewritten too. A host's
-title still names every problem in it. A problem
-marked `Done in #<PR>.` needs no other correction, and an issue with a problem
-left in it stays open. A question that the PR answered is marked answered. A
+gives as false. Correct each one in the body of its own issue, with no new
+issue, and leave a one-line comment that says what moved and why: a body edit
+notifies nobody. The body says what was decided and in which PR, and a false
+title is rewritten too. A host's title still names every problem in it. A
+problem marked `Done in #<PR>.` needs no other correction, and an issue with
+a problem left in it stays open. A question that the PR answered is marked answered. A
 proposal that it ruled out is rewritten. An issue whose premise is gone closes
 with a comment that names the PR. A busy issue (`tracker.md`) gets only the
 one-line comment and stays open, and the final report names it. The limit of
