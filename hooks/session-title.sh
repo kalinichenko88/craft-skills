@@ -36,9 +36,8 @@ short='"#\(.number) " as $n | (40 - ($n | length)) as $max
       | sub("( (a|an|and|at|by|for|from|in|of|on|or|the|to|with))+$"; "")
     else . end | sub(" *\\([^)]*$"; "")
   | if ([match("\""; "g")] | length) % 2 == 1 then sub(" *\"[^\"]*$"; "") else . end)'
-# A control character becomes a space: anybody can write the title of an
-# issue of a public tracker, and an escape sequence in it would reach the
-# terminal.
+# A control character that gh keeps, as a tab or a newline, becomes a space.
+# gh 2.104.0 writes each other one as caret text, as ^[ for ESC.
 gh issue view "$issue" --json number,title --jq ".title |= gsub(\"[[:cntrl:]]\"; \" \")
   | {systemMessage: \"#\(.number) \(.title)\",
     hookSpecificOutput: {hookEventName: \"UserPromptSubmit\", sessionTitle: ($short)}} | tojson" 2>/dev/null || exit 0

@@ -62,13 +62,13 @@ $url\n|$url
 #133\r\n|133
 EOF
 
-# A quote, a backslash or a tab in the title must leave the JSON valid. A
-# control character, as ESC or BEL, which anybody can put into the title of
-# an issue of a public tracker, reaches neither the terminal nor the notice.
-jq '.title = "a \"b\" \\ c\td\u001b[31me\u0007f"' "$fixtures/issue.json" >"$tmp/issue.json"
+# A quote or a backslash in the title must leave the JSON valid. A tab, a
+# newline or a carriage return, the control characters that gh keeps in a
+# title, becomes a space.
+jq '.title = "a \"b\" \\ c\td\ne\rf"' "$fixtures/issue.json" >"$tmp/issue.json"
 out=$(run claude-prompt.json '#133') || fail "escape: exit $?"
-check 'escape: the title' '#133 a "b" \ c d [31me f' "$(field sessionTitle)"
-check 'escape: the notice' '#133 a "b" \ c d [31me f' "$(jq -r .systemMessage <<<"$out")"
+check 'escape: the title' '#133 a "b" \ c d e f' "$(field sessionTitle)"
+check 'escape: the notice' '#133 a "b" \ c d e f' "$(jq -r .systemMessage <<<"$out")"
 
 # The name keeps the number and the first part of the title whole up to 50
 # characters, and cuts a longer part at a word end to 40. Each line is the
