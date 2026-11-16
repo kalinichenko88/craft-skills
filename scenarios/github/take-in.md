@@ -463,13 +463,12 @@ Given:
 When: the person writes "#91"
 Then:
 - the person is told that the text of #91 could not be read, with its error
-- that message comes before any change to the tracker or the workspace
-- #91 is assigned to the person
-- #91 has the label `in progress`
-- a branch for #91 is made from the default branch
-- that branch is linked to #91
+- the run stops
 Never:
 - the person is told a gist of #91 that the run did not read
+- the assignees of #91 change
+- #91 gets the label `in progress`
+- a branch for #91 is created
 
 ## An earlier run works on the task in another conversation
 

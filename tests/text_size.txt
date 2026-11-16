@@ -17,7 +17,7 @@
 8824 skills/github/merge.md
 11486 skills/github/scout.md
 11261 skills/github/SKILL.md
-18318 skills/github/take-in.md
+18362 skills/github/take-in.md
 6377 skills/github/tracker.md
 4717 skills/product/reader.md
 11735 skills/product/SKILL.md
