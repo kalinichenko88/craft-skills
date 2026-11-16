@@ -210,7 +210,8 @@ each. A message is a text block, or a thinking block that Claude Code marks
 as a narration, in the words that the person reads; SKIP where only other
 thinking comes before the message (ADR 0008). The notice of a hook is a
 line of its own: the gist items take the title of #91 from it, and still
-need a message that names the defect of #91 (PDR 0014). `--runs k`
+need a message with the words of the defect from the body of #91
+(PDR 0014). `--runs k`
 runs each case k times, and a case passes pass^k only when no item fails in
 any of its k runs. `--model` sets the model, Opus by default. The report
 ends with the cost of the pass, and `--max-cost` stops the eval before a
