@@ -1,4 +1,4 @@
-# 0013 A review finding that the text of a skill does not name a case is declined until a run shows the failure
+# 0013 A review finding whose only proof is a case that the text of a skill does not name is declined until a run shows the failure
 
 - Status: accepted
 - Level: feature
@@ -13,8 +13,9 @@ is data loss or a security hole. The finding gets no edit and starts no
 round: it goes to the **Declined** line of the summary with "no failing
 run" as its reason. The loop makes no run for it. A finding with other
 proof, as a false fact, a conflict between two rules or a command that
-fails, is judged as before. The review of text still reports such a case: the loop declines
-it, and the **Declined** line of the pull request records it. The 10 runs
+fails, is judged as before. The review of text still reports such a case:
+the loop declines it, and the **Declined** line of the pull request
+records it. The 10 runs
 and the 3 of 10 of ADR 0009 stay with each edit of this repository's own
 texts, inside the loop too.
 
@@ -22,7 +23,8 @@ texts, inside the loop too.
 
 - `tests/review_loop_text_eval.sh 10 case` on the text before #417: 9 of
   10 Opus sessions added the case to the skill with no run of a model,
-  each at about $0.36. On the text of #417: 0 of 10. With a note that a
+  each at about $0.36. On the text that #417 merges (`0ea7cd8`): 0 of 10,
+  and none started a run of `claude`, at about $0.29. With a note that a
   session wrote wrong on the case as the evidence (`seen`), 5 of 5 added
   the case on both texts, and a wrong path (`fact`) was fixed in 5 of 5 on
   both.
