@@ -1,4 +1,4 @@
-# 0013 A review finding whose only proof is a case that the text of a skill does not name is declined until a run shows the failure
+# 0013 A reviewer's guess about a case that the text of a skill does not name is declined until a run shows the failure
 
 - Status: accepted
 - Level: feature
@@ -6,10 +6,11 @@
 
 ## Decision
 
-We will decline, in review-loop, a finding whose only proof is that the
-text of a skill or a prompt does not name its case, unless a run or a real
-session outside the review has already shown the wrong result, or the case
-is data loss or a security hole. The finding gets no edit and starts no
+We will decline, in review-loop, a finding of a reader of the review whose
+only proof is its guess of what a model does in a case that the text of a
+skill or a prompt does not name, unless a run or a real session has already
+shown that result, or the case is data loss or a security hole. A person's
+review comment is a request, not such a finding. The finding gets no edit and starts no
 round: it goes to the **Declined** line of the summary with "no failing
 run" as its reason. The loop makes no run for it. A finding with other
 proof, as a false fact, a conflict between two rules or a command that

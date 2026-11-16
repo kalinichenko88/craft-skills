@@ -127,8 +127,10 @@ loop. With `case`, the report says that the text does not name a case: the
 eval checks that the session leaves the skill as it is. With `seen`, the
 same report gives a note that a session wrote wrong on the case, and the
 eval checks that the session changes the skill. With `fact`, the report
-gives a wrong path, and the path is fixed. An empty Codex home keeps Codex
-out. Run it after a change to the definition of a defect in the text of a
+gives a wrong path, and the path is fixed. With `person`, round 1 found no
+defect, and the person's review comment names the case: the eval checks
+that the session does not decline it for "no failing run". An empty Codex
+home keeps Codex out. Run it after a change to the definition of a defect in the text of a
 skill in `skills/review-loop/SKILL.md`, or to `docs-lens.md`.
 `tests/review_loop_lens_eval.sh` sends the review of the architecture to six
 branches of one fixture: a second HTTP client, a `fetch` call that breaks an

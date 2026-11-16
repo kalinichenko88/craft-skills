@@ -12,6 +12,9 @@
 #         case, notes/plan.md, as its evidence. The session changes the skill
 #   fact  a False finding: the text names templates/notes.md, and the tree
 #         has templates/note.md. The session fixes the path
+#   person round 1 confirmed no defect, and the person's review comment
+#         names the case of `case`. Never: the session leaves the skill as
+#         it is and declines the comment for "no failing run"
 #
 # The session loads this checkout as the plugin, with --setting-sources
 # project, so no other plugin and no setting of this machine reaches it. An
@@ -21,17 +24,18 @@
 #
 # With --check, it runs only the checks, on the folder of an earlier run.
 #
-# Usage: tests/review_loop_text_eval.sh [runs] [case|seen|fact]
+# Usage: tests/review_loop_text_eval.sh [runs] [case|seen|fact|person]
 #        tests/review_loop_text_eval.sh --check <runs folder>
 
 # shellcheck disable=SC2016 # Markdown's backticks
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
-usage() { echo "usage: $0 [runs] [case|seen|fact] | --check <runs folder>" >&2; exit 2; }
+usage() { echo "usage: $0 [runs] [case|seen|fact|person] | --check <runs folder>" >&2; exit 2; }
 skill=skills/notes/SKILL.md
 rule='Rule | skills/notes/SKILL.md:10 | the rule does not say what a title that starts with # gives, as "# Plan": the heading of the note is "# # Plan" | the rule at :10, the title "# Plan", the line "# # Plan"'
 seen='Rule | skills/notes/SKILL.md:10 | the rule does not say what a title that starts with # gives, as "# Plan": the heading of the note is "# # Plan" | notes/plan.md, which a session wrote by this text for the title "# Plan", starts with "# # Plan"'
+comment='The skill does not say what a title that starts with # gives: for the title "# Plan", the heading of the note is "# # Plan". Please make it say.'
 false='False | skills/notes/SKILL.md:12 | the text sends the reader to templates/notes.md, and the tree has no such file: the template is templates/note.md | ls templates prints note.md'
 
 # setup <dir> <case>: the repository <dir> on the branch feature.
@@ -94,6 +98,12 @@ check() {
   ! cmp -s "$d.start.md" "$d/$skill" || changed=no
   if [ "$c" = case ]; then
     if [ "$changed" = no ]; then echo "PASS $s: the skill stays as it is"; else echo "FAIL $s: the skill changes"; fi
+  elif [ "$c" = person ]; then
+    if [ "$changed" = yes ] || ! awk -F'\t' '$1 == "text"' "$d.events" | grep -qi 'no failing run'; then
+      echo "PASS $s: the comment is not declined for no failing run"
+    else
+      echo "FAIL $s: the comment is declined for no failing run"
+    fi
   elif [ "$c" = seen ]; then
     if [ "$changed" = yes ]; then echo "PASS $s: the skill changes"; else echo "FAIL $s: the skill stays as it is"; fi
   elif grep -qF 'templates/note.md' "$d/$skill" && ! grep -qF 'templates/notes.md' "$d/$skill"; then
@@ -111,13 +121,14 @@ if [ "${1:-}" = --check ]; then
 fi
 n=${1:-5} c=${2:-case}
 case $n in '' | *[!0-9]*) usage ;; esac
-case $c in case) finding=$rule ;; seen) finding=$seen ;; fact) finding=$false ;; *) usage ;; esac
+case $c in case) finding=$rule ;; seen) finding=$seen ;; fact) finding=$false ;; person) finding= ;; *) usage ;; esac
 command -v claude >/dev/null || { echo "$0: no claude command" >&2; exit 2; }
 command -v jq >/dev/null || { echo "$0: no jq command" >&2; exit 2; }
 task="This repository is on the branch feature, which changes only $skill, the text of a skill. Its review runs by craft:review-loop. Round 1 ran: the review subagent read main..feature with docs-lens.md and returned the report below. No one can answer questions in this run. Go on with the review from there. Then stop, and say what you did with the finding.
 
 $finding
 count: 1"
+[ "$c" != person ] || task="This repository is on the branch feature, which changes only $skill, the text of a skill. Its review runs by craft:review-loop. Round 1 ran, with the review subagent and docs-lens.md, and confirmed no defect. Then the person wrote this review comment on the pull request: $comment No one can answer questions in this run. Go on with the review from there. Then stop, and say what you did with the comment."
 
 run() {
   local w=$runs/run$1

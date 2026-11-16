@@ -208,13 +208,14 @@ to revisit it.
    Both kinds hold in the code that a fix of this loop wrote too: most of
    the defects that later rounds find are there.
    In the text of a skill or a prompt, a defect is a rule that, followed as
-   written, gives a wrong result in a case that real use reaches. When the
-   only proof of a finding is that the text does not name its case, it is a
-   defect only when a run or a real session outside the review has already
-   shown that wrong result, or when the case is data loss or a security
-   hole. Else it is no defect and no nit: put it on the **Declined** line,
-   with "no failing run" as its reason, and make no run for it. Every other
-   confirmed finding is a nit: a missing or redundant test, a comment, a
+   written, gives a wrong result in a case that real use reaches. When a
+   reader of the review proves that result only by its own guess of what a
+   model does in a case that the text does not name, the finding is a
+   defect only when a run or a real session has already shown that result,
+   or when the case is data loss or a security hole. Else decline it, on
+   the **Declined** line with "no failing run" as its reason, and make no
+   run for it. A person's review comment is a request, not such a finding.
+   Every other confirmed finding is a nit: a missing or redundant test, a comment, a
    name, wording, line wrapping. A nit starts no round. The nits of a round
    with a defect join its fix commit. The nits of a round with no defect are
    one commit, and no round reads it.
