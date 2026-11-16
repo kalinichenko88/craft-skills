@@ -11,6 +11,8 @@
 - 2026-11-15 #413: Options considered. Was: "five side files, three `SKILL.md` files and `rules.md` are past their numbers".
 - 2026-11-15 #414: Context. Was: "goes into each session and each subagent".
 - 2026-11-15 #414: Decision, the table of budgets. Was: "It goes into each session and each subagent".
+- 2026-11-16 #417: Consequences, Bad. Was: "Review alone keeps the admission rule until review-loop asks for a failing run (#417)".
+- 2026-11-16 #417: Confirmation. Was: "#417 puts the ask for a failing run into review-loop, and #418 gives the rule to an agent that edits the text of a skill".
 
 ## Context
 
@@ -120,8 +122,8 @@ Bad: step 1 costs 10 runs before an edit, and step 8 the runs after it. The
 numbers other than 20,000, and the 3 of 10 of step 1, have no measurement
 behind them and can be wrong. A
 record of sizes changes in most pull requests that edit a skill, and two
-branches that edit one text conflict on its line. Review alone keeps
-the admission rule until review-loop asks for a failing run (#417). The rule
+branches that edit one text conflict on its line. review-loop keeps only
+a part of the admission rule, as PDR 0013 says. The rule
 moves cases into evals and tests, and those have defects of their own.
 
 ## Invariants
@@ -132,6 +134,7 @@ None: no `Check:` line sees a `.md` file.
 
 `tests/rules_test.sh` for the cap of 20,000. The record of sizes is
 `tests/text_size.txt`, and `tests/text_size_test.sh` checks it in
-`make check`, as ADR 0010 narrows it. The admission rule: review only; #417 puts the
-ask for a failing run into review-loop, and #418 gives the rule to an agent
-that edits the text of a skill.
+`make check`, as ADR 0010 narrows it. The admission rule: review only;
+review-loop keeps its part of it, as PDR 0013 says (#417), and
+`.claude/rules/skill-text.md` gives the rule to
+an agent that edits the text of a skill in this repository (#418).

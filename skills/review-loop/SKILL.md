@@ -208,7 +208,14 @@ to revisit it.
    Both kinds hold in the code that a fix of this loop wrote too: most of
    the defects that later rounds find are there.
    In the text of a skill or a prompt, a defect is a rule that, followed as
-   written, gives a wrong result in a case that real use reaches. Every other
+   written, gives a wrong result in a case that real use reaches. When the
+   only proof that a review subagent, `/code-review`, `/review` or Codex
+   gives for a finding is its guess of what a model does in a case that the
+   text does not name, the finding is a defect only when a run or a
+   real session outside the review has already shown a wrong result there,
+   or when the case is data loss or a security hole. Else decline it, as no
+   defect and no nit, on the **Declined** line with "no failing run" as its
+   reason, and make no run for it. Every other
    confirmed finding is a nit: a missing or redundant test, a comment, a
    name, wording, line wrapping. A nit starts no round. The nits of a round
    with a defect join its fix commit. The nits of a round with no defect are
@@ -407,14 +414,6 @@ A change to documents only, as *The level* says, gets one round:
 
 When the person asks for more, as more rounds, a last pass or a security
 review, that step and the rounds on its fixes run as the other sections say.
-
-Why: on eight branches of this plugin that changed only Markdown, the rounds
-ran 60 reviews, seven a branch at the median. From the second round on, most
-findings were in the sentences that the round before had written.
-`/security-review` found nothing on all eight. A second read of the whole
-branch, after the fixes, found 1 to 5 defects on each of the five branches
-where it ran. Codex with `--docs`, run after round 1 on three of them, found
-a real defect on two, in 53 to 204 seconds.
 
 ## The findings
 

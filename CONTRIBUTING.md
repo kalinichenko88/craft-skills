@@ -121,6 +121,20 @@ subagent. A fake `codex` first on `PATH` returns the defect of Codex, and an
 empty Codex home keeps a real `codex` from a read, so no run spends the
 Codex limit. Run it after a change to
 `skills/review-loop` or to its section in `rules.md`.
+`tests/review_loop_text_eval.sh` gives Opus the report of round 1 of the
+review of a change to the text of a skill, and lets it go on by the review
+loop. With `case`, the report says that the text does not name a case: the
+eval checks that the session leaves the skill as it is. With `seen`, the
+same report gives a note that a session wrote wrong on the case, and the
+eval checks that the session changes the skill. With `fact`, the report
+gives a wrong path, and the path is fixed. With `person`, round 1 found no
+defect, and the person's review comment names the case: the eval checks
+that the session does not decline it for "no failing run". An empty Codex
+home keeps Codex out. A run that did not load the skill gives SKIP. Run
+each of the four cases after a change to the definition of a defect in the
+text of a skill in `skills/review-loop/SKILL.md`, or to `docs-lens.md`.
+`tests/review_loop_text_checks_test.sh` runs its checks in `make check`, on
+a folder of runs that it builds, with a known positive for each check.
 `tests/review_loop_lens_eval.sh` sends the review of the architecture to six
 branches of one fixture: a second HTTP client, a `fetch` call that breaks an
 invariant, the same call with an ADR that amends it, a base that breaks it
