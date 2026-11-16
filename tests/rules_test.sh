@@ -189,6 +189,9 @@ done
 #   flags come only when the person names them.
 # - #398: the plugin-defect step said where to write its title, not how.
 # - #397: the Merging row and review-loop are the ways into merge.md.
+# - #408: in a linked worktree, gh older than 2.99 checks out the base branch
+#   after the merge and deletes the local branch, or exits 1 with the remote
+#   branch kept: that gh merges with no --delete-branch.
 # - take-in said to go on after a failed read of the task; 3 of 3 runs
 #   stopped, and that is the rule now (#348). 4 of 6 runs cut a log line
 #   that npm did not print, with a marker; the text allows it (#390).
@@ -222,6 +225,7 @@ rules.md|With no real source to sample, the count stops nothing, and the test us
 skills/review-loop/SKILL.md|With no real source to sample, the count declines nothing, and the test of the fix uses the input of the finding.
 skills/github/merge.md|gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
 skills/github/merge.md|The list decides, not the exit code of the watch: a cancelled check gives 0, and no check at all gives 1.
+skills/github/merge.md|leave `--delete-branch` out of its command, and after the merge delete the remote branch with `git push origin --delete <branch>`.
 skills/github/merge.md|with `--subject` and `--body` in English, as every commit message is, also when the PR is in another language. `--subject` is the PR title in English, then ` (#<PR>)`
 skills/github/SKILL.md|`gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch
 skills/github/merge.md|The merge all the same, after a `fail`, `cancel` or `pending` line, is the same `gh pr merge`, with no new wait.
