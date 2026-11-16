@@ -130,9 +130,11 @@ eval checks that the session changes the skill. With `fact`, the report
 gives a wrong path, and the path is fixed. With `person`, round 1 found no
 defect, and the person's review comment names the case: the eval checks
 that the session does not decline it for "no failing run". An empty Codex
-home keeps Codex out. Run each of the four cases after a change to the
-definition of a defect in the text of a skill in
-`skills/review-loop/SKILL.md`, or to `docs-lens.md`.
+home keeps Codex out. A run that did not load the skill gives SKIP. Run
+each of the four cases after a change to the definition of a defect in the
+text of a skill in `skills/review-loop/SKILL.md`, or to `docs-lens.md`.
+`tests/review_loop_text_checks_test.sh` runs its checks in `make check`, on
+a folder of runs that it builds, with a known positive for each check.
 `tests/review_loop_lens_eval.sh` sends the review of the architecture to six
 branches of one fixture: a second HTTP client, a `fetch` call that breaks an
 invariant, the same call with an ADR that amends it, a base that breaks it

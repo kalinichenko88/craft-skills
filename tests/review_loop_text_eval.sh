@@ -81,19 +81,21 @@ EOF
 # tool's name and its command, path or description, and the messages to the
 # person as text lines. A subagent's calls are left out.
 record() {
-  jq -r 'select(.type == "assistant" and .parent_tool_use_id == null) | .message.content[]
+  jq -Rr 'fromjson? | select(.type == "assistant" and .parent_tool_use_id == null) | .message.content[]
     | if .type == "text" then "text\t" + (.text | gsub("\n"; " "))
       elif .type == "tool_use" then .name + "\t"
         + ((.input.command // .input.file_path // .input.description // .input.skill // "") | tostring | gsub("\n"; "; "))
       else empty end' "$1.jsonl" >"$1.events"
 }
 
-# check <dir>: one line for the item, PASS or FAIL, then the INFO lines.
+# check <dir>: one line for the item, PASS, FAIL or SKIP, then the INFO
+# line. A session that did not load craft:review-loop measures nothing.
 check() {
   local d=$1 c s calls changed
   c=$(cat "$d.case") s="$(basename "$d") $c"
+  grep -qE '^Skill'$'\t''(craft:)?review-loop' "$d.events" || { echo "SKIP $s: the session did not load craft:review-loop"; return; }
   # The subagents and the `claude` runs that the session started.
-  calls=$(awk -F'\t' '$1 == "Agent" || $1 == "Task" || ($1 == "Bash" && $2 ~ /(^|[;&|(\/]|=[^ ]*) *claude( |$)/)' "$d.events" | grep -c . || true)
+  calls=$(awk -F'\t' '$1 == "Agent" || $1 == "Task" || ($1 == "Bash" && $2 ~ /(^|[;&|(\/]|=[^ ]*) *((do|then|nohup|xargs|timeout [0-9]+) +)*claude( |$)/)' "$d.events" | grep -c . || true)
   changed=yes
   ! cmp -s "$d.start.md" "$d/$skill" || changed=no
   if [ "$c" = case ]; then

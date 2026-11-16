@@ -25,7 +25,7 @@
 12737 skills/react-conventions/SKILL.md
 7502 skills/review-loop/architecture-lens.md
 4742 skills/review-loop/docs-lens.md
-33430 skills/review-loop/SKILL.md
+33490 skills/review-loop/SKILL.md
 2801 skills/review-loop/tests-lens.md
 3516 skills/roadmap/lanes.md
 4724 skills/roadmap/planning.md
