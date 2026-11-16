@@ -225,7 +225,7 @@ rules.md|With no real source to sample, the count stops nothing, and the test us
 skills/review-loop/SKILL.md|With no real source to sample, the count declines nothing, and the test of the fix uses the input of the finding.
 skills/github/merge.md|gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
 skills/github/merge.md|The list decides, not the exit code of the watch: a cancelled check gives 0, and no check at all gives 1.
-skills/github/merge.md|So when `gh issue develop --help` names no `--worktree`, as before 2.99, leave `--delete-branch` out. When `gh pr view <PR> --json state --jq .state` then prints `MERGED`, and `git ls-remote --heads origin refs/heads/<branch>` still prints the branch, delete it with `git push origin --delete <branch>`.
+skills/github/merge.md|So in that worktree, when `gh issue develop --help` names no `--worktree`, as before 2.99, leave `--delete-branch` out. When `gh pr view <PR> --json state --jq .state` then prints `MERGED`, and `git ls-remote --heads origin refs/heads/<branch>` still prints the branch, delete it with `git push origin --delete <branch>`.
 skills/github/merge.md|with `--subject` and `--body` in English, as every commit message is, also when the PR is in another language. `--subject` is the PR title in English, then ` (#<PR>)`
 skills/github/SKILL.md|`gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch
 skills/github/merge.md|The merge all the same, after a `fail`, `cancel` or `pending` line, is the same `gh pr merge`, with no new wait.

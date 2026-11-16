@@ -9,6 +9,8 @@
 # the work that continues, a filing, a merge and a defect in the plugin read
 # into the session, with the rules and, after the work, the review. A scout
 # reads `scout.md` or `citations.md` alone: the line of that file is its flow.
+# A read that a condition starts, as a small file that the session reads
+# itself, or a duplicate held for its reproduction, is not on a flow line.
 5919 rules.md
 10513 skills/architecture/first-file.md
 4637 skills/architecture/invariants.md
@@ -19,7 +21,7 @@
 5391 skills/github/citations.md
 2642 skills/github/continue.md
 10287 skills/github/filing.md
-9414 skills/github/merge.md
+9445 skills/github/merge.md
 9390 skills/github/plugin-defect.md
 6945 skills/github/scout.md
 11365 skills/github/SKILL.md
