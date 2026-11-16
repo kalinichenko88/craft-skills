@@ -96,9 +96,10 @@ Also:` sections is one task: its own problem and every added one.
 words or not, about the same place — closes against the issue in hand before
 the work starts, once anything it adds (a repro, an error message, a surface)
 is carried into a comment on the survivor. Each stack trace or log in its
-text goes there in a code block of its own, with each line that a program
-printed as it is, and with a fence of at least three backticks and longer
-than any run of backticks in it. A marker can replace any other line of it.
+text goes there in a code block of its own, with a fence of at least three
+backticks and longer than any run of backticks in it. A line that is not
+output of the tool whose log it is can be left out, with a marker in its
+place; every other line goes as it is.
 A secret in what it carries, as a token or a password, is replaced by
 `<secret>`: in the final report, name the issue that still shows it. The
 survivor's comment never goes into a shell command: write it with the file
