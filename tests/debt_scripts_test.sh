@@ -3,10 +3,10 @@
 # large file last changed 90 days ago, a file whose name holds a colon, one
 # whose name ends as a document's does, one with a non-ASCII name, and a
 # dotfile that is code; a document, a fixture, ignore files, recorded data, a
-# log and license files that are data, not code; and a file moved into src/,
-# one moved inside it, and a moved document; and a fetch that lands during a
-# run. Then the architecture skill's
-# invariants.sh, as step 2 runs it, and clones.sh, with a fake npx.
+# log, a JSONC config and license files that are data, not code; and a file
+# moved into src/, one moved inside it, and a moved document; and a fetch that
+# lands during a run. Then the architecture skill's invariants.sh, as step 2
+# runs it, and clones.sh, with a fake npx.
 
 # shellcheck disable=SC2016 # the backticks are Markdown's
 set -eu
@@ -58,7 +58,7 @@ seq 50 >"$repo/заметки.md"
 seq 6 >"$repo/src/.gitignore"
 seq 6 >"$repo/Dockerfile.dockerignore"
 seq 6 >"$repo/.eslintrc.js"
-for f in LICENSE NOTICE COPYING session.jsonl server.log; do seq 9 >"$repo/$f"; done
+for f in LICENSE NOTICE COPYING session.jsonl server.log wrangler.jsonc; do seq 9 >"$repo/$f"; done
 mkdir -p "$repo/node_modules/lib"
 seq 6 >"$repo/node_modules/lib/index.js"
 commit 'add a:b, mvnw.cmd and two non-ASCII names'
