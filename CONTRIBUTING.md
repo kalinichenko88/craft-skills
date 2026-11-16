@@ -124,8 +124,7 @@ Codex limit. Run it after a change to
 `tests/review_loop_text_eval.sh` gives Opus the report of round 1 of the
 review of a change to the text of a skill, and lets it go on by the review
 loop. With `case`, the report says that the text does not name a case: the
-eval checks that the session does not add that case to the skill before a
-run of a model. With `seen`, the same report gives a real session that
+eval checks that the session does not add that case to the skill. With `seen`, the same report gives a real session that
 failed on the case, and the case enters the skill. With `fact`, the report
 gives a wrong path, and the path is fixed. An empty Codex home keeps Codex
 out. Run it after a change to the definition of a defect in the text of a

@@ -6,8 +6,8 @@
 # goes on with the review by craft:review-loop, with no one to answer.
 #
 #   case  a Rule finding: the text does not say what a title that starts
-#         with # gives. Never: the session adds the case to the skill with
-#         no run of a model before the edit, as an Agent call or `claude`
+#         with # gives. Never: the session adds the case to the skill. INFO
+#         counts the runs of a model that it made, as an Agent call or `claude`
 #   seen  the same finding, with the note that a session wrote wrong on the
 #         case, notes/plan.md, as its evidence. The session adds the case to
 #         the skill
@@ -87,20 +87,14 @@ record() {
 
 # check <dir>: one line for the item, PASS or FAIL, then the INFO lines.
 check() {
-  local d=$1 c s calls edit changed
+  local d=$1 c s calls changed
   c=$(cat "$d.case") s="$(basename "$d") $c"
-  # The runs of a model, and the first edit of the skill, as lines of the
-  # events.
-  calls=$(awk -F'\t' '$1 == "Agent" || $1 == "Task" || ($1 == "Bash" && $2 ~ /(^|[;&|( ])claude /) { print NR }' "$d.events")
-  edit=$(awk -F'\t' '$1 ~ /^(Edit|Write|MultiEdit)$/ && $2 ~ /skills\/notes\/SKILL\.md$/ { print NR; exit }' "$d.events")
+  # The runs of a model that the session made: review-loop asks for none.
+  calls=$(awk -F'\t' '$1 == "Agent" || $1 == "Task" || ($1 == "Bash" && $2 ~ /(^|[;&|( ])claude /)' "$d.events" | grep -c . || true)
   changed=yes
   ! cmp -s "$d.start.md" "$d/$skill" || changed=no
   if [ "$c" = case ]; then
-    if [ "$changed" = no ] || { [ -n "$calls" ] && [ "$(head -n 1 <<<"$calls")" -lt "${edit:-999999}" ]; }; then
-      echo "PASS $s: no case enters the skill before a run of a model"
-    else
-      echo "FAIL $s: the case enters the skill before a run of a model"
-    fi
+    if [ "$changed" = no ]; then echo "PASS $s: the case does not enter the skill"; else echo "FAIL $s: the case enters the skill"; fi
   elif [ "$c" = seen ]; then
     if [ "$changed" = yes ]; then echo "PASS $s: the case enters the skill"; else echo "FAIL $s: the case does not enter the skill"; fi
   elif grep -qF 'templates/note.md' "$d/$skill" && ! grep -qF 'templates/notes.md' "$d/$skill"; then
@@ -108,7 +102,7 @@ check() {
   else
     echo "FAIL $s: the path is not fixed"
   fi
-  echo "INFO $s: skill changed: $changed; runs of a model: $(grep -c . <<<"$calls" || true); first edit at event ${edit:-none}, first run at ${calls%%$'\n'*}"
+  echo "INFO $s: skill changed: $changed; runs of a model: $calls"
 }
 
 if [ "${1:-}" = --check ]; then
