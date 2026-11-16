@@ -577,6 +577,23 @@ out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
 case $out in *"--name feat/5-b --checkout"$'\n'"$wt") ;;
   *) fail 'worktree.sh takes the branch where it is in a worktree with no other work' "$out" ;;
 esac
+# The default branch moved on after the worktree was made: its HEAD is behind,
+# and it holds no other work.
+git -C "$tmp/repo" -c user.name=t -c user.email=t commit -q --allow-empty -m 'Merged since'
+git -C "$tmp/repo" update-ref refs/remotes/origin/main HEAD
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
+case $out in *"--name feat/5-b --checkout"$'\n'"$wt") ;;
+  *) fail 'worktree.sh makes a new worktree for a worktree that is behind the default branch' "$out" ;;
+esac
+# With no default branch of origin to compare with, nothing shows that the
+# worktree is free. The read of the default branch comes before any write.
+git -C "$tmp/repo" update-ref -d refs/remotes/origin/main
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
+case $out in *"$own"*) ;; *) fail 'worktree.sh switches a worktree it cannot compare with the default branch' "$out" ;; esac
+out=$(cd "$tmp/wt" && FAKE_FAIL='repo view' DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b 2>&1) &&
+  fail 'worktree.sh goes on when it cannot read the default branch' "$out"
+case $out in *'dry run:'*) fail 'worktree.sh writes before it reads the default branch' "$out" ;; esac
+git -C "$tmp/repo" update-ref refs/remotes/origin/main HEAD
 echo change >"$tmp/wt/file"
 out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
 case $out in *"$own"*) ;; *) fail 'worktree.sh switches a worktree with changes to another branch' "$out" ;; esac

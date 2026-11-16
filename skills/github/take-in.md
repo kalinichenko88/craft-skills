@@ -108,10 +108,10 @@ wins over the name you gave. A linked branch already checked out is worked on
 where it is. A session already in a worktree, as one started with
 `claude --worktree` or `codex --worktree`, checks the branch out where it is,
 unless that worktree holds other work: changes, or commits that the default
-branch does not have. `--here` checks it out where it is in any checkout. With
-`--local`, the script takes a local branch as it is, with git: it makes and
-links no branch, reads no linked branch, and does not stop on the local
-branch.
+branch of origin does not have. `--here` checks it out where it is in any
+checkout. With `--local`, the script takes a local branch as it is, with git:
+it makes and links no branch, reads no linked branch, and does not stop on the
+local branch.
 
 A linked branch in another repository does not win: without `--branch-repo`,
 `gh` would make a new branch with the same name here. When every linked branch
@@ -234,10 +234,10 @@ verdict below and stays as it is. Say so.
 
 Nothing passes: ship the task alone — that is the usual case, not a failure to
 look. Each issue that the PR closes beside the task is a whole issue, not a
-Boy Scout fix: a bug brings its own test (*Pull requests* in `SKILL.md`).
-Assign it to you and put the label `in progress` on it as soon as it gets
-that verdict, as the task is at take-in, so nobody else takes it while
-the work runs:
+Boy Scout fix: a bug brings its own test, and the PR closes it under
+**Also closes** (*Pull requests* in `SKILL.md`). Assign it to you and put the
+label `in progress` on it as soon as it gets that verdict, as the task is at
+take-in, so nobody else takes it while the work runs:
 
 ```bash
 gh issue edit 15 --add-assignee @me --add-label "in progress"

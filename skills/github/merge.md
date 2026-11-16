@@ -51,11 +51,13 @@ session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what
 Codex, give `<path>` as the `workdir`. When the command prints nothing, no
 checkout holds the branch, and any directory will do. In the branch's linked
 worktree, `gh` keeps the worktree and the local branch, and *Cleanup* decides
-on them. There, `gh` older than 2.99 merges, then fails to check out the
-default branch, exits 1 and keeps the remote branch. So when `gh pr merge`
-exits with an error, read `gh pr view <PR> --json state` first: `MERGED` is
-a merge, and when `git ls-remote --heads origin <branch>` still prints the
-branch, delete it with `git push origin --delete <branch>`.
+on them. There, `gh` older than 2.99 checks out the base branch after the
+merge. When another checkout holds that branch, it exits 1 and keeps the
+remote branch; else it deletes both branches, and the worktree stays on the
+base branch. So when `gh pr merge` exits with an error, read
+`gh pr view <PR> --json state` first: `MERGED` is a merge, and when
+`git ls-remote --heads origin refs/heads/<branch>` still prints the branch,
+delete it with `git push origin --delete <branch>`.
 
 **Finishing.** An issue goes stale the moment the code moves under it, and
 GitHub does not notice: nothing corrects its text. So the PR closes the task,
@@ -151,6 +153,7 @@ local database, keep both, and name it. A squash merge leaves no commit of
 the branch on the default branch, so git cannot see that the branch is
 merged. Run `-D` only when `git rev-parse <branch>` prints the `headRefOid`
 of `gh pr view <PR> --json headRefOid`. Otherwise keep the branch, and name
-its commits that the pull request does not have. When both are gone, say
+its commits that the pull request does not have. A local branch that `gh`
+deleted needs no `-D`. When both are gone, say
 that nothing waits, and that the session can close. Otherwise say what
 stays, and why.

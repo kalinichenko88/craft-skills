@@ -3,6 +3,11 @@
 - Status: accepted
 - Date: 2026-11-15
 
+## Updates
+
+- 2026-11-16 #415: Options considered, a flow as a list of files. Was: "the check asks only that each file of the list has a line".
+- 2026-11-16 #415: Decision. Was: "We will record a flow as a line that names its files, with no number." and "#415 gives its line a form".
+
 ## Context
 
 ADR 0009 decided that each text of the plugin has a recorded size, and that
@@ -31,8 +36,9 @@ branches that edit two files of one flow conflict on the line of the flow.
 - A ceiling, and a note when a text is below it: the note fails nothing, and
   each run of `make check` prints it until someone lowers the number.
 - A flow with a number of its own: the three costs above.
-- A flow as a list of files: the check asks only that each file of the list
-  has a line. A file that joins the flow is a change of its line.
+- A flow as a list of files: the check asks that each file of the list has a
+  line, and that the line has its target. A file that joins the flow is a
+  change of its line.
 - The files of a flow from the rows of `tests/scenarios_text_eval.sh`: a row
   names the files of one skill that the text eval reads against a scenario.
   A take-in also puts `rules.md` and the review-loop `SKILL.md` into the
@@ -44,11 +50,12 @@ We will fail `make check` on a text whose size is not its recorded size,
 above it or below it. This narrows one point of ADR 0009: there, a text
 below its recorded size passed. The person chose it on 2026-11-15.
 
-We will record a flow as a line that names its files, with no number. Its
-size is the sum of the lines of its files. This narrows a second point of
-ADR 0009, which recorded a size for a flow. The target of a flow still goes
-into the record when its map gives one, as ADR 0009 says; #415 gives its
-line a form.
+We will record a flow as a line that names its files, with no size of its
+own: its one number is its target. Its size is the sum of the lines of its
+files. This narrows a second point of ADR 0009, which recorded a size for a
+flow. The target of a flow still goes
+into the record when its map gives one, as ADR 0009 says; #415 gave its
+line the form `flow <name> <target> <path>...`.
 
 The rest of ADR 0009 holds: the admission rule, the budgets, and a recorded
 size for `rules.md`, each `SKILL.md` and each side file.

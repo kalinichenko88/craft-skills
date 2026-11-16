@@ -45,6 +45,7 @@ take-in.md before take-in-check.sh	bash	grep -n x skills/github/scripts/take-in-
 merge.md before gh pr merge	bash	gh pr merge 2 --squash	1
 merge.md before gh pr merge	bash	gh pr view 2	0
 filing.md before a new issue or add-finding.sh	bash	gh issue create --title x	1
+filing.md before a new issue or add-finding.sh	bash	gh issue create --repo github.com/kalinichenko88/craft-skills --title x --body-file b.md	0
 filing.md before a new issue or add-finding.sh	bash	gh api repos/o/r/issues --input b.json	1
 filing.md before a new issue or add-finding.sh	bash	bash /c/skills/github/scripts/add-finding.sh 3 f.md	1
 filing.md before a new issue or add-finding.sh	bash	gh api repos/o/r/issues/5/comments -f body=x	0

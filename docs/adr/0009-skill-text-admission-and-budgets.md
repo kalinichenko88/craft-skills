@@ -13,6 +13,7 @@
 - 2026-11-15 #414: Decision, the table of budgets. Was: "It goes into each session and each subagent".
 - 2026-11-16 #417: Consequences, Bad. Was: "Review alone keeps the admission rule until review-loop asks for a failing run (#417)".
 - 2026-11-16 #417: Confirmation. Was: "#417 puts the ask for a failing run into review-loop, and #418 gives the rule to an agent that edits the text of a skill".
+- 2026-11-16 #415: Decision, the table of budgets. Was: "A flow: the files that one scenario reads | No growth; a target after the map of its files (#415)".
 
 ## Context
 
@@ -95,7 +96,7 @@ We will keep these budgets, in characters as `jq -Rs length` counts them:
 | A `SKILL.md`, cap | 20,000 | ADR 0006: the host keeps them after a compaction. Measured |
 | A `SKILL.md`, target | 15,000 | Cost: 5,000 model tokens at 3 characters a token |
 | A side file | 10,000 | Set by the study, not measured: Anthropic warns that an agent reads a long file in part |
-| A flow: the files that one scenario reads | No growth; a target after the map of its files (#415) | The side files of github cost more than its `SKILL.md` |
+| A flow: the files that one moment reads into one context, a line of `tests/text_size.txt` (ADR 0010) | No growth; its target is on its line (#415) | The side files of github cost more than its `SKILL.md` |
 | `rules.md` | 6,000 | It goes into each session and each subagent, but an `Explore` subagent of Claude Code |
 
 Of these numbers, only the cap of 20,000 fails a check. The others are

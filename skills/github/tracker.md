@@ -116,4 +116,5 @@ file outside every checkout, as the session's scratchpad or a folder from
 of an issue goes into such a file too, and to `gh` or a script as
 `"$(cat <file>)"`: the shell does not read that text again. Outside every
 checkout, no `git add` takes the file into a commit, in Codex too.
-`citations.md` writes no file, and its two commands have a rule of their own.
+`citations.md` writes no file, and its `git ls-files` and `git grep` have a
+rule of their own.

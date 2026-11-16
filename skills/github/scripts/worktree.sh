@@ -87,6 +87,19 @@ if [ -z "$linked$keep" ] && git show-ref -q --verify "refs/heads/$branch"; then
   exit 1
 fi
 
+common=$(git rev-parse --path-format=absolute --git-common-dir)
+# A linked worktree with changes, or with commits that the default branch of
+# origin does not have, holds other work, as another session's pull request:
+# a switch there would move that work to this branch. The script reads it
+# before its first write, as it reads the stops above.
+if [ -z "$here$path" ] && [ "$(git rev-parse --path-format=absolute --git-dir)" != "$common" ]; then
+  main=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name)
+  if [ -z "$(git status --porcelain)" ] &&
+    git merge-base --is-ancestor HEAD "refs/remotes/origin/$main" 2>/dev/null; then
+    here=1
+  fi
+fi
+
 # An issue that someone else is assigned to and you are not is theirs, and so
 # is its linked branch. GitHub does not say whose a branch is: one linked while
 # nobody is assigned can be someone else's too. In both cases you decide, and
@@ -117,17 +130,6 @@ if [ -n "$path" ]; then
   exit 0
 fi
 
-common=$(git rev-parse --path-format=absolute --git-common-dir)
-# A linked worktree with changes, or with commits that the default branch of
-# origin does not have, holds other work, as another session's pull request:
-# a switch there would move that work to this branch.
-if [ -z "$here" ] && [ "$(git rev-parse --path-format=absolute --git-dir)" != "$common" ]; then
-  main=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name)
-  if [ -z "$(git status --porcelain)" ] &&
-    git merge-base --is-ancestor HEAD "refs/remotes/origin/$main" 2>/dev/null; then
-    here=1
-  fi
-fi
 if [ -n "$here" ]; then
   if [ -n "$keep" ]; then
     run git switch "$branch"
