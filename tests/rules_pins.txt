@@ -98,6 +98,7 @@ rules.md|`craft:react-conventions` too. A subagent invokes them itself. No patte
 # 0012), and *Out-of-scope findings* tells it to file with no question. One
 # sentence must tell every read-only subagent, a review one included, to file
 # nothing.
+#
 # rules.md reaches the model in two parts, in either order (ADR 0004). The
 # read-only subagent of GitHub once pointed "above" to the Haiku subagents
 # of part 1, and without that word it read as every Haiku subagent. It
