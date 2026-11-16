@@ -100,9 +100,9 @@ done
 # - The GitHub section keeps the headings of its two rules that must fire with
 #   no skill loaded (#151). With no GitHub remote, an agent that finds
 #   something out of scope may never load the github skill, so rules.md keeps
-#   the fallback too. The
-#   ask for a plugin defect shows the text that plugin-defect.md writes, so its check
-#   of the defect runs before the person is asked.
+#   the fallback too. The ask for a plugin defect shows the text that
+#   plugin-defect.md writes, so its check of the defect runs before the person
+#   is asked.
 # - A zero count stops a fix, but an attacker can make the input of data loss
 #   or a security hole: the rule for a person's report, in rules.md, and the
 #   rule for a review finding, in review-loop, each name that exception (#151).

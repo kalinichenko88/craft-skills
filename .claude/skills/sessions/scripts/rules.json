@@ -55,6 +55,6 @@
     "from": "github/SKILL.md",
     "says": "filing[.]md",
     "text": "github/filing.md",
-    "bash": "^gh\\s+issue\\s+create\\b(?!.*\\bkalinichenko88/craft-skills\\b)|^gh\\s+api\\s+\\S*repos/[^/\\s]+/[^/\\s]+/issues(?=\\s|$)(?=.*\\s(-[fF]|--field|--raw-field|--input)[\\s=])|^(bash(\\s+-\\S+)*\\s+)?\\S*scripts/add-finding[.]sh\\b"
+    "bash": "^gh\\s+issue\\s+create\\b|^gh\\s+api\\s+\\S*repos/[^/\\s]+/[^/\\s]+/issues(?=\\s|$)(?=.*\\s(-[fF]|--field|--raw-field|--input)[\\s=])|^(bash(\\s+-\\S+)*\\s+)?\\S*scripts/add-finding[.]sh\\b"
   }
 ]

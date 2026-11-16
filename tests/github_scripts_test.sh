@@ -583,7 +583,7 @@ git -C "$tmp/repo" -c user.name=t -c user.email=t commit -q --allow-empty -m 'Me
 git -C "$tmp/repo" update-ref refs/remotes/origin/main HEAD
 out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
 case $out in *"--name feat/5-b --checkout"$'\n'"$wt") ;;
-  *) fail 'worktree.sh makes a new worktree for a worktree that is behind the default branch' "$out" ;;
+  *) fail 'worktree.sh takes the branch where it is in a worktree that is behind the default branch' "$out" ;;
 esac
 # With no default branch of origin to compare with, nothing shows that the
 # worktree is free. The read of the default branch comes before any write.

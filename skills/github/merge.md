@@ -50,12 +50,12 @@ session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what
 `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints. In
 Codex, give `<path>` as the `workdir`. When the command prints nothing, no
 checkout holds the branch, and any directory will do. In the branch's linked
-worktree, `gh` keeps the worktree and the local branch, and *Cleanup* decides
-on them. There, `gh` older than 2.99 checks out the base branch after the
-merge. When another checkout holds that branch, it exits 1 and keeps the
-remote branch; else it deletes both branches, and the worktree stays on the
-base branch. So when `gh pr merge` exits with an error, read
-`gh pr view <PR> --json state` first: `MERGED` is a merge, and when
+worktree, `gh` 2.99 and later keeps the worktree and the local branch, and
+*Cleanup* decides on them. An older `gh` checks out the base branch there
+after the merge: it can exit 1 with the merge done, as when another checkout
+holds the base branch, and else it deletes the local branch too. So when
+`gh pr merge` exits with an error, read `gh pr view <PR> --json state` first:
+`MERGED` means that the merge succeeded. Then, when
 `git ls-remote --heads origin refs/heads/<branch>` still prints the branch,
 delete it with `git push origin --delete <branch>`.
 

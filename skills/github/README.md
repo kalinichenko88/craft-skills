@@ -28,8 +28,9 @@ time.
   named for what it does, as `fix/91-what-it-does`. A session that starts in
   a worktree takes the branch there, unless that worktree holds other work:
   changes, or commits that the default branch of origin does not have. The
-  issue is assigned to you and gets the label `in progress`, which the agent creates when the
-  repository has none: an assignee says who may take an issue, and the label
+  issue is assigned to you and gets the label `in progress`, which the agent
+  creates when the repository has none: an assignee says who may take an
+  issue, and the label
   says that its work runs. An issue assigned to you, with no label
   `in progress`, branch or pull request, is taken with no question. Every open bug and debt
   issue in the same area is checked, so one PR can close them with the task.
