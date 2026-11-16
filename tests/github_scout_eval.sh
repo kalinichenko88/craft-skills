@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sends the citations job of skills/github/scout.md to one recorded case, with
+# Sends the citations job of skills/github/citations.md to one recorded case, with
 # the prompt that *Finishing* of skills/github/merge.md gives it, at model
 # haiku. The case is PR #217 of this repository: its merge commit is the tree,
 # and the `Decision` lines come from its description. #217 added a section to
@@ -23,7 +23,7 @@
 # moved to :189.
 #
 # It calls the model, so it costs tokens and is not part of `make check`: run
-# it by hand after a change to the citations job of scout.md or to *Finishing*.
+# it by hand after a change to skills/github/citations.md or to *Finishing*.
 # It runs with this machine's other plugins and settings, and needs the history
 # of this checkout down to #217.
 #
@@ -79,7 +79,7 @@ entry() {
 run() {
   local prompt
   cp "$logs/collect.txt" "$logs/$1.collect.txt"
-  prompt="Read $root/skills/github/scout.md and do what it says.
+  prompt="Read $root/skills/github/citations.md and do what it says.
 Job: citations.
 Tree: $tree
 Decision 1: Add the product skill: a skeptic that checks whether a task is worth doing before the work, with a Fable and Codex panel and a store of product decisions in docs/PRODUCT.md and docs/pdr/.

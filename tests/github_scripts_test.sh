@@ -54,6 +54,7 @@ case "$1 $2" in
       --list) cat "$FAKE/linked" 2>/dev/null || true ;;
       --help) echo '      --worktree path        Check out the branch into a worktree at the given path' ;;
     esac ;;
+  'repo view') echo main ;;
   *) echo "fake gh: no answer for: $*" >&2; exit 1 ;;
 esac
 EOF
@@ -563,6 +564,29 @@ out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 fix/5-old --loca
 case $out in *'dry run: git switch fix/5-old'*) ;;
   *) fail 'worktree.sh --local --here checks the local branch out where it is' "$out" ;;
 esac
+
+# A session in a linked worktree, as one that claude --worktree started, takes
+# the branch where it is while that worktree holds no other work. Changes, or a
+# commit that origin's default branch lacks, are another session's work, as its
+# pull request: the branch gets a worktree of its own (#404).
+git -C "$tmp/repo" update-ref refs/remotes/origin/main HEAD
+git -C "$tmp/repo" worktree add -q -b feat/1-a "$tmp/wt" HEAD
+wt=$(git -C "$tmp/wt" rev-parse --show-toplevel)
+own="--checkout --worktree $top/.claude/worktrees/feat/5-b"
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
+case $out in *"--name feat/5-b --checkout"$'\n'"$wt") ;;
+  *) fail 'worktree.sh takes the branch where it is in a worktree with no other work' "$out" ;;
+esac
+echo change >"$tmp/wt/file"
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
+case $out in *"$own"*) ;; *) fail 'worktree.sh switches a worktree with changes to another branch' "$out" ;; esac
+rm "$tmp/wt/file"
+git -C "$tmp/wt" -c user.name=t -c user.email=t commit -q --allow-empty -m 'Work of another session'
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
+case $out in *"$own"*"$top/.claude/worktrees/feat/5-b") ;;
+  *) fail 'worktree.sh switches a worktree with a commit that the default branch lacks' "$out" ;;
+esac
+git -C "$tmp/repo" worktree remove --force "$tmp/wt"
 
 # keep-open.sh removes the pull request's link to the one issue it is given.
 # keep-open-21.json is PR #21's answer, with its link to #14 and a description

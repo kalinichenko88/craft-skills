@@ -65,7 +65,7 @@ correct result, so a script makes them, and no model reads a transcript.
    (ADR 0006), with a debt list of the files over it. A failed call is a
    candidate, not a defect: `invariants.sh` exits 1 at a failing invariant
    and `take-in-check.sh` at a refusal. Each one is a defect only by *Make
-   sure the plugin is wrong* in `skills/github/filing.md`. A share under
+   sure the plugin is wrong* in `skills/github/plugin-defect.md`. A share under
    100 % is a candidate too: the steps of ADR 0009 decide what its misses
    change. A new rule in `rules.json` comes with a case in
    `tests/fixtures/sessions/rules/` where its text comes first and one where

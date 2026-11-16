@@ -49,7 +49,7 @@ In characters, as `jq -Rs length` counts them (ADR 0009):
 | A `SKILL.md` | 20,000, the cap that `tests/rules_test.sh` checks; target 15,000 |
 | A side file | 10,000 |
 | `rules.md` | 6,000; each of its two parts under 10,000 (ADR 0004) |
-| A flow: the files that one scenario reads | No growth |
+| A flow: the files that one moment reads | No growth; its target is on its line in `tests/text_size.txt` |
 
 Only the cap of 20,000 and the 10,000 of a part of `rules.md` fail a check.
 The other numbers are targets: a text past its target fails nothing. Each

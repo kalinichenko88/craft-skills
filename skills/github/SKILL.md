@@ -8,9 +8,9 @@ description: Use when touching a repository's GitHub surface — writing a commi
 Everything here needs `gh` authenticated against a GitHub remote. Where it is
 not — `gh auth status` fails, or the remote is elsewhere — skip the step and say
 so in the final report rather than inventing a substitute. There are two
-exceptions. In *Public repositories*, the target counts as public. *A defect in
-this plugin* in `filing.md` names its tracker, so the remote does not matter
-there.
+exceptions. In *Public repositories*, the target counts as public.
+`plugin-defect.md` names the tracker of this plugin, so the remote does not
+matter there.
 
 | Moment | What must happen | Read first |
 | --- | --- | --- |
@@ -18,16 +18,16 @@ there.
 | `gh pr create` | `--assignee @me`; assign every issue it closes too; `Part of #15`: `keep-open.sh` after it; then read what it closes | *Pull requests* below |
 | Merging | Wait for the PR's checks first: a failed or cancelled one, one still running after two watches, or a refusal, stops the merge, and `--admin` or `--auto` only when the person names the flag. `gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch, run in the checkout that holds the branch; then *Finishing*, and *Cleanup* when the person asks for it | `merge.md` |
 | Finding something out of scope | In the task's module, clear and smaller than the task: fix it in this PR, under **Also fixed**; clear but for a choice, the same after the person chooses. Otherwise add it to an open issue on the same code with `add-finding.sh`, or file a new one. A nit, or a failure that `filing.md` rules out: one line in the final report, no issue | `filing.md` |
-| A rule, a skill or a script of this plugin is wrong | Search `kalinichenko88/craft-skills`; show the person the issue, with nothing from their project; file it only after a yes. A step the person had to point out: do it at once, and *Finishing* in `merge.md` drafts it. In a checkout of `craft-skills`: the row above | `filing.md` |
+| A rule, a skill or a script of this plugin is wrong | Search `kalinichenko88/craft-skills`; show the person the issue, with nothing from their project; file it only after a yes. A step the person had to point out: do it at once, and *Finishing* in `merge.md` drafts it. In a checkout of `craft-skills`: the row above | `plugin-defect.md` |
 | Filing next to an existing issue | Name the relation, and correct the other side | `filing.md` |
-| Picking an issue up — `#91` or its URL | `take-in-check.sh`; before the next step, give the issue's number, its title and two or three sentences on what it asks; on `continue #91 on <branch>`, *Continuing the work* says which of the steps below run; close its duplicates; unless told otherwise, `worktree.sh` with `fix/91-what-it-does`; read what it is wired to; re-check its `path:line`; check every open bug and debt issue in the same area first; take along settled issues on the same code, and assign each one and put the label `in progress` on it when it joins; after the work, the check and the review, then the PR and the merge question, in the same turn, on the conditions in *The pull request* of `craft:review-loop` | `take-in.md` |
+| Picking an issue up — `#91` or its URL | `take-in-check.sh`; before the next step, give the issue's number, its title and two or three sentences on what it asks; on `continue #91 on <branch>`, `continue.md` says which of the steps below run; close its duplicates; unless told otherwise, `worktree.sh` with `fix/91-what-it-does`; read what it is wired to; re-check its `path:line`; check every open bug and debt issue in the same area first; take along settled issues on the same code, and assign each one and put the label `in progress` on it when it joins; after the work, the check and the review, then the PR and the merge question, in the same turn, on the conditions in *The pull request* of `craft:review-loop` | `take-in.md`; `continue.md` after a `continue` line |
 | Writing to a repository — an issue, a comment, a PR, a branch, a commit | `gh repo view <owner/name> --json visibility` on each repository that gets it, and when it fails, take it as `PUBLIC`; `PUBLIC`: no names, numbers, titles, paths or code from a private source. Write "a private tracker with 100 open issues" | *Public repositories* below |
 | Editing a workflow | Pin `uses:` to the latest major; runtime ≥ host | *GitHub Actions* below |
 
 A file in the last column sits next to this one, in this skill's base
 directory. Read all of it before the first step of that moment: the row above
-is its summary, not its rules. `take-in.md` and `filing.md` both send you on to
-`tracker.md`, which runs the scripts and reads the tracker.
+is its summary, not its rules. `take-in.md`, `filing.md` and `merge.md` send
+you on to `tracker.md`, which runs the scripts and reads the tracker.
 
 ## Commits
 
