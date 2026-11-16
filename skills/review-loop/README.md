@@ -72,7 +72,9 @@ each task stays as that skill sets it. In place of the final review of
   comment, a name or wording is a nit, applied without another round. A
   finding that needs a particular input is counted first in a sample of real
   data: a count of zero declines it, unless it is data loss or a security
-  hole. After the third round with a defect, the rounds stop, and that
+  hole. A finding that the text of a skill or a prompt does not name a case
+  is declined too, until a run of a model or a real session shows the wrong
+  result; a false fact in that text is fixed at once. After the third round with a defect, the rounds stop, and that
   defect stays unfixed: its fix would need a round of its own. The merge
   question then offers up to three more rounds; on a merge, the open
   defects are filed as issues.
@@ -83,7 +85,14 @@ each task stays as that skill sets it. In place of the final review of
   pass runs, and no `/security-review`: its prompt excludes Markdown. The
   fixes for your review comments are one commit, with no round. Ask for more
   rounds, a last pass or a security review, and they run, with rounds on
-  their fixes.
+  their fixes. Why: on eight branches of this plugin that changed only
+  Markdown, the rounds ran 60 reviews, seven a branch at the median. From
+  the second round on, most findings were in the sentences that the round
+  before had written. `/security-review` found nothing on all eight. A
+  second read of the whole branch, after the fixes, found 1 to 5 defects on
+  each of the five branches where it ran. Codex with `--docs`, run after
+  round 1 on three of them, found a real defect on two, in 53 to 204
+  seconds.
 - **One last look at the whole branch.** When the loop needed more than one
   round, one pass reads the whole branch again after it stops, to see how the
   fixes fit the rest. It never runs twice.

@@ -757,6 +757,27 @@ Then:
 Never:
 - a review of the code reads only the commit that fixes that defect
 
+## A case that the text of a prompt does not name
+
+Given:
+- the run took task #91 into work, and #91 is open, assigned to the person
+- branch `fix/91-summary-prompt` is linked to #91, and the workspace of #91
+  is on it
+- the work on #91 changes only `prompts/summary.md`, the text of a prompt
+  that the product sends to a model
+- round 1 reports one defect: `prompts/summary.md` does not say what the
+  summary of an empty text gives
+- no answer of the model that the repository or #91 holds shows a wrong
+  summary of an empty text
+- the check passes on `fix/91-summary-prompt`
+When: the run ends the work on #91
+Then:
+- the text of the pull request of #91 names that report as declined
+- the text of the pull request of #91 gives no failing answer of the model
+  as the reason
+Never:
+- a commit changes `prompts/summary.md` for an empty text
+
 ## More reviews that the person asks for after a change to documents only
 
 Given:
