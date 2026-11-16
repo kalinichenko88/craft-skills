@@ -18,9 +18,11 @@ The first user is the author.
   place by a measured run, not by a guess.
 - The plugin grows past development: skills for content and against AI slop
   (ADR 0002, #214). One plugin, one namespace `craft:`.
-- **Current goal:** M3 · Skills hold in real runs: the skills do what their
-  rules say in real runs, and their text is whole in the context (#196,
-  #275).
+- **Current goal:** M3 · Skills hold in real runs. The skills do what their
+  rules say in real runs: a task goes from take-in to merge with no step left
+  for the person, the decision records stay true, and the checks give no
+  false result. The `Done when` of the milestone names the issues that the
+  goal needs.
 
 ## What it will not do
 
