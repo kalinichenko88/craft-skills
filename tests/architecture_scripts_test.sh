@@ -251,12 +251,14 @@ check 'no checks.awk beside it' '2 invariants.sh: checks.awk is not beside this 
 
 # The lines and files checks, and debt lists: a file and a folder past their
 # limits, a file and a folder that are known debt, a debt path that no longer
-# breaks its check, a document past the limit that is not code, a subfolder
-# whose files do not count for the folder above it, and then a subfolder of a
-# debt folder past the limit.
+# breaks its check, a document, recorded data, a log, a JSONC config and
+# license files past the limits that are not code, a subfolder whose files do
+# not count for the folder above it, and then a subfolder of a debt folder past
+# the limit.
 repo2=$tmp/repo2
 new_repo "$repo2"
-mkdir -p "$repo2/src/feature" "$repo2/src/legacy" "$repo2/src/many/sub" "$repo2/docs"
+mkdir -p "$repo2/src/feature" "$repo2/src/legacy" "$repo2/src/many/sub" "$repo2/src/recordings" "$repo2/docs"
+for f in recordings/session.jsonl server.log wrangler.jsonc LICENSE NOTICE COPYING; do seq 50 >"$repo2/src/$f"; done
 seq 11 >"$repo2/src/feature/big.ts"
 seq 3 >"$repo2/src/feature/small.ts"
 seq 11 >"$repo2/src/legacy/report.ts"
