@@ -11,25 +11,12 @@ unread_check() {
   nobranch '[]'
 }
 unread_copies() {
-  # No error told, a write, and a gist told; and #91 assigned, labelled and
-  # linked to a branch.
+  # No error told, and a gist told. Other cases copy the shared items.
   copy unread
   sed -i.bak '/^text/s/502/5xx/g' "$tmp/$n/unread.events"
   flips unread 'the person is told that the text of #91 could not be read, with its error'
   copy unread
-  first unread $'Bash\tgh issue edit 91 --add-assignee @me'
-  flips unread 'the run stops: no change'
-  copy unread
   add unread $'text\t#91 README: the install command says npm instal'
   flips unread 'never: the person is told a gist of #91 that the run did not read'
-  copy unread
-  state unread '.issues[0].assignees = ["kim"]'
-  flips unread 'never: the assignees of #91 change'
-  copy unread
-  state unread '.issues[0].labels = ["in progress"]'
-  flips unread 'never: #91 gets the label in progress'
-  copy unread
-  state unread '.issues[0].linked = ["fix/91-typo"]'
-  flips unread 'never: a branch for #91 is created'
 }
 unread_fails() { :; }
