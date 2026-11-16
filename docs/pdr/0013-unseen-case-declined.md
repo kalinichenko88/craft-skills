@@ -70,3 +70,12 @@ added twice in one month.
 
 #417, ADR 0009, ADR 0006, #186, #260, #283, `skills/review-loop/SKILL.md`,
 `skills/review-loop/docs-lens.md`, `scenarios/review-loop/review.md`
+
+## Checked
+
+- 2026-11-16 #439: a review reported a case with a proved fact: `gh` keeps
+  the local branch of the main checkout while a linked worktree holds the
+  base branch. 0 of 66 repositories on the author's machine have that
+  state, and 0 of 968 recorded `gh pr merge` calls printed it. The person
+  chose to correct the sentence that said `gh` always deletes the branch,
+  and to add no rule for the case.

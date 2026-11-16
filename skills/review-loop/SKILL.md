@@ -554,11 +554,11 @@ Then:
    merge and clean up, merge only, or do not merge. When
    `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints
    nothing or the first path of `git worktree list`, the branch has no linked
-   worktree, and `gh` deletes the local branch itself: ask only whether to
-   merge, and do no *Cleanup*. When step 4 of *The rounds* stopped the
-   rounds, the question has one more answer: up to three more rounds, the
-   first on the fix of the defects that step 4 left open. After those
-   rounds come *The summary* and this section again, its conditions first.
+   worktree: ask only whether to merge, and do no *Cleanup*. When step 4 of
+   *The rounds* stopped the rounds, the question has one more answer: up to
+   three more rounds, the first on the fix of the defects that step 4 left
+   open. After those rounds come *The summary* and this section again, its
+   conditions first.
    On a merge answer, run the merge in the checkout that holds the branch,
    as that file says. When it succeeds, file the defects that step 4
    left open, through that skill. Its Boy Scout check does not apply to
