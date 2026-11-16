@@ -6,6 +6,29 @@ type, and the PR number when it has one. The `/release` skill writes the
 section and merges it through a pull request of its own; other pull requests
 leave this file alone.
 
+## 2.5.0 - 2026-11-16
+
+### Added
+
+- (review-loop) decline a review agent's guess about a case that skill text does not name (#432)
+- (rules) give an Explore subagent of Claude Code no rules (#431)
+- (sessions) count for eight rules how often their text came before their moment in the local sessions (#426)
+
+### Changed
+
+- (github) split the side files by moment, so that each flow reads only its own (#438)
+- (plugin) give the agents that edit a skill, a scenario or an eval the rules for that text (#429)
+- (rules) keep only the triggers of the skills and the habits of each turn in rules.md (#423)
+- (rules) record the size of each text of the plugin, and fail make check on a size that differs (#422)
+- (adr) record the admission rule for an edge case and the size budgets of skill text in ADR 0009 (#421)
+- (plugin) add the study of general rules against edge cases in skill text (#419)
+
+### Fixed
+
+- (hooks) show the number and the title of an issue that a prompt names alone (#436)
+- (github) stop the take-in when the text of the task cannot be read (#435)
+- (review-loop) give the review of text its own prompt, docs-lens.md, with no limit on its report (#407)
+
 ## 2.4.0 - 2026-11-13
 
 ### Added
