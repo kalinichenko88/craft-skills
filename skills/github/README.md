@@ -73,12 +73,12 @@ time.
   stops it too. Merge all the same, after a check that failed, was
   cancelled or still runs, is a plain merge: it adds `--admin` or `--auto`
   only when you name that flag. After a stop at round 3, more rounds is one
-  more answer. With `gh` older than 2.99, whose `--delete-branch` checks out
-  the base branch in the worktree and then fails or deletes the local branch,
-  the agent merges there without that flag, and deletes the remote branch
-  itself after the merge. Clean up removes
-  the worktree and the local branch after the merge, when nothing in them
-  would be lost.
+  more answer. With `gh` older than 2.99, whose `--delete-branch` tries to
+  check out the base branch in the worktree, and fails or deletes the local
+  branch, the agent merges there without that flag. When the PR is merged
+  and its branch is still on GitHub, the agent deletes that branch itself.
+  Clean up removes the worktree and the local branch after the merge, when
+  nothing in them would be lost.
   Only the merge and the open questions on business logic wait for you, and
   after the merge, the drafts for the plugin's tracker.
 - **A task finishes with a true tracker.** The PR and every issue it closes are

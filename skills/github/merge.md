@@ -53,11 +53,12 @@ Codex, give `<path>` as the `workdir`. When the command prints nothing, no
 checkout holds the branch, and any directory will do. In the branch's linked
 worktree, `gh` 2.99 and later keeps the worktree and the local branch, and
 *Cleanup* decides on them. There, the `--delete-branch` of an older `gh`
-checks out the base branch, and deletes the local branch or fails after the
-merge. So when `gh issue develop --help` names no `--worktree`, as before
-2.99, leave `--delete-branch` out. When `gh pr view <PR> --json state` then
-gives `MERGED`, and `git ls-remote --heads origin refs/heads/<branch>` still
-prints the branch, delete it with `git push origin --delete <branch>`.
+checks out the base branch after the merge, and then deletes the local
+branch, or fails on that checkout. So when `gh issue develop --help` names no
+`--worktree`, as before 2.99, leave `--delete-branch` out. When
+`gh pr view <PR> --json state --jq .state` then prints `MERGED`, and
+`git ls-remote --heads origin refs/heads/<branch>` still prints the branch,
+delete it with `git push origin --delete <branch>`.
 
 **Finishing.** An issue goes stale the moment the code moves under it, and
 GitHub does not notice: nothing corrects its text. So the PR closes the task,
