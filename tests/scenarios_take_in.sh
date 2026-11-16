@@ -170,8 +170,8 @@ snapshot() {
 # check <dir> <case>: one line for each item, PASS, FAIL or SKIP, with the scenario.
 # The gist is the first message that names #91, its title or its typo (a
 # narration can drop the id and title, ADR 0008), when it holds the title, or
-# when a notice with the title comes before it: on a prompt that is #91
-# alone, hooks/session-title.sh gives that notice. A
+# when it holds the typo and a notice with the title comes before it: on a
+# prompt that is #91 alone, hooks/session-title.sh gives that notice. A
 # think line before it, or before a change with no such message, gives SKIP.
 # "The run waits" and "the run stops" have the same check, "no change": one
 # run cannot show the difference (scenarios/README.md), so a run that stops
@@ -200,7 +200,9 @@ check() {
     nline=${named%%:*}
     gist=$(grep -F "$title" <<<"$named" | cut -d: -f1 || true)
     notice=$(grep -n "^notice" "$d.events" | grep -F "$title" | head -n 1 | cut -d: -f1)
-    if [ -z "$gist" ] && [ -n "$notice" ] && [ -n "$nline" ] && [ "$notice" -lt "$nline" ]; then gist=$nline; fi
+    if [ -z "$gist" ] && [ -n "$notice" ] && [ -n "$nline" ] && [ "$notice" -lt "$nline" ] && grep -qF "$typo" <<<"$named"; then
+      gist=$nline
+    fi
     titled=$(grep -n "^text" "$d.events" | grep -F "$title" | head -n 1 | cut -d: -f1)
     think=$(grep -n "^think" "$d.events" | head -n 1 | cut -d: -f1)
     last=$(awk -F'\t' '$1 == "text" { last = $2 } END { print last }' "$d.events")

@@ -36,6 +36,9 @@ short='"#\(.number) " as $n | (40 - ($n | length)) as $max
       | sub("( (a|an|and|at|by|for|from|in|of|on|or|the|to|with))+$"; "")
     else . end | sub(" *\\([^)]*$"; "")
   | if ([match("\""; "g")] | length) % 2 == 1 then sub(" *\"[^\"]*$"; "") else . end)'
-out=$(gh issue view "$issue" --json number,title --jq "{systemMessage: \"#\(.number) \(.title)\",
-  hookSpecificOutput: {hookEventName: \"UserPromptSubmit\", sessionTitle: ($short)}} | tojson" 2>/dev/null) || exit 0
-printf '%s\n' "$out"
+# A control character becomes a space: anybody can write the title of an
+# issue of a public tracker, and an escape sequence in it would reach the
+# terminal.
+gh issue view "$issue" --json number,title --jq ".title |= gsub(\"[[:cntrl:]]\"; \" \")
+  | {systemMessage: \"#\(.number) \(.title)\",
+    hookSpecificOutput: {hookEventName: \"UserPromptSubmit\", sessionTitle: ($short)}} | tojson" 2>/dev/null || exit 0

@@ -21,6 +21,11 @@ free_copies() {
   { printf '%s\n' "$notice"; grep -v '^text' "$fixtures/free.events"; } >"$tmp/$n/free.events"
   stays
 
+  # The notice, then a first message that names #91 but not its defect.
+  copy free
+  { printf '%s\n' "$notice" $'text\tOn it: #91.'; cat "$fixtures/free.events"; } >"$tmp/$n/free.events"
+  stays
+
   # A think line before the first message about #91: the log cannot show
   # whether the person read it.
   copy free
