@@ -37,7 +37,8 @@ they see is the other text files: the bash and awk under `skills/`,
 as `LICENSE` and `data.ere`. The text of a skill is the product, but no
 `Check:` line sees it: an invariant on it is review only.
 `tests/rules_test.sh` checks the size of each `SKILL.md` (ADR 0006) and a
-few of its sentences, and `tests/text_size_test.sh` fails on a text whose
+few of its sentences, which `tests/rules_pins.txt` lists with their
+reasons, and `tests/text_size_test.sh` fails on a text whose
 size is not its recorded size (ADR 0009, ADR 0010).
 
 ## Codemap
@@ -95,7 +96,7 @@ module too: the text that the flows are checked against.
 
 | Module | Folder | Its test, fixtures and pictures |
 | --- | --- | --- |
-| rules | `rules.md`, `hooks/` | `tests/rules_test.sh`, `tests/text_size_test.sh` with the recorded size of each text of the plugin in `tests/text_size.txt`, `tests/hooks_scripts_test.sh`, `tests/rules_decision_eval.sh`, `tests/rules_decision_checks_test.sh`, `tests/fixtures/hooks/`, `tests/fixtures/rules_decision/` |
+| rules | `rules.md`, `hooks/` | `tests/rules_test.sh` with the sentences that it pins in `tests/rules_pins.txt`, `tests/text_size_test.sh` with the recorded size of each text of the plugin in `tests/text_size.txt`, `tests/hooks_scripts_test.sh`, `tests/rules_decision_eval.sh`, `tests/rules_decision_checks_test.sh`, `tests/fixtures/hooks/`, `tests/fixtures/rules_decision/` |
 | github | `skills/github/` | `tests/github_scripts_test.sh`, `tests/github_scout_eval.sh`, `tests/github_filing_eval.sh`, `tests/github_filing_checks_test.sh`, `tests/fixtures/github/`, `tests/fixtures/github_filing/`, `docs/github/` |
 | roadmap | `skills/roadmap/` | `tests/roadmap_scripts_test.sh`, `tests/fixtures/roadmap/`, `docs/roadmap/` |
 | review-loop | `skills/review-loop/` | `tests/review_loop_scripts_test.sh`, `tests/review_loop_eval.sh`, `tests/review_loop_text_eval.sh`, `tests/review_loop_text_checks_test.sh`, `tests/review_loop_lens_eval.sh`, `tests/review_loop_lens_checks_test.sh`, `tests/fixtures/review_loop/` |
