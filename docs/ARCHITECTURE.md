@@ -271,7 +271,7 @@ hold 10. A new number needs an ADR.
   targets of a `SKILL.md`, a side file and `rules.md`: review
   only. `rules.md`, each `SKILL.md` and each side file
   have a recorded size in `tests/text_size.txt`, which also names the files
-  of the take-in flow,
+  of each flow of the github skill, with its target (#415),
   and `tests/text_size_test.sh` fails on one whose size is not that number,
   until the same pull request changes its line: a text that shrinks changes
   it too, so that a later growth shows in a diff (ADR 0010). Pictures are WebP, since the

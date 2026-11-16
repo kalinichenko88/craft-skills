@@ -161,7 +161,8 @@ repo=$tmp/repo
 mkdir -p "$repo/tests" "$repo/scenarios/github" "$repo/skills/github"
 cp "$root/tests/scenarios_text_eval.sh" "$repo/tests/"
 cp "$fixtures/take-in.md" "$repo/scenarios/github/"
-cp "$root/skills/github/SKILL.md" "$root/skills/github/take-in.md" "$root/skills/github/tracker.md" "$repo/skills/github/"
+cp "$root/skills/github/SKILL.md" "$root/skills/github/take-in.md" "$root/skills/github/continue.md" \
+  "$root/skills/github/tracker.md" "$root/skills/github/citations.md" "$repo/skills/github/"
 # -f, so that a global gitignore cannot drop a file that the test needs.
 commit() { git -C "$repo" add -A -f && git -C "$repo" -c user.name=test -c user.email=test@example.com commit -qm "$1"; }
 git -C "$repo" init -q

@@ -4,6 +4,10 @@
 - Level: feature
 - Date: 2026-11-02
 
+## Updates
+
+- 2026-11-16 #415: Links. Was: "`skills/github/filing.md` *A defect in this plugin*".
+
 ## Decision
 
 We will send a defect in this plugin to its tracker, not to Claude Code's
@@ -57,7 +61,7 @@ plugin ship a tool whose description always loads.
 
 ## Links
 
-#213, #64, #183, #205, `skills/github/filing.md` *A defect in this plugin*
+#213, #64, #183, #205, `skills/github/plugin-defect.md`
 
 ## Checked
 

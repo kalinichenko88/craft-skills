@@ -25,12 +25,15 @@ time.
   first message: Claude Code can show that message in other words, with no
   number and no title. Its
   duplicates close before the work starts. The work gets a worktree
-  named for what it does, as `fix/91-what-it-does`. The issue is assigned to
-  you and gets the label `in progress`, which the agent creates when the
-  repository has none: an assignee says who may take an issue, and the label
-  says that its work runs. An issue assigned to you, with no label
-  `in progress`, branch or pull request, is taken with no question. Every open bug and debt
-  issue in the same area is checked, so one PR can close them with the task.
+  named for what it does, as `fix/91-what-it-does`. A session that starts in
+  a worktree takes the branch there, unless that worktree holds other work:
+  changes, or commits that the default branch of origin does not have. The
+  issue is assigned to you and gets the label `in progress`, which the agent
+  creates when the repository has none: an assignee says who may take an
+  issue, and the label says that its work runs. An issue assigned to you,
+  with no label `in progress`, branch or pull request, is taken with no
+  question. Every open bug and debt issue in the same area is checked, so one
+  PR can close them with the task.
   Name an issue of yours again, as after you closed the terminal: when the
   branch it has on GitHub is here with its last commit, the work goes on
   there, with no question. In Claude Code, the agent first looks for a session
@@ -70,8 +73,12 @@ time.
   stops it too. Merge all the same, after a check that failed, was
   cancelled or still runs, is a plain merge: it adds `--admin` or `--auto`
   only when you name that flag. After a stop at round 3, more rounds is one
-  more answer. Clean up removes the worktree and the local branch after the
-  merge, when nothing in them would be lost.
+  more answer. With `gh` older than 2.99, whose `--delete-branch` tries to
+  check out the base branch in the worktree, and fails or deletes the local
+  branch, the agent merges there without that flag. When the PR is merged
+  and its branch is still on GitHub, the agent deletes that branch itself.
+  Clean up removes the worktree and the local branch after the merge, when
+  nothing in them would be lost.
   Only the merge and the open questions on business logic wait for you, and
   after the merge, the drafts for the plugin's tracker.
 - **A task finishes with a true tracker.** The PR and every issue it closes are

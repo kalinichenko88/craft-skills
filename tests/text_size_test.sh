@@ -2,9 +2,9 @@
 # Each text that an agent reads in a run has a recorded size in
 # tests/text_size.txt, in characters as jq counts them: rules.md, each
 # SKILL.md, and each side file (a .md file under skills/, but not a SKILL.md
-# or a README.md). A flow is a line that names the files that it reads: its
-# size is the sum of their lines. A text
-# whose size is not its recorded size fails, so a pull request that changes
+# or a README.md). A flow is a line with its target, a number that fails
+# nothing, and the files that it reads: its size is the sum of their lines.
+# A text whose size is not its recorded size fails, so a pull request that changes
 # one changes its line, and the review sees each growth (ADR 0009). A text
 # below its record fails too: else it can grow back with no line in a diff
 # (ADR 0010).
@@ -27,13 +27,15 @@ listed() {
 
 # sizes <tree>: each fault of <tree>/tests/text_size.txt against the texts of
 # <tree>, one per line. A line of the record is "<characters> <path>" or
-# "flow <name> <path>...", where each path has a line of its own.
+# "flow <name> <target> <path>...", where each path has a line of its own.
 sizes() {
-  local tree=$1 record=$1/tests/text_size.txt size kind rest chars f path
+  local tree=$1 record=$1/tests/text_size.txt size kind rest chars f path target
   [ -f "$record" ] || { echo 'tests/text_size.txt does not exist'; return; }
   while read -r size kind rest || [ -n "$size" ]; do
     case $size in '' | '#'*) continue ;; esac
     if [ "$size" = flow ]; then
+      target=${rest%% *}
+      case $target in '' | *[!0-9]*) echo "the flow $kind has no target" ;; *) rest=${rest#"$target"} ;; esac
       for f in $rest; do
         listed "$tree" "$f" || echo "the flow $kind names $f, which has no line"
       done
@@ -64,7 +66,7 @@ tree() {
 }
 
 # side.md has 4 characters in 7 bytes, and README.md needs no line.
-tree '6 rules.md' '8 skills/a/SKILL.md' '4 skills/a/side.md' 'flow all rules.md skills/a/SKILL.md skills/a/side.md'
+tree '6 rules.md' '8 skills/a/SKILL.md' '4 skills/a/side.md' 'flow all 30 rules.md skills/a/SKILL.md skills/a/side.md'
 check 'each text at its recorded size' '' "$(sizes "$tmp/t")"
 
 tree '6 rules.md' '80 skills/a/SKILL.md' '4 skills/a/side.md'
@@ -80,12 +82,16 @@ skills/a/side.md has 4 characters, and its line says 3' "$(sizes "$tmp/t")"
 tree '6 rules.md' '8 skills/a/SKILL.md'
 check 'a side file with no line' 'skills/a/side.md has no line' "$(sizes "$tmp/t")"
 
-tree '6 rules.md' '8 skills/a/SKILL.md' '4 skills/a/side.md' '9 skills/a/gone.md' 'flow all rules.md skills/a/other.md'
+tree '6 rules.md' '8 skills/a/SKILL.md' '4 skills/a/side.md' '9 skills/a/gone.md' 'flow all 30 rules.md skills/a/other.md'
 check 'a line for a file that is gone, and a flow that names a file with no line' 'skills/a/gone.md has a line, but does not exist
 the flow all names skills/a/other.md, which has no line' "$(sizes "$tmp/t")"
 
+# The target of a flow is a number, before its files.
+tree '6 rules.md' '8 skills/a/SKILL.md' '4 skills/a/side.md' 'flow all rules.md skills/a/SKILL.md'
+check 'a flow with no target' 'the flow all has no target' "$(sizes "$tmp/t")"
+
 # Neither a commented line nor the name of a flow is the line of a path.
-tree '8 skills/a/SKILL.md' '#4 skills/a/side.md' 'flow rules.md skills/a/SKILL.md'
+tree '8 skills/a/SKILL.md' '#4 skills/a/side.md' 'flow rules.md 9 skills/a/SKILL.md'
 check 'a comment and a flow name in the place of a size line' 'rules.md has no line
 skills/a/side.md has no line' "$(sizes "$tmp/t")"
 

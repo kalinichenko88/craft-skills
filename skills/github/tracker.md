@@ -1,6 +1,7 @@
 # Scripts and the tracker
 
-`take-in.md` and `filing.md` send you here before they read the tracker.
+`take-in.md`, `filing.md` and `merge.md` send you here before they read the
+tracker.
 
 ## Scripts
 
@@ -55,18 +56,19 @@ Collector: bash <dir>/scripts/collect.sh
 For findings, the `Job:` line is `Job: filing.`, and under it one line per
 finding with its `path:line`.
 
-For citations, the `Job:` line is `Job: citations #91.`, or `Job: citations.`
-for the open issues that have an entry in the file, and under it `Tree: <the
-worktree>`. After a merge, `Tree:` is the new checkout of the merged code of
-*Finishing* in `merge.md`, and its `Decision <n>:` lines come under it too. In
-Claude Code this job goes to a scout whatever the size of the file: the
-reading it saves is in the code, not in the file.
+For citations, the prompt reads `<dir>/citations.md`, and the `Job:` line is
+`Job: citations #91.`, or `Job: citations.` for the open issues that have an
+entry in the file, and under it `Tree: <the worktree>`. After a merge, `Tree:`
+is the new checkout of the merged code of *Finishing* in `merge.md`, and its
+`Decision <n>:` lines come under it too. In Claude Code this job goes to a
+scout whatever the size of the file: the reading it saves is in the code, not
+in the file.
 
 For take-in and filing, read a smaller file yourself: it costs less than a
 subagent's start and its report. In Codex, do every job yourself. Follow
-`scout.md` — its *The file*, *Read*, *Sort*, *Citations* and the entry shape in
-its *Return* — write its groups and entries as your notes, and go back to the
-file that sent you here.
+`scout.md`, or `citations.md` for citations — the file, the steps and the
+entry shape of its *Return* — write its groups and entries as your notes, and
+go back to the file that sent you here.
 
 The scout only reads. Every close, edit, comment and new issue is yours, and
 so is every verdict. Its lists include doubtful candidates on purpose: drop
@@ -113,6 +115,6 @@ file outside every checkout, as the session's scratchpad or a folder from
 `mktemp -d`, and give it to `gh` with `--body-file`. A title that holds words
 of an issue goes into such a file too, and to `gh` or a script as
 `"$(cat <file>)"`: the shell does not read that text again. Outside every
-checkout, no `git add` takes the file into a commit, in Codex too. The
-citations job of `scout.md` writes no file, and its two commands have a rule
-of their own.
+checkout, no `git add` takes the file into a commit, in Codex too.
+`citations.md` writes no file, and its `git ls-files` and `git grep` have a
+rule of their own.

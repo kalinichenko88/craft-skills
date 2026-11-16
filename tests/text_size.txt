@@ -2,23 +2,31 @@
 # as `jq -Rs length` counts them (ADR 0009). tests/text_size_test.sh fails on
 # a text whose size is not its number: a pull request that changes a text
 # changes its line, so the review sees each growth (ADR 0010).
-# A line is "<characters> <path>", or "flow <name> <path>...", the files
-# that one flow reads: its size is the sum of their lines. The take-in flow is the five
-# files that one take-in puts into the context of the session (#275), the
-# rules and the review among them. More flows come with their maps (#415).
-5894 rules.md
+# A line is "<characters> <path>", or "flow <name> <target> <path>...", the
+# files that one moment reads into one context: its size is the sum of their
+# lines. The target is the sum of the budgets of ADR 0009 for those files, and
+# fails nothing. The flows of the github skill are its map (#415): a take-in,
+# the work that continues, a filing, a merge and a defect in the plugin read
+# into the session, with the rules and, after the work, the review. A scout
+# reads `scout.md` or `citations.md` alone: the line of that file is its flow.
+# A read that a condition starts, as a small file that the session reads
+# itself, or a duplicate held for its reproduction, is not on a flow line.
+5919 rules.md
 10513 skills/architecture/first-file.md
 4637 skills/architecture/invariants.md
 19911 skills/architecture/SKILL.md
 3238 skills/debt/instructions-lens.md
 17704 skills/debt/SKILL.md
 8291 skills/docker/SKILL.md
-19704 skills/github/filing.md
-8824 skills/github/merge.md
-11486 skills/github/scout.md
-11261 skills/github/SKILL.md
-18407 skills/github/take-in.md
-6377 skills/github/tracker.md
+5391 skills/github/citations.md
+2642 skills/github/continue.md
+10287 skills/github/filing.md
+9507 skills/github/merge.md
+9390 skills/github/plugin-defect.md
+6945 skills/github/scout.md
+11365 skills/github/SKILL.md
+15675 skills/github/take-in.md
+6441 skills/github/tracker.md
 4717 skills/product/reader.md
 11735 skills/product/SKILL.md
 5349 skills/product/store.md
@@ -32,4 +40,8 @@
 12426 skills/roadmap/SKILL.md
 10239 skills/roadmap/triage.md
 11970 skills/typescript-conventions/SKILL.md
-flow take-in rules.md skills/github/SKILL.md skills/github/take-in.md skills/github/tracker.md skills/review-loop/SKILL.md
+flow take-in 56000 rules.md skills/github/SKILL.md skills/github/take-in.md skills/github/tracker.md skills/review-loop/SKILL.md
+flow continue 66000 rules.md skills/github/SKILL.md skills/github/take-in.md skills/github/continue.md skills/github/tracker.md skills/review-loop/SKILL.md
+flow filing 41000 rules.md skills/github/SKILL.md skills/github/filing.md skills/github/tracker.md
+flow merge 51000 rules.md skills/github/SKILL.md skills/github/merge.md skills/github/tracker.md skills/github/plugin-defect.md
+flow plugin-defect 31000 rules.md skills/github/SKILL.md skills/github/plugin-defect.md

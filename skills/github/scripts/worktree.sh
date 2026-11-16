@@ -20,8 +20,10 @@
 # hold other work, so the script names the worktree that holds it, if one does,
 # and its commits on no remote. A linked branch already checked out somewhere
 # is worked on there. A session already in a worktree, as one started with
-# claude --worktree or codex --worktree, checks the branch out where it is;
-# --here does the same in any checkout, for "a branch only".
+# claude --worktree or codex --worktree, checks the branch out where it is,
+# unless that worktree holds other work: changes, or commits that the default
+# branch of origin does not have. Then the branch gets a worktree of its own.
+# --here checks it out where it is in any checkout, for "a branch only".
 #
 # --local takes the local <branch> as it is: take-in-check.sh printed
 # "continue", or the person said that the branch holds this work. The script
@@ -85,6 +87,19 @@ if [ -z "$linked$keep" ] && git show-ref -q --verify "refs/heads/$branch"; then
   exit 1
 fi
 
+common=$(git rev-parse --path-format=absolute --git-common-dir)
+# A linked worktree with changes, or with commits that the default branch of
+# origin does not have, holds other work, as another session's pull request:
+# a switch there would move that work to this branch. The script reads it
+# before its first write, as it reads the stops above.
+if [ -z "$here$path" ] && [ "$(git rev-parse --path-format=absolute --git-dir)" != "$common" ]; then
+  main=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name)
+  if [ -z "$(git status --porcelain)" ] &&
+    git merge-base --is-ancestor HEAD "refs/remotes/origin/$main" 2>/dev/null; then
+    here=1
+  fi
+fi
+
 # An issue that someone else is assigned to and you are not is theirs, and so
 # is its linked branch. GitHub does not say whose a branch is: one linked while
 # nobody is assigned can be someone else's too. In both cases you decide, and
@@ -115,8 +130,7 @@ if [ -n "$path" ]; then
   exit 0
 fi
 
-common=$(git rev-parse --path-format=absolute --git-common-dir)
-if [ -n "$here" ] || [ "$(git rev-parse --path-format=absolute --git-dir)" != "$common" ]; then
+if [ -n "$here" ]; then
   if [ -n "$keep" ]; then
     run git switch "$branch"
   else
@@ -126,7 +140,8 @@ if [ -n "$here" ] || [ "$(git rev-parse --path-format=absolute --git-dir)" != "$
   exit 0
 fi
 
-path="$(git rev-parse --show-toplevel)/.claude/worktrees/$branch"
+# The main checkout is the first one that git lists.
+path="$(git worktree list --porcelain | sed -n '1s/^worktree //p')/.claude/worktrees/$branch"
 if [ -n "$keep" ]; then
   run git worktree add "$path" "$branch"
 elif [[ $(gh issue develop --help) == *--worktree* ]]; then

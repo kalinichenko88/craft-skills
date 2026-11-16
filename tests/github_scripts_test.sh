@@ -54,6 +54,7 @@ case "$1 $2" in
       --list) cat "$FAKE/linked" 2>/dev/null || true ;;
       --help) echo '      --worktree path        Check out the branch into a worktree at the given path' ;;
     esac ;;
+  'repo view') echo '{"defaultBranchRef":{"name":"trunk"}}' | jq -r "$filter" ;;
   *) echo "fake gh: no answer for: $*" >&2; exit 1 ;;
 esac
 EOF
@@ -399,8 +400,10 @@ check 'take-in-check.sh on an issue of another repository' \
   "$(take https://github.com/octo-org/octo-repo/issues/179)"
 
 # worktree.sh in a main checkout, with DRY_RUN=1. As recorded, #5 has no
-# assignee.
+# assignee. The main checkout never takes the branch in place, also when
+# its HEAD is on the default branch of origin.
 answer .
+git -C "$tmp/repo" update-ref refs/remotes/origin/trunk HEAD
 top=$(git -C "$tmp/repo" rev-parse --show-toplevel)
 : >"$tmp/calls"
 out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-scout-citations)
@@ -563,6 +566,55 @@ out=$(cd "$tmp/repo" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 fix/5-old --loca
 case $out in *'dry run: git switch fix/5-old'*) ;;
   *) fail 'worktree.sh --local --here checks the local branch out where it is' "$out" ;;
 esac
+
+# A session in a linked worktree, as one that claude --worktree started, takes
+# the branch where it is while that worktree holds no other work. Changes, or a
+# commit that origin's default branch lacks, are another session's work, as its
+# pull request: the branch gets a worktree of its own (#404).
+git -C "$tmp/repo" update-ref refs/remotes/origin/trunk HEAD
+git -C "$tmp/repo" worktree add -q -b feat/1-a "$tmp/wt" HEAD
+wt=$(git -C "$tmp/wt" rev-parse --show-toplevel)
+own="--checkout --worktree $top/.claude/worktrees/feat/5-b"
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
+case $out in *"--name feat/5-b --checkout"$'\n'"$wt") ;;
+  *) fail 'worktree.sh takes the branch where it is in a worktree with no other work' "$out" ;;
+esac
+# --local, as continue.md runs it, the same way.
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 fix/5-old --local)
+case $out in *'dry run: git switch fix/5-old'$'\n'"$wt") ;;
+  *) fail 'worktree.sh --local takes the local branch where it is in a worktree with no other work' "$out" ;;
+esac
+# The default branch moved on after the worktree was made: its HEAD is behind,
+# and it holds no other work.
+git -C "$tmp/repo" -c user.name=t -c user.email=t commit -q --allow-empty -m 'Merged since'
+git -C "$tmp/repo" update-ref refs/remotes/origin/trunk HEAD
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
+case $out in *"--name feat/5-b --checkout"$'\n'"$wt") ;;
+  *) fail 'worktree.sh takes the branch where it is in a worktree that is behind the default branch' "$out" ;;
+esac
+# With no default branch of origin to compare with, nothing shows that the
+# worktree is free. The read of the default branch comes before any write.
+git -C "$tmp/repo" update-ref -d refs/remotes/origin/trunk
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
+case $out in *"$own"*) ;; *) fail 'worktree.sh switches a worktree it cannot compare with the default branch' "$out" ;; esac
+out=$(cd "$tmp/wt" && FAKE_FAIL='repo view' DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b 2>&1) &&
+  fail 'worktree.sh goes on when it cannot read the default branch' "$out"
+case $out in *'dry run:'*) fail 'worktree.sh writes before it reads the default branch' "$out" ;; esac
+git -C "$tmp/repo" update-ref refs/remotes/origin/trunk HEAD
+echo change >"$tmp/wt/file"
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
+case $out in *"$own"*) ;; *) fail 'worktree.sh switches a worktree with changes to another branch' "$out" ;; esac
+rm "$tmp/wt/file"
+git -C "$tmp/wt" -c user.name=t -c user.email=t commit -q --allow-empty -m 'Work of another session'
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 feat/5-b)
+case $out in *"$own"*"$top/.claude/worktrees/feat/5-b") ;;
+  *) fail 'worktree.sh switches a worktree with a commit that the default branch lacks' "$out" ;;
+esac
+out=$(cd "$tmp/wt" && DRY_RUN=1 bash "$scripts/worktree.sh" 5 fix/5-old --local)
+case $out in *"dry run: git worktree add $top/.claude/worktrees/fix/5-old fix/5-old"*) ;;
+  *) fail 'worktree.sh --local switches a worktree with a commit that the default branch lacks' "$out" ;;
+esac
+git -C "$tmp/repo" worktree remove --force "$tmp/wt"
 
 # keep-open.sh removes the pull request's link to the one issue it is given.
 # keep-open-21.json is PR #21's answer, with its link to #14 and a description

@@ -110,8 +110,8 @@ workflow file, goes through the `craft:github` skill, invoked before the
 first `git commit`, `gh` call or workflow edit. A
 read-only subagent, as a review or an `Explore` subagent, files nothing,
 whatever the rules below say. It does not load the skill, and names each
-finding in its report. One sent with the skill's `scout.md`, or with the
-roadmap skill's `lanes.md`, follows that file instead.
+finding in its report. One sent with the skill's `scout.md` or `citations.md`,
+or with the roadmap skill's `lanes.md`, follows that file instead.
 
 **Out-of-scope findings become issues.** A finding worth fixing outside the
 task that the Boy Scout Rule does not take is an issue: do not fix it inline
@@ -123,6 +123,6 @@ filing it.
 The plugin is both parts of these rules, the hooks and each `craft:` skill
 with its scripts; its tracker is `kalinichenko88/craft-skills`. Unlike the
 rule above, ask the person first: show the text that the github skill's
-`filing.md` writes.
+`plugin-defect.md` writes.
 
 **Never add a `Co-Authored-By:` trailer** to a commit message.

@@ -100,9 +100,9 @@ done
 # - The GitHub section keeps the headings of its two rules that must fire with
 #   no skill loaded (#151). With no GitHub remote, an agent that finds
 #   something out of scope may never load the github skill, so rules.md keeps
-#   the fallback too. The
-#   ask for a plugin defect shows the text that filing.md writes, so its check
-#   of the defect runs before the person is asked.
+#   the fallback too. The ask for a plugin defect shows the text that
+#   plugin-defect.md writes, so its check of the defect runs before the person
+#   is asked.
 # - A zero count stops a fix, but an attacker can make the input of data loss
 #   or a security hole: the rule for a person's report, in rules.md, and the
 #   rule for a review finding, in review-loop, each name that exception (#151).
@@ -189,6 +189,9 @@ done
 #   flags come only when the person names them.
 # - #398: the plugin-defect step said where to write its title, not how.
 # - #397: the Merging row and review-loop are the ways into merge.md.
+# - #408: in a linked worktree, gh older than 2.99 checks out the base branch
+#   after the merge and deletes the local branch, or exits 1 with the remote
+#   branch kept: that gh merges with no --delete-branch.
 # - take-in said to go on after a failed read of the task; 3 of 3 runs
 #   stopped, and that is the rule now (#348). 4 of 6 runs cut a log line
 #   that npm did not print, with a marker; the text allows it (#390).
@@ -215,13 +218,14 @@ skills/roadmap/planning.md|except `debt` for a debt issue
 rules.md|**Out-of-scope findings become issues.**
 rules.md|Where there is no GitHub remote or `gh auth status` fails, name the finding in the final report instead of filing it.
 rules.md|**A defect in this plugin goes to its tracker, after the person says yes.**
-rules.md|Unlike the rule above, ask the person first: show the text that the github skill's `filing.md` writes.
+rules.md|Unlike the rule above, ask the person first: show the text that the github skill's `plugin-defect.md` writes.
 rules.md|For a report of data loss or a security hole, a zero count does not stop the fix. An attacker can make the input, so the test of that fix uses the input of the report.
 skills/review-loop/SKILL.md|A zero count does not decline a finding of data loss or a security hole: an attacker can make the input, and the test of its fix uses the input of the finding.
 rules.md|With no real source to sample, the count stops nothing, and the test uses the input of the report.
 skills/review-loop/SKILL.md|With no real source to sample, the count declines nothing, and the test of the fix uses the input of the finding.
 skills/github/merge.md|gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
 skills/github/merge.md|The list decides, not the exit code of the watch: a cancelled check gives 0, and no check at all gives 1.
+skills/github/merge.md|So in that worktree, when `gh issue develop --help` names no `--worktree`, as before 2.99, leave `--delete-branch` out. When `gh pr view <PR> --json state --jq .state` then prints `MERGED`, and `git ls-remote --heads origin refs/heads/<branch>` still prints the branch, delete it with `git push origin --delete <branch>`.
 skills/github/merge.md|with `--subject` and `--body` in English, as every commit message is, also when the PR is in another language. `--subject` is the PR title in English, then ` (#<PR>)`
 skills/github/SKILL.md|`gh pr merge --squash --delete-branch --subject --body`, in English: the PR title with ` (#<PR>)` and one bullet list for the whole branch
 skills/github/merge.md|The merge all the same, after a `fail`, `cancel` or `pending` line, is the same `gh pr merge`, with no new wait.
@@ -237,8 +241,9 @@ skills/github/merge.md|For each changed file with a size limit of its own, as a 
 skills/github/merge.md|*Finishing* reads the merged code in a new checkout, outside every checkout. The branch's worktree is not the merged code when the default branch moved after the branch's last push.
 skills/github/merge.md|git worktree add --detach <the mktemp path> origin/<the default branch>
 skills/github/merge.md|Remove it when *Finishing* ends or stops, with `git worktree remove --force <the mktemp path>`.
+skills/github/merge.md|Correct each one in the body of the issue that holds it, with no new issue,
 skills/github/merge.md|A problem marked `Done in #<PR>.` needs no other correction, and an issue with a problem left in it stays open.
-skills/github/scout.md|Then read the title and the whole body of each issue against them, the sentences with no citation too.
+skills/github/citations.md|Then read the title and the whole body of each issue against them, the sentences with no citation too.
 rules.md|`craft:react-conventions` too. A subagent invokes them itself. No pattern to copy and no rule to keep the work short skips these calls.
 rules.md|A read-only subagent, as a review or an `Explore` subagent, files nothing, whatever the rules below say.
 skills/github/take-in.md|While a subagent reads the file, you can run `worktree.sh` below:
@@ -256,14 +261,14 @@ skills/github/take-in.md|A corrected citation names the same thing as the old on
 skills/github/take-in.md|Then save the body with `gh issue view 91 --json body --jq .body > <file>`, in a new file outside every checkout, correct the citations there with the file tool, and post it with `gh issue edit 91 --body-file <file>`.
 skills/github/take-in.md|When this read fails, say so with its error, and stop.
 skills/github/take-in.md|A line that is not output of the tool whose log it is can be left out, with a marker in its place; every other line goes as it is.
-skills/github/scout.md|A path or a text from an issue goes into these commands only in single quotes, and only when it holds no `'` and no `\`: a `'` ends the quote, and the shell runs the rest.
-skills/github/scout.md|The Bash tool of Claude Code reads `\u0027` as a `'`.
+skills/github/citations.md|A path or a text from an issue goes into these commands only in single quotes, and only when it holds no `'` and no `\`: a `'` ends the quote, and the shell runs the rest.
+skills/github/citations.md|The Bash tool of Claude Code reads `\u0027` as a `'`.
 skills/github/filing.md|bash <dir>/scripts/add-finding.sh 12 "$section_file" "$(cat "$title_file")" [label]
 skills/github/filing.md|give the `add-finding.sh` command and the paths of the section file and the title file too. Keep both files, and do not change them.
-skills/github/filing.md|"$(cat "$title_file")" --body-file "$body_file"
+skills/github/plugin-defect.md|"$(cat "$title_file")" --body-file "$body_file"
 skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false; else in a later change, as its task or as a finding outside its task. Then add a line under `## Updates`, a heading right after the Status and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 skills/review-loop/architecture-lens.md|The one exception is *A fact that changed* in *ADRs*: a sentence that is false now, corrected in place, with its line under `## Updates` that quotes the old words, and with the same decision.
-skills/github/filing.md|After the yes, write the body, and the title of an issue, with the file tool to two files outside every checkout, not with the shell:
+skills/github/plugin-defect.md|After the yes, write the body, and the title of an issue, with the file tool to two files outside every checkout, not with the shell:
 skills/github/SKILL.md|*Cleanup* when the person asks for it | `merge.md`
 skills/review-loop/SKILL.md|show the `gh pr merge` command that `merge.md` in that skill gives
 EOF

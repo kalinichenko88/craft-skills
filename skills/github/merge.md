@@ -2,11 +2,12 @@
 
 The *Merging* row of `SKILL.md` sends you here.
 
-Merging is always `gh pr merge --squash --delete-branch`, with `--subject` and
-`--body` in English, as every commit message is, also when the PR is in another
-language. `--subject` is the PR title in English, then ` (#<PR>)`, so the title
-takes the same `type: sentence` shape. Without it, GitHub takes the title, or a
-one-commit branch's subject, as it is. `--body` is one list in the shape of
+Merging is `gh pr merge --squash --delete-branch` (an older `gh` in a linked
+worktree leaves the flag out, below), with `--subject` and `--body` in
+English, as every commit message is, also when the PR is in another
+language. `--subject` is the PR title in English, then ` (#<PR>)`, so the
+title takes the same `type: sentence` shape. Without it, GitHub takes the
+title, or a one-commit branch's subject, as it is. `--body` is one list in the shape of
 *Commits* in `SKILL.md` — at most five bullets — that sums up every commit on
 the branch, not just the first: without it GitHub fills the squash commit from
 a repository setting, by default every branch commit's full message in turn.
@@ -48,10 +49,16 @@ check, and `--auto` leaves the pull request open when the command ends.
 Run the merge in the checkout that holds the branch, whatever directory the
 session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what
 `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints. In
-Codex, give `<path>` as the `workdir`. In the branch's linked worktree, `gh`
-keeps the worktree and the local branch, and *Cleanup* decides on them. When
-the command prints nothing, no checkout holds the branch, and any directory
-will do.
+Codex, give `<path>` as the `workdir`. When the command prints nothing, no
+checkout holds the branch, and any directory will do. In the branch's linked
+worktree, `gh` 2.99 and later keeps the worktree and the local branch, and
+*Cleanup* decides on them. There, the `--delete-branch` of an older `gh`
+checks out the base branch after the merge, and then deletes the local
+branch, or fails on that checkout. So in that worktree, when
+`gh issue develop --help` names no `--worktree`, as before 2.99, leave
+`--delete-branch` out. When `gh pr view <PR> --json state --jq .state` then
+prints `MERGED`, and `git ls-remote --heads origin refs/heads/<branch>` still
+prints the branch, delete it with `git push origin --delete <branch>`.
 
 **Finishing.** An issue goes stale the moment the code moves under it, and
 GitHub does not notice: nothing corrects its text. So the PR closes the task,
@@ -99,28 +106,31 @@ of a size check, add a decision with its new size and the check's limit, also
 when the description does not give them.
 
 Check each citation that moved or is gone, and each sentence that the scout
-gives as false. Correct them by *Filing one next to an existing issue* in
-`filing.md`: the body says what was decided and in which PR, and a false title
-is rewritten too. A host's title still names every problem in it. A problem
-marked `Done in #<PR>.` needs no other correction, and an issue with a problem
-left in it stays open. A question that the PR answered is marked answered. A
+gives as false. Correct each one in the body of the issue that holds it, with
+no new issue, and leave one one-line comment on that issue that says what
+moved and why: a body edit notifies nobody. The body says what was decided
+and in which PR, and a false title is rewritten too. A host's title still
+names every problem in it. A problem marked `Done in #<PR>.` needs no other
+correction, and an issue with a problem left in it stays open. A question
+that the PR answered is marked answered. A
 proposal that it ruled out is rewritten. An issue whose premise is gone closes
-with a comment that names the PR. A busy issue gets only the one-line comment
-and stays open, as *Filing one next to an existing issue* says. The limit of
+with a comment that names the PR. A busy issue (`tracker.md`) gets only the
+one-line comment and stays open, and the final report names it. The limit of
 two added findings does not stop a correction: it is for added findings.
 
 The last step reads the session for defects in this plugin: *The session at
-the end* in `filing.md`.
+the end* in `plugin-defect.md`.
 
 **Cleanup.** Do it when the person chose merge and clean up, after
 *Finishing*. Run in the branch's linked worktree, `gh pr merge --delete-branch`
-deletes only the remote branch: it prints `skipping local delete`, and the
-worktree and the local branch stay. Run in another checkout, `gh` 2.103
-removes that worktree with `git worktree remove` and the local branch with
-`git branch -D`. `gh` does not list the ignored files or check the branch
-head, and when the removal succeeds, it prints nothing without a TTY. That is
-why the merge runs in the worktree. When the branch has no linked worktree,
-`gh` deletes the local branch itself, and nothing is left to clean up.
+of `gh` 2.99 and later deletes only the remote branch: it prints
+`skipping local delete`, and the worktree and the local branch stay. Run in
+another checkout, `gh` 2.103 removes that worktree with `git worktree remove`
+and the local branch with `git branch -D`. `gh` does not list the ignored files
+or check the branch head, and when the removal succeeds, it prints nothing
+without a TTY. That is why the merge runs in the worktree. When the branch has
+no linked worktree, `gh` deletes the local branch itself, and nothing is left
+to clean up.
 
 First leave the worktree, the way the session came in. In Claude Code, a
 session that `EnterWorktree` moved there leaves with `ExitWorktree` and
