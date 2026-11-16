@@ -129,8 +129,8 @@ another checkout, `gh` 2.103 removes that worktree with `git worktree remove`
 and the local branch with `git branch -D`. `gh` does not list the ignored files
 or check the branch head, and when the removal succeeds, it prints nothing
 without a TTY. That is why the merge runs in the worktree. When the branch has
-no linked worktree, there is no *Cleanup*: `gh` deletes the local branch
-itself, or prints why it keeps it.
+no linked worktree, `gh` deletes the local branch itself, or prints why it
+keeps it.
 
 First leave the worktree, the way the session came in. In Claude Code, a
 session that `EnterWorktree` moved there leaves with `ExitWorktree` and

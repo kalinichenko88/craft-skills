@@ -193,8 +193,8 @@ done
 #   after the merge and deletes the local branch, or exits 1 with the remote
 #   branch kept: that gh merges with no --delete-branch.
 # - #439: gh keeps the local branch of the main checkout while a linked
-#   worktree holds the base branch, in 0 of 66 repositories: no text says
-#   that gh always deletes it, and the case gets no rule.
+#   worktree holds the base branch, in 0 of 66 repositories: the two
+#   sentences do not say that gh always deletes it, and the case has no rule.
 # - take-in said to go on after a failed read of the task; 3 of 3 runs
 #   stopped, and that is the rule now (#348). 4 of 6 runs cut a log line
 #   that npm did not print, with a marker; the text allows it (#390).
@@ -238,7 +238,7 @@ skills/github/merge.md|Run the merge in the checkout that holds the branch, what
 skills/github/merge.md|`ExitWorktree` does nothing for a session that moved there in any other way, as with `cd` after `worktree.sh`: that session runs both commands itself, each with `git -C <the main checkout>`. Only a session that started in the worktree, as with `claude --worktree` or `codex --worktree`, cannot leave it: give the person the two commands below, to run after the session ends.
 skills/review-loop/SKILL.md|1. Push the branch, in a command of its own. When the push succeeds and the branch has an open pull request, add the summary's lines to its `## Review`. When it succeeds and the branch has none, open the pull request
 skills/review-loop/SKILL.md|When `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints nothing or the first path of `git worktree list`, the branch has no linked worktree: ask only whether to merge, and do no *Cleanup*.
-skills/github/merge.md|When the branch has no linked worktree, there is no *Cleanup*: `gh` deletes the local branch itself, or prints why it keeps it.
+skills/github/merge.md|When the branch has no linked worktree, `gh` deletes the local branch itself, or prints why it keeps it.
 skills/github/merge.md|and a number that it changed, as a count or a size that an issue can quote.
 skills/github/merge.md|Count again each number that the merged code holds: a description can be older than the last fix. When a check sets its limit, count it as that check counts it.
 skills/github/merge.md|For each changed file with a size limit of its own, as a cap on its characters that a test sets, or on the `debt` list of a size check, add a decision with its new size and the check's limit, also when the description does not give them.
