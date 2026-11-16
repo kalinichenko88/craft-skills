@@ -65,8 +65,8 @@ EOF
 # A quote, a backslash or a tab in the title must leave the JSON valid.
 jq '.title = "a \"b\" \\ c\td"' "$fixtures/issue.json" >"$tmp/issue.json"
 out=$(run claude-prompt.json '#133') || fail "escape: exit $?"
-check 'escape: the title' '#133 a "b" \ c d' "$(field sessionTitle)"
-check 'escape: the notice' '#133 a "b" \ c d' "$(jq -r .systemMessage <<<"$out")"
+check 'escape: the title' $'#133 a "b" \\ c\td' "$(field sessionTitle)"
+check 'escape: the notice' $'#133 a "b" \\ c\td' "$(jq -r .systemMessage <<<"$out")"
 
 # The name keeps the number and the first part of the title whole up to 50
 # characters, and cuts a longer part at a word end to 40. Each line is the

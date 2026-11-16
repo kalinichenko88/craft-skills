@@ -12,7 +12,9 @@ as `#91` or its URL, `hooks/session-title.sh` names the session, as before,
 and also returns a `systemMessage`: `#91 <the title>`. Claude Code shows it
 as `UserPromptSubmit says: #91 <the title>`. The gist of
 `skills/github/take-in.md` stays as it is, for Codex and for a prompt as
-"take #91".
+"take #91". `tests/scenarios_eval.sh` keeps the notice as a line of its
+own: the gist items take the title from it, and still need a message of
+the run about the task before the first change.
 
 On a continue, the line that says that the work continues stays as it is.
 The narration of it names the branch and says that the run works there, as

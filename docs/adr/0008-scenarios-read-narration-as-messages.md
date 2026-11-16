@@ -3,10 +3,6 @@
 - Status: accepted
 - Date: 2026-11-11
 
-## Updates
-
-- 2026-11-16 #317: Decision. Was: "reads a message to the person from each text block of the main session, and from each thinking block that `narration_block_indexes` names, in the words of the log".
-
 ## Context
 
 ADR 0003 put the scenarios of the flows in `scenarios/`, and
@@ -61,9 +57,8 @@ them. Where the README of a skill or a picture differs from a scenario, the
 scenario holds. The conventions skills get no scenarios.
 
 `tests/scenarios_eval.sh` reads a message to the person from each text block
-of the main session, from each thinking block that
-`narration_block_indexes` names, and from each notice of a hook, in the
-words of the log. Other thinking
+of the main session, and from each thinking block that
+`narration_block_indexes` names, in the words of the log. Other thinking
 with words stays a think line: an item that only such a line can decide
 gives SKIP. A check finds a message about a task by its id, its title or the
 words of its defect, as the body of the task gives them: a narration can

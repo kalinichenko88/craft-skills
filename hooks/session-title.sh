@@ -7,7 +7,7 @@
 # Codex marks a hook run as failed when its output has a field that Codex does
 # not know, as sessionTitle. So the hook prints only for a Claude Code input:
 # prompt_id, which Claude Code sends, and no turn_id, which only Codex sends.
-# Parsed and escaped in bash, so the hook needs no jq.
+# Parsed in bash, and gh's own --jq writes the JSON, so the hook needs no jq.
 
 input=$(cat)
 [[ $input == *'"prompt_id":'* && $input != *'"turn_id":'* ]] || exit 0
@@ -36,9 +36,6 @@ short='"#\(.number) " as $n | (40 - ($n | length)) as $max
       | sub("( (a|an|and|at|by|for|from|in|of|on|or|the|to|with))+$"; "")
     else . end | sub(" *\\([^)]*$"; "")
   | if ([match("\""; "g")] | length) % 2 == 1 then sub(" *\"[^\"]*$"; "") else . end)'
-# One line each: the short form, then the whole title. A GitHub title holds
-# no newline.
-both=$(gh issue view "$issue" --json number,title --jq "($short), \"#\(.number) \(.title)\"" 2>/dev/null) || exit 0
-json() { local s=${1//[[:cntrl:]]/ }; s=${s//\\/\\\\}; printf '%s' "${s//\"/\\\"}"; }
-printf '{"systemMessage":"%s","hookSpecificOutput":{"hookEventName":"UserPromptSubmit","sessionTitle":"%s"}}\n' \
-  "$(json "${both#*$'\n'}")" "$(json "${both%%$'\n'*}")"
+out=$(gh issue view "$issue" --json number,title --jq "{systemMessage: \"#\(.number) \(.title)\",
+  hookSpecificOutput: {hookEventName: \"UserPromptSubmit\", sessionTitle: ($short)}} | tojson" 2>/dev/null) || exit 0
+printf '%s\n' "$out"

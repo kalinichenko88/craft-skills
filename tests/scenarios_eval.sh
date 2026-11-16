@@ -75,7 +75,8 @@ answers() { awk -F'\t' -v c="$1" '$1 == c { for (i = 5; i <= NF; i++) print $i }
 # reach the log as a thinking block that narration_block_indexes names: the
 # API gives it in other words, and the person reads those words (ADR 0008).
 # The notice of a hook, as the number and the title that
-# hooks/session-title.sh gives, is a text line too: the person reads it.
+# hooks/session-title.sh gives, is a notice line: the person reads it, but
+# the run did not write it.
 # Paths of this machine become <craft>,
 # <work> and <tmp>. Each line of a command becomes one part of a line, after
 # "; ". Then snapshot writes <dir>.branches and <dir>.workspace.
@@ -83,7 +84,7 @@ record() {
   { [ ! -f "$1.companion.jsonl" ] || [ "$(jq -Rr 'fromjson? | select(.type == "result") | .subtype' "$1.companion.jsonl" | head -n 1)" != success ] ||
     printf 'companion\t%s\n' "$(cat "$1.companion")"
   jq -r 'if .type == "person" then "person\t" + .text
-    elif .type == "system" and .subtype == "informational" then "text\t" + (.content | gsub("\n"; " "))
+    elif .type == "system" and .subtype == "informational" then "notice\t" + (.content // "" | gsub("\n"; " "))
     elif .type == "assistant" then (if .parent_tool_use_id then "sub" else "" end) as $sub
       | (.narration_block_indexes // []) as $said
       | .message.content | to_entries[] | .key as $i | .value

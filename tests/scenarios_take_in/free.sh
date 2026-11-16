@@ -9,6 +9,18 @@ free_copies() {
   first free $'text\t#91: README: the install command says npm instal. The README has a wrong command.'
   flips free 'the first message about #91 tells its gist' 'the gist comes before any change'
 
+  # The notice of the hook gives the title before the narration with no
+  # title, and the narration comes before the branch.
+  notice=$'notice\tUserPromptSubmit says: #91 README: the install command says npm instal'
+  copy free
+  first free "$notice"
+  flips free 'the first message about #91 tells its gist' 'the gist comes before any change'
+
+  # The notice alone, with no message about #91 from the run.
+  copy free
+  { printf '%s\n' "$notice"; grep -v '^text' "$fixtures/free.events"; } >"$tmp/$n/free.events"
+  stays
+
   # A think line before the first message about #91: the log cannot show
   # whether the person read it.
   copy free
