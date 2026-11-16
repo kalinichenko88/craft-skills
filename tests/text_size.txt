@@ -19,10 +19,10 @@
 5391 skills/github/citations.md
 2642 skills/github/continue.md
 10287 skills/github/filing.md
-9186 skills/github/merge.md
+9378 skills/github/merge.md
 9390 skills/github/plugin-defect.md
 6945 skills/github/scout.md
-11299 skills/github/SKILL.md
+11365 skills/github/SKILL.md
 15675 skills/github/take-in.md
 6441 skills/github/tracker.md
 4717 skills/product/reader.md

@@ -2,11 +2,12 @@
 
 The *Merging* row of `SKILL.md` sends you here.
 
-Merging is always `gh pr merge --squash --delete-branch`, with `--subject` and
-`--body` in English, as every commit message is, also when the PR is in another
-language. `--subject` is the PR title in English, then ` (#<PR>)`, so the title
-takes the same `type: sentence` shape. Without it, GitHub takes the title, or a
-one-commit branch's subject, as it is. `--body` is one list in the shape of
+Merging is `gh pr merge --squash --delete-branch`, but for an older `gh` in a
+linked worktree, below, with `--subject` and `--body` in English, as every
+commit message is, also when the PR is in another language. `--subject` is
+the PR title in English, then ` (#<PR>)`, so the title takes the same
+`type: sentence` shape. Without it, GitHub takes the title, or a one-commit
+branch's subject, as it is. `--body` is one list in the shape of
 *Commits* in `SKILL.md` — at most five bullets — that sums up every commit on
 the branch, not just the first: without it GitHub fills the squash commit from
 a repository setting, by default every branch commit's full message in turn.
@@ -50,11 +51,13 @@ session is in: `(cd <path> && gh pr merge …)`, where `<path>` is what
 `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints. In
 Codex, give `<path>` as the `workdir`. When the command prints nothing, no
 checkout holds the branch, and any directory will do. In the branch's linked
-worktree, `gh` keeps the worktree and the local branch, and *Cleanup* decides
-on them. There, a `gh` older than 2.99, as `gh --version` shows, checks out
-the base branch and deletes the local branch, or fails on that checkout after
-the merge: leave `--delete-branch` out of its command, and after the merge
-delete the remote branch with `git push origin --delete <branch>`.
+worktree, `gh` 2.99 and later keeps the worktree and the local branch, and
+*Cleanup* decides on them. There, the `--delete-branch` of an older `gh`
+checks out the base branch, and deletes the local branch or fails after the
+merge. So when `gh issue develop --help` names no `--worktree`, as before
+2.99, leave `--delete-branch` out. When `gh pr view <PR> --json state` then
+gives `MERGED`, and `git ls-remote --heads origin refs/heads/<branch>` still
+prints the branch, delete it with `git push origin --delete <branch>`.
 
 **Finishing.** An issue goes stale the moment the code moves under it, and
 GitHub does not notice: nothing corrects its text. So the PR closes the task,
