@@ -56,7 +56,7 @@ kept=$(jq -r 'select(.origin != "<work>.origin" or .workspace != null) | input_f
 report=$("$eval" --check "$fixtures")
 out=$(grep -E '^(PASS|FAIL|SKIP) ' <<<"$report")
 [ "$(grep -c '^pass' <<<"$report")" = "$(grep -c . <<<"$table")" ] || fail 'the recorded runs do not give pass^1 to each case' "$report"
-[ "$(grep -c '^PASS ' <<<"$out")" = 242 ] || fail 'the recorded runs do not pass 242 items' "$out"
+[ "$(grep -c '^PASS ' <<<"$out")" = 245 ] || fail 'the recorded runs do not pass 245 items' "$out"
 # shellcheck disable=SC2013 # a case name is one word
 for c in $(cut -f1 <<<"$table"); do
   want=$("${c}_fails" | awk -v s="$(scenario "$c")" '{ print substr($0, 1, 5) s ": " substr($0, 6) }')

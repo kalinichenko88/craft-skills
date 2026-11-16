@@ -4,6 +4,10 @@
 - Level: feature
 - Date: 2026-11-12
 
+## Updates
+
+- 2026-11-16 #348: Rests on. Was: "A model skips steps of a skill's text: #348 (1 of 1 run), #356 (4 of 5 runs)".
+
 ## Decision
 
 We will not file an out-of-scope failure that shows only on an input that
@@ -33,8 +37,7 @@ task's module stays out of the pull request.
   the one run that left it off followed the label `(nit)` of the review, as
   the labelled runs of #260 did. With the check in the only caller, 0 of 10
   runs filed it before the trace.
-- A model skips steps of a skill's text: #348 (1 of 1 run), #356 (4 of 5
-  runs).
+- A model skips steps of a skill's text: #356 (4 of 5 runs).
 - 11 of the 33 closed as not worth it, and 59 of the 64 open findings of
   unclear worth in the two private trackers have a milestone: triage places
   them (PDR 0004).

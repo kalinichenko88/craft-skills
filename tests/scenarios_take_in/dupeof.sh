@@ -14,10 +14,10 @@ dupeof_given() {
   given='.issues += [task(95; $title95; $body95 + "\n\nnpm said:\n\n```\n" + $log + "\n```"; [])]'
 }
 dupeof_check() {
-  # The error alone: 4 of 6 Opus runs left the lines EOF and touch out of
-  # the comment, on the text before #354 and after it.
-  item 'a comment on #91 holds the error of npm in the log of #95' \
-    'issue 91 "[.comments[].body] | any(contains(\"npm error Unknown command: \\\"instal\\\"\"))" | grep -qx true'
+  # Each line that npm printed: the lines EOF and touch can give way to a
+  # marker, as 4 of 6 Opus runs did (#390).
+  item 'a comment on #91 holds the error of npm in the log of #95' 'jq -e --arg t "$eoflog" "(.issues[] | select(.number == 91) | .comments)
+    | any(.[]; .body as \$b | all(\$t | split(\"\\n\")[] | select(startswith(\"npm error\")); . as \$l | \$b | contains(\$l)))" "$d.state.json" >/dev/null'
   item '#95 is closed as a duplicate of #91' '[ "$(issue 95 "[.state, .stateReason, .duplicateOf]")" = "[\"CLOSED\",\"DUPLICATE\",91]" ]'
   outcomes
   # The log keeps each command, not what ran: a quote or a heredoc around
@@ -29,6 +29,11 @@ dupeof_copies() {
   # Only the first line of the log of #95 in the comment on #91.
   copy dupeof
   state dupeof '(.issues[] | select(.number == 91) | .comments[].body) = "From #95:\n\n```\n$ npm instal shop\n```"'
+  flips dupeof 'a comment on #91 holds the error of npm in the log of #95'
+
+  # The first error line of npm, but not the lines that npm printed after it.
+  copy dupeof
+  state dupeof '(.issues[] | select(.number == 91) | .comments[].body) = "From #95:\n\n```\n$ npm instal shop\nnpm error Unknown command: \"instal\"\n[two lines left out]\n```"'
   flips dupeof 'a comment on #91 holds the error of npm in the log of #95'
 
   # #95 closed, but not as a duplicate.
