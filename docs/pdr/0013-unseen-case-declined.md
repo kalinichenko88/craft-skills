@@ -13,9 +13,9 @@ loss or a security hole. The finding gets no edit and starts no round: it
 goes to the **Declined** line of the summary with "no failing run" as its
 reason. The loop makes no run for it. A false fact, a conflict between two
 rules, a rule with two readings and a command that fails are fixed as
-before. The review of text does not report a case that the text does not
-name. The 10 runs and the 3 of 10 of ADR 0009 stay with the edits of this
-repository's own texts.
+before. The review of text still reports such a case: the loop declines
+it, and the **Declined** line keeps it for a later run. The 10 runs and the
+3 of 10 of ADR 0009 stay with the edits of this repository's own texts.
 
 ## Rests on
 
@@ -31,8 +31,9 @@ repository's own texts.
 - A run of 10 inside a loop is about 20 runs and 2 fixtures a pull request,
   the loop waits for each batch, and an eval beside a review loaded the
   skill in 12 of 30 runs, against 28 of 30 alone
-  (`.claude/rules/evals.md`). A user with no eval harness cannot make the
-  runs: Anthropic's skill guide gives no built-in way to run them.
+  (`.claude/rules/evals.md`). The runs need cases that someone wrote:
+  `claude plugin eval` runs the cases of a plugin, and most skills and
+  prompts of a project have none.
 - Of two gaps that a review found and that were measured, one failed in 0
   of 10 runs (#186) and one in 9 of 10 (#260): a decline loses a real gap
   about as often as it stops a sentence that no run needs.
@@ -52,8 +53,11 @@ added twice in one month.
   about 20 runs a pull request, and no way for a user with no harness.
 - No change: the loop goes on adding a sentence for each case that a round
   names.
+- The review of text reports no case that the text does not name: that
+  ban conflicts with its kinds Rule, Command and False, and drops the
+  exception for data loss (round 1 of #417).
 
 ## Links
 
 #417, ADR 0009, ADR 0006, #186, #260, #283, `skills/review-loop/SKILL.md`,
-`skills/review-loop/docs-lens.md`, `scenarios/review-loop/review.md`
+`scenarios/review-loop/review.md`

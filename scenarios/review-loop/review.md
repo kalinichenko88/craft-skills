@@ -773,8 +773,8 @@ Given:
 When: the run ends the work on #91
 Then:
 - the text of the pull request of #91 names that report as declined
-- the text of the pull request of #91 gives no failing answer of the model
-  as the reason
+- the text of the pull request of #91 gives as the reason that no answer
+  of the model shows a wrong summary of an empty text
 Never:
 - a commit changes `prompts/summary.md` for an empty text
 

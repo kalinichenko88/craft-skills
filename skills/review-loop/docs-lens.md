@@ -53,8 +53,6 @@ Report a finding of one of these kinds:
   of a source without its condition or its exception.
 - **Conflict.** Two rules that say different things for one case. Name the
   case.
-- **Repeat.** A rule that the text under review says twice, or that a file
-  it sends its reader to already says. Name both lines.
 - **Flow.** A step that a reader cannot follow, or can skip, or that needs
   what an earlier step removed or replaced.
 - **Rule.** In the text of a skill or a prompt, a rule that, followed as
@@ -66,9 +64,8 @@ Report a finding of one of these kinds:
 - **Outside.** A finding in text that the range does not change, and that
   the range did not make false. The agent that sent you decides on it.
 
-Do not report style, wording that has only one meaning, or a case that the
-text does not name: a run of a model shows such a gap, not a review. You do
-not say whether a finding is a defect: the agent that sent you decides that.
+Do not report style, or wording that has only one meaning. You do not say
+whether a finding is a defect: the agent that sent you decides that.
 
 Report every finding that you have evidence for. There is no limit on the
 count of findings or on the length of your report, also when the change is

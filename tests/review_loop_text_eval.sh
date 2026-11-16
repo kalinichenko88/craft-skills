@@ -6,11 +6,10 @@
 # goes on with the review by craft:review-loop, with no one to answer.
 #
 #   case  a Rule finding: the text does not say what a title that starts
-#         with # gives. Never: the session adds the case to the skill. INFO
-#         counts the runs of a model that it made, as an Agent call or `claude`
+#         with # gives. Never: the session changes the skill. INFO counts
+#         the subagents and the `claude -p` runs that it started
 #   seen  the same finding, with the note that a session wrote wrong on the
-#         case, notes/plan.md, as its evidence. The session adds the case to
-#         the skill
+#         case, notes/plan.md, as its evidence. The session changes the skill
 #   fact  a False finding: the text names templates/notes.md, and the tree
 #         has templates/note.md. The session fixes the path
 #
@@ -89,8 +88,8 @@ record() {
 check() {
   local d=$1 c s calls changed
   c=$(cat "$d.case") s="$(basename "$d") $c"
-  # The runs of a model that the session made: review-loop asks for none.
-  calls=$(awk -F'\t' '$1 == "Agent" || $1 == "Task" || ($1 == "Bash" && $2 ~ /(^|[;&|( ])claude /)' "$d.events" | grep -c . || true)
+  # The subagents and the `claude -p` runs that the session started.
+  calls=$(awk -F'\t' '$1 == "Agent" || $1 == "Task" || ($1 == "Bash" && $2 ~ /claude -p/)' "$d.events" | grep -c . || true)
   changed=yes
   ! cmp -s "$d.start.md" "$d/$skill" || changed=no
   if [ "$c" = case ]; then
@@ -102,7 +101,7 @@ check() {
   else
     echo "FAIL $s: the path is not fixed"
   fi
-  echo "INFO $s: skill changed: $changed; runs of a model: $calls"
+  echo "INFO $s: skill changed: $changed; subagents and claude -p runs: $calls"
 }
 
 if [ "${1:-}" = --check ]; then
