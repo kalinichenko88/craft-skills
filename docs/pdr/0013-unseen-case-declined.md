@@ -10,14 +10,14 @@ We will decline, in review-loop, a finding of a review subagent,
 `/code-review`, `/review` or Codex whose only proof is its guess of what a
 model does in a case that the text of a skill or a prompt does not name,
 unless a run or a real session outside the review has already shown a wrong
-result there, or the case is data loss or a security hole. A person's review comment is no such
-finding: it is judged as any other. The finding gets no edit and starts no
-round: it goes to the **Declined** line of the summary with "no failing
-run" as its reason. The loop makes no run for it. A finding with other
-proof, as a false fact, a conflict between two rules or a command that
-fails, is judged as before. The review of text still reports such a case:
-the loop declines it, and the **Declined** line of the pull request
-records it. The 10 runs
+result there, or the case is data loss or a security hole. A person's
+review comment is no such finding: it is judged as any other. The finding
+gets no edit and starts no round: it goes to the **Declined** line of the
+summary with "no failing run" as its reason. The loop makes no run for it.
+A finding with other proof, as a false fact, a conflict between two rules
+or a command that fails, is judged as before. The review of text still
+reports such a case: the loop declines it, and the **Declined** line of
+the pull request records it. The 10 runs
 and the 3 of 10 of ADR 0009 stay with each edit of this repository's own
 texts, inside the loop too.
 
@@ -27,8 +27,9 @@ texts, inside the loop too.
   10 Opus sessions added the case to the skill with no run of a model,
   each at about $0.36. On `08357b3`, the rule that #417 merges: 0 of 10,
   and none started a run of `claude`. With a note that a session wrote
-  wrong on the case as the evidence (`seen`), 5 of 5 added the case on both
-  texts, and a wrong path (`fact`) was fixed in 5 of 5 on both.
+  wrong on the case as the evidence (`seen`), 5 of 5 added the case on
+  `15afc55` and on `08357b3`, and a wrong path (`fact`) was fixed in 5 of 5
+  on both.
 - A person's review comment that names the case (`person`): the text of
   `0ea7cd8`, which said nothing of a person, declined it for "no failing
   run" in 1 of 10 runs; `ba4038c`, which said that it is a request,

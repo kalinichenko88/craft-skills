@@ -60,4 +60,5 @@ for want in \
   'PASS asked person: the comment is not declined for no failing run'; do
   grep -qxF "$want" <<<"$got" || { printf 'FAIL: no line "%s" in:\n%s\n' "$want" "$got"; exit 1; }
 done
+! grep -qE '^(PASS|FAIL) unloaded' <<<"$got" || { printf 'FAIL: a SKIP run has a verdict too:\n%s\n' "$got"; exit 1; }
 echo 'review_loop_text_checks_test: ok'

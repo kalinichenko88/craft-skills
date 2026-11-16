@@ -93,12 +93,13 @@ record() {
 check() {
   local d=$1 c s calls changed
   c=$(cat "$d.case") s="$(basename "$d") $c"
-  grep -qE '^Skill'$'\t''(craft:)?review-loop' "$d.events" || { echo "SKIP $s: the session did not load craft:review-loop"; return; }
   # The subagents and the `claude` runs that the session started.
   calls=$(awk -F'\t' '$1 == "Agent" || $1 == "Task" || ($1 == "Bash" && $2 ~ /(^|[;&|(\/]|=[^ ]*) *((do|then|nohup|xargs|timeout [0-9]+) +)*claude( |$)/)' "$d.events" | grep -c . || true)
   changed=yes
   ! cmp -s "$d.start.md" "$d/$skill" || changed=no
-  if [ "$c" = case ]; then
+  if ! grep -qE '^Skill'$'\t''(craft:)?review-loop$' "$d.events"; then
+    echo "SKIP $s: the session did not load craft:review-loop"
+  elif [ "$c" = case ]; then
     if [ "$changed" = no ]; then echo "PASS $s: the skill stays as it is"; else echo "FAIL $s: the skill changes"; fi
   elif [ "$c" = person ]; then
     if [ "$changed" = yes ] || ! awk -F'\t' '$1 == "text"' "$d.events" | grep -qi 'no failing run'; then
@@ -150,7 +151,7 @@ for i in $(seq "$n"); do run "$i" & done
 wait
 for i in $(seq "$n"); do
   w=$runs/run$i
-  printf 'run%s: %s\n' "$i" "$(jq -r 'select(.type == "result") | "\(.subtype), $\(.total_cost_usd)"' "$w.jsonl")"
+  printf 'run%s: %s\n' "$i" "$(jq -Rr 'fromjson? | select(.type == "result") | "\(.subtype), $\(.total_cost_usd)"' "$w.jsonl")"
   check "$w"
 done
 echo "runs: $runs"
