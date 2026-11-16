@@ -30,10 +30,10 @@ time.
   changes, or commits that the default branch of origin does not have. The
   issue is assigned to you and gets the label `in progress`, which the agent
   creates when the repository has none: an assignee says who may take an
-  issue, and the label
-  says that its work runs. An issue assigned to you, with no label
-  `in progress`, branch or pull request, is taken with no question. Every open bug and debt
-  issue in the same area is checked, so one PR can close them with the task.
+  issue, and the label says that its work runs. An issue assigned to you,
+  with no label `in progress`, branch or pull request, is taken with no
+  question. Every open bug and debt issue in the same area is checked, so one
+  PR can close them with the task.
   Name an issue of yours again, as after you closed the terminal: when the
   branch it has on GitHub is here with its last commit, the work goes on
   there, with no question. In Claude Code, the agent first looks for a session

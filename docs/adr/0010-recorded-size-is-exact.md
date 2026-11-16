@@ -53,8 +53,8 @@ below its recorded size passed. The person chose it on 2026-11-15.
 We will record a flow as a line that names its files, with no size of its
 own: its one number is its target. Its size is the sum of the lines of its
 files. This narrows a second point of ADR 0009, which recorded a size for a
-flow. A flow gets its line with its map, as ADR 0009 says, so each line holds
-its target; #415 gave the line the form `flow <name> <target> <path>...`.
+flow. Since #415, a flow gets its line with its map, so each line holds its
+target, in the form `flow <name> <target> <path>...`.
 
 The rest of ADR 0009 holds: the admission rule, the budgets, and a recorded
 size for `rules.md`, each `SKILL.md` and each side file.
