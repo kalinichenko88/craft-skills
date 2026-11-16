@@ -25,14 +25,14 @@ texts, inside the loop too.
 
 - `tests/review_loop_text_eval.sh 10 case` on the text before #417: 9 of
   10 Opus sessions added the case to the skill with no run of a model,
-  each at about $0.36. On `e5ecab0`, with the rule that #417 merges
-  but for `/review`: 0 of 10, and none started a run of `claude`. With a note that a session wrote
+  each at about $0.36. On `08357b3`, the rule that #417 merges: 0 of 10,
+  and none started a run of `claude`. With a note that a session wrote
   wrong on the case as the evidence (`seen`), 5 of 5 added the case on both
   texts, and a wrong path (`fact`) was fixed in 5 of 5 on both.
 - A person's review comment that names the case (`person`): the text of
   `0ea7cd8`, which said nothing of a person, declined it for "no failing
-  run" in 1 of 10 runs; `ba4038c`, which said that it is a request, and
-  `e5ecab0`, in 0 of 10 each.
+  run" in 1 of 10 runs; `ba4038c`, which said that it is a request,
+  `e5ecab0` and `08357b3`, in 0 of 10 each.
 - Of the late-round defects in the text fixes of three merged pull requests,
   6 of 13 from round 2 on are a case that the text leaves out (the Fable
   reader of #417's panel).
