@@ -241,6 +241,7 @@ skills/github/merge.md|For each changed file with a size limit of its own, as a 
 skills/github/merge.md|*Finishing* reads the merged code in a new checkout, outside every checkout. The branch's worktree is not the merged code when the default branch moved after the branch's last push.
 skills/github/merge.md|git worktree add --detach <the mktemp path> origin/<the default branch>
 skills/github/merge.md|Remove it when *Finishing* ends or stops, with `git worktree remove --force <the mktemp path>`.
+skills/github/merge.md|Correct each one in the body of the issue that holds it, with no new issue,
 skills/github/merge.md|A problem marked `Done in #<PR>.` needs no other correction, and an issue with a problem left in it stays open.
 skills/github/citations.md|Then read the title and the whole body of each issue against them, the sentences with no citation too.
 rules.md|`craft:react-conventions` too. A subagent invokes them itself. No pattern to copy and no rule to keep the work short skips these calls.
