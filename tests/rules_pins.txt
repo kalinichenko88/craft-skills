@@ -94,6 +94,10 @@ skills/github/citations.md|Then read the title and the whole body of each issue 
 # runs and their fixture are in the description of the PR that closes #196.
 rules.md|`craft:react-conventions` too. A subagent invokes them itself. No pattern to copy and no rule to keep the work short skips these calls.
 
+# A review subagent gets these rules too, unless its type is Explore (PDR
+# 0012), and *Out-of-scope findings* tells it to file with no question. One
+# sentence must tell every read-only subagent, a review one included, to file
+# nothing.
 # rules.md reaches the model in two parts, in either order (ADR 0004). The
 # read-only subagent of GitHub once pointed "above" to the Haiku subagents
 # of part 1, and without that word it read as every Haiku subagent. It

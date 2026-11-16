@@ -66,11 +66,6 @@ for event in SessionStart SubagentStart; do
   want=$(printf '"${CLAUDE_PLUGIN_ROOT}/hooks/rules.sh" %s %s,' "$event" 1 "$event" 2)
   [ "$cmds" = "$want" ] || fail "hooks.json: $event runs '$cmds', not '$want'"
 done
-# A review subagent gets these rules too, unless its type is Explore (PDR
-# 0012), and *Out-of-scope findings* tells it to file with no question. One
-# sentence must tell every read-only subagent, a review one included, to file
-# nothing.
-tr '\n' ' ' <"$root/rules.md" | grep -qE 'read-only subagent[^.]* review[^.]* files nothing' || fail "SubagentStart: no sentence tells a read-only review subagent to file nothing"
 # A fix outside the task goes into its PR or into an issue by one scope: the
 # task's module. Each place that draws that line names the module, and none
 # keeps the three tests without it (#103).
@@ -83,7 +78,8 @@ for f in rules.md skills/github/filing.md skills/github/take-in.md \
   fi
 done
 # Sentences that must stay, word for word: tests/rules_pins.txt lists each
-# one with its reason.
+# one with its reason. bash 3.2 reads no line from a missing file, and goes on.
+[ -f "$root/tests/rules_pins.txt" ] || fail "tests/rules_pins.txt does not exist"
 while IFS='|' read -r f phrase || [ -n "$f" ]; do
   case $f in '' | '#'*) continue ;; esac
   [ -n "$phrase" ] || fail "tests/rules_pins.txt: the line '$f' has no '|<phrase>'"
