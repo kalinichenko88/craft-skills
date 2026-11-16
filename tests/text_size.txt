@@ -7,8 +7,8 @@
 # lines. The target is the sum of the budgets of ADR 0009 for those files, and
 # fails nothing. The flows of the github skill are its map (#415): a take-in,
 # the work that continues, a filing, a merge and a defect in the plugin read
-# into the session, with the rules and, after the work, the review; the two
-# scouts read into a context of their own.
+# into the session, with the rules and, after the work, the review. A scout
+# reads `scout.md` or `citations.md` alone: the line of that file is its flow.
 5919 rules.md
 10513 skills/architecture/first-file.md
 4637 skills/architecture/invariants.md
@@ -43,5 +43,3 @@ flow continue 66000 rules.md skills/github/SKILL.md skills/github/take-in.md ski
 flow filing 41000 rules.md skills/github/SKILL.md skills/github/filing.md skills/github/tracker.md
 flow merge 51000 rules.md skills/github/SKILL.md skills/github/merge.md skills/github/tracker.md skills/github/plugin-defect.md
 flow plugin-defect 31000 rules.md skills/github/SKILL.md skills/github/plugin-defect.md
-flow scout 10000 skills/github/scout.md
-flow citations 10000 skills/github/citations.md
