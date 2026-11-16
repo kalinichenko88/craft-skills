@@ -38,6 +38,9 @@ run() {
 field() { jq -r ".hookSpecificOutput.$1" <<<"$out"; }
 calls() { cat "$tmp/calls" 2>/dev/null || true; }
 recorded='#133 filing.md forbids a new label'
+# The notice that the person reads before the agent's first message: Claude
+# Code can give that message in other words, with no number and no title.
+notice='#133 github: filing.md forbids a new label, so a debt issue from architecture or review-loop gets bug or no label'
 
 cp "$fixtures/issue.json" "$tmp/issue.json"
 # Each line is the prompt|the issue gh gets. The prompts are JSON text: \n is
@@ -48,6 +51,7 @@ while IFS='|' read -r prompt issue; do
   out=$(run claude-prompt.json "$prompt") || fail "$prompt: exit $?"
   check "$prompt: the event" UserPromptSubmit "$(field hookEventName)"
   check "$prompt: the title" "$recorded" "$(field sessionTitle)"
+  check "$prompt: the notice" "$notice" "$(jq -r .systemMessage <<<"$out")"
   check "$prompt: gh reads the issue" "issue view $issue" "$(calls)"
 done <<EOF
 #133|133
@@ -58,10 +62,13 @@ $url\n|$url
 #133\r\n|133
 EOF
 
-# A quote, a backslash or a tab in the title must leave the JSON valid.
-jq '.title = "a \"b\" \\ c\td"' "$fixtures/issue.json" >"$tmp/issue.json"
+# A quote or a backslash in the title must leave the JSON valid. A control
+# character becomes a space: a tab, a newline and a carriage return, which gh
+# keeps in a title, and NEL, a C1 one.
+jq '.title = "a \"b\" \\ c\td\ne\rf\u0085g"' "$fixtures/issue.json" >"$tmp/issue.json"
 out=$(run claude-prompt.json '#133') || fail "escape: exit $?"
-check 'escape: the title' '#133 a "b" \ c d' "$(field sessionTitle)"
+check 'escape: the title' '#133 a "b" \ c d e f g' "$(field sessionTitle)"
+check 'escape: the notice' '#133 a "b" \ c d e f g' "$(jq -r .systemMessage <<<"$out")"
 
 # The name keeps the number and the first part of the title whole up to 50
 # characters, and cuts a longer part at a word end to 40. Each line is the

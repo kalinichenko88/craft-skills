@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # Names a Claude Code session after the issue that it takes in: when the prompt
 # is only an issue, as #91 or its github.com URL, the title becomes
-# "#91 <a short form of the issue title>".
+# "#91 <a short form of the issue title>". It also shows the person a notice
+# with the number and the whole title: Claude Code can give the agent's first
+# message about the issue in other words, with no number and no title.
 # Codex marks a hook run as failed when its output has a field that Codex does
 # not know, as sessionTitle. So the hook prints only for a Claude Code input:
 # prompt_id, which Claude Code sends, and no turn_id, which only Codex sends.
-# Parsed and escaped in bash, so the hook needs no jq.
+# Parsed in bash, and gh's own --jq writes the JSON, so the hook needs no jq.
 
 input=$(cat)
 [[ $input == *'"prompt_id":'* && $input != *'"turn_id":'* ]] || exit 0
@@ -34,8 +36,10 @@ short='"#\(.number) " as $n | (40 - ($n | length)) as $max
       | sub("( (a|an|and|at|by|for|from|in|of|on|or|the|to|with))+$"; "")
     else . end | sub(" *\\([^)]*$"; "")
   | if ([match("\""; "g")] | length) % 2 == 1 then sub(" *\"[^\"]*$"; "") else . end)'
-title=$(gh issue view "$issue" --json number,title --jq "$short" 2>/dev/null) || exit 0
-title=${title//[[:cntrl:]]/ }
-title=${title//\\/\\\\}
-title=${title//\"/\\\"}
-printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","sessionTitle":"%s"}}\n' "$title"
+# A control character, C0 or C1, becomes a space. gh 2.104.0 writes most of
+# them as caret text, as ^[ for ESC, but keeps a tab or a newline. \p{Cc}
+# matches the same in gh and in the fake gh of the tests; [[:cntrl:]] does
+# not.
+gh issue view "$issue" --json number,title --jq ".title |= gsub(\"\\\\p{Cc}\"; \" \")
+  | {systemMessage: \"#\(.number) \(.title)\",
+    hookSpecificOutput: {hookEventName: \"UserPromptSubmit\", sessionTitle: ($short)}} | tojson" 2>/dev/null || exit 0

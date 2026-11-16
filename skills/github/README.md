@@ -20,7 +20,10 @@ time.
   its number, its title and, in two or three sentences, what it asks. In
   Claude Code, when your message is the issue alone, the session takes the
   issue's number and a short form of its title as its name: the number and
-  the title's first part, whole up to 50 characters, else cut to 40. Its
+  the title's first part, whole up to 50 characters, else cut to 40. A
+  notice also shows you the number and the whole title before the agent's
+  first message: Claude Code can show that message in other words, with no
+  number and no title. Its
   duplicates close before the work starts. The work gets a worktree
   named for what it does, as `fix/91-what-it-does`. The issue is assigned to
   you and gets the label `in progress`, which the agent creates when the

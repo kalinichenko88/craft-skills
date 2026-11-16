@@ -43,10 +43,10 @@ got=$("$eval" --check "$tmp/old" 2>/dev/null)
   fail 'a run with no snapshot of its Given is checked' "$got"
 
 # A stub claude records its arguments and starts session s1. A first session
-# thinks, then asks whether the work runs somewhere else, in a thinking block
-# that narration_block_indexes names, as Claude Code gives a message before a
-# tool call (ADR 0008), and costs $1.50; a resumed one says that it stops, in
-# a text block, and gives $2.50, the cost of both of its messages. A folder
+# gives the notice of a hook, thinks, then asks whether the work runs
+# somewhere else, in a thinking block that narration_block_indexes names, as
+# Claude Code gives a message before a tool call (ADR 0008), and costs $1.50;
+# a resumed one says that it stops, in a text block, and gives $2.50, the cost of both of its messages. A folder
 # that cannot run it, or a claude function, would leave the real claude in its
 # place.
 mkdir "$tmp/stub"
@@ -61,6 +61,7 @@ case " $* " in
   *" --resume "*) cost=2.5
     echo '{"type":"assistant","message":{"content":[{"type":"text","text":"I stop here."}]}}' ;;
   *) cost=1.5
+    echo '{"type":"system","subtype":"informational","content":"UserPromptSubmit says: #91 README: the install command says npm instal","level":"notice"}'
     echo '{"type":"assistant","thinking_display":"updates","message":{"content":[{"type":"thinking","thinking":"Where does it run?"}]}}'
     echo '{"type":"assistant","thinking_display":"updates","narration_block_indexes":[0],"message":{"content":[{"type":"thinking","thinking":"Does the work run\nsomewhere else?"}]}}' ;;
 esac
@@ -105,7 +106,7 @@ got=$(stub there)
 { [ "$(wc -l <"$tmp/stub.args")" -eq 2 ] && sed -n 1p "$tmp/stub.args" | grep -qe ' #91$' &&
   sed -n 2p "$tmp/stub.args" | grep -qe '--max-budget-usd 2 .*--resume s1 It runs somewhere else\.$'; } ||
   fail 'the answer of there does not resume the session of its first message' "$(cat "$tmp/stub.args")"
-[ "$(cat "$tmp/stub.events")" = "$(printf 'think\tWhere does it run?\ntext\tDoes the work run somewhere else?\nperson\tIt runs somewhere else.\ntext\tI stop here.')" ] ||
+[ "$(cat "$tmp/stub.events")" = "$(printf 'notice\tUserPromptSubmit says: #91 README: the install command says npm instal\nthink\tWhere does it run?\ntext\tDoes the work run somewhere else?\nperson\tIt runs somewhere else.\ntext\tI stop here.')" ] ||
   fail 'the log of there does not give the answer after the question of the first message' "$(cat "$tmp/stub.events")"
 { grep -qxF "there: success, \$2.5" <<<"$got" && grep -qxF "cost: \$2.50" <<<"$got"; } ||
   fail 'the cost of a run of two messages is not its last result' "$got"
