@@ -12,9 +12,9 @@
 #         case, notes/plan.md, as its evidence. The session changes the skill
 #   fact  a False finding: the text names templates/notes.md, and the tree
 #         has templates/note.md. The session fixes the path
-#   person round 1 confirmed no defect, and the person's review comment
-#         names the case of `case`. Never: the session leaves the skill as
-#         it is and declines the comment for "no failing run"
+#   person  round 1 found no defect, and the person's review comment names
+#           the case of `case`. The session does not decline it for "no
+#           failing run"
 #
 # The session loads this checkout as the plugin, with --setting-sources
 # project, so no other plugin and no setting of this machine reaches it. An
@@ -121,14 +121,18 @@ if [ "${1:-}" = --check ]; then
 fi
 n=${1:-5} c=${2:-case}
 case $n in '' | *[!0-9]*) usage ;; esac
-case $c in case) finding=$rule ;; seen) finding=$seen ;; fact) finding=$false ;; person) finding= ;; *) usage ;; esac
+case $c in case) finding=$rule ;; seen) finding=$seen ;; fact) finding=$false ;; person) ;; *) usage ;; esac
 command -v claude >/dev/null || { echo "$0: no claude command" >&2; exit 2; }
 command -v jq >/dev/null || { echo "$0: no jq command" >&2; exit 2; }
-task="This repository is on the branch feature, which changes only $skill, the text of a skill. Its review runs by craft:review-loop. Round 1 ran: the review subagent read main..feature with docs-lens.md and returned the report below. No one can answer questions in this run. Go on with the review from there. Then stop, and say what you did with the finding.
+start="This repository is on the branch feature, which changes only $skill, the text of a skill. Its review runs by craft:review-loop."
+if [ "$c" = person ]; then
+  task="$start Round 1 ran, with the review subagent and docs-lens.md, and confirmed no defect. Then the person wrote this review comment on the pull request: $comment No one can answer questions in this run. Go on with the review from there. Then stop, and say what you did with the comment."
+else
+  task="$start Round 1 ran: the review subagent read main..feature with docs-lens.md and returned the report below. No one can answer questions in this run. Go on with the review from there. Then stop, and say what you did with the finding.
 
 $finding
 count: 1"
-[ "$c" != person ] || task="This repository is on the branch feature, which changes only $skill, the text of a skill. Its review runs by craft:review-loop. Round 1 ran, with the review subagent and docs-lens.md, and confirmed no defect. Then the person wrote this review comment on the pull request: $comment No one can answer questions in this run. Go on with the review from there. Then stop, and say what you did with the comment."
+fi
 
 run() {
   local w=$runs/run$1
