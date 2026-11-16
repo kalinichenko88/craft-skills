@@ -209,12 +209,11 @@ to revisit it.
    the defects that later rounds find are there.
    In the text of a skill or a prompt, a defect is a rule that, followed as
    written, gives a wrong result in a case that real use reaches. When the
-   text does not name that case, the rule is a defect only when a run of a
-   model on the text as it is, or a real session, has shown that wrong
-   result, or when the case is data loss or a security hole. Else decline
-   the finding, with "no failing run" as its reason, and make no run for it.
-   A false fact, a conflict of two rules, a rule with two readings and a
-   command that fails need no run. Every other
+   only proof of a finding is that the text does not name its case, it is a
+   defect only when a run or a real session outside the review has already
+   shown that wrong result, or when the case is data loss or a security
+   hole. Else it is no defect and no nit: put it on the **Declined** line,
+   with "no failing run" as its reason, and make no run for it. Every other
    confirmed finding is a nit: a missing or redundant test, a comment, a
    name, wording, line wrapping. A nit starts no round. The nits of a round
    with a defect join its fix commit. The nits of a round with no defect are

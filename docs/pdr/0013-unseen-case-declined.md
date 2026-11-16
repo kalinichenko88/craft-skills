@@ -6,16 +6,17 @@
 
 ## Decision
 
-We will decline, in review-loop, a finding that the text of a skill or a
-prompt does not name a case, unless a run of a model on the text as it is,
-or a real session, has already shown the wrong result, or the case is data
-loss or a security hole. The finding gets no edit and starts no round: it
-goes to the **Declined** line of the summary with "no failing run" as its
-reason. The loop makes no run for it. A false fact, a conflict between two
-rules, a rule with two readings and a command that fails are fixed as
-before. The review of text still reports such a case: the loop declines
-it, and the **Declined** line keeps it for a later run. The 10 runs and the
-3 of 10 of ADR 0009 stay with the edits of this repository's own texts.
+We will decline, in review-loop, a finding whose only proof is that the
+text of a skill or a prompt does not name its case, unless a run or a real
+session outside the review has already shown the wrong result, or the case
+is data loss or a security hole. The finding gets no edit and starts no
+round: it goes to the **Declined** line of the summary with "no failing
+run" as its reason. The loop makes no run for it. A finding with other
+proof, as a false fact, a conflict between two rules or a command that
+fails, is judged as before. The review of text still reports such a case: the loop declines
+it, and the **Declined** line of the pull request records it. The 10 runs
+and the 3 of 10 of ADR 0009 stay with each edit of this repository's own
+texts, inside the loop too.
 
 ## Rests on
 
@@ -60,4 +61,4 @@ added twice in one month.
 ## Links
 
 #417, ADR 0009, ADR 0006, #186, #260, #283, `skills/review-loop/SKILL.md`,
-`scenarios/review-loop/review.md`
+`skills/review-loop/docs-lens.md`, `scenarios/review-loop/review.md`

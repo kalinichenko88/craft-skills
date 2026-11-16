@@ -72,11 +72,10 @@ each task stays as that skill sets it. In place of the final review of
   comment, a name or wording is a nit, applied without another round. A
   finding that needs a particular input is counted first in a sample of real
   data: a count of zero declines it, unless it is data loss or a security
-  hole. A finding on a case that the text of a skill or a prompt does not
-  name is declined too, until a run of a model or a real session shows the
-  wrong result, unless it is data loss or a security hole; a false fact, a
-  conflict, two readings or a failing command in that text need no run.
-  After the third round with a defect, the rounds stop, and that
+  hole. A finding whose only proof is that the text of a skill or a prompt
+  does not name its case is declined too, until a run or a real session
+  outside the review shows the wrong result, unless it is data loss or a
+  security hole. After the third round with a defect, the rounds stop, and that
   defect stays unfixed: its fix would need a round of its own. The merge
   question then offers up to three more rounds; on a merge, the open
   defects are filed as issues.

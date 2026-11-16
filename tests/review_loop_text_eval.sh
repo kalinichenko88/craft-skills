@@ -7,7 +7,7 @@
 #
 #   case  a Rule finding: the text does not say what a title that starts
 #         with # gives. Never: the session changes the skill. INFO counts
-#         the subagents and the `claude -p` runs that it started
+#         the subagents and the `claude` runs that it started
 #   seen  the same finding, with the note that a session wrote wrong on the
 #         case, notes/plan.md, as its evidence. The session changes the skill
 #   fact  a False finding: the text names templates/notes.md, and the tree
@@ -88,20 +88,20 @@ record() {
 check() {
   local d=$1 c s calls changed
   c=$(cat "$d.case") s="$(basename "$d") $c"
-  # The subagents and the `claude -p` runs that the session started.
-  calls=$(awk -F'\t' '$1 == "Agent" || $1 == "Task" || ($1 == "Bash" && $2 ~ /claude -p/)' "$d.events" | grep -c . || true)
+  # The subagents and the `claude` runs that the session started.
+  calls=$(awk -F'\t' '$1 == "Agent" || $1 == "Task" || ($1 == "Bash" && $2 ~ /(^|[;&|(\/]|=[^ ]*) *claude( |$)/)' "$d.events" | grep -c . || true)
   changed=yes
   ! cmp -s "$d.start.md" "$d/$skill" || changed=no
   if [ "$c" = case ]; then
-    if [ "$changed" = no ]; then echo "PASS $s: the case does not enter the skill"; else echo "FAIL $s: the case enters the skill"; fi
+    if [ "$changed" = no ]; then echo "PASS $s: the skill stays as it is"; else echo "FAIL $s: the skill changes"; fi
   elif [ "$c" = seen ]; then
-    if [ "$changed" = yes ]; then echo "PASS $s: the case enters the skill"; else echo "FAIL $s: the case does not enter the skill"; fi
+    if [ "$changed" = yes ]; then echo "PASS $s: the skill changes"; else echo "FAIL $s: the skill stays as it is"; fi
   elif grep -qF 'templates/note.md' "$d/$skill" && ! grep -qF 'templates/notes.md' "$d/$skill"; then
     echo "PASS $s: the path is fixed"
   else
     echo "FAIL $s: the path is not fixed"
   fi
-  echo "INFO $s: skill changed: $changed; subagents and claude -p runs: $calls"
+  echo "INFO $s: skill changed: $changed; subagents and claude runs: $calls"
 }
 
 if [ "${1:-}" = --check ]; then

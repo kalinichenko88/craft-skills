@@ -123,9 +123,7 @@ numbers other than 20,000, and the 3 of 10 of step 1, have no measurement
 behind them and can be wrong. A
 record of sizes changes in most pull requests that edit a skill, and two
 branches that edit one text conflict on its line. review-loop keeps only
-a part of the admission rule, as PDR 0013 says: it declines a finding that
-asks for a new case until a run or a real session shows the failure, and
-makes no run itself. The rule
+a part of the admission rule, as PDR 0013 says. The rule
 moves cases into evals and tests, and those have defects of their own.
 
 ## Invariants
