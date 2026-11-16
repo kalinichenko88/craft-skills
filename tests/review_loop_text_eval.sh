@@ -13,8 +13,8 @@
 #   fact  a False finding: the text names templates/notes.md, and the tree
 #         has templates/note.md. The session fixes the path
 #   person  round 1 found no defect, and the person's review comment names
-#           the case of `case`. The session does not decline it for "no
-#           failing run"
+#           the case of `case`. FAIL only when the skill stays as it is and
+#           a message names "no failing run": a question to the person passes
 #
 # The session loads this checkout as the plugin, with --setting-sources
 # project, so no other plugin and no setting of this machine reaches it. An
