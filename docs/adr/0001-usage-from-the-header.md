@@ -8,6 +8,9 @@
 - 2026-11-18 #325: Confirmation. Was: "`tests/github_scripts_test.sh`,
   `tests/roadmap_scripts_test.sh` and `tests/architecture_scripts_test.sh`
   run the usage of `collect.sh`, `plan.sh` and `invariants.sh`".
+- 2026-11-18 #179: Confirmation. Was: "`tests/github_scripts_test.sh`,
+  `tests/roadmap_plan_test.sh` and `tests/architecture_scripts_test.sh`
+  run the usage of `collect.sh`, `plan.sh` and `invariants.sh`".
 
 ## Context
 
@@ -56,6 +59,6 @@ None.
 `tests/rules_test.sh` checks that each script holds the line and a call line
 with its own name. Like the `sed`, it reads the whole file, not only the
 header.
-`tests/github_scripts_test.sh`, `tests/roadmap_plan_test.sh` and
+`tests/github_collect_test.sh`, `tests/roadmap_plan_test.sh` and
 `tests/architecture_scripts_test.sh` run the usage of `collect.sh`,
 `plan.sh` and `invariants.sh`.
