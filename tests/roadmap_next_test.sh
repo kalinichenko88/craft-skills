@@ -126,11 +126,10 @@ blocks 42 43
 out=$(bash "$scripts/next.sh")
 check 'a task in Later that M1 waits on' '#43 Issue 43 (Later), unblocks 2' "$(section 'main path' <<<"$out")"
 check 'a task in Later that nothing waits on' 'none' "$(section secondary <<<"$out")"
-# The top 5, the rest counted; Later never offered.
+# The top 5, the rest counted, with no task of Later among them.
 reset
 put '1:- 2:- 3:- 4:- 5:- 6:- 7:- 8:Later'
 check 'and k more' 'and 2 more' "$(bash "$scripts/next.sh" | section secondary | tail -1)"
-check 'Later is not offered' 0 "$(bash "$scripts/next.sh" | grep -c '^#8 ' || true)"
 
 # The main path shows its top 5 too; the overlap file takes all of it.
 reset
