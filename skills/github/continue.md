@@ -17,9 +17,12 @@ since the check, and `git log origin/<branch>..<branch>` for commits that
 GitHub does not have. Commits from somewhere else: the work runs there too, so
 say so, and stop.
 
-Then run `bash <dir>/scripts/worktree.sh 91 <branch> --local`. When the path
-it prints is not where the session is, move into it: in Claude Code with
-`EnterWorktree`, in Codex as the `workdir` of every command. There,
+Then run `bash <dir>/scripts/worktree.sh 91 <branch> --local`. When the
+path it prints is not the checkout that the session started in, move into it:
+in Claude Code with `EnterWorktree`, in Codex as the `workdir` of every
+command. In Claude Code, when `pwd` prints the worktree path, as after a `cd`
+into it in Bash, first `cd` back to the checkout that the session started in:
+`EnterWorktree` refuses the folder that the session is in. There,
 `git status --short` shows the changes. Name once the command that opens the
 old session with its context, so that the person can go on there instead: in
 the main checkout, `claude --resume`, which lists the sessions of the
