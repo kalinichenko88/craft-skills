@@ -113,7 +113,8 @@ code=0
 out=$(FAKE_HANG=1 CODEX_REVIEW_LIMIT=1 review "$base" 2>"$tmp/err") || code=$?
 check 'a codex run past the time limit exits 1' 1 "$code"
 check 'a codex run past the time limit prints no findings' '' "$out"
-# Nothing else: bash's line on the killed job holds the whole codex command.
+# Nothing else: time-limit.sh keeps bash's line on the job that it kills off
+# the log.
 check 'a codex run past the time limit shows its log and says so on stderr, and nothing else' \
   "$(printf '%s\n' 'codex prints its session here' 'time-limit.sh: codex ran past 1 seconds and was stopped')" "$(cat "$tmp/err")"
 [ -s "$tmp/hung" ] || fail 'the hung fake codex wrote the pid of its child'
