@@ -9,6 +9,8 @@
 - 2026-11-11 #284: Consequences, Bad. Was: "each sentence added to review-loop or architecture needs a cut in the same file until its split".
 - 2026-11-15 #412: Consequences, Bad. Was: "The files beside `SKILL.md` and the text of a whole flow have no cap (#280)".
 - 2026-11-15 #412: Consequences, Bad. Was: "The files beside `SKILL.md` and the text of a whole flow have no cap yet (#412)".
+- 2026-11-18 #283: Consequences, Good. Was: "The debt list holds review-loop (#283), which cannot grow; architecture left it with its split (#284)".
+- 2026-11-18 #283: Consequences, Bad. Was: "each sentence added to review-loop needs a cut in the same file until its split".
 
 ## Context
 
@@ -63,11 +65,11 @@ that each run takes.
 ## Consequences
 
 Good: the cap has a number that the host sets, and a test fails before a
-skill loses its end in a compaction. The debt list holds review-loop (#283),
-which cannot grow; architecture left it with its split (#284).
+skill loses its end in a compaction. The debt list is empty: architecture
+left it with its split (#284), and review-loop with its own (#283).
 
-Bad: each sentence added to review-loop needs a cut in the same file until
-its split. The files beside `SKILL.md` and the text of a whole flow have no
+Bad: each sentence added to a `SKILL.md` at the cap needs a cut or a move in
+the same change. The files beside `SKILL.md` and the text of a whole flow have no
 cap: each such file has a recorded size, which a change of the file
 changes in the same pull request, and a flow is a recorded list of its
 files (ADR 0009, ADR 0010). The number moves when Claude Code changes its

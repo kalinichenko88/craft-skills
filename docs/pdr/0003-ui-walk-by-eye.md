@@ -4,6 +4,10 @@
 - Level: feature
 - Date: 2026-11-02
 
+## Updates
+
+- 2026-11-18 #283: Links. Was: "`skills/review-loop/SKILL.md` *The walk*".
+
 ## Decision
 
 We will walk a change that alters what a user sees or does on a screen once,
@@ -48,4 +52,4 @@ The first 5 reviews with the walk show 0 findings from it in total.
 
 ## Links
 
-#212, PDR 0002, `skills/review-loop/SKILL.md` *The walk*
+#212, PDR 0002, `skills/review-loop/walk.md`

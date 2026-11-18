@@ -89,7 +89,8 @@ done <"$root/tests/rules_pins.txt"
 # characters a token against 5,000 tokens: it cuts the text past 20,000
 # characters (ADR 0006). A file on the debt list waits for its split, and
 # must not grow past its size there. A path that is gone leaves the list.
-debt='skills/review-loop/SKILL.md 33448 #283'
+# A line of the list is '<path> <characters> <issue>'.
+debt=''
 for f in "$root"/skills/*/SKILL.md; do
   path=${f#"$root/"}
   chars=$(jq -Rs length "$f")
@@ -103,7 +104,14 @@ for f in "$root"/skills/*/SKILL.md; do
   fi
 done
 while read -r path _; do
-  [ -f "$root/$path" ] || fail "$path is on the debt list of the SKILL.md cap, but does not exist"
+  [ -z "$path" ] || [ -f "$root/$path" ] || fail "$path is on the debt list of the SKILL.md cap, but does not exist"
 done <<<"$debt"
+# A side file is read only when another text of its skill names it: a
+# pointer that a split drops leaves its file with no reader (#283).
+for f in "$root"/skills/*/*.md; do
+  case ${f##*/} in SKILL.md | README.md) continue ;; esac
+  grep -lF "${f##*/}" "${f%/*}"/*.md | grep -vE "/(README\.md|${f##*/})\$" | grep -q . ||
+    fail "${f#"$root/"}: no SKILL.md or side file of its skill names it"
+done
 
 echo 'rules_test: ok'
