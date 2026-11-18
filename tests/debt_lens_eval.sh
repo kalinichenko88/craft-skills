@@ -156,7 +156,8 @@ run() {
 Tree: $work
 You are one reviewer that another agent runs: start no skill, change no file, and file nothing."
   if [ "$reader" = codex ]; then
-    codex exec -s read-only --ephemeral -C "$work" -o "$work.txt" - <<<"$prompt" >"$work.log" 2>&1 || true
+    bash "$root/skills/review-loop/scripts/time-limit.sh" 1200 \
+      codex exec -s read-only --ephemeral -C "$work" -o "$work.txt" - <<<"$prompt" >"$work.log" 2>&1 || true
     return
   fi
   (cd "$work" && claude -p --model fable --output-format json \

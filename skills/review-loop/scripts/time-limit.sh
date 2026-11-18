@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Runs a command with a time limit, as timeout of GNU coreutils does, which
-# macOS does not have. The command gets this script's stdin, stdout and
-# stderr, and its exit code is the script's.
+# Runs a command with a time limit: macOS has no timeout command, as GNU
+# coreutils has. The command gets this script's stdin, stdout and stderr, and
+# its exit code is the script's.
 #
 #   time-limit.sh <seconds> <command> [<arg>...]
 #

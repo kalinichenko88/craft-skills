@@ -68,23 +68,14 @@ codex login status >/dev/null 2>&1 || {
 }
 
 tmp=$(mktemp -d)
-# tree <pid>: the process and each process under it. The whole tree is read
-# before the kill: a stdio server under codex ends when codex ends, and the
-# processes under it then move to PID 1.
-tree() {
-  local kid
-  echo "$1"
-  for kid in $(pgrep -P "$1"); do tree "$kid"; done
-}
 # bash 3.2 runs this trap with $? at 0 when set -u stops the script, so a run
-# passes only when it set finished at its end. It stops a codex that still
-# runs: past the time limit, or when the script itself is stopped. The
-# redirection keeps bash's line on the killed job, with the whole command, off
-# stderr.
+# passes only when it set finished at its end. When the script itself is
+# stopped, it stops time-limit.sh, which stops codex and its children. The
+# redirection keeps bash's line on the stopped job off stderr.
 clean() {
   local code=$?
   [ "$code" != 0 ] || [ -n "${finished:-}" ] || code=1
-  [ -z "${pid:-}" ] || { tree "$pid" | xargs kill -KILL; wait "$pid"; } 2>/dev/null || true
+  [ -z "${pid:-}" ] || { kill "$pid"; wait "$pid"; } 2>/dev/null || true
   rm -rf "$tmp"
   exit "$code"
 }
@@ -133,22 +124,12 @@ else
 fi
 
 # A codex exec that hangs writes nothing and never exits: one ran for 7.5
-# hours (#313). The runs measured took 45 to 204 seconds. macOS has no timeout
-# command, so the script stops codex and its children itself, in clean.
+# hours (#313). The runs measured took 45 to 204 seconds. time-limit.sh writes
+# its line on the stop into the log, so the end of the log names it.
 limit=${CODEX_REVIEW_LIMIT:-600}
-codex exec -s read-only --ephemeral --output-schema "$tmp/schema.json" \
-  -o "$tmp/findings.json" "$prompt" </dev/null >"$tmp/log" 2>&1 &
+bash "$(dirname "$0")/time-limit.sh" "$limit" codex exec -s read-only --ephemeral \
+  --output-schema "$tmp/schema.json" -o "$tmp/findings.json" "$prompt" </dev/null >"$tmp/log" 2>&1 &
 pid=$!
-waited=0
-while kill -0 "$pid" 2>/dev/null && [ "$waited" -lt "$limit" ]; do
-  sleep 1
-  waited=$((waited + 1))
-done
-if kill -0 "$pid" 2>/dev/null; then
-  tail -n 20 "$tmp/log" >&2
-  echo "codex-review.sh: codex ran past $limit seconds and was stopped" >&2
-  exit 1
-fi
 status=0
 wait "$pid" || status=$?
 pid=

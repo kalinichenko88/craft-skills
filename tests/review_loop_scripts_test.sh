@@ -115,7 +115,7 @@ check 'a codex run past the time limit exits 1' 1 "$code"
 check 'a codex run past the time limit prints no findings' '' "$out"
 # Nothing else: bash's line on the killed job holds the whole codex command.
 check 'a codex run past the time limit shows its log and says so on stderr, and nothing else' \
-  "$(printf '%s\n' 'codex prints its session here' 'codex-review.sh: codex ran past 1 seconds and was stopped')" "$(cat "$tmp/err")"
+  "$(printf '%s\n' 'codex prints its session here' 'time-limit.sh: codex ran past 1 seconds and was stopped')" "$(cat "$tmp/err")"
 [ -s "$tmp/hung" ] || fail 'the hung fake codex wrote the pid of its child'
 if running "$(cat "$tmp/hung")"; then fail 'a codex run past the time limit leaves no child of codex running'; fi
 
