@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # The setup and the helpers that the tests of the architecture skill's
-# invariants.sh source: tests/architecture_scripts_test.sh,
-# tests/architecture_since_test.sh and tests/architecture_fences_test.sh. Its
-# name does not end in _test.sh, so make test does not run it alone.
+# invariants.sh source. Its name does not end in _test.sh, so make test does
+# not run it alone.
 #
 # It sets root, inv and tmp, removes tmp at exit, and defines fail, check,
 # new_repo, commit and run.
