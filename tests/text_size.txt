@@ -31,12 +31,12 @@
 11735 skills/product/SKILL.md
 5349 skills/product/store.md
 12737 skills/react-conventions/SKILL.md
-3499 skills/review-loop/architecture-and-tests.md
+3293 skills/review-loop/architecture-and-tests.md
 7502 skills/review-loop/architecture-lens.md
 2073 skills/review-loop/codex.md
 4742 skills/review-loop/docs-lens.md
 3355 skills/review-loop/documents.md
-17477 skills/review-loop/SKILL.md
+17714 skills/review-loop/SKILL.md
 1811 skills/review-loop/spec-and-plan.md
 5013 skills/review-loop/summary.md
 2801 skills/review-loop/tests-lens.md

@@ -5,17 +5,13 @@ and a step with a number is a step of *The rounds* there.
 
 ## A review of the architecture
 
-*A review of the architecture* in `SKILL.md` says when this step runs. When
-the text of a skill or a prompt comes with code, use the level of the code
-alone.
-Skip it for a move that a script or a test proves unchanged, unless the range
-touches the architecture file or an ADR. Start it in the background when
-round 1 starts, and change no file while it runs. Its findings go through
-*The findings* as findings of round 1: round 1 confirms no defect when
-neither review does, and their fixes are one commit. A fix of its finding
-that changes code is the fix of a defect: a round reads it, as step 2 says.
-A Convention finding is the exception: step 3 decides whether it is a
-defect or a nit.
+*A review of the architecture* in `SKILL.md` says when this step runs. Start
+it in the background when round 1 starts, and change no file while it runs.
+Its findings go through *The findings* as findings of round 1: round 1
+confirms no defect when neither review does, and their fixes are one commit.
+A fix of its finding that changes code is the fix of a defect: a round reads
+it, as step 2 says. A Convention finding is the exception: step 3 decides
+whether it is a defect or a nit.
 On a change to documents only, that round is `/code-review` at the level of
 that code.
 

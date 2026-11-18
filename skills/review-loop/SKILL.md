@@ -37,10 +37,10 @@ this skill's base directory.
 | Moment | What must happen | Read first |
 | --- | --- | --- |
 | The change is documents only, or it changes the text of a skill or a prompt | One review subagent reads that text, in place of `/code-review` or beside it | `documents.md` |
-| *The walk* says that the change is walked | Its six steps in the app, before round 1 | `walk.md` |
-| *A review of the architecture* says that its step runs | Its subagent and its prompt, beside round 1 | `architecture-and-tests.md` |
+| Before round 1, when *The walk* says that the change is walked | Its six steps in the app | `walk.md` |
+| Round 1 starts, and *A review of the architecture* says that its step runs | Its subagent and its prompt, beside round 1 | `architecture-and-tests.md` |
 | The last pass starts, or the only round of the loop confirms no defect: at `high` or `xhigh`, or for a change to tests only | The review of the tests | `architecture-and-tests.md` |
-| At `xhigh` in Claude Code: the last pass starts, the only round of the loop confirms no defect, or step 4 of *The rounds* stops them | Codex reads the whole branch | `codex.md` |
+| At `xhigh` in Claude Code: the last pass starts, the only round of the loop confirms no defect, or step 4 of *The rounds* stops the rounds | Codex reads the whole branch | `codex.md` |
 | The review ends | The check, the summary, and on its conditions the pull request and the merge question | `summary.md` |
 | In Claude Code, the checks of superpowers on a spec and on a plan | Two readers of the spec and one of the plan, with no rounds | `spec-and-plan.md` |
 
@@ -194,6 +194,9 @@ This step needs an architecture file or an ADR folder on the branch, where
 `docs/decisions/`. Then one review subagent reads the range of round 1 once,
 beside round 1: at `high` or `xhigh`, and for any change whose range touches
 the architecture file or an ADR, also a change to documents only.
+When the text of a skill or a prompt comes with code, use the level of the
+code alone. Skip it for a move that a script or a test proves unchanged,
+unless the range touches the architecture file or an ADR.
 `architecture-and-tests.md` gives the subagent, its prompt and the rest of
 the step.
 

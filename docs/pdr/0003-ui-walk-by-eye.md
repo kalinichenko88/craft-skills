@@ -6,7 +6,7 @@
 
 ## Updates
 
-- 2026-11-18 #283: Links. Was: "`skills/review-loop/SKILL.md` *The walk*".
+- 2026-11-18 #283: Links. Was: "#212, PDR 0002, `skills/review-loop/SKILL.md` *The walk*".
 
 ## Decision
 
@@ -52,4 +52,4 @@ The first 5 reviews with the walk show 0 findings from it in total.
 
 ## Links
 
-#212, PDR 0002, `skills/review-loop/walk.md`
+#212, PDR 0002, `skills/review-loop/SKILL.md` *The walk*, `skills/review-loop/walk.md`
