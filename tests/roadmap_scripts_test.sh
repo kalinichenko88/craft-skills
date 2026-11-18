@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Runs read.sh, roadmap.sh and board.sh of the roadmap skill against the fake
-# gh of tests/roadmap_harness.sh.
+# gh of tests/roadmap_harness.sh. A case of read.sh milestone runs plan.sh too,
+# as a script that reads through it.
 
 # shellcheck disable=SC2016 # the single-quoted $ are jq's
 set -eu

@@ -7,7 +7,7 @@
 # fake gh first on PATH. The fake answers from payloads recorded on public
 # repositories, filtered through jq as gh's own --jq does, and logs every
 # call, so no test reaches GitHub. It defines fail, check, reset, msno, ms,
-# mark, put, pages, edit and blocks.
+# mark, node, write_page, put, pages, edit and blocks.
 
 # shellcheck disable=SC2016 # the single-quoted $ are jq's
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)

@@ -5,7 +5,9 @@
 
 ## Updates
 
-- 2026-11-18 #325: Confirmation. Was: "`tests/roadmap_scripts_test.sh`".
+- 2026-11-18 #325: Confirmation. Was: "`tests/github_scripts_test.sh`,
+  `tests/roadmap_scripts_test.sh` and `tests/architecture_scripts_test.sh`
+  run the usage of `collect.sh`, `plan.sh` and `invariants.sh`".
 
 ## Context
 
