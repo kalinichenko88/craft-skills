@@ -61,6 +61,9 @@ size is not its recorded size (ADR 0009, ADR 0010).
   tracker that the evals of rules, github and scenarios put first on
   `PATH`, so a change to it changes the three; what differs from one eval
   to another, as the labels and the visibility, is in that JSON.
+  `tests/architecture_harness.sh` — the setup and the helpers that the
+  three tests of `invariants.sh` source, so a change to it changes the
+  three.
   `tests/fixtures/<area>/` — recorded payloads and trees, for the tests
   that read them: `tests/<area>_<kind>_test.sh`, where `<kind>` is the
   last word before `_test.sh`, for example `scripts`, `checks` or
@@ -101,7 +104,7 @@ module too: the text that the flows are checked against.
 | roadmap | `skills/roadmap/` | `tests/roadmap_scripts_test.sh`, `tests/fixtures/roadmap/`, `docs/roadmap/` |
 | review-loop | `skills/review-loop/` | `tests/review_loop_scripts_test.sh`, `tests/review_loop_eval.sh`, `tests/review_loop_text_eval.sh`, `tests/review_loop_text_checks_test.sh`, `tests/review_loop_lens_eval.sh`, `tests/review_loop_lens_checks_test.sh`, `tests/fixtures/review_loop/` |
 | debt | `skills/debt/` | `tests/debt_scripts_test.sh`, `tests/debt_lens_eval.sh`, `tests/fixtures/debt/` |
-| architecture | `skills/architecture/` | `tests/architecture_scripts_test.sh`, `tests/architecture_since_test.sh`, `tests/architecture_fences_test.sh`, `tests/architecture_eval.sh`, `tests/architecture_checks_test.sh`, `tests/fixtures/architecture/` |
+| architecture | `skills/architecture/` | `tests/architecture_scripts_test.sh`, `tests/architecture_since_test.sh`, `tests/architecture_fences_test.sh`, which source `tests/architecture_harness.sh`, `tests/architecture_eval.sh`, `tests/architecture_checks_test.sh`, `tests/fixtures/architecture/` |
 | product | `skills/product/` | `tests/product_eval.sh`, `tests/product_checks_test.sh`, `tests/fixtures/product/` |
 | docker, typescript-conventions, react-conventions | `skills/<name>/` | text only; `tests/skill_load_eval.sh`, `tests/skill_load_checks_test.sh` and `tests/fixtures/skill_load/` count the loads of the two conventions |
 | scenarios | `scenarios/` | `tests/scenarios_eval.sh`, which runs craft on each take-in scenario with the fake `gh` of `tests/fake_gh.sh`, and `tests/scenarios_take_in.sh`, what its cases share: the base of each Given, the snapshot of the git state and the helpers of the checks; `tests/scenarios_take_in/<case>.sh`, one file for each case, with its line, its Given, its checks, the verdicts of its recorded run that are not PASS and the changed copies of that run, so a new case is a new file and its recorded run; `tests/scenarios_checks_test.sh`, which runs those copies and also reads the headings of `scenarios/github/take-in.md`, `tests/scenarios_given_test.sh`, which sets up the Given of each case with the fake `gh`, and `tests/scenarios_runner_test.sh`, which runs the eval with no model; `tests/scenarios_text_eval.sh`, which reads the text of a skill against the scenario file of its flow on Haiku, with a row for each file in `scenarios/*/*.md`, and `tests/scenarios_text_checks_test.sh`; `tests/fixtures/scenarios/`, with the recorded runs and the tree of the CSV parser that four Givens copy, `tests/fixtures/scenarios_text/`; the `scenarios` target of the `Makefile`, which checks the shape and the host words of each scenario file, and which `tests/makefile_test.sh` tests |
