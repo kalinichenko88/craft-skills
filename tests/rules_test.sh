@@ -106,8 +106,8 @@ done
 while read -r path _; do
   [ -z "$path" ] || [ -f "$root/$path" ] || fail "$path is on the debt list of the SKILL.md cap, but does not exist"
 done <<<"$debt"
-# A side file is read only when another text of its skill names it: a
-# pointer that a split drops leaves its file with no reader (#283).
+# A side file is read only when another text of its skill names it: one
+# that no SKILL.md and no other side file names has no reader (#283).
 for f in "$root"/skills/*/*.md; do
   case ${f##*/} in SKILL.md | README.md) continue ;; esac
   grep -lF "${f##*/}" "${f%/*}"/*.md | grep -vE "/(README\.md|${f##*/})\$" | grep -q . ||

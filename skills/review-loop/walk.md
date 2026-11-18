@@ -1,14 +1,7 @@
 # The walk
 
-*Over-engineering first* and *The findings* are sections of `SKILL.md`, next
-to this file.
-
-After the cuts of *Over-engineering first*, and before round 1, walk a
-change that alters what a user sees or does on a screen: a component, a
-page, a style, or logic whose result renders, as a store, a reducer or an
-endpoint that a screen reads. Walk it once in a review, at any level. Skip
-it for a backend that no screen reads, for documents only, for tests only,
-and for a move that a script or a test proves unchanged.
+*The walk* in `SKILL.md`, next to this file, says which change is walked, and
+*The findings* is a section there too.
 
 1. **The flow.** Take what the change must do from the issue taken into
    work, the spec and the plan of this branch in `docs/superpowers/`, the

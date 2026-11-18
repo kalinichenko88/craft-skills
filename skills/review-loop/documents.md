@@ -65,4 +65,5 @@ A change to documents only, as *The level* says, gets one round:
    one commit, and no round reads it.
 
 When the person asks for more, as more rounds, a last pass or a security
-review, that step and the rounds on its fixes run as the other sections say.
+review, that step and the rounds on its fixes run as the sections of
+`SKILL.md` say.

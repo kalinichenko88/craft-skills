@@ -37,10 +37,10 @@ this skill's base directory.
 | Moment | What must happen | Read first |
 | --- | --- | --- |
 | The change is documents only, or it changes the text of a skill or a prompt | One review subagent reads that text, in place of `/code-review` or beside it | `documents.md` |
-| Before round 1, a change that alters what a user sees or does on a screen | The walk in the app, once | `walk.md` |
-| Round 1 starts, in a project with an architecture file or ADRs: at `high` or `xhigh`, or on a range that touches that file or an ADR | The review of the architecture, beside round 1 | `architecture-and-tests.md` |
+| *The walk* says that the change is walked | Its six steps in the app, before round 1 | `walk.md` |
+| *A review of the architecture* says that its step runs | Its subagent and its prompt, beside round 1 | `architecture-and-tests.md` |
 | The last pass starts, or the only round of the loop confirms no defect: at `high` or `xhigh`, or for a change to tests only | The review of the tests | `architecture-and-tests.md` |
-| At `xhigh` in Claude Code: the moment of the row above, or the stop of step 4 of *The rounds* | Codex reads the whole branch | `codex.md` |
+| At `xhigh` in Claude Code: the last pass starts, the only round of the loop confirms no defect, or step 4 of *The rounds* stops them | Codex reads the whole branch | `codex.md` |
 | The review ends | The check, the summary, and on its conditions the pull request and the merge question | `summary.md` |
 | In Claude Code, the checks of superpowers on a spec and on a plan | Two readers of the spec and one of the plan, with no rounds | `spec-and-plan.md` |
 
@@ -117,6 +117,15 @@ turn: go on to the first round. Skip it for documents only, and for a move
 that a script or a test proves unchanged. When the skill is not
 installed, skip it and say so in the summary.
 
+## The walk
+
+After the cuts of *Over-engineering first*, and before round 1, walk a
+change that alters what a user sees or does on a screen: a component, a
+page, a style, or logic whose result renders, as a store, a reducer or an
+endpoint that a screen reads. Walk it once in a review, at any level. Skip
+it for a backend that no screen reads, for documents only, for tests only,
+and for a move that a script or a test proves unchanged.
+`walk.md` gives the steps of the walk.
 
 ## The rounds
 
@@ -176,6 +185,22 @@ installed, skip it and say so in the summary.
    answers to open questions, unless nobody can answer. There is never a
    second whole-branch pass: the rounds that reread the whole branch are the
    ones that did not stop.
+
+### A review of the architecture
+
+This step needs an architecture file or an ADR folder on the branch, where
+`craft:architecture` finds them: `docs/ARCHITECTURE.md` or
+`ARCHITECTURE.md` at the root, and `docs/adr/`, `doc/adr/` or
+`docs/decisions/`. Then one review subagent reads the range of round 1 once,
+beside round 1: at `high` or `xhigh`, and for any change whose range touches
+the architecture file or an ADR, also a change to documents only.
+`architecture-and-tests.md` gives the subagent, its prompt and the rest of
+the step.
+
+With no architecture file and no ADR folder, the step does not run. Then the
+summary says once per pull request that `craft:architecture` can
+write the first file, unless the project's `CLAUDE.md` says "This project
+keeps no `docs/ARCHITECTURE.md`."
 
 ### Fixes from other places
 

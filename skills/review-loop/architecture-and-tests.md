@@ -5,13 +5,9 @@ and a step with a number is a step of *The rounds* there.
 
 ## A review of the architecture
 
-This step needs an architecture file or an ADR folder on the branch, where
-`craft:architecture` finds them: `docs/ARCHITECTURE.md` or
-`ARCHITECTURE.md` at the root, and `docs/adr/`, `doc/adr/` or
-`docs/decisions/`. Then one review subagent reads the range of round 1 once,
-beside round 1: at `high` or `xhigh`, and for any change whose range touches
-the architecture file or an ADR, also a change to documents only. When the
-text of a skill or a prompt comes with code, use the level of the code alone.
+*A review of the architecture* in `SKILL.md` says when this step runs. When
+the text of a skill or a prompt comes with code, use the level of the code
+alone.
 Skip it for a move that a script or a test proves unchanged, unless the range
 touches the architecture file or an ADR. Start it in the background when
 round 1 starts, and change no file while it runs. Its findings go through
@@ -36,11 +32,6 @@ Tree: <the working tree of the branch>
 ```
 
 In Codex: `/review` with the same three lines as its custom instructions.
-
-With no architecture file and no ADR folder, the step does not run. Then the
-summary says once per pull request that `craft:architecture` can
-write the first file, unless the project's `CLAUDE.md` says "This project
-keeps no `docs/ARCHITECTURE.md`."
 
 Why: `/code-review` reads the diff and the `CLAUDE.md` files, and none of its
 angles reads the architecture file, the ADRs or the conventions skills. Why

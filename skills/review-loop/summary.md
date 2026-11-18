@@ -1,7 +1,7 @@
 # The summary and the pull request
 
-*Worth first*, *The rounds* and *Fixes from other places* are sections of
-`SKILL.md`, next to this file.
+*Worth first*, *The rounds*, *A review of the architecture* and *Fixes from
+other places* are sections of `SKILL.md`, next to this file.
 
 ## The summary
 
