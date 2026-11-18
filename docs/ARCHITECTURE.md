@@ -61,8 +61,9 @@ size is not its recorded size (ADR 0009, ADR 0010).
   tracker that the evals of rules, github and scenarios put first on
   `PATH`, so a change to it changes the three; what differs from one eval
   to another, as the labels and the visibility, is in that JSON.
-  `tests/architecture_harness.sh` — the setup and the helpers that the
-  tests of `invariants.sh` source, so a change to it changes each of them.
+  `tests/architecture_harness.sh` — the setup and the helpers that tests
+  of the architecture module source, so a change to it changes each of
+  them; the module's row in *Modules* names them.
   `tests/fixtures/<area>/` — recorded payloads and trees, for the tests
   that read them: `tests/<area>_<kind>_test.sh`, where `<kind>` is the
   last word before `_test.sh`, for example `scripts`, `checks` or
