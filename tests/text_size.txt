@@ -19,7 +19,7 @@
 17704 skills/debt/SKILL.md
 8291 skills/docker/SKILL.md
 5391 skills/github/citations.md
-2852 skills/github/continue.md
+2868 skills/github/continue.md
 10287 skills/github/filing.md
 9501 skills/github/merge.md
 9390 skills/github/plugin-defect.md
