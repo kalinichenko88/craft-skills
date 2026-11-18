@@ -61,9 +61,10 @@ size is not its recorded size (ADR 0009, ADR 0010).
   tracker that the evals of rules, github and scenarios put first on
   `PATH`, so a change to it changes the three; what differs from one eval
   to another, as the labels and the visibility, is in that JSON.
-  `tests/architecture_harness.sh` — the setup and the helpers that tests
-  of the architecture module source, so a change to it changes each of
-  them; the module's row in *Modules* names them.
+  `tests/<module>_harness.sh`, as `tests/architecture_harness.sh` and
+  `tests/roadmap_harness.sh` — the setup and the helpers that tests of
+  that module source, so a change to it changes each of them; the
+  module's row in *Modules* names them.
   `tests/fixtures/<area>/` — recorded payloads and trees, for the tests
   that read them: `tests/<area>_<kind>_test.sh`, where `<kind>` is the
   last word before `_test.sh`, for example `scripts`, `checks` or
@@ -101,7 +102,7 @@ module too: the text that the flows are checked against.
 | --- | --- | --- |
 | rules | `rules.md`, `hooks/` | `tests/rules_test.sh` with the sentences that it pins in `tests/rules_pins.txt`, `tests/text_size_test.sh` with the recorded size of each text of the plugin in `tests/text_size.txt`, `tests/hooks_scripts_test.sh`, `tests/rules_decision_eval.sh`, `tests/rules_decision_checks_test.sh`, `tests/fixtures/hooks/`, `tests/fixtures/rules_decision/` |
 | github | `skills/github/` | `tests/github_scripts_test.sh`, `tests/github_scout_eval.sh`, `tests/github_filing_eval.sh`, `tests/github_filing_checks_test.sh`, `tests/fixtures/github/`, `tests/fixtures/github_filing/`, `docs/github/` |
-| roadmap | `skills/roadmap/` | `tests/roadmap_scripts_test.sh`, `tests/fixtures/roadmap/`, `docs/roadmap/` |
+| roadmap | `skills/roadmap/` | `tests/roadmap_harness.sh` and the three tests that source it: `tests/roadmap_scripts_test.sh`, `tests/roadmap_next_test.sh`, `tests/roadmap_plan_test.sh`; `tests/fixtures/roadmap/`, `docs/roadmap/` |
 | review-loop | `skills/review-loop/` | `tests/review_loop_scripts_test.sh`, `tests/review_loop_eval.sh`, `tests/review_loop_text_eval.sh`, `tests/review_loop_text_checks_test.sh`, `tests/review_loop_lens_eval.sh`, `tests/review_loop_lens_checks_test.sh`, `tests/fixtures/review_loop/` |
 | debt | `skills/debt/` | `tests/debt_scripts_test.sh`, `tests/debt_lens_eval.sh`, `tests/fixtures/debt/` |
 | architecture | `skills/architecture/` | `tests/architecture_harness.sh` and the three tests that source it: `tests/architecture_scripts_test.sh`, `tests/architecture_since_test.sh`, `tests/architecture_fences_test.sh`; `tests/architecture_eval.sh`, `tests/architecture_checks_test.sh`, `tests/fixtures/architecture/` |
@@ -237,7 +238,7 @@ has 330 lines; 8 folders hold code files of their own, and the largest two
 hold 10. A new number needs an ADR.
 
 - **I-8.** A code file MUST have at most 330 lines.
-  Check: lines 330 in `.` debt `tests/github_scripts_test.sh` `tests/roadmap_scripts_test.sh`.
+  Check: lines 330 in `.` debt `tests/github_scripts_test.sh`.
 - **I-9.** A folder MUST hold at most 10 code files of its own. `tests/` and
   its folders are out of the check: its test scripts stay at its top,
   because the Makefile finds a test only as `tests/<name>_test.sh`, and
