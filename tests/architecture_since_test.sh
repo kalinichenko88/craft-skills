@@ -8,40 +8,8 @@
 # shellcheck disable=SC2016 # the backticks are Markdown's
 set -eu
 
-root=$(cd "$(dirname "$0")/.." && pwd)
-# A person's color.ui=always or grep.column=true must not reach what the
-# script reads from git; they go after any configuration the environment
-# already gives git.
-n=${GIT_CONFIG_COUNT:-0}
-export "GIT_CONFIG_KEY_$n=color.ui" "GIT_CONFIG_VALUE_$n=always" \
-  "GIT_CONFIG_KEY_$((n + 1))=grep.column" "GIT_CONFIG_VALUE_$((n + 1))=true" GIT_CONFIG_COUNT=$((n + 2))
-inv=$root/skills/architecture/scripts/invariants.sh
-tmp=$(mktemp -d)
-trap 'rm -rf "$tmp"' EXIT
-
-fail() {
-  printf 'FAIL: %s\n' "$1"
-  [ -z "${2:-}" ] || printf '%s\n' "$2"
-  exit 1
-}
-check() { [ "$2" = "$3" ] || fail "$1" "$(printf 'want: %s\ngot:  %s' "$2" "$3")"; }
-
-new_repo() {
-  mkdir -p "$1"
-  git -C "$1" init -q -b main
-  git -C "$1" config user.name test
-  git -C "$1" config user.email test@example.com
-}
-# -f, so that a global gitignore cannot drop a file the test needs.
-commit() { git -C "$1" add -A -f && git -C "$1" commit -qm "$2"; }
-# run <dir> [arg...]: runs invariants.sh in <dir>, and sets code, out and err.
-run() {
-  local dir=$1
-  shift
-  code=0
-  out=$(cd "$dir" && bash "$inv" "$@" 2>"$tmp/err") || code=$?
-  err=$(cat "$tmp/err")
-}
+# shellcheck source=tests/architecture_harness.sh
+. "$(dirname "$0")/architecture_harness.sh"
 
 # --new-since: a file renamed with no edit stays old, a hit that the branch
 # adds to an old file or in a new one is new, a known debt that grows is new
