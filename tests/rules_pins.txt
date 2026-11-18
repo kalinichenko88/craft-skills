@@ -227,3 +227,20 @@ skills/github/take-in.md|A line that is not output of the tool whose log it is c
 # (#417).
 skills/review-loop/SKILL.md|only proof that a review subagent, `/code-review`, `/review` or Codex gives for a finding is its guess of what a model does in a case that the text does not name
 skills/review-loop/SKILL.md|or when the case is data loss or a security hole. Else decline it, as no defect and no nit, on the **Declined** line with "no failing run" as its reason
+
+# #283: the SKILL.md of review-loop is split by moment, and the row of a
+# moment is the way into its file. Round 1 of its review found the
+# conditions of the walk and of the review of the architecture in the files
+# that are read only after those conditions decide: they stay in SKILL.md,
+# with the rule for a project with no architecture file, which the summary
+# reads.
+skills/review-loop/SKILL.md|One review subagent reads that text, in place of `/code-review` or beside it | `documents.md`
+skills/review-loop/SKILL.md|Its six steps in the app | `walk.md`
+skills/review-loop/SKILL.md|Its subagent and its prompt, beside round 1 | `architecture-and-tests.md`
+skills/review-loop/SKILL.md|The review of the tests | `architecture-and-tests.md`
+skills/review-loop/SKILL.md|Codex reads the whole branch | `codex.md`
+skills/review-loop/SKILL.md|the pull request and the merge question | `summary.md`
+skills/review-loop/SKILL.md|with no rounds | `spec-and-plan.md`
+skills/review-loop/SKILL.md|After the cuts of *Over-engineering first*, and before round 1, walk a change that alters what a user sees or does on a screen
+skills/review-loop/SKILL.md|This step needs an architecture file or an ADR folder on the branch, where `craft:architecture` finds them
+skills/review-loop/SKILL.md|With no architecture file and no ADR folder, the step does not run.

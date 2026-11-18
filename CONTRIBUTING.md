@@ -13,9 +13,8 @@ starts with its own heading, and runs under each event from
 `hooks/hooks.json`. It checks that each `skills/*/SKILL.md` stays within
 20,000 characters, the text that Claude Code keeps of a skill after a
 compaction (ADR 0006): a file on the test's debt list must not grow past its
-size there. It checks that the `SKILL.md` or another side file of a skill
-names each side file. `tests/text_size.txt` records the size of `rules.md`,
-of each `SKILL.md` and of each other `.md` file under `skills/` except a
+size there. `tests/text_size.txt` records the size of `rules.md`, of each
+`SKILL.md` and of each other `.md` file under `skills/` except a
 `README.md`, and names the six files that a take-in puts into the session.
 `make check` fails on a text whose
 size is not its number (ADR 0009, ADR 0010): when you change a text, put the number

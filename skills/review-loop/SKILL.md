@@ -41,7 +41,7 @@ this skill's base directory.
 | Round 1 starts, and *A review of the architecture* says that its step runs | Its subagent and its prompt, beside round 1 | `architecture-and-tests.md` |
 | The last pass starts, or the only round of the loop confirms no defect: at `high` or `xhigh`, or for a change to tests only | The review of the tests | `architecture-and-tests.md` |
 | At `xhigh` in Claude Code: the last pass starts, the only round of the loop confirms no defect, or step 4 of *The rounds* stops the rounds | Codex reads the whole branch | `codex.md` |
-| The review ends | The check, the summary, and on its conditions the pull request and the merge question | `summary.md` |
+| The review ends, or the person answers the merge question | The check, the summary, and on its conditions the pull request and the merge question | `summary.md` |
 | In Claude Code, the checks of superpowers on a spec and on a plan | Two readers of the spec and one of the plan, with no rounds | `spec-and-plan.md` |
 
 A file in the last column sits next to this one, in `<dir>`. Read all of it
