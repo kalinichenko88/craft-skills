@@ -31,8 +31,21 @@ spec. The agent fixes and decides by itself, except for a change to business
 logic and a choice for a finding outside the task, and writes a summary. When
 the task is an issue taken into work, or the person asked for a pull request,
 the push and the pull request follow in the same turn, on the conditions in
-*The pull request*. In each command and prompt, `<dir>` is this skill's base
-directory.
+*The pull request* of `summary.md`. In each command and prompt, `<dir>` is
+this skill's base directory.
+
+| Moment | What must happen | Read first |
+| --- | --- | --- |
+| The change is documents only, or it changes the text of a skill or a prompt | One review subagent reads that text, in place of `/code-review` or beside it | `documents.md` |
+| Before round 1, when *The walk* says that the change is walked | Its six steps in the app | `walk.md` |
+| Round 1 starts, and *A review of the architecture* says that its step runs | Its subagent and its prompt, beside round 1 | `architecture-and-tests.md` |
+| The last pass starts, or the only round of the loop confirms no defect: at `high` or `xhigh`, or for a change to tests only | The review of the tests | `architecture-and-tests.md` |
+| At `xhigh` in Claude Code: the last pass starts, the only round of the loop confirms no defect, or step 4 of *The rounds* stops the rounds | Codex reads the whole branch | `codex.md` |
+| The review ends, or the person answers the merge question | The check, the summary, and on its conditions the pull request and the merge question | `summary.md` |
+| In Claude Code, the checks of superpowers on a spec and on a plan | Two readers of the spec and one of the plan, with no rounds | `spec-and-plan.md` |
+
+A file in the last column sits next to this one, in `<dir>`. Read all of it
+before the first step of that moment: its row is a summary, not its rules.
 
 Why the rounds stop: on one project, nine rounds of `/code-review high`, each
 over the whole branch, gave 68 findings and 25 fixes. No fix went into the
@@ -61,33 +74,10 @@ run only when the person asks; `ultra` is billed. A change to a test file is
 never `low`: `/code-review low` skips test files.
 
 A change to documents only takes no `/code-review`: one review subagent reads
-the text the range changes, with this prompt alone, and no limit on its
-report:
-
-```
-Read <dir>/docs-lens.md and do what it says.
-Range: <the range of the round>
-Tree: <the working tree of the branch>
-```
-
-In Codex: `/review` with the same three lines as its custom instructions.
-The change gets one round, as *A change to documents only* says. The text of
-a skill or a prompt, as a `SKILL.md` or `rules.md`, counts as a document,
-though it is the product.
-Why: on a skill's own branch, eight runs of `/code-review high` found 9 or 10
-findings each. From the second run on, most were in the sentences the run
-before had written. The rounds stopped only when the person stopped them.
-
-When that text comes with code, each range of the rounds and the last pass
-goes to one review or to both, by what it changes. The code review,
-`/code-review` at the level of the code alone or `/review` in Codex, reads
-each range that changes anything but that text. The agent does not act on
-its findings in that text, and does not count them. The subagent reads each
-range that changes that text, or code that the text names, as a script or a
-flag. It reviews the text the range changes and the text that names the code
-it changes, as for a change to documents only. A round confirms no defect
-when neither review does. Other documents next to code stay with the code
-review, with no subagent.
+the text the range changes. The text of a skill or a prompt, as a `SKILL.md`
+or `rules.md`, counts as a document, though it is the product. `documents.md`
+gives the prompt of that subagent, the one round of such a change, and which
+review reads each range when that text comes with code.
 
 A review subagent and Codex's `/review` have no levels.
 
@@ -135,51 +125,7 @@ page, a style, or logic whose result renders, as a store, a reducer or an
 endpoint that a screen reads. Walk it once in a review, at any level. Skip
 it for a backend that no screen reads, for documents only, for tests only,
 and for a move that a script or a test proves unchanged.
-
-1. **The flow.** Take what the change must do from the issue taken into
-   work, the spec and the plan of this branch in `docs/superpowers/`, the
-   pull request's description and the issue it links, or else the diff and
-   the session.
-2. **The app.** Start it in the background from the working tree of the
-   branch, as the project's README or its scripts say, on local or test
-   data, never on a production account. Walk the address that this start
-   prints: an app that was already running is not the branch.
-3. **The tool.** In Claude Code, Claude in Chrome or the Playwright MCP,
-   whichever the session has. Their tools can be deferred: load them with
-   `ToolSearch` before you say that they are absent. For a desktop app, as
-   Electron, or with neither of them, invoke the `run` skill when it is in
-   your skill list: it starts an app by its type and drives it. In Codex, a
-   browser tool in your tool list, as the Playwright MCP.
-4. **The look.** Walk the flow step by step. On each screen, take a
-   screenshot and look at it: a block that moved or overlaps another, text
-   that is cut or runs out of its box, an empty block, an image or data that
-   did not load, a spinner that does not stop. A page's tree does not show
-   these: a button under another block is still in the tree. Read the
-   console errors and the failed requests too. Then look again at the near
-   states that the change can reach: long data, as a long name or many
-   rows, and the empty state.
-5. **The fixes.** Its findings go through *The findings*. Fix them while
-   the app runs, and look again at each screen that a fix changed.
-6. **The end.** Stop the app. Delete each file that the tool wrote into the
-   working tree, as the `.playwright-mcp/` folder with its screenshots,
-   snapshots and logs: `git status --short` shows them. Then commit the
-   fixes as one commit, so round 1 reads them.
-
-When no tool can show the app, the app does not start, or the walk cannot
-reach the screen, as behind a login with no test account, stop the step:
-do step 6, and give the reason in the summary. Add no dependency and no
-tool for it: the project's own install from its lock file, as `npm ci`, is
-allowed. When the walk needs a package that the project does not have, stop
-the step in the same way, and give that reason. Write no e2e test in place
-of the walk.
-
-The walk does not end the turn: go on to round 1.
-
-Why: on one plugin user's UI feature, the tests and the review passed. A
-walk through Playwright after them found UI bugs and a few errors in
-business logic. `/code-review`, the lenses and Codex read the diff, and none
-of them opens the app. PDR 0003 of this plugin records the decision and when
-to revisit it.
+`walk.md` gives the steps of the walk.
 
 ## The rounds
 
@@ -225,13 +171,13 @@ to revisit it.
    round, and only the person can start one. The nits of round 3 are one
    commit, and no round reads it. When the change is at `xhigh`, in Claude
    Code, and the Codex step has not run in this review, Codex then reads the
-   whole branch, as *A second model for `xhigh` changes* says. Then go to
+   whole branch, as `codex.md` says. Then go to
    the security review, or to the summary when the security review has
    already run. The summary's **Rounds:** item names the findings of round 3
    and of a Codex read at this stop, each defect as confirmed and not fixed:
    these are the defects that step 4 leaves open. The merge
-   question in *The pull request* then has one more answer. When
-   the person asks for more rounds, up to three more run, and this step
+   question in *The pull request* of `summary.md` then has one more answer.
+   When the person asks for more rounds, up to three more run, and this step
    stops them at the third.
 5. **The last pass reads the whole branch once**, as in step 1, at the same
    level, when the loop had more than one round. A round on one commit cannot
@@ -247,122 +193,25 @@ This step needs an architecture file or an ADR folder on the branch, where
 `ARCHITECTURE.md` at the root, and `docs/adr/`, `doc/adr/` or
 `docs/decisions/`. Then one review subagent reads the range of round 1 once,
 beside round 1: at `high` or `xhigh`, and for any change whose range touches
-the architecture file or an ADR, also a change to documents only. When the
-text of a skill or a prompt comes with code, use the level of the code alone.
-Skip it for a move that a script or a test proves unchanged, unless the range
-touches the architecture file or an ADR. Start it in the background when
-round 1 starts, and change no file while it runs. Its findings go through
-*The findings* as findings of round 1: round 1 confirms no defect when
-neither review does, and their fixes are one commit. A fix of its finding
-that changes code is the fix of a defect: a round reads it, as step 2 says.
-A Convention finding is the exception: step 3 decides whether it is a
-defect or a nit.
-On a change to documents only, that round is `/code-review` at the level of
-that code.
-
-The subagent is an `Agent` call of its own, not a job in the prompt of round
-1, with `model: "opus"`, and `effort` at the level of round 1, or `high` when
-that level is lower or there is none. `<base>` is the base of step 1, and
-`<head>` is the SHA of `HEAD` that round 1 reads. It gets this prompt, with
-no other job:
-
-```
-Read <dir>/architecture-lens.md and do what it says.
-Range: <base>..<head>
-Tree: <the working tree of the branch>
-```
-
-In Codex: `/review` with the same three lines as its custom instructions.
+the architecture file or an ADR, also a change to documents only.
+When the text of a skill or a prompt comes with code, use the level of the
+code alone. Skip it for a move that a script or a test proves unchanged,
+unless the range touches the architecture file or an ADR.
+`architecture-and-tests.md` gives the subagent, its prompt and the rest of
+the step.
 
 With no architecture file and no ADR folder, the step does not run. Then the
 summary says once per pull request that `craft:architecture` can
 write the first file, unless the project's `CLAUDE.md` says "This project
 keeps no `docs/ARCHITECTURE.md`."
 
-Why: `/code-review` reads the diff and the `CLAUDE.md` files, and none of its
-angles reads the architecture file, the ADRs or the conventions skills. Why
-`opus`: the step runs at each `high` review there, and `fable` costs 2.5
-times as much. Why the conventions here: in real sessions, 0 of 136 review
-subagents of a TypeScript change started a conventions skill, 44 of them
-`/code-review`. In the runs of #227, no sentence in the global prompt moved a
-review subagent past 1 of 5.
-
-### A second model for `xhigh` changes
-
-At `xhigh` in Claude Code, Codex reads the whole branch once. This step
-depends on the level of the change in the table of *The level*: the `xhigh`
-rounds of a fix to security code do not start it for a change below `xhigh`.
-Start it in the background when the last pass starts. When the loop had one
-round, start it when that round confirms no defect and its nits are
-committed. When step 4 stops the rounds, run it when the nits of round 3 are
-committed.
-There, its findings start no round: leave each confirmed defect unfixed, as
-step 4 leaves the defect of round 3, and make its nits one commit that no
-round reads. Then go on as step 4 says. This step runs once in a review: in
-a later count of rounds, and after the rounds that the person asks for at
-the merge question, it does not run again. Change no file while Codex runs.
-
-```bash
-bash <dir>/scripts/codex-review.sh <base>
-```
-
-`<base>` is the base of step 1. Run it from the working tree of the branch.
-The script prints Codex's findings as JSON. Each one goes through *The
-findings*, also one in the text of a skill or a prompt.
-
-- Exit 2: the script did not run Codex. When the call is wrong, as a wrong
-  base, working directory or argument, correct it and run the script again.
-  Otherwise, go on without Codex.
-- `skipped:`: the Codex CLI is not installed or not logged in. Go on without
-  Codex.
-- Any other error: the run failed, as when Codex fails or writes no findings
-  file. Go on without Codex.
-
-When you go on without Codex, give the reason in the summary.
-
-Why: on three branches of this plugin that a `/code-review` loop had
-finished, Codex found three defects that no round had reported, in 45 to 74
-seconds each. Why at the step 4 stop: in five `xhigh` reviews from 2026-10-26
-to 2026-10-28, three stopped at step 4. With no last pass, Codex read none of
-the three, the branches where the rounds kept finding defects.
-
-### A review of the tests
-
-This step depends on the level of the change in the table of *The level*.
-When the text of a skill or a prompt comes with code, use the level of the
-code alone. At `high` or `xhigh`, and for a change to tests only, one review
-subagent, or `/review` in Codex, reads the tests of the whole branch once. A
-change to documents only gets no review of the tests. Start it when the last
-pass starts. When the loop had one round, start it when that round confirms
-no defect and its nits are committed. When step 4 skips the last pass, skip
-this step too. Change no file while it runs.
-`<base>` is the base of step 1, and `<head>` is the SHA of `HEAD`. Its
-findings go through *The findings*. The subagent gets this prompt:
-
-```
-Read <dir>/tests-lens.md and do what it says.
-Range: <base>..<head>
-Tree: <the working tree of the branch>
-```
-
-In Codex: `/review` with the same three lines as its custom instructions.
-
-Why: on nine merged pull requests of three projects, each with a finished
-`/code-review` loop, this review found 11 defects in tests that the loop had
-not reported, in seven of the nine. Of the 11, six were redundant or heavy
-tests. Of the same 11, five came from a fix after round 1: that fix added a
-test or changed the code, and an older test stayed, redundant or stale. So
-the review reads the branch at the end of the loop, not beside round 1.
-Another review, of the change against its issue, found nothing new on the
-same nine, so the skill does not run it.
-
 ### Fixes from other places
 
 Each of these starts a new count of rounds: the last pass, the Codex review,
 the review of the tests, the security review, and each set of a person's
 review comments, before or after the pull request opens. The Codex review
-at a step 4 stop starts no count of rounds, as *A second model for `xhigh`
-changes* says. When more than one of the last pass, the Codex review and the
+at a step 4 stop starts no count of rounds, as `codex.md` says. When more
+than one of the last pass, the Codex review and the
 review of the tests find defects, their fixes are one commit. A count of
 rounds here does not start the Codex review or the review of the tests
 again. For each of them:
@@ -378,42 +227,7 @@ are running, it starts a new count, as above. A person's review comments go
 through *The findings* below, and the reply names the fix commit.
 
 A change to documents only has no such rounds, unless the person asks for
-more: see the next section.
-
-## A change to documents only
-
-A change to documents only, as *The level* says, gets one round:
-
-1. **One round.** The review subagent reads the whole branch, as step 1 of
-   *The rounds* says. When the range touches the architecture file or an
-   ADR, the review of the architecture runs beside it. The fixes of their
-   confirmed findings and their nits are one commit. No round reads that
-   commit, except as *A review of the architecture* says, and no last pass
-   follows.
-2. **One read by Codex**, when the branch changes the text of a skill or a
-   prompt, or a spec: the design document that `superpowers:brainstorming`
-   writes, as `docs/superpowers/specs/*.md`. In Claude Code, run it once,
-   when the rounds end, so Codex reads their fixes in place: after round 1
-   and its fix commit, when there is one. When the person asked for more
-   rounds before then, run it after the last of them. A Codex read that has
-   run does not run again:
-
-   ```bash
-   bash <dir>/scripts/codex-review.sh --docs <base>
-   ```
-
-   `<base>`, where it runs and its exits are as in *A second model for
-   `xhigh` changes*. Change no file while it runs. Its findings go
-   through *The findings*. Its fixes are one commit, and no round reads it.
-   Other documents, as a README or a note in `docs/`, get no Codex read. In
-   Codex, there is no Codex read.
-3. **No security review.** The prompt of `/security-review` says: "Do not
-   report any findings in documentation files such as markdown files."
-4. **A person's review comments** go through *The findings*. Their fixes are
-   one commit, and no round reads it.
-
-When the person asks for more, as more rounds, a last pass or a security
-review, that step and the rounds on its fixes run as the other sections say.
+more: see `documents.md`.
 
 ## The findings
 
@@ -472,8 +286,8 @@ this prompt, and do not run `/security-review` in the session:
 Run /security-review with the Skill tool, and return its report. Change no file.
 ```
 
-After its report and the rounds on its findings, go on to *The summary*, then
-to the conditions of *The pull request*.
+After its report and the rounds on its findings, read `summary.md` and go on
+to *The summary*, then to the conditions of *The pull request*.
 
 Why a subagent: the prompt of `/security-review` ends "Your final reply must
 contain the markdown report and nothing else." Run in the session, the agent
@@ -481,124 +295,3 @@ ended its turn on the report, with no push and no pull request: on #61, and
 twice on #167, after #83 added a sentence against it here. In a subagent, that
 line holds for the subagent's reply.
 
-## The summary
-
-When the review ends, run the repository's own check on the final branch.
-Then report in this order. Each item is one line, except **Change:**, which
-is a list. With no person and a verdict of `craft:product` other than
-`do it`, its report comes first in the summary, before **Change:**. When the
-summary is not the turn's last message, the report starts that message too.
-
-- **Change:** what the branch changed as a whole, for a person who did not
-  follow the session: one to five bullets. In English, they are the merge's
-  `--body` in `merge.md` of the `craft:github` skill.
-- **Rounds:** the verdict of *Worth first*, or why it did not run.
-  `ponytail-review`'s lines saved, or why it did not run. The walk: its
-  tool and the count of findings it confirmed, or why it did not run. Each
-  round, its level and range, and the count of findings it confirmed. The
-  last pass, the same way. At `xhigh`, the Codex review: its range and the
-  count of findings it confirmed, or why it did not run. At `high` and
-  `xhigh`, and for a change to tests only, the review of the tests, the same
-  way. The review of the architecture, the same way. With no architecture
-  file and no ADR folder, once per pull request, the line that
-  `craft:architecture` can write the first file, unless the project
-  keeps none. The security review's
-  result. The check's result. For a change to documents only: round 1; the
-  review of the architecture, when it ran; the Codex read and the count of
-  findings it confirmed, or why it did not run;
-  and `documents only` for each of the last pass and the security review that
-  did not run.
-- **Decisions:** each choice you made: the finding, the choice, the reason.
-  Each question on business logic, with the person's answer, or `open`.
-- **Fixed:** what changed and in which file, the commit, and any side effect
-  a fix had elsewhere.
-- **Declined:** each finding that did not survive, with the reason.
-- **Filed:** the issues opened or added to, with their numbers and titles.
-  After them, marked `not filed`, each finding outside the task that
-  `craft:github` calls a nit or rules out.
-- **Docs:** the docs the branch changed, or `docs impact: none` and why, as
-  *Docs move with the change* in the global prompt asks.
-
-The pull request description carries the same summary under `## Review`, and
-each later fix commit adds its lines there. A later review then recognises a
-declined finding instead of arguing it again.
-
-In a public repository, the `## Review` section and each reply to a review
-comment are public. An example from a private source goes in without its
-names, numbers, titles, paths or code: *Public repositories* in the
-`craft:github` skill says what a private source is and what to write
-instead.
-
-## The pull request
-
-Go on in the same turn when all of these hold:
-
-- The task is an issue taken into work, or the person asked for a pull request.
-- The branch is not the default branch.
-- The check on the final branch passes.
-
-Then:
-
-1. Push the branch, in a command of its own. When the push succeeds and
-   the branch has an open pull request, add the summary's lines to its
-   `## Review`. When it succeeds and the branch has none, open the pull
-   request through the `craft:github` skill, with the summary under
-   `## Review`.
-2. When questions on business logic are still open, ask them. An answer that
-   needs no fix goes into `## Review`. The fix for an answer, when it needs
-   one, goes through *Fixes from other places* and *The summary*, and then
-   through this section again, its conditions first.
-3. When the last push in step 1 succeeded, the pull request is open and no
-   question on business logic is open, show the `gh pr merge` command that
-   `merge.md` in that skill gives. Ask one question with three answers:
-   merge and clean up, merge only, or do not merge. When
-   `git for-each-ref --format='%(worktreepath)' refs/heads/<branch>` prints
-   nothing or the first path of `git worktree list`, the branch has no linked
-   worktree: ask only whether to merge, and do no *Cleanup*. When step 4 of
-   *The rounds* stopped the rounds, the question has one more answer: up to
-   three more rounds, the first on the fix of the defects that step 4 left
-   open. After those rounds come *The summary* and this section again, its
-   conditions first.
-   On a merge answer, run the merge in the checkout that holds the branch,
-   as that file says. When it succeeds, file the defects that step 4
-   left open, through that skill. Its Boy Scout check does not apply to
-   them: the merged pull request takes no more fixes. Then do *Finishing*
-   from that skill, and on merge and clean up, its *Cleanup* after that.
-   When it fails, give the error, and keep the worktree and the branch.
-
-Only the merge and the open questions wait for the person.
-
-## A spec and a plan
-
-In Claude Code, the global prompt sends you here at two checks of
-superpowers. They are not a review of a change, and the rounds above do not
-run on them. In Codex this section does not apply, and the two checks run as
-superpowers sets them: Codex has no Fable, and it does not call itself.
-
-**The spec.** `superpowers:brainstorming` sends one subagent with its
-`builder-check-prompt.md` when the written design exists. Send two readers
-instead, in one message, with the same prompt: an `Agent` call with
-`model: "fable"`, and Codex in the background, from the root of the
-repository. For Codex, write the prompt, filled in, to a new file with the
-Write tool, in the session's scratchpad directory, or in a new folder from
-`mktemp -d` when there is none, with this last line: "You
-are one reviewer that another agent runs: start no skill, change no file,
-and file nothing." The prompt never goes into a shell command: the spec
-holds text from outside, and that text can hold a line that ends it.
-
-```bash
-codex exec -s read-only --ephemeral - < <file>
-```
-
-The last line is there because Codex loads the global prompt too. When there
-is no `codex` command, `codex login status` fails, or the run fails, as in a
-folder that Codex does not trust, go on with Fable alone, and say so when you
-hand over the document. Put the questions from both readers into the three
-piles of brainstorming.
-
-**The plan.** `superpowers:writing-plans` checks the plan against the spec
-itself. After that check, send one `general-purpose` subagent with no
-`model`. It reads the spec and the plan, and returns each spec requirement
-with no task, each task that contradicts the spec, and each value that
-differs from the spec, with the spec line and the plan line, or "none". Fix
-the plan before the handoff.

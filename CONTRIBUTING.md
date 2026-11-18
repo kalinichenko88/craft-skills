@@ -15,7 +15,7 @@ starts with its own heading, and runs under each event from
 compaction (ADR 0006): a file on the test's debt list must not grow past its
 size there. `tests/text_size.txt` records the size of `rules.md`, of each
 `SKILL.md` and of each other `.md` file under `skills/` except a
-`README.md`, and names the five files that a take-in puts into the session.
+`README.md`, and names the six files that a take-in puts into the session.
 `make check` fails on a text whose
 size is not its number (ADR 0009, ADR 0010): when you change a text, put the number
 that the failure prints on its line in the same pull request, and give a new
