@@ -117,17 +117,18 @@ check 'a codex run past the time limit prints no findings' '' "$out"
 # the log.
 check 'a codex run past the time limit shows its log and says so on stderr, and nothing else' \
   "$(printf '%s\n' 'codex prints its session here' 'time-limit.sh: codex ran past 1 seconds and was stopped')" "$(cat "$tmp/err")"
-[ -s "$tmp/hung" ] || fail 'the hung fake codex wrote the pid of its child'
-if running "$(cat "$tmp/hung")"; then fail 'a codex run past the time limit leaves no child of codex running'; fi
 
 # A review that is stopped, as when the agent stops its background task, stops
-# its codex too. The limit keeps a failed case from leaving it running.
+# its codex too, at once and not at its time limit. The limit keeps a failed
+# case from leaving it running.
 rm -f "$tmp/hung"
-(cd "$repo" && FAKE_HANG=1 CODEX_REVIEW_LIMIT=5 PATH="$tmp/bin:$PATH" exec bash "$script" "$base") >/dev/null 2>&1 &
+(cd "$repo" && FAKE_HANG=1 CODEX_REVIEW_LIMIT=10 PATH="$tmp/bin:$PATH" exec bash "$script" "$base") >/dev/null 2>&1 &
 reviewer=$!
 for _ in $(seq 50); do [ -s "$tmp/hung" ] && break; sleep 0.1; done
 [ -s "$tmp/hung" ] || fail 'the hung fake codex wrote the pid of its child'
+start=$SECONDS
 { kill "$reviewer"; wait "$reviewer"; } 2>/dev/null || true
+[ $((SECONDS - start)) -lt 3 ] || fail 'a review that is stopped ends at once, not at its time limit'
 if running "$(cat "$tmp/hung")"; then fail 'a review that is stopped leaves no child of codex running'; fi
 
 rm -f "$tmp/args"
@@ -185,8 +186,9 @@ check 'time-limit.sh: a run within the limit exits as the command does' 0 "$code
 check 'time-limit.sh: a run within the limit prints what the command prints' 'codex prints its session here' "$out"
 check 'time-limit.sh: the command reads the prompt file on stdin' 'the prompt' "$(cat "$tmp/stdin")"
 code=0
-FAKE_FAIL=1 limited 5 codex exec - >/dev/null 2>&1 || code=$?
-check 'time-limit.sh: a failed run keeps the exit code of the command' 1 "$code"
+limited 5 sh -c 'echo err >&2; exit 3' >/dev/null 2>"$tmp/err" || code=$?
+check 'time-limit.sh: a failed run keeps the exit code of the command' 3 "$code"
+check 'time-limit.sh: the command writes to its stderr' err "$(cat "$tmp/err")"
 
 rm -f "$tmp/hung"
 code=0
@@ -206,9 +208,17 @@ for _ in $(seq 50); do [ -s "$tmp/hung" ] && break; sleep 0.1; done
 { kill "$runner"; wait "$runner"; } 2>/dev/null || true
 if running "$(cat "$tmp/hung")"; then fail 'time-limit.sh: a run that is stopped leaves no child of the command running'; fi
 
-code=0
-bash "$limit" 20m codex exec - </dev/null >/dev/null 2>"$tmp/err" || code=$?
-check 'time-limit.sh: a limit that is not a number of seconds is a usage error' 2 "$code"
+# bad <arg>...: the exit code of a call. The fake codex keeps a call that the
+# check lets through off the real Codex, and $tmp keeps its files out of the
+# checkout.
+bad() {
+  local code=0
+  (cd "$tmp" && limited "$@") >/dev/null 2>"$tmp/err" || code=$?
+  echo "$code"
+}
+check 'time-limit.sh: an empty limit is a usage error' 2 "$(bad '' codex exec -)"
+check 'time-limit.sh: a limit with no command is a usage error' 2 "$(bad 5)"
+check 'time-limit.sh: a limit that is not a number of seconds is a usage error' 2 "$(bad 20m codex exec -)"
 grep -qxF 'usage: time-limit.sh <seconds> <command> [<arg>...]' "$tmp/err" ||
   fail 'time-limit.sh: the usage error prints the usage line' "$(cat "$tmp/err")"
 
