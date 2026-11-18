@@ -56,8 +56,8 @@ that brief and changes only the footer's skill name and the `<image>` blocks.
 3. Run Codex in the background. It reads the brief from stdin (`-`):
 
    ```bash
-   codex exec -s workspace-write -C "$dir" --skip-git-repo-check -o "$dir/last.md" \
-     - -i "$dir"/ref-*.png <"$dir/brief.md" >"$dir/codex.log" 2>&1
+   bash skills/review-loop/scripts/time-limit.sh 1800 codex exec -s workspace-write -C "$dir" \
+     --skip-git-repo-check -o "$dir/last.md" - -i "$dir"/ref-*.png <"$dir/brief.md" >"$dir/codex.log" 2>&1
    ```
 
 4. Check each new PNG yourself, against the brief, letter by letter. The tool

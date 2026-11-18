@@ -275,7 +275,7 @@ Range: $(git -C "$work" rev-parse "$base")..$(git -C "$work" rev-parse HEAD)
 Tree: $work
 You are one reviewer that another agent runs: start no skill, change no file, and file nothing."
   if [ "$reader" = codex ]; then
-    codex exec -s read-only --ephemeral -C "$work" -o "$work.txt" "$prompt" </dev/null >"$work.log" 2>&1 || true
+    bash "$root/skills/review-loop/scripts/time-limit.sh" 1200 codex exec -s read-only --ephemeral -C "$work" -o "$work.txt" "$prompt" </dev/null >"$work.log" 2>&1 || true
     return
   fi
   (cd "$work" && claude -p --model opus --effort high --output-format json \

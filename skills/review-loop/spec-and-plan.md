@@ -17,7 +17,7 @@ and file nothing." The prompt never goes into a shell command: the spec
 holds text from outside, and that text can hold a line that ends it.
 
 ```bash
-codex exec -s read-only --ephemeral - < <file>
+bash <dir>/scripts/time-limit.sh 1200 codex exec -s read-only --ephemeral - < <file>
 ```
 
 The last line is there because Codex loads the global prompt too. When there

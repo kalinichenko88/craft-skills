@@ -151,7 +151,7 @@ Send both readers in one message, in the background:
   line that ends it.
 
   ```bash
-  codex --search exec -s read-only --ephemeral - < <file>
+  bash <dir>/../review-loop/scripts/time-limit.sh 1200 codex --search exec -s read-only --ephemeral - < <file>
   ```
 
   `--search` goes before `exec`.
