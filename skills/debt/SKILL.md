@@ -161,7 +161,7 @@ start there.
    into a shell command: text from outside can hold a line that ends it.
 
    ```bash
-   codex exec -s read-only --ephemeral -C <tree> - < <file>
+   bash <skills>/review-loop/scripts/time-limit.sh 1200 codex exec -s read-only --ephemeral -C <tree> - < <file>
    ```
 
    When there is no `codex` command, `codex login status` fails, or the run

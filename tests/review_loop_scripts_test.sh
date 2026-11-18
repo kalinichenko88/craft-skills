@@ -24,6 +24,7 @@ case $1 in
       case $1 in
         --output-schema) cp "$2" "$FAKE/schema.json"; shift ;;
         -o) out=$2; shift ;;
+        -) cat >"$FAKE/stdin" ;;
       esac
       shift
     done
@@ -171,5 +172,43 @@ check 'a range that git cannot diff is a usage error, not a clean review' 2 "$co
 grep -qF 'git cannot diff' "$tmp/err" || fail 'the usage error says git cannot diff the range' "$(cat "$tmp/err")"
 grep -qF 'no merge base' "$tmp/err" || fail "the usage error keeps git's own reason for the range" "$(cat "$tmp/err")"
 [ ! -f "$tmp/args" ] || fail 'a range that git cannot diff: codex exec does not run'
+
+# time-limit.sh runs the codex exec of a skill text, with its prompt file on
+# stdin, as the second reader of a spec does (#387).
+limit=$root/skills/review-loop/scripts/time-limit.sh
+limited() { PATH="$tmp/bin:$PATH" bash "$limit" "$@" <"$tmp/prompt"; }
+echo 'the prompt' >"$tmp/prompt"
+code=0
+out=$(FAKE_NO_MESSAGE=1 limited 5 codex exec -s read-only --ephemeral - 2>"$tmp/err") || code=$?
+check 'time-limit.sh: a run within the limit exits as the command does' 0 "$code"
+check 'time-limit.sh: a run within the limit prints what the command prints' 'codex prints its session here' "$out"
+check 'time-limit.sh: the command reads the prompt file on stdin' 'the prompt' "$(cat "$tmp/stdin")"
+code=0
+FAKE_FAIL=1 limited 5 codex exec - >/dev/null 2>&1 || code=$?
+check 'time-limit.sh: a failed run keeps the exit code of the command' 1 "$code"
+
+rm -f "$tmp/hung"
+code=0
+FAKE_HANG=1 limited 1 codex exec - >/dev/null 2>"$tmp/err" || code=$?
+check 'time-limit.sh: a run past the limit exits 124, as timeout does' 124 "$code"
+check 'time-limit.sh: a run past the limit says so on stderr, and nothing else' \
+  'time-limit.sh: codex ran past 1 seconds and was stopped' "$(cat "$tmp/err")"
+[ -s "$tmp/hung" ] || fail 'time-limit.sh: the hung fake codex wrote the pid of its child'
+if running "$(cat "$tmp/hung")"; then fail 'time-limit.sh: a run past the limit leaves no child of the command running'; fi
+
+# The agent stops its background task.
+rm -f "$tmp/hung"
+(FAKE_HANG=1 PATH="$tmp/bin:$PATH" exec bash "$limit" 5 codex exec - <"$tmp/prompt") >/dev/null 2>&1 &
+runner=$!
+for _ in $(seq 50); do [ -s "$tmp/hung" ] && break; sleep 0.1; done
+[ -s "$tmp/hung" ] || fail 'time-limit.sh: the hung fake codex wrote the pid of its child'
+{ kill "$runner"; wait "$runner"; } 2>/dev/null || true
+if running "$(cat "$tmp/hung")"; then fail 'time-limit.sh: a run that is stopped leaves no child of the command running'; fi
+
+code=0
+bash "$limit" 20m codex exec - </dev/null >/dev/null 2>"$tmp/err" || code=$?
+check 'time-limit.sh: a limit that is not a number of seconds is a usage error' 2 "$code"
+grep -qxF 'usage: time-limit.sh <seconds> <command> [<arg>...]' "$tmp/err" ||
+  fail 'time-limit.sh: the usage error prints the usage line' "$(cat "$tmp/err")"
 
 echo 'review_loop_scripts_test: ok'
