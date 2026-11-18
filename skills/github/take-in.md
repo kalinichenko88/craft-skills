@@ -147,10 +147,11 @@ Someone else's: say so and wait. Yours: run the command the warning gives,
 which assigns the issue to you and puts the label `in progress` on it.
 
 Then move into the worktree, when the script made one or found the branch in
-one, and the path that it printed is not the checkout that the session is in.
-Claude Code: wait until each subagent that you sent returns. Then call
-`EnterWorktree` with the path that `worktree.sh` printed. A subagent keeps the
-directory where it started. Until `ExitWorktree`, Claude Code refuses each
+one, and the session is not in the path that it printed. In Claude Code, a
+`cd` into a path inside the project moves the session there, and
+`EnterWorktree` then refuses that path. Claude Code: wait until each subagent
+that you sent returns. Then call `EnterWorktree` with the path that
+`worktree.sh` printed. A subagent keeps the directory where it started. Until `ExitWorktree`, Claude Code refuses each
 Bash call that runs in the main checkout, so a subagent that started before the
 move cannot run Bash any more. Codex cannot move a running session: every
 command takes the worktree as `workdir`, and each file of the task that it

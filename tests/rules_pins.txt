@@ -118,6 +118,14 @@ rules.md|A read-only subagent, as a review or an `Explore` subagent, files nothi
 skills/github/take-in.md|While a subagent reads the file, you can run `worktree.sh` below:
 skills/github/take-in.md|Claude Code: wait until each subagent that you sent returns. Then call `EnterWorktree`
 
+# While the scout read, the agent read the worktree with `cd <worktree>`,
+# and Claude Code kept that folder for the session. After the wait, the
+# agent called EnterWorktree, and Claude Code refused the path as the
+# current working directory (#451). The condition of the move names the cd.
+skills/github/take-in.md|and the session is not in the path that it printed. In Claude Code, a `cd` into a path inside the project moves the session there, and `EnterWorktree` then refuses that path.
+skills/github/continue.md|When the session is not in the path it prints, move into it
+skills/github/continue.md|In Claude Code, a `cd` into a path inside the project moves the session there, and `EnterWorktree` then refuses that path.
+
 # The merge read no check of the pull request: 4 of 104 pull requests here
 # with checks merged before `check` ended, and an agent took `--admin`
 # right after a refusal of the ruleset, with no question (#309). The exit
