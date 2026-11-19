@@ -6,6 +6,29 @@ type, and the PR number when it has one. The `/release` skill writes the
 section and merges it through a pull request of its own; other pull requests
 leave this file alone.
 
+## 2.5.1 - 2026-11-19
+
+### Changed
+
+- (review-loop) split SKILL.md into files by moment, within the cap of a compaction (#452)
+- (tests) split github_scripts_test.sh into three tests that source one harness (#450)
+- (tests) split roadmap_scripts_test.sh into three tests that source one harness (#449)
+- (tests) source one harness in the three tests of invariants.sh (#448)
+- (research) record what ZCode does with the plugin, and the measurements that a third host needs (#446)
+- (rules) move the pinned sentences of rules_test.sh into a data file (#447)
+- (product) name the present goal of M3 in PRODUCT.md, without the two closed issues (#442)
+
+### Fixed
+
+- (github) wait 3 seconds before the read of what a pull request closes (#460)
+- (github) make the watch of the merge checks last 10 minutes on macOS and in Codex (#458)
+- (scenarios) give LOST only to an item whose base line is near a change of the branch (#457)
+- (review-loop) run invariants.sh in the check on the final branch (#455)
+- (review-loop) stop a codex exec of a skill text that runs past its time limit (#454)
+- (github) cd back to the start checkout before EnterWorktree when a cd moved the session (#453)
+- (github) stop saying that gh always deletes the local branch of a branch with no linked worktree (#445)
+- (debt) count .jsonl, .jsonc, .log and license files as data, not code (#444)
+
 ## 2.5.0 - 2026-11-16
 
 ### Added
