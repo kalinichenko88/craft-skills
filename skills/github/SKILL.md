@@ -93,11 +93,12 @@ the branch's link into a link of the PR. So right after `gh pr create`, remove
 that link: `bash <dir>/scripts/keep-open.sh <PR> 15`, where `<dir>` is this
 skill's base directory.
 
-Then read what the merge will close. Read it again after each edit of the
-description:
+Then read what the merge will close, and read it again after each edit of
+the description. GitHub adds the link of a new keyword up to a second
+later, so the command waits first:
 
 ```bash
-gh pr view <PR> --json closingIssuesReferences --jq '.closingIssuesReferences[].url'
+sleep 3; gh pr view <PR> --json closingIssuesReferences --jq '.closingIssuesReferences[].url'
 ```
 
 It must print only the issues that the description closes on purpose. A

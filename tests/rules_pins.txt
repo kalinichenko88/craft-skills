@@ -269,3 +269,10 @@ skills/review-loop/SKILL.md|With no architecture file and no ADR folder, the ste
 # sentence; with it, 10 of 10 ran invariants.sh and named I-7.
 skills/review-loop/summary.md|With an architecture file on the branch, the check also runs `bash <dir>/../architecture/scripts/invariants.sh --new-since <base> HEAD`,
 skills/review-loop/summary.md|a failing hit marked `new` fails the check.
+
+# GitHub adds the link of a keyword that an edit of the description adds up
+# to a second later: a read of closingIssuesReferences right after the edit
+# showed none in 1 of 3 runs of a throwaway repository, and 215 of 601
+# recorded reads ran in the command of the edit or of `gh pr create` (#385).
+# The read waits first, as keep-open.sh does for the link of a branch.
+skills/github/SKILL.md|sleep 3; gh pr view <PR> --json closingIssuesReferences
