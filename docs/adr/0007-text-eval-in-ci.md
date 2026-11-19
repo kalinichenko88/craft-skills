@@ -7,6 +7,7 @@
 
 - 2026-11-11 #324: Consequences, Bad. Was: "nothing makes the merge wait for the job: `main` has no required check, and the merge of `craft:github` reads no check (#309)".
 - 2026-11-11 #335: Consequences, Bad. Was: "A LOST item can be noise of the model, though in the measure of the eval's header no item outside the cut lines was LOST at five runs: rerun the job".
+- 2026-11-19 #393: Consequences, Bad. Was: "A row with a LOST item gets a second set of runs, and an item stays LOST only when both sets lose it".
 
 ## Context
 
@@ -73,7 +74,9 @@ limit of the subscription, makes the job fail; it prints the reason that the
 CLI gives. Each person with write access to the repository can read the
 token, with a branch that changes the eval. A pull request from a fork gets no
 secret and no check. A row with a LOST item gets a second set of runs, and an
-item stays LOST only when both sets lose it. A renamed file of a row gives the
+item stays LOST only when both sets lose it, and only when a line that the
+base gives it is near the change: a change that drops an item through a line
+far from it, which names no file of that item's line, gives no LOST (#393). A renamed file of a row gives the
 base no line, so no item that it produces can be LOST in that pull request;
 no file of a row was renamed up to 2026-11-10. A push runs every changed row
 again, also when it changes only a test.

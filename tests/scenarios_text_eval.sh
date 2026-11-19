@@ -18,11 +18,16 @@
 # line that produces it, or none. The eval makes k runs on the text at a base
 # commit and k on the working tree, both with the scenario file of the working
 # tree. An item is LOST when most runs on the working tree give no line for
-# it, as none or by leaving it out, and at most a fifth of the runs on the
-# base do: an item that the base gives no line in more runs is too weak to
-# judge, as a weak Never item that no line produces. A row with a LOST item
-# gets a second set of k runs on each side, in again/ of its runs folder, and
-# an item stays LOST only when the second set loses it too.
+# it, as none or by leaving it out, at most a fifth of the runs on the base
+# do, and a line that the base gives it is near a change of the row's files:
+# in a paragraph that the change touches, or in a file that a changed line
+# names, as a pointer to it. The LOST line names that line of the base. An
+# item that the base gives no line in more runs is too weak to judge, as a
+# weak Never item that no line produces. A row with a LOST item gets a second
+# set of k runs on each side, in again/ of its runs folder, and an item stays
+# LOST only when the second set loses it too. On PR #391, both sets lost 5
+# items whose lines no change came near (#393); on PR #438, a dropped pointer
+# to filing.md lost 2, and they stay LOST.
 #
 # The rule before #328, one set with half of the runs on the base, failed 3 of
 # 8 runs of the CI job on pull requests, on items at 3 of 5 against 1 or 2 of 5
@@ -43,7 +48,7 @@
 #
 # Each run costs about $0.02, so the eval is not part of `make check`. A LOST
 # item is a result, not an error: it exits 0. The runs folder keeps the items,
-# the prompts and the answers. With --check, it runs only the checks, on the
+# the prompts, near.txt and the answers. With --check, it runs only the checks, on the
 # folder of an earlier run. `make check` runs them so on
 # tests/fixtures/scenarios_text, through tests/scenarios_text_checks_test.sh.
 #
@@ -75,19 +80,25 @@ row_of() {
 }
 
 # check <runs folder>: a LOST line for each item that most runs on the working
-# tree give no line for, and at most a fifth of the runs on the base. When the
-# folder holds a second set of runs in again/, an item is LOST only when each
-# set loses it, and the line gives the counts of both sets together. An item
-# that a run answers none, or leaves out, has no line in that run. A run with
-# no answer counts on neither side.
+# tree give no line for, at most a fifth of the runs on the base, and a run on
+# the base gives a line of near.txt in the folder, the first of which the LOST
+# line names. When the folder holds a second set of runs in again/, an item is
+# LOST only when each set loses it, and the line gives the counts of both sets
+# together. An item that a run answers none, or leaves out, has no line in
+# that run. A run with no answer counts on neither side.
 check() {
   local f=(s=1 "$1"/base*.txt "$1"/change*.txt) sets=1
   [ ! -d "$1/again" ] || { f+=(s=2 "$1"/again/base*.txt "$1"/again/change*.txt); sets=2; }
-  awk -v sets="$sets" 'FILENAME ~ /items\.tsv$/ { split($0, a, "\t"); order[++n] = a[1]; name[a[1]] = a[2] ": " a[3]; next }
+  awk -v sets="$sets" 'FILENAME ~ /near\.txt$/ { near[$0]; next }
+    FILENAME ~ /items\.tsv$/ { split($0, a, "\t"); order[++n] = a[1]; name[a[1]] = a[2] ": " a[3]; next }
     { split($0, w, " ") }
     !(w[1] in name) { next }
     !(FILENAME in answered) { answered[FILENAME]; side = FILENAME; sub(/.*\//, "", side); sub(/[0-9]+\.txt$/, "", side); runs[s, side]++ }
     w[2] != "none" { cited[s, side, w[1]]++ }
+    side == "base" && !(w[1] in at) && match(w[2], /^[^:]+:[0-9]+/) {
+      l = substr(w[2], 1, RLENGTH); p = l; sub(/:[0-9]+$/, "", p)
+      if (l in near || (p ":*") in near) at[w[1]] = l
+    }
     END {
       for (s = 1; s <= sets; s++) {
         if (!runs[s, "change"] || !runs[s, "base"]) { print "no answer on the working tree or on the base" > "/dev/stderr"; exit 2 }
@@ -105,13 +116,13 @@ check() {
           c += cs
           b += bs
         }
-        if (all) {
+        if (all && id in at) {
           lost++
-          printf "LOST %s %s (no line in %d of %d runs, on the base in %d of %d)\n", id, name[id], c, rc, b, rb
+          printf "LOST %s %s (no line in %d of %d runs, on the base in %d of %d; base line %s, near a change)\n", id, name[id], c, rc, b, rb, at[id]
         }
       }
       printf "%d of %d items lost, %d runs on the working tree and %d on the base\n", lost, n, rc, rb
-    }' "$1/items.tsv" "${f[@]}"
+    }' "$1/near.txt" "$1/items.tsv" "${f[@]}"
 }
 
 if [ "${1:-}" = --check ]; then
@@ -179,6 +190,24 @@ lines() {
       awk -v f="$f" '{ print f ":" FNR ": " $0 }'
   done
 }
+# near: the lines of the base near a change of the row's files, for check:
+# <path>:<line> for each line of a paragraph that the change touches, and
+# <path>:* for each file of the row that a changed line names, as a pointer
+# to it. A blank line ends a paragraph, and a list item or a table row starts
+# one. An insertion touches the lines on each side of it.
+near() {
+  { git -C "$root" diff -U0 --no-prefix --no-color --no-ext-diff "$base" -- "${files[@]}"; echo '=== base'; lines base; } |
+    awk -v files="${files[*]}" 'function flush(k) { if (touched) for (k = 1; k <= m; k++) print para[k]; m = touched = 0 }
+      BEGIN { split(files, fs, " "); for (i in fs) { b = fs[i]; sub(/.*\//, "", b); file[fs[i]] = b } }
+      !text && /^=== base$/ { text = 1; next }
+      !text && /^--- / { cur = substr($0, 5); next }
+      !text && /^@@ / { split(substr($2, 2), r, ","); n = r[2] == "" ? 1 : r[2] == 0 ? 2 : r[2]; for (k = r[1]; k < r[1] + n; k++) hit[cur, k]; next }
+      !text { if (/^[-+]/ && !/^\+\+\+ /) for (g in file) if (index($0, file[g])) named[g]; next }
+      { match($0, /:[0-9]+: /); f = substr($0, 1, RSTART - 1); l = substr($0, RSTART + 1, RLENGTH - 3) + 0; t = substr($0, RSTART + RLENGTH) }
+      f != pf || t ~ /^[ \t]*$/ || t ~ /^ *([-*+] |[0-9]+\. |\|)/ { flush(); pf = f }
+      t !~ /^[ \t]*$/ { para[++m] = f ":" l; if ((f, l) in hit) touched = 1 }
+      END { flush(); for (g in named) print g ":*" }'
+}
 prompt() {
   cat <<'EOF'
 You check the text of a skill against the scenarios of its flow. The scenario
@@ -245,6 +274,7 @@ eval_row() {
   logs=$(mktemp -d)
   items >"$logs/items.tsv"
   for side in base change; do prompt "$side" >"$logs/$side.prompt"; done
+  near >"$logs/near.txt"
   run_set "$logs"
   echo "Scenario: $scenario"
   echo "Runs: $logs"

@@ -245,10 +245,13 @@ scenario file and the files of the row, and gives for each Then and Never
 item the line that produces it, or none. The eval makes five runs on the text
 at the merge base with `origin/main` and five on the working tree, and gives
 LOST for each item that most runs on the working tree give no line for and at
-most a fifth of the runs on the base do. The ten runs of a row cost about
-$0.24. A row with a LOST item gets ten more runs, five on each side, at the
-same cost, and the item stays LOST only when they lose it too: one set of runs
-can lose a weak item by chance.
+most a fifth of the runs on the base do, when a line that the base gives it is
+near the change: in a paragraph that the change touches, or in a file that a
+changed line names. The LOST line names that line of the base. The ten runs of
+a row cost about $0.24. A row with a LOST item gets ten more runs, five on each
+side, at the same cost, and the item stays LOST only when they lose it too: one
+set of runs can lose a weak item by chance. Two sets can lose an item by
+chance too, so an item far from the change is not LOST (#393).
 CI runs it with `--changed` at each push to a pull request, and a newer push
 cancels the run of an older one. Before a paid run
 of `tests/scenarios_eval.sh`, run the same command by hand:
