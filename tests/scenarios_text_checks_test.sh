@@ -56,7 +56,6 @@ expect() {
   [ "$(grep '^LOST' <<<"$out" || true)" = "$2" ] || fail "$3" "$out"
 }
 gist='LOST 1.T1 A free task: the first message about #91 tells its gist'
-# A copy that walks a limit on 1.T1 puts its base line, take-in.md:18, near.
 at='; base line skills/github/take-in.md:18, near a change)'
 for c in five four; do
   cp -R "$fixtures" "$tmp/$c"
@@ -108,7 +107,7 @@ out=$(checks "$tmp/twice")
 for i in 1 2 3 4 5; do cp "$fixtures/base$i.txt" "$tmp/twice/again/change$i.txt"; done
 expect twice '' 'an item that the second set does not lose is lost'
 mkdir -p "$tmp/later/again"
-cp "$fixtures/items.tsv" "$fixtures/near.txt" "$tmp/later/"
+cp "$fixtures/items.tsv" "$fixtures/near.txt" "$tmp/later/" && echo 'skills/github/take-in.md:18' >>"$tmp/later/near.txt"
 for i in 1 2 3 4 5; do
   for d in later later/again; do
     cp "$fixtures/base$i.txt" "$tmp/$d/base$i.txt"
@@ -118,8 +117,10 @@ for i in 1 2 3 4 5; do
 done
 expect later '' 'an item that only the second set loses is lost'
 for i in 1 2 3; do set_none "$tmp/later/change$i.txt" 1.T1; done
-# Both sets lose 1.T1 far from a change, as 36.T1 on PR #391 (#393); a changed
-# line that names its file, as filing.md on PR #438, makes it near.
+# Both sets lose 1.T1 far from a change, as on PR #391 (#393), and a working
+# tree run gives a cut line; a changed line that names its file makes it near.
+cp "$fixtures/near.txt" "$tmp/later/"
+echo '1.T1 skills/github/take-in.md:32 "x"' >"$tmp/later/change4.txt"
 expect later '' 'an item that no change is near is lost'
 echo 'skills/github/take-in.md:*' >>"$tmp/later/near.txt"
 expect later "$gist (no line in 8 of 10 runs, on the base in 0 of 10$at" 'an item that both sets lose is not lost, or its counts are not the sums'
@@ -212,15 +213,14 @@ diff "$fixtures/items.tsv" "$tmp/logs/items.tsv" >/dev/null || fail 'the items o
 grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' "$tmp/logs/change.prompt" ||
   fail "the prompt of the working tree lacks the working tree's line"
 ! grep -q 'A line of the working tree only' "$tmp/logs/base.prompt" || fail "the prompt of the base has the working tree's line"
-# near.txt (#393): the paragraphs that the change edits, deletes or inserts at,
-# where a list item or table row starts one, then each file a changed line names.
+# near.txt (#393): the paragraphs that the change edits or inserts at, which a
+# list item, a step or a table row starts (not 7, 9, 13), and the named files.
 git -C "$repo" checkout -q -- skills/github/take-in.md
-printf '%s\n' 'A first paragraph,' 'on two lines.' '' 'A list:' '- one item,' '  on two lines.' '- another item.' '| a |' '| b |' >"$repo/skills/github/continue.md"
+printf '%s\n' 'A first paragraph,' 'on two lines.' '' 'A list:' '- one item,' '  on two lines.' '- another item.' '  - a sub item.' '1. a step,' '2. another step.' '| a |' '| b |' '| c |' >"$repo/skills/github/continue.md"
 commit 'paragraphs'
-printf '%s\n' 'A first paragraph, as scout.md says,' 'on two lines.' '' 'A list:' '- one item,' '  on two lines.' '- a new item.' '- another item.' '| a |' >"$repo/skills/github/continue.md"
+printf '%s\n' 'A first paragraph, as scout.md says,' 'on two lines.' '' 'A list:' '- a new item.' '- one item,' '  on two lines.' '- another item.' '  - a sub item, changed.' '1. a step,' '2. another step, changed.' '| A |' '| B |' '| c |' >"$repo/skills/github/continue.md"
 refused 'no answer' "$take" 1 HEAD
-[ "$(tr '\n' ' ' <"$tmp/logs/near.txt")" = 'skills/github/continue.md:1 skills/github/continue.md:2 skills/github/continue.md:5 skills/github/continue.md:6 skills/github/continue.md:7 skills/github/continue.md:9 skills/github/scout.md:* ' ] ||
-  fail 'near.txt does not hold the lines of the changed paragraphs and the file that a changed line names' "$(cat "$tmp/logs/near.txt")"
+[ "$(tr '\n' ' ' <"$tmp/logs/near.txt")" = "$(for l in 1 2 4 5 6 8 10 11 12; do printf 'skills/github/continue.md:%s ' "$l"; done)skills/github/scout.md:* " ] || fail 'near.txt does not hold the changed paragraphs and the named file' "$(cat "$tmp/logs/near.txt")"
 git -C "$repo" checkout -q -- skills/github/continue.md
 
 # --changed, on copies whose second row shares a skill file with the take-in
