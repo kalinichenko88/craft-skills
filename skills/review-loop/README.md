@@ -155,7 +155,7 @@ each task stays as that skill sets it. In place of the final review of
   In a project with an architecture file, the check also runs
   `invariants.sh --new-since`: a fix of a later round can break an
   invariant that the review of the architecture, beside round 1, did not
-  see, and a new failing hit fails the check. Then what the branch changed
+  see, and a failing hit marked `new` fails the check. Then what the branch changed
   as a whole, in one to five bullets. Then the rounds, the decisions with
   their reasons, what was fixed, what was declined and why, the issues
   filed, and the findings outside the task that the github skill calls a nit
