@@ -212,14 +212,14 @@ diff "$fixtures/items.tsv" "$tmp/logs/items.tsv" >/dev/null || fail 'the items o
 grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' "$tmp/logs/change.prompt" ||
   fail "the prompt of the working tree lacks the working tree's line"
 ! grep -q 'A line of the working tree only' "$tmp/logs/base.prompt" || fail "the prompt of the base has the working tree's line"
-# near.txt (#393): each line of a paragraph that the change touches, which a
-# list item starts, then <path>:* for each file that a changed line names.
+# near.txt (#393): the paragraphs that the change edits, deletes or inserts at,
+# where a list item or table row starts one, then each file a changed line names.
 git -C "$repo" checkout -q -- skills/github/take-in.md
-printf '%s\n' 'A first paragraph,' 'on two lines.' '' 'A list:' '- one item,' '  on two lines.' '- another item.' >"$repo/skills/github/continue.md"
+printf '%s\n' 'A first paragraph,' 'on two lines.' '' 'A list:' '- one item,' '  on two lines.' '- another item.' '| a |' '| b |' >"$repo/skills/github/continue.md"
 commit 'paragraphs'
-printf '%s\n' 'A first paragraph, as scout.md says,' 'on two lines.' '' 'A list:' '- one item,' '  on three lines.' '- another item.' >"$repo/skills/github/continue.md"
+printf '%s\n' 'A first paragraph, as scout.md says,' 'on two lines.' '' 'A list:' '- one item,' '  on two lines.' '- a new item.' '- another item.' '| a |' >"$repo/skills/github/continue.md"
 refused 'no answer' "$take" 1 HEAD
-[ "$(cat "$tmp/logs/near.txt")" = "$(printf '%s\n' skills/github/continue.md:1 skills/github/continue.md:2 skills/github/continue.md:5 skills/github/continue.md:6 'skills/github/scout.md:*')" ] ||
+[ "$(tr '\n' ' ' <"$tmp/logs/near.txt")" = 'skills/github/continue.md:1 skills/github/continue.md:2 skills/github/continue.md:5 skills/github/continue.md:6 skills/github/continue.md:7 skills/github/continue.md:9 skills/github/scout.md:* ' ] ||
   fail 'near.txt does not hold the lines of the changed paragraphs and the file that a changed line names' "$(cat "$tmp/logs/near.txt")"
 git -C "$repo" checkout -q -- skills/github/continue.md
 
