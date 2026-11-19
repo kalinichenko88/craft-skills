@@ -6,6 +6,11 @@ other places* are sections of `SKILL.md`, next to this file.
 ## The summary
 
 When the review ends, run the repository's own check on the final branch.
+With an architecture file on the branch, the check also runs
+`bash <dir>/../architecture/scripts/invariants.sh --new-since <base>` there,
+with `<base>` of step 1 of *The rounds*: a hit marked `new` under a FAIL
+fails the check. The review of the architecture reads only the range of
+round 1, and a fix of a later round can break an invariant.
 Then report in this order. Each item is one line, except **Change:**, which
 is a list. With no person and a verdict of `craft:product` other than
 `do it`, its report comes first in the summary, before **Change:**. When the
