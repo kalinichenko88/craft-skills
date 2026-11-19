@@ -274,5 +274,5 @@ skills/review-loop/summary.md|a failing hit marked `new` fails the check.
 # to a second later: a read of closingIssuesReferences right after the edit
 # showed none in 1 of 3 runs of a throwaway repository, and 215 of 601
 # recorded reads ran in the command of the edit or of `gh pr create` (#385).
-# The read waits first, as keep-open.sh does for the link of a branch.
+# The read waits first.
 skills/github/SKILL.md|sleep 3; gh pr view <PR> --json closingIssuesReferences
