@@ -18,11 +18,13 @@ the subject or the `--body` closes that issue when the commit lands, and
 
 **The checks come first.** Before `gh pr merge`, wait for the checks of the
 pull request, then list each one that did not pass. Run each command on its
-own. Run the watch in the foreground, with a time limit of 10 minutes. When
-the shell moves it to the background, stop it. Then read the list:
+own. `time-limit.sh` stops the watch after 10 minutes, on macOS too. When the
+shell gives the watch back before its end, or moves it to the background, it
+still runs: wait for its end, in Codex with `write_stdin` and no characters,
+and do not stop it. Then read the list:
 
 ```bash
-gh pr checks <PR> --watch --fail-fast >/dev/null
+bash <dir>/../review-loop/scripts/time-limit.sh 600 gh pr checks <PR> --watch --fail-fast >/dev/null
 gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
 ```
 

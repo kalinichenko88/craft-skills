@@ -129,7 +129,8 @@ merge, the issues' sentences against the decisions of the PR.
 
 ## Needs
 
-`bash`, `git`, `awk` and `gh`, authenticated against a GitHub remote.
-Without them, the skill skips its GitHub steps and says so. A defect in this
+`bash`, `git`, `awk` and `gh`, authenticated against a GitHub remote, and
+`pgrep`, which stops the watch of the checks before a merge at its time
+limit, with each process under it. Without them, the skill skips its GitHub steps and says so. A defect in this
 plugin needs only `gh` logged in to github.com. Without it, you get the draft
 of the issue and a link to file it by hand.
