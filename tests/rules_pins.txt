@@ -135,6 +135,13 @@ skills/github/continue.md|In Claude Code, when `pwd` prints the worktree path, a
 skills/github/merge.md|gh pr checks <PR> --json name,bucket,link --jq '.[] | select(.bucket != "pass" and .bucket != "skipping") | "\(.bucket) \(.name) \(.link)"'
 skills/github/merge.md|The list decides, not the exit code of the watch: a cancelled check gives 0, and no check at all gives 1.
 
+# The watch came back before the checks ended: Opus wrote `timeout 600`,
+# which macOS does not have, in 7 of 10 runs, and Codex gives a command back
+# after 30 seconds, where the old text said to stop it (#326). So the limit
+# is a script, and a watch that the shell gives back is waited on.
+skills/github/merge.md|bash <dir>/../review-loop/scripts/time-limit.sh 600 gh pr checks <PR> --watch --fail-fast >/dev/null
+skills/github/merge.md|it still runs: wait for its end, in Codex with `write_stdin` and no characters, and do not stop it.
+
 # A settled ADR took no edit past its Status line, so 6 sentences of 3
 # ADRs that a later fact made false stayed false; on the two sentences of
 # ADR 0007, Sonnet gave the stale answers in 5 of 5 runs (#343). The skill
