@@ -38,7 +38,7 @@
 3355 skills/review-loop/documents.md
 17756 skills/review-loop/SKILL.md
 1849 skills/review-loop/spec-and-plan.md
-5351 skills/review-loop/summary.md
+5350 skills/review-loop/summary.md
 2801 skills/review-loop/tests-lens.md
 2847 skills/review-loop/walk.md
 3516 skills/roadmap/lanes.md

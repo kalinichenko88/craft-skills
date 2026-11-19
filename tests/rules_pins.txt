@@ -260,5 +260,5 @@ skills/review-loop/SKILL.md|With no architecture file and no ADR folder, the ste
 # reached main (#293). With the fixes of rounds 1 and 2 past I-7 of a
 # fixture and a step 4 stop, 8 of 10 Opus runs did not name I-7 before this
 # sentence; with it, 10 of 10 ran invariants.sh and named I-7.
-skills/review-loop/summary.md|With an architecture file on the branch, the check also runs `bash <dir>/../architecture/scripts/invariants.sh --new-since <base>` there,
+skills/review-loop/summary.md|With an architecture file on the branch, the check also runs `bash <dir>/../architecture/scripts/invariants.sh --new-since <base> HEAD`,
 skills/review-loop/summary.md|a failing hit marked `new` fails the check.
