@@ -48,8 +48,8 @@
 #
 # Each run costs about $0.02, so the eval is not part of `make check`. A LOST
 # item is a result, not an error: it exits 0. The runs folder keeps the items,
-# the prompts, near.txt and the answers. With --check, it runs only the checks, on the
-# folder of an earlier run. `make check` runs them so on
+# the prompts, near.txt and the answers. With --check, it runs only the
+# checks, on the folder of an earlier run. `make check` runs them so on
 # tests/fixtures/scenarios_text, through tests/scenarios_text_checks_test.sh.
 #
 # Usage: tests/scenarios_text_eval.sh [scenario file | --changed] [runs, default 5] [base, default the merge base with origin/main]

@@ -118,9 +118,8 @@ for i in 1 2 3 4 5; do
 done
 expect later '' 'an item that only the second set loses is lost'
 for i in 1 2 3; do set_none "$tmp/later/change$i.txt" 1.T1; done
-# Both sets lose 1.T1, as PR #391 did 36.T1, but no line that the base gives
-# it is near a change: noise of the model (#393). A changed line that names
-# the file of that line, as merge.md named filing.md on PR #438, makes it near.
+# Both sets lose 1.T1 far from a change, as 36.T1 on PR #391 (#393); a changed
+# line that names its file, as filing.md on PR #438, makes it near.
 expect later '' 'an item that no change is near is lost'
 echo 'skills/github/take-in.md:*' >>"$tmp/later/near.txt"
 expect later "$gist (no line in 8 of 10 runs, on the base in 0 of 10$at" 'an item that both sets lose is not lost, or its counts are not the sums'
@@ -265,9 +264,10 @@ changed_rows scenarios/none/none.md
 grep -qxF "$evalsh: the first run printed: error: unknown option" "$tmp/err" || fail 'a run with no answer does not print the output of a CLI that prints no JSON' "$(cat "$tmp/err")"
 
 # A stub claude that gives each item line 1 of take-in.md, and none when the
-# prompt has the line of the working tree only, which names take-in.md. A row with no LOST item gets one set of runs;
-# a row with one gets a second set in again/, and both sets count. With a
-# file limit beside it, each call after the first two ends in an error.
+# prompt has the line of the working tree only, which names take-in.md. A row
+# with no LOST item gets one set of runs; a row with one gets a second set in
+# again/, and both sets count. With a file limit beside it, each call after
+# the first two ends in an error.
 cat >"$tmp/bin/claude" <<'EOF'
 #!/usr/bin/env bash
 d=$(dirname "$0")
