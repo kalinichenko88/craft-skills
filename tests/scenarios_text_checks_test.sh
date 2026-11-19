@@ -5,17 +5,18 @@
 # skills/github/take-in.md at bb69ce3 (base), and five on the same text with
 # its lines 32 to 35 and 43 cut (change). The cut lines tell the run to wait
 # on a closed task or on another person's work, and to stop on the person's
-# pull request and on a task of another repository. The checks give LOST for
-# 15 items of those four scenarios, and for no other item. Copies with the
-# base's answers on the working tree walk the limits one run at a time, with
-# five runs on each side and with four: most runs on the working tree, and at
-# most a fifth on the base. A second set of runs in again/ keeps an item LOST
-# only when it loses the item too, on both sides. With a stub claude, the eval
-# gives a second set only to a row with a LOST item, and a second set with no
-# answer stops it with the reason of that set. It refuses a wrong call, a
-# scenario file with no row, in this tree too, a file of a
-# row that is missing in the working tree, also in a later row before any
-# run, and runs with no answer; and it gives the base's text and the working
+# pull request and on a task of another repository, and near.txt holds them.
+# The checks give LOST for 15 items of those four scenarios, and for no other
+# item. Copies with the base's answers on the working tree walk the limits one
+# run at a time, with five runs on each side and with four: most runs on the
+# working tree, and at most a fifth on the base. A second set of runs in
+# again/ keeps an item LOST only when it loses the item too, on both sides,
+# and no item is LOST far from a change (#393). With a stub claude, the eval
+# writes near.txt, gives a second set only to a row with a LOST item, and a
+# second set with no answer stops it with the reason of that set. It refuses a
+# wrong call, a scenario file with no row, in this tree too, a file of a row
+# that is missing in the working tree, also in a later row before any run,
+# and runs with no answer; and it gives the base's text and the working
 # tree's to the two sides, no line of a file that the base does not have, the
 # recorded items for the recorded scenario file, and the scenario file of the
 # row in its output. With --changed, it runs only the rows with a skill file
@@ -55,8 +56,10 @@ expect() {
   [ "$(grep '^LOST' <<<"$out" || true)" = "$2" ] || fail "$3" "$out"
 }
 gist='LOST 1.T1 A free task: the first message about #91 tells its gist'
+at='; base line skills/github/take-in.md:18, near a change)'
 for c in five four; do
   cp -R "$fixtures" "$tmp/$c"
+  echo 'skills/github/take-in.md:18' >>"$tmp/$c/near.txt"
   for i in 1 2 3 4 5; do cp "$fixtures/base$i.txt" "$tmp/$c/change$i.txt"; done
 done
 : >"$tmp/four/change5.txt"
@@ -69,21 +72,22 @@ done
 expect five '' 'an item with no line in 2 of 5 runs is lost'
 expect four '' 'an item with no line in 2 of 4 runs is lost'
 leave_out "$tmp/five/change3.txt" 1.T1
-expect five "$gist (no line in 3 of 5 runs, on the base in 0 of 5)" 'an item with no line in 3 of 5 runs, one left out, is not lost'
+expect five "$gist (no line in 3 of 5 runs, on the base in 0 of 5$at" 'an item with no line in 3 of 5 runs, one left out, is not lost'
 set_none "$tmp/five/base1.txt" 1.T1
-expect five "$gist (no line in 3 of 5 runs, on the base in 1 of 5)" 'an item with no line in 1 of 5 runs on the base is not lost'
+expect five "$gist (no line in 3 of 5 runs, on the base in 1 of 5$at" 'an item with no line in 1 of 5 runs on the base is not lost'
 leave_out "$tmp/five/base2.txt" 1.T1
 expect five '' 'an item with no line in 2 of 5 runs on the base is lost'
 leave_out "$tmp/four/change3.txt" 1.T1
-expect four "$gist (no line in 3 of 4 runs, on the base in 0 of 4)" 'an item with no line in 3 of 4 runs is not lost'
+expect four "$gist (no line in 3 of 4 runs, on the base in 0 of 4$at" 'an item with no line in 3 of 4 runs is not lost'
 set_none "$tmp/four/base1.txt" 1.T1
 expect four '' 'an item with no line in 1 of 4 runs on the base is lost'
 # Each side counts its own runs: 5 on the working tree and 4 on the base.
 cp -R "$fixtures" "$tmp/uneven"
+echo 'skills/github/take-in.md:18' >>"$tmp/uneven/near.txt"
 for i in 1 2 3 4 5; do cp "$fixtures/base$i.txt" "$tmp/uneven/change$i.txt"; done
 : >"$tmp/uneven/base5.txt"
 for i in 1 2 3; do set_none "$tmp/uneven/change$i.txt" 1.T1; done
-expect uneven "$gist (no line in 3 of 5 runs, on the base in 0 of 4)" 'an item with no line in 3 of 5 runs, and in 0 of 4 on the base, is not lost'
+expect uneven "$gist (no line in 3 of 5 runs, on the base in 0 of 4$at" 'an item with no line in 3 of 5 runs, and in 0 of 4 on the base, is not lost'
 set_none "$tmp/uneven/base1.txt" 1.T1
 expect uneven '' 'an item with no line in 1 of 4 runs on the base, and 3 of 5 on the working tree, is lost'
 
@@ -103,7 +107,7 @@ out=$(checks "$tmp/twice")
 for i in 1 2 3 4 5; do cp "$fixtures/base$i.txt" "$tmp/twice/again/change$i.txt"; done
 expect twice '' 'an item that the second set does not lose is lost'
 mkdir -p "$tmp/later/again"
-cp "$fixtures/items.tsv" "$tmp/later/"
+cp "$fixtures/items.tsv" "$fixtures/near.txt" "$tmp/later/" && echo 'skills/github/take-in.md:18' >>"$tmp/later/near.txt"
 for i in 1 2 3 4 5; do
   for d in later later/again; do
     cp "$fixtures/base$i.txt" "$tmp/$d/base$i.txt"
@@ -113,7 +117,13 @@ for i in 1 2 3 4 5; do
 done
 expect later '' 'an item that only the second set loses is lost'
 for i in 1 2 3; do set_none "$tmp/later/change$i.txt" 1.T1; done
-expect later "$gist (no line in 8 of 10 runs, on the base in 0 of 10)" 'an item that both sets lose is not lost, or its counts are not the sums'
+# Both sets lose 1.T1 far from a change, as on PR #391 (#393), and a working
+# tree run gives a cut line; a changed line that names its file makes it near.
+cp "$fixtures/near.txt" "$tmp/later/"
+echo '1.T1 skills/github/take-in.md:32 "x"' >"$tmp/later/change4.txt"
+expect later '' 'an item that no change is near is lost'
+echo 'skills/github/take-in.md:*' >>"$tmp/later/near.txt"
+expect later "$gist (no line in 8 of 10 runs, on the base in 0 of 10$at" 'an item that both sets lose is not lost, or its counts are not the sums'
 cp "$fixtures/base3.txt" "$tmp/later/again/change3.txt"
 cp "$fixtures/base4.txt" "$tmp/later/again/change4.txt"
 : >"$tmp/later/again/change5.txt"
@@ -203,6 +213,15 @@ diff "$fixtures/items.tsv" "$tmp/logs/items.tsv" >/dev/null || fail 'the items o
 grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' "$tmp/logs/change.prompt" ||
   fail "the prompt of the working tree lacks the working tree's line"
 ! grep -q 'A line of the working tree only' "$tmp/logs/base.prompt" || fail "the prompt of the base has the working tree's line"
+# near.txt (#393): the paragraphs that the change edits or inserts at, which a
+# list item, a step or a table row starts (not 7, 9, 13), and the named files.
+git -C "$repo" checkout -q -- skills/github/take-in.md
+printf '%s\n' 'A first paragraph,' 'on two lines.' '' 'A list:' '- one item,' '  on two lines.' '- another item.' '  - a sub item.' '1. a step,' '2. another step.' '| a |' '| b |' '| c |' >"$repo/skills/github/continue.md"
+commit 'paragraphs'
+printf '%s\n' 'A first paragraph, as scout.md says,' 'on two lines.' '' 'A list:' '- a new item.' '- one item,' '  on two lines.' '- another item.' '  - a sub item, changed.' '1. a step,' '2. another step, changed.' '| A |' '| B |' '| c |' >"$repo/skills/github/continue.md"
+refused 'no answer' "$take" 1 HEAD
+[ "$(tr '\n' ' ' <"$tmp/logs/near.txt")" = "$(for l in 1 2 4 5 6 8 10 11 12; do printf 'skills/github/continue.md:%s ' "$l"; done)skills/github/scout.md:* " ] || fail 'near.txt does not hold the changed paragraphs and the named file' "$(cat "$tmp/logs/near.txt")"
+git -C "$repo" checkout -q -- skills/github/continue.md
 
 # --changed, on copies whose second row shares a skill file with the take-in
 # row, runs each row with a skill file that differs from the base, and no
@@ -212,7 +231,6 @@ grep -q '^skills/github/take-in\.md:[0-9]*: A line of the working tree only\.$' 
 # of the shared file; and the row of an untracked skill file. A run with no
 # answer prints the reason of the first run: .result of the CLI's JSON, or
 # else the start of its output.
-git -C "$repo" checkout -q -- skills/github/take-in.md
 mkdir "$repo/scenarios/none"
 cp "$fixtures/take-in.md" "$repo/scenarios/none/none.md"
 with_row "  'scenarios/none/none.md skills/github/take-in.md'"
@@ -245,10 +263,11 @@ refused 'no answer' --changed 1 HEAD
 changed_rows scenarios/none/none.md
 grep -qxF "$evalsh: the first run printed: error: unknown option" "$tmp/err" || fail 'a run with no answer does not print the output of a CLI that prints no JSON' "$(cat "$tmp/err")"
 
-# A stub claude that gives each item a line, and none when the prompt has the
-# line of the working tree only. A row with no LOST item gets one set of runs;
-# a row with one gets a second set in again/, and both sets count. With a
-# file limit beside it, each call after the first two ends in an error.
+# A stub claude that gives each item line 1 of take-in.md, and none when the
+# prompt has the line of the working tree only, which names take-in.md. A row
+# with no LOST item gets one set of runs; a row with one gets a second set in
+# again/, and both sets count. With a file limit beside it, each call after
+# the first two ends in an error.
 cat >"$tmp/bin/claude" <<'EOF'
 #!/usr/bin/env bash
 d=$(dirname "$0")
@@ -258,7 +277,7 @@ if [ -e "$d/limit" ] && [ "$(grep -c '' "$d/calls")" -gt 2 ]; then
   exit 1
 fi
 p=$(cat)
-a='x:1 "y"'
+a='skills/github/take-in.md:1 "y"'
 case $p in *'A line of the working tree only.'*) a=none ;; esac
 awk -v a="$a" '/^=== The items/ { f = 1; next } /^=== / { f = 0 } f && NF { print $1, a }' <<<"$p" | jq -Rs '{result: .}'
 EOF
@@ -273,7 +292,7 @@ sets() {
   rm -rf "$logs"
 }
 sets 2 '0 of 83 items lost, 1 runs on the working tree and 1 on the base' 'a row with no LOST item gets a second set'
-echo 'A line of the working tree only.' >>"$repo/skills/github/take-in.md"
+echo 'A line of the working tree only. It names take-in.md.' >>"$repo/skills/github/take-in.md"
 sets 4 '83 of 83 items lost, 2 runs on the working tree and 2 on the base' 'a row with a LOST item gets no second set'
 touch "$tmp/bin/limit"
 rm -f "$tmp/bin/calls"

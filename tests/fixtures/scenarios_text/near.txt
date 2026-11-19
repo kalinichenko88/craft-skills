@@ -1,0 +1,5 @@
+skills/github/take-in.md:32
+skills/github/take-in.md:33
+skills/github/take-in.md:34
+skills/github/take-in.md:35
+skills/github/take-in.md:43
