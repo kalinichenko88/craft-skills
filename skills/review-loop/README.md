@@ -152,11 +152,14 @@ each task stays as that skill sets it. In place of the final review of
   turn. Its fixes get rounds of their own, as the later fixes above. A
   change to documents only gets no security review, unless you ask for one.
 - **A summary.** First a run of the repository's check on the final branch.
-  Then what the branch changed as a whole, in one to five bullets. Then the
-  rounds, the decisions with their reasons, what was fixed, what was declined
-  and why, the issues filed, and the findings outside the task that the
-  github skill calls a nit or rules out. Last, the docs the branch changed,
-  or why it changed none. The pull request description carries the summary
+  In a project with an architecture file, the check also runs
+  `invariants.sh --new-since`: a fix of a later round can break an
+  invariant that the review of the architecture, beside round 1, did not
+  see, and a failing hit marked `new` fails the check. Then what the branch changed
+  as a whole, in one to five bullets. Then the rounds, the decisions with
+  their reasons, what was fixed, what was declined and why, the issues
+  filed, and the findings outside the task that the github skill calls a nit
+  or rules out. Last, the docs the branch changed, or why it changed none. The pull request description carries the summary
   under `## Review`. In a public repository, an example from a private source in
   that section or in a reply to a review comment keeps no names, numbers,
   titles, paths or code.

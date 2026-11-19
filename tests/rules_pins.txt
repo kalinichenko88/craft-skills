@@ -253,3 +253,12 @@ skills/review-loop/SKILL.md|with no rounds | `spec-and-plan.md`
 skills/review-loop/SKILL.md|After the cuts of *Over-engineering first*, and before round 1, walk a change that alters what a user sees or does on a screen
 skills/review-loop/SKILL.md|This step needs an architecture file or an ADR folder on the branch, where `craft:architecture` finds them
 skills/review-loop/SKILL.md|With no architecture file and no ADR folder, the step does not run.
+
+# No step of the loop reads the architecture file after round 1: the review
+# of the architecture reads only the range of round 1, and the last pass is
+# a /code-review. So a fix of a later round grew a file past a limit, and it
+# reached main (#293). With the fixes of rounds 1 and 2 past I-7 of a
+# fixture and a step 4 stop, 8 of 10 Opus runs did not name I-7 before this
+# sentence; with it, 10 of 10 ran invariants.sh and named I-7.
+skills/review-loop/summary.md|With an architecture file on the branch, the check also runs `bash <dir>/../architecture/scripts/invariants.sh --new-since <base> HEAD`,
+skills/review-loop/summary.md|a failing hit marked `new` fails the check.

@@ -64,7 +64,9 @@ time.
   you all the drafts in one question. They go to this tracker, not to Claude
   Code's `/feedback`.
 - **A task runs to its pull request.** After the review, the agent runs the
-  repository's check on the final branch. When it passes and the branch is
+  repository's check on the final branch, with `invariants.sh` of
+  `craft:architecture` when the project has an architecture file. When it
+  passes and the branch is
   not the default branch, the agent pushes, opens the PR and shows the exact
   merge command, in the same turn. In a worktree, it asks one question: merge
   and clean up, merge only, or do not merge. Before the merge, it waits for
