@@ -108,21 +108,27 @@ Fill the last two columns from real runs. Until then each row is an assumption.
 
 | # | Question | How to measure | Expected by the documents | Result | Date, ZCode version, model |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Does the plugin install from the repository as it is? | Add the marketplace, install `craft`. `zcode plugins validate <path> --json` | Yes, through `.claude-plugin` | | |
-| 2 | Do all 9 skills load, and under which names? | `zcode skills list --json` | 9; probably as `craft:<name>` | | |
-| 3 | Do both parts of `rules.md` reach the session at its start? | Ask the session to quote one sentence of each part | Yes | | |
+| 1 | Does the plugin install from the repository as it is? | Add the marketplace, install `craft`. `zcode plugins validate <path> --json` | Yes, through `.claude-plugin` | Yes: `plugins marketplace add kalinichenko88/craft-skills`, then `plugins install craft@kalinichenko`. `validate` gives no diagnostic; the version is `0.0.0` | 2026-11-20, desktop 3.19.0, CLI 0.17.3 |
+| 2 | Do all 9 skills load, and under which names? | `zcode skills list --json` | 9; probably as `craft:<name>` | 9, as `craft:<name>`. All 47 skills found are visible | 2026-11-20, desktop 3.19.0, CLI 0.17.3 |
+| 3 | Do both parts of `rules.md` reach the session at its start? | Ask the session to quote one sentence of each part | Yes | No: each hook failed. The install gives each file the mode 0644, and `hooks/hooks.json` ran the script directly. Yes when each command runs it with `bash`: both sentences quoted word for word | 2026-11-20, desktop 3.19.0, GLM-5.3 |
 | 4 | Do they come again after a compaction? | The same question after a compaction | Yes: `SessionStart` with `compact` | | |
-| 5 | Does `SubagentStart` in `hooks/hooks.json` stop anything? | The log of the plugin load | A warning only | | |
-| 6 | Does a subagent that writes get the rules? | Ask a subagent to quote a sentence of `rules.md` | No | | |
+| 5 | Does `SubagentStart` in `hooks/hooks.json` stop anything? | The log of the plugin load | A warning only | A warning only: `plugin_hook_unsupported_event` | 2026-11-20, desktop 3.19.0, CLI 0.17.3 |
+| 6 | Does a subagent that writes get the rules? | Ask a subagent to quote a sentence of `rules.md` | No | No, in two runs: "No such section exists in my instructions" | 2026-11-20, desktop 3.19.0, GLM-5.3 |
 | 7 | Does a skill load by its trigger, with no hint? | In the main session, 10 runs of a prompt that is an issue number alone (`craft:github`), and 10 runs of a TypeScript edit (`craft:typescript-conventions`). Count the runs that load the skill. `tests/skill_load_eval.sh` does not fit as it is: it has no task for the github skill, and it gives each task to a subagent, which gets no rules in ZCode | Unknown: the trigger can be after character 250 | | |
 | 8 | Does the model read a side file of a skill? | A take-in that needs `take-in.md` | Unknown | | |
 | 9 | Does the model run a script of a skill with the right path? | A step that runs `bash <dir>/scripts/<name>.sh` | Unknown | | |
-| 10 | Does `session-title.sh` print anything, or fail? | A prompt that is an issue number alone | Nothing, no error | | |
+| 10 | Does `session-title.sh` print anything, or fail? | A prompt that is an issue number alone | Nothing, no error | Nothing and no error once the hook runs with `bash`, on a prompt that is not an issue: the script stops at the check for `prompt_id` | 2026-11-20, desktop 3.19.0, GLM-5.3 |
 | 11 | Is an update offered after a release? | Install, release a version, "Refresh this marketplace", then "Check for updates": the check reads the cached marketplace file | No: the Claude manifests have no `version` | | |
 | 12 | Does a GLM model keep the decisions of `rules.md`? | `tests/rules_decision_eval.sh` through `claude -p` on the Z.ai address | Unknown | | |
 | 13 | Does one review subagent with the prompt of `codex-review.sh:132` find the known defects? | Branches with a known defect in code, in ZCode. No eval of the project has such cases for this prompt: `tests/review_loop_lens_eval.sh` checks `architecture-lens.md`. The three branches of the comment at `codex-review.sh:129-131` are a start | Unknown | | |
 | 14 | What does one review round cost? | Credits and time of row 13 | Unknown | | |
 | 15 | Do 5 real tasks of the user finish with no step of craft started again by hand? | The user's notes | Unknown | | |
+
+The desktop release 3.19.0 differs from the source at `fec9759` in three facts above, on 2026-11-20:
+
+- It bundles no superpowers plugin, and the official marketplace of ZCode, with 76 plugins, lists none.
+- Its CLI 0.17.3 is `node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs`, not on `PATH`, and it has `--json` but no `--output-format`.
+- A prompt through that CLI needs `ZCODE_BUILTIN_PROVIDER_CONFIG_FILE=/Applications/ZCode.app/Contents/Resources/config/provider/zcode-builtin.json`. With the login of the app, three tries stopped with "Select a model before sending a message". A community guide gives a profile with a Coding Plan API key ([cli-contract.md](https://github.com/gigio1023/gigio-skills/blob/HEAD/skills/additional/zcode-cli/references/cli-contract.md)), not tried here.
 
 ## Not assessed
 

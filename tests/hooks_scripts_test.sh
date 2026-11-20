@@ -2,7 +2,8 @@
 # The session-title hook, run on the prompts that Claude Code and Codex send:
 # recorded payloads with their paths replaced, and a fake gh that answers from
 # a recorded issue. Then the rules hook, run on the inputs that Claude Code
-# 2.1.325 gave a SubagentStart hook for three agent types.
+# 2.1.325 gave a SubagentStart hook for three agent types. Last, each command
+# of hooks.json, run on a copy of the hooks with no executable bit.
 
 set -eu
 
@@ -165,5 +166,19 @@ a type that ends in Explore|s/"Explore"/"my-plugin:Explore"/
 a type that starts with Explore|s/"Explore"/"Explorer"/
 EOF
 done
+
+# A plugin packager can drop the executable bit: ZCode 3.19.0 installs each
+# file of a plugin as 0644, and a hook that runs its script directly fails
+# with "permission denied". A host runs a command in a shell, with
+# CLAUDE_PLUGIN_ROOT set.
+mkdir "$tmp/plugin"
+cp -R "$root/hooks" "$root/rules.md" "$tmp/plugin/"
+chmod a-x "$tmp/plugin/hooks/"*.sh
+commands=$(jq -r '.hooks[][].hooks[].command' "$root/hooks/hooks.json")
+[ -n "$commands" ] || fail 'hooks.json: no command'
+while IFS= read -r command; do
+  CLAUDE_PLUGIN_ROOT=$tmp/plugin sh -c "$command" <<<'{}' >/dev/null ||
+    fail "$command: exit $? on a copy with no executable bit"
+done <<<"$commands"
 
 echo 'hooks_scripts_test: ok'
