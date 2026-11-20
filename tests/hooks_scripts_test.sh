@@ -177,8 +177,13 @@ chmod a-x "$tmp/plugin/hooks/"*.sh
 commands=$(jq -r '.hooks[][].hooks[].command' "$root/hooks/hooks.json")
 [ -n "$commands" ] || fail 'hooks.json: no command'
 while IFS= read -r command; do
-  CLAUDE_PLUGIN_ROOT=$tmp/plugin sh -c "$command" <<<'{}' >/dev/null ||
+  out=$(CLAUDE_PLUGIN_ROOT=$tmp/plugin sh -c "$command" <<<'{}') ||
     fail "$command: exit $? on a copy with no executable bit"
+  # rules.sh exits 0 also when it finds no rules.md: it gives an empty context.
+  case $command in
+  *rules.sh*) [[ $out == *'"additionalContext":"# Global instructions, part '* ]] ||
+    fail "$command: no rules on a copy with no executable bit" "$out" ;;
+  esac
 done <<<"$commands"
 
 echo 'hooks_scripts_test: ok'
