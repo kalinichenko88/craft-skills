@@ -169,7 +169,7 @@ Where the split does not fit:
 
 Patterns 1, 2, 3 and 5 hold for each `.sh` script in `skills/*/scripts/`
 and `.claude/skills/*/scripts/`.
-Pattern 4 holds for the `.md` files of each skill.
+Pattern 4 holds for the `.md` files of each skill and for `hooks/hooks.json`.
 
 1. The header is the contract: what the script does, its
    `#   name.sh <args>` lines, `DRY_RUN` when it writes to GitHub, and a
@@ -189,7 +189,10 @@ Pattern 4 holds for the `.md` files of each skill.
 3. A script is one file: `run`, `clean` and `usage` are copied, not sourced.
    It finds its siblings by `$(dirname "$0")`.
 4. The `.md` files of a skill run a script with `bash`, as
-   `bash <dir>/scripts/<name>.sh`: a script can lack the executable bit.
+   `bash <dir>/scripts/<name>.sh`, and each command of `hooks/hooks.json`
+   runs its script the same way: a script can lack the executable bit, as
+   each file of a plugin that ZCode 3.19.0 installs does.
+   `tests/hooks_scripts_test.sh` runs each hook command on such a copy.
    `<dir>` is the skill's base directory, and `<skills>` is the directory
    above it.
 5. A regex goes to awk through `ENVIRON`, not `-v`: `-v` reads a backslash

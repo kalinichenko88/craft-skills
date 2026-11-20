@@ -1,6 +1,6 @@
 # ZCode as a third host: try the plugin unchanged first, and keep the review text that craft already has
 
-Research of 2026-11-16, for the craft plugin. Sources: the documents and the source of ZCode, the licence files of three Anthropic repositories, and the project's own counts, which are marked as such. **No run in ZCode was made.** Each statement about ZCode comes from its documents (D) or from its source at commit `fec9759` (S), and a real run can show a different result. The section *Measurements to make* lists what a run must record.
+Research of 2026-11-16, for the craft plugin. Sources: the documents and the source of ZCode, the licence files of three Anthropic repositories, and the project's own counts, which are marked as such. **Runs in ZCode on 2026-11-20 filled rows 1, 2, 3, 5, 6 and 10 of *Measurements to make*; the rest was written before any run.** Each statement about ZCode comes from its documents (D) or from its source at commit `fec9759` (S), and a real run can show a different result. The section *Measurements to make* lists what a run must record.
 
 One user of the plugin asked whether craft works in ZCode, the coding agent of Z.ai for the GLM models. The project that this user works on allows no other agent. By its documents, ZCode reads the `.claude-plugin` manifest, the skills and the `SessionStart` hook of craft with no change. Four gaps need a repair: a subagent gets no `rules.md`, the model sees only the first 250 characters of a skill description, ZCode has no built-in reviewer, and an update needs a version that the Claude manifests do not have. Two smaller differences stay: the hook shows no line with the number and the title of an issue, and the model names in the text of the skills name no GLM model. The review prompts that are built into Claude Code cannot go into the plugin: no licence grants a copy, and no public file holds their text. The two prompts that Anthropic published under Apache-2.0 and MIT can be copied by the text of their licences, but the published code review is a different tool, and craft already has a base review prompt of its own with a recorded result. Two product readers gave the same verdict: run the unchanged plugin in ZCode first, then repair only what that run shows.
 
@@ -108,27 +108,33 @@ Fill the last two columns from real runs. Until then each row is an assumption.
 
 | # | Question | How to measure | Expected by the documents | Result | Date, ZCode version, model |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Does the plugin install from the repository as it is? | Add the marketplace, install `craft`. `zcode plugins validate <path> --json` | Yes, through `.claude-plugin` | | |
-| 2 | Do all 9 skills load, and under which names? | `zcode skills list --json` | 9; probably as `craft:<name>` | | |
-| 3 | Do both parts of `rules.md` reach the session at its start? | Ask the session to quote one sentence of each part | Yes | | |
+| 1 | Does the plugin install from the repository as it is? | Add the marketplace, install `craft`. `zcode plugins validate <path> --json` | Yes, through `.claude-plugin` | Yes: `plugins marketplace add kalinichenko88/craft-skills`, then `plugins install craft@kalinichenko`. `validate` gives no diagnostic; the version is `0.0.0` | 2026-11-20, desktop 3.19.0, CLI 0.17.3 |
+| 2 | Do all 9 skills load, and under which names? | `zcode skills list --json` | 9; probably as `craft:<name>` | 9, as `craft:<name>`. All 47 skills found are visible | 2026-11-20, desktop 3.19.0, CLI 0.17.3 |
+| 3 | Do both parts of `rules.md` reach the session at its start? | Ask the session to quote one sentence of each part | Yes | No: each hook failed. The install gives each file the mode 0644, and `hooks/hooks.json` ran the script directly. Yes when each command runs it with `bash`: both sentences quoted word for word | 2026-11-20, desktop 3.19.0, GLM-5.3 |
 | 4 | Do they come again after a compaction? | The same question after a compaction | Yes: `SessionStart` with `compact` | | |
-| 5 | Does `SubagentStart` in `hooks/hooks.json` stop anything? | The log of the plugin load | A warning only | | |
-| 6 | Does a subagent that writes get the rules? | Ask a subagent to quote a sentence of `rules.md` | No | | |
+| 5 | Does `SubagentStart` in `hooks/hooks.json` stop anything? | The log of the plugin load | A warning only | A warning only: `plugin_hook_unsupported_event` | 2026-11-20, desktop 3.19.0, CLI 0.17.3 |
+| 6 | Does a subagent that writes get the rules? | Ask a subagent to quote a sentence of `rules.md` | No | No, in two runs: "No such section exists in my instructions" | 2026-11-20, desktop 3.19.0, GLM-5.3 |
 | 7 | Does a skill load by its trigger, with no hint? | In the main session, 10 runs of a prompt that is an issue number alone (`craft:github`), and 10 runs of a TypeScript edit (`craft:typescript-conventions`). Count the runs that load the skill. `tests/skill_load_eval.sh` does not fit as it is: it has no task for the github skill, and it gives each task to a subagent, which gets no rules in ZCode | Unknown: the trigger can be after character 250 | | |
 | 8 | Does the model read a side file of a skill? | A take-in that needs `take-in.md` | Unknown | | |
 | 9 | Does the model run a script of a skill with the right path? | A step that runs `bash <dir>/scripts/<name>.sh` | Unknown | | |
-| 10 | Does `session-title.sh` print anything, or fail? | A prompt that is an issue number alone | Nothing, no error | | |
+| 10 | Does `session-title.sh` print anything, or fail? | A prompt that is an issue number alone | Nothing, no error | Not run with an issue number alone. On a prompt that is not an issue, once the hook runs with `bash`: nothing and no error | 2026-11-20, desktop 3.19.0, GLM-5.3 |
 | 11 | Is an update offered after a release? | Install, release a version, "Refresh this marketplace", then "Check for updates": the check reads the cached marketplace file | No: the Claude manifests have no `version` | | |
 | 12 | Does a GLM model keep the decisions of `rules.md`? | `tests/rules_decision_eval.sh` through `claude -p` on the Z.ai address | Unknown | | |
 | 13 | Does one review subagent with the prompt of `codex-review.sh:132` find the known defects? | Branches with a known defect in code, in ZCode. No eval of the project has such cases for this prompt: `tests/review_loop_lens_eval.sh` checks `architecture-lens.md`. The three branches of the comment at `codex-review.sh:129-131` are a start | Unknown | | |
 | 14 | What does one review round cost? | Credits and time of row 13 | Unknown | | |
 | 15 | Do 5 real tasks of the user finish with no step of craft started again by hand? | The user's notes | Unknown | | |
 
+The desktop release 3.19.0 differs from the source at `fec9759` in three facts above, on 2026-11-20:
+
+- It bundles no superpowers plugin, and the official marketplace of ZCode, with 76 plugins, lists none.
+- Its CLI 0.17.3 is `node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs`, not on `PATH`, and it has `--json` but no `--output-format`.
+- A prompt through that CLI needs `ZCODE_BUILTIN_PROVIDER_CONFIG_FILE=/Applications/ZCode.app/Contents/Resources/config/provider/zcode-builtin.json`. With the login of the app, three tries stopped with "Select a model before sending a message". A community guide gives a profile with a Coding Plan API key ([cli-contract.md](https://github.com/gigio1023/gigio-skills/blob/HEAD/skills/additional/zcode-cli/references/cli-contract.md)), not tried here.
+
 ## Not assessed
 
-- The real behaviour of ZCode with craft. The source documents of ZCode are design records, and release v3.18.2 can differ from them.
+- The behaviour of ZCode with craft past the rows that a run filled. The source documents of ZCode are design records, and the desktop release 3.19.0 differs from them in the three facts under *Measurements to make*.
 - How a GLM model follows `rules.md` and the skills.
-- How ZCode tells the model the folder of a skill. The bundled superpowers plugin uses side files, so a way exists.
+- Whether the model reads a side file and runs a script of a skill: rows 8 and 9. ZCode 3.19.0 lists each skill to the model with the path of its `SKILL.md`, so the model has the folder of the skill.
 - When ZCode adds `SubagentStart`.
 - How long the user's project keeps its rule of ZCode only, and which GLM plan, shell tools and data terms it approves. craft needs bash and a logged-in `gh`.
 

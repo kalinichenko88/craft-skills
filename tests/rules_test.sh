@@ -58,12 +58,13 @@ for event in SessionStart SubagentStart; do
     "$root/rules.md" || fail "$event: the two parts and the marker line differ from rules.md"
   # hooks.json runs both parts under each event, from one group, so one
   # matcher gives both. The path is quoted: the plugin root can hold a space.
+  # bash runs the script: an install can drop its executable bit.
   cmds=$(jq -r --arg e "$event" '[.hooks[$e][] | [.hooks[].command |
     select(test("rules\\.sh"))] | select(length > 0)] |
     if length == 1 then .[0][] else "rules.sh in \(length) groups" end' \
     "$root/hooks/hooks.json" | sort | tr '\n' ',')
   # shellcheck disable=SC2016 # the variable as hooks.json holds it
-  want=$(printf '"${CLAUDE_PLUGIN_ROOT}/hooks/rules.sh" %s %s,' "$event" 1 "$event" 2)
+  want=$(printf 'bash "${CLAUDE_PLUGIN_ROOT}/hooks/rules.sh" %s %s,' "$event" 1 "$event" 2)
   [ "$cmds" = "$want" ] || fail "hooks.json: $event runs '$cmds', not '$want'"
 done
 # A fix outside the task goes into its PR or into an issue by one scope: the
