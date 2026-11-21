@@ -81,3 +81,11 @@ added twice in one month.
   author's machine have that state, and 0 of 968 recorded `gh pr merge`
   calls printed its warning. The count is the rule of `rules.md`, not this
   decision.
+- 2026-11-21 #469: two sentences said that `superpowers:brainstorming` asks
+  one question before it reads the code; its 7.0.2 reads the code first.
+  The false fact was cut. The issue's guess, that a first message with a
+  short design to approve then holds no block of the architecture skill and
+  no worth report, got no sentence in their place: 0 of 6 such messages in
+  20 narrated Opus runs lacked them, on the old text and after the cut. The
+  review's guess that a vague request then gets the full report before its
+  question got none either: `plain` of `tests/product_eval.sh` passed 5 of 5.

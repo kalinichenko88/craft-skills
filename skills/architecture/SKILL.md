@@ -262,10 +262,11 @@ A decision needs an ADR when:
 2. it is costly to undo, or it adds an external dependency;
 3. it sets a pattern that later code must follow: without the ADR, a reviewer
    would see two competing ways;
-4. it reverses or narrows an accepted ADR, or amends an invariant. Then a new
-   ADR supersedes the old one, and the old one changes only its Status line.
-   When it narrows only one point of the old ADR, the old one gets the Status
-   `accepted, narrowed by NNNN`, and the new ADR names that point.
+4. it reverses or narrows an accepted ADR, or amends an invariant. Then the
+   old ADR changes only its Status line. When the new ADR narrows part of the
+   old one, the old ADR gets the Status `accepted, narrowed by NNNN`, and the
+   new ADR names the point of the old one that it narrows. Else, as for a
+   narrowing of the whole ADR or a reversal, the new ADR supersedes it.
 
 No ADR when none of the four holds: the choice is local and cheap to undo, or
 a lint rule or a documented convention already enforces it. The four win: a
