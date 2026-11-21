@@ -71,14 +71,6 @@ in the conversation when there is no spec.
 Then the feature's code goes somewhere: that is a moment of a decision. Go on
 to its steps.
 
-With `superpowers:brainstorming` in the session, its order holds: its first
-message is the opt-out line and one question, and it reads the code only
-after the person says yes to its offer to look. So the block and the report
-come first in the message that reports what that look found, and the spec
-copies them at its start. With no such look, they come only at the start of
-the spec, or in the conversation before the first edit when there is no
-spec. Never before its first question.
-
 ## The moment of a decision
 
 The moment can come in brainstorming, in a spec, in a plan, or in code with
@@ -272,6 +264,8 @@ A decision needs an ADR when:
    would see two competing ways;
 4. it reverses or narrows an accepted ADR, or amends an invariant. Then a new
    ADR supersedes the old one, and the old one changes only its Status line.
+   When it narrows only one point of the old ADR, the old one gets the Status
+   `accepted, narrowed by NNNN`, and the new ADR names that point.
 
 No ADR when none of the four holds: the choice is local and cheap to undo, or
 a lint rule or a documented convention already enforces it. The four win: a
@@ -301,7 +295,7 @@ template:
 ```markdown
 # NNNN Title
 
-- Status: accepted | rejected | superseded by NNNN
+- Status: accepted | accepted, narrowed by NNNN | rejected | superseded by NNNN
 - Date: YYYY-MM-DD
 
 ## Context

@@ -67,9 +67,6 @@ Besides the start of a feature, whose report comes where *The start of a
 feature* of `craft:architecture` says, the skill runs only at a fork: a
 question that chooses between ways, as "fetch it on each request, or download
 it once". Never at a question that asks the person to describe.
-`superpowers:brainstorming` keeps its order: its first message is the
-opt-out line and one question, so the report never comes before that
-question.
 
 At a fork, the report comes in the message that asks the question, before
 its options, and its options become the options of the question. It may show
