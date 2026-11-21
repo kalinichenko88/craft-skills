@@ -68,3 +68,11 @@ old words of an `## Updates` line as the current fact.
 
 #343, #267, #284, ADR 0006, ADR 0007, `skills/architecture/SKILL.md`,
 `skills/review-loop/architecture-lens.md`, `skills/product/store.md`
+
+## Got in the way
+
+- 2026-11-21 #267: this decision says that a change of what a decision
+  commits to "stays a new ADR that supersedes the old one". By the person's
+  decision on #267 of 2026-11-13, a new ADR that narrows part of an accepted
+  ADR does not supersede it: the old one gets `accepted, narrowed by NNNN`.
+  Only a narrowing of the whole ADR or a reversal supersedes it.

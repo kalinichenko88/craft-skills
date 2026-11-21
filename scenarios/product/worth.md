@@ -308,9 +308,9 @@ Given:
   `docs/pdr/`
 When: the person writes "Let us shape an export of the orders before we build it"
 Then:
-- the first message about the export asks the person one question about it
+- the person is asked a question about the export
 Never:
-- the first message about the export holds a worth report
+- a message that asks the person to describe the export holds a worth report
 
 ## A question that chooses between two ways
 

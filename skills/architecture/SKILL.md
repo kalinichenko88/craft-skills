@@ -71,14 +71,6 @@ in the conversation when there is no spec.
 Then the feature's code goes somewhere: that is a moment of a decision. Go on
 to its steps.
 
-With `superpowers:brainstorming` in the session, its order holds: its first
-message is the opt-out line and one question, and it reads the code only
-after the person says yes to its offer to look. So the block and the report
-come first in the message that reports what that look found, and the spec
-copies them at its start. With no such look, they come only at the start of
-the spec, or in the conversation before the first edit when there is no
-spec. Never before its first question.
-
 ## The moment of a decision
 
 The moment can come in brainstorming, in a spec, in a plan, or in code with
@@ -270,8 +262,12 @@ A decision needs an ADR when:
 2. it is costly to undo, or it adds an external dependency;
 3. it sets a pattern that later code must follow: without the ADR, a reviewer
    would see two competing ways;
-4. it reverses or narrows an accepted ADR, or amends an invariant. Then a new
-   ADR supersedes the old one, and the old one changes only its Status line.
+4. it reverses or narrows an accepted ADR, or amends an invariant. Then the
+   old ADR, when there is one, changes only its Status line. When the new ADR
+   narrows part of the old one, the old ADR gets the Status `accepted,
+   narrowed by NNNN`, and the new ADR names the point of the old one that it
+   narrows. Else, as for a narrowing of the whole ADR or a reversal, the new
+   ADR supersedes it.
 
 No ADR when none of the four holds: the choice is local and cheap to undo, or
 a lint rule or a documented convention already enforces it. The four win: a
@@ -286,7 +282,7 @@ its task. Then add a line under `## Updates`, a heading right after the
 Status and Date lines:
 `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 The date is the day of the correction; the source is the issue, the pull
-request or the run that shows the new fact. The Status stays `accepted`. A
+request or the run that shows the new fact. The Status line stays. A
 later correction adds a line; no line is rewritten. The decision is the same
 when code that kept it before the correction keeps it after, and code that
 broke it still breaks it. Otherwise it is reason 4, however few words change:
@@ -301,7 +297,7 @@ template:
 ```markdown
 # NNNN Title
 
-- Status: accepted | rejected | superseded by NNNN
+- Status: accepted | accepted, narrowed by NNNN | rejected | superseded by NNNN
 - Date: YYYY-MM-DD
 
 ## Context
