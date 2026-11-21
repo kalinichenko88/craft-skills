@@ -263,10 +263,11 @@ A decision needs an ADR when:
 3. it sets a pattern that later code must follow: without the ADR, a reviewer
    would see two competing ways;
 4. it reverses or narrows an accepted ADR, or amends an invariant. Then the
-   old ADR changes only its Status line. When the new ADR narrows part of the
-   old one, the old ADR gets the Status `accepted, narrowed by NNNN`, and the
-   new ADR names the point of the old one that it narrows. Else, as for a
-   narrowing of the whole ADR or a reversal, the new ADR supersedes it.
+   old ADR, when there is one, changes only its Status line. When the new ADR
+   narrows part of the old one, the old ADR gets the Status `accepted,
+   narrowed by NNNN`, and the new ADR names the point of the old one that it
+   narrows. Else, as for a narrowing of the whole ADR or a reversal, the new
+   ADR supersedes it.
 
 No ADR when none of the four holds: the choice is local and cheap to undo, or
 a lint rule or a documented convention already enforces it. The four win: a
@@ -281,7 +282,7 @@ its task. Then add a line under `## Updates`, a heading right after the
 Status and Date lines:
 `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 The date is the day of the correction; the source is the issue, the pull
-request or the run that shows the new fact. The Status stays `accepted`. A
+request or the run that shows the new fact. The Status line stays. A
 later correction adds a line; no line is rewritten. The decision is the same
 when code that kept it before the correction keeps it after, and code that
 broke it still breaks it. Otherwise it is reason 4, however few words change:
