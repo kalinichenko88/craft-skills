@@ -306,13 +306,11 @@ Never:
 Given:
 - the repository keeps its product decisions in `docs/PRODUCT.md` and
   `docs/pdr/`
-- in this conversation, the person wrote "Let us shape an export of the
-  orders before we build it"
-When: the run meets a question that asks the person to describe the export
+When: the person writes "Let us shape an export of the orders before we build it"
 Then:
-- the person is asked the question
+- the person is asked a question about the export
 Never:
-- the message that asks the question holds a worth report
+- a message that asks the person to describe the export holds a worth report
 
 ## A question that chooses between two ways
 
