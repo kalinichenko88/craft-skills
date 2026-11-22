@@ -300,7 +300,9 @@ skills/review-loop/spec-and-plan.md|After those piles change the spec, one `Agen
 # every commit up to the next release, and an update does not bring a fix
 # that is only on `main`. A defect report gives the commit of the copy that
 # runs: a Claude Code record names the last install, which a running session
-# may not have loaded, so it is matched by its `installPath`.
-skills/github/plugin-defect.md|the commit is `git -C "<root>" rev-parse --short=12 HEAD`.
+# may not have loaded, so it is matched by its `installPath`. The version
+# comes from the manifest of the root, in each host and in a checkout.
+skills/github/plugin-defect.md|The version is `version` in the root's `.claude-plugin/plugin.json`, or in `.codex-plugin/plugin.json` in Codex.
+skills/github/plugin-defect.md|When `<root>/.git` exists, as in Codex or with `claude --plugin-dir`, the commit is `git -C "<root>" rev-parse --short=12 HEAD`.
 skills/github/plugin-defect.md|`gitCommitSha` in the entry of `~/.claude/plugins/installed_plugins.json` whose `installPath` is the root
 skills/github/plugin-defect.md|and that an update brings the fix only when a release holds it.

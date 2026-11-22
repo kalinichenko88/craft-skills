@@ -10,9 +10,10 @@ argument-hint: "[major|minor|patch]"
 A release is a `vX.Y.Z` tag on `main`, the same `version` in
 `.codex-plugin/plugin.json`, in `.claude-plugin/plugin.json` and in the
 plugin's entry of `.claude-plugin/marketplace.json`, a section in
-`CHANGELOG.md` and a GitHub release with that section as its notes. Claude
-Code, Codex and ZCode update the plugin only when that `version` changes
-(PDR 0015), and `make check` fails when the three fields differ.
+`CHANGELOG.md` and a GitHub release with that section as its notes. An
+install from GitHub, in Claude Code, Codex or ZCode, updates only when that
+`version` changes (PDR 0015), and `make check` fails when the three fields
+differ.
 
 This skill is the only place `version` and `CHANGELOG.md` change; other pull
 requests leave them alone. It releases what is already on `main`: merging
@@ -84,7 +85,7 @@ commit hash) into every later command.
 
    ```sh
    for f in .codex-plugin/plugin.json .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
-     tmp=$(mktemp) && jq --arg v "$version" 'if .plugins then .plugins[0].version = $v else .version = $v end' "$f" >"$tmp" && mv "$tmp" "$f" || break
+     tmp=$(mktemp) && jq --arg v "$version" 'if .plugins then .plugins[0].version = $v else .version = $v end' "$f" >"$tmp" && mv "$tmp" "$f" || exit 1
    done
    ```
 

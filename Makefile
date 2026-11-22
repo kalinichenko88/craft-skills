@@ -1,6 +1,6 @@
 TESTS = $(patsubst tests/%_test.sh,%,$(wildcard tests/*_test.sh))
 
-.PHONY: check lint scenarios invariants test
+.PHONY: check lint scenarios versions invariants test
 .NOTPARALLEL:
 check: lint invariants test
 
@@ -31,11 +31,14 @@ scenarios:
 # ZCode offers an update only when the version of the marketplace entry grows
 # past the version of the installed manifest (#464): the Claude manifest, its
 # marketplace entry and the Codex manifest carry one version.
-lint: scenarios
+versions:
+	v=$$(jq -r .version .codex-plugin/plugin.json); [ "$$v" != null ] && \
+	  [ "$$(jq -r '.plugins[0].version // .version' .codex-plugin/plugin.json .claude-plugin/plugin.json .claude-plugin/marketplace.json | sort -u)" = "$$v" ] || \
+	  { echo "FAIL: .claude-plugin/plugin.json, its marketplace entry and .codex-plugin/plugin.json give no one version"; exit 1; }
+
+lint: scenarios versions
 	claude plugin validate .
 	jq empty .codex-plugin/plugin.json hooks/hooks.json
-	[ "$$(jq -r '.plugins[0].version // .version' .codex-plugin/plugin.json .claude-plugin/plugin.json .claude-plugin/marketplace.json | sort -u)" = "$$(jq -r .version .codex-plugin/plugin.json)" ] || \
-	  { echo "FAIL: .claude-plugin/plugin.json, its marketplace entry and .codex-plugin/plugin.json give different versions"; exit 1; }
 	! grep -n '^- ' CHANGELOG.md | grep -v '^[0-9]*:- ([a-z][a-z, -]*) '
 	! git grep -n 'kalinichenko[:]' -- . ':!docs/superpowers' ':!CHANGELOG.md' ':!docs/migrating-from-kalinichenko.md' ':!tests/fixtures/sessions'
 	! git grep -nE "(^|[^<])<<-?[[:space:]]*[^[:space:]<0-9]" -- 'skills/*.md' rules.md

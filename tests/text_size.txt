@@ -22,7 +22,7 @@
 2868 skills/github/continue.md
 10287 skills/github/filing.md
 9682 skills/github/merge.md
-9757 skills/github/plugin-defect.md
+9711 skills/github/plugin-defect.md
 6945 skills/github/scout.md
 11463 skills/github/SKILL.md
 15870 skills/github/take-in.md
