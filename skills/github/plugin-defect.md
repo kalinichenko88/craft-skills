@@ -62,7 +62,8 @@ When `main` does not have the defect, file nothing. Tell the person that `main`
 does not have the defect. Give the file and the line of the defect in the copy
 that runs. Give the link
 `https://github.com/kalinichenko88/craft-skills#update`, and say that it is for
-an installed plugin.
+an installed plugin, and that an update brings the fix only when a release
+holds it.
 
 **Search**, by the name of the script, the skill or the rule's heading:
 
@@ -120,11 +121,15 @@ neutral names. Paths inside the plugin, as
 problem and starts with the part of the plugin: the skill, as `github:`,
 `rules:` for the global prompt, `hooks:` for a hook. The body says:
 
-- The plugin version. In Claude Code, this skill's base directory ends in
-  `<version>/skills/github`, as `a5b733322e79/skills/github`. A plugin that
-  runs from a checkout, as with `claude --plugin-dir`, has the version
-  `git rev-parse --short=12 HEAD` of that checkout. In Codex, it is `version`
-  in the plugin's `.codex-plugin/plugin.json`. Write the version, not the path.
+- The plugin version and its commit: one version holds the commits up to the
+  next release. The plugin root is this skill's base directory without
+  `/skills/github`. The version is `version` in the root's
+  `.claude-plugin/plugin.json`, or in `.codex-plugin/plugin.json` in Codex.
+  When `<root>/.git` exists, as in Codex or with `claude --plugin-dir`, the
+  commit is `git -C "<root>" rev-parse --short=12 HEAD`. Else, in Claude Code,
+  it is the first 12 characters of `gitCommitSha` in the entry of
+  `~/.claude/plugins/installed_plugins.json` whose `installPath` is the root,
+  when there is one. Write the version, not the path.
 - The tool: Claude Code or Codex.
 - The file and the line in the plugin, and what the rule or the script says.
 - What happened, and what you expected.

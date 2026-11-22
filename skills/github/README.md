@@ -53,8 +53,9 @@ time.
   default. Data loss or a security hole gets an issue all the same.
 - **A defect in the plugin reaches its tracker.** When the agent finds that
   a rule, a skill or a script of this plugin is wrong, it writes an issue for
-  `kalinichenko88/craft-skills`: the plugin version, the file and line, and
-  the steps that show it again, with neutral names. In a checkout of
+  `kalinichenko88/craft-skills`: the plugin version and, when it is known, its
+  commit, the file and line, and the steps that show it again, with neutral
+  names. In a checkout of
   `craft-skills`, the defect is an ordinary finding. Anywhere else, the agent
   shows you the issue and files it only after you say yes. Nothing from your
   project goes in. When you have to point out a step of the plugin that the

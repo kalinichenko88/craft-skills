@@ -178,17 +178,20 @@ does nothing.
 
 ## Update
 
-Claude Code tracks commits: the plugin carries no `version`, so every push is a
-new one. Background auto-update is off for third-party marketplaces; turn it on
-under `/plugin` → Marketplaces → `kalinichenko`, or update by hand:
+An installed plugin updates at a release: a release moves the same `version`
+in `.claude-plugin/plugin.json`, in the plugin's entry of
+`.claude-plugin/marketplace.json` and in `.codex-plugin/plugin.json`, and an
+install from GitHub updates only when that `version` changes. A new install
+takes `main` as it is, under the last version.
+
+Claude Code: background auto-update is off for third-party marketplaces; turn
+it on under `/plugin` → Marketplaces → `kalinichenko`, or update by hand:
 
 ```sh
 claude plugin update craft@kalinichenko
 ```
 
-Codex installs the plugin under the `version` in `.codex-plugin/plugin.json` and
-reinstalls it when a release moves that field. It upgrades the marketplace in
-the background at startup; to upgrade now:
+Codex upgrades the marketplace in the background at startup; to upgrade now:
 
 ```sh
 codex plugin marketplace upgrade kalinichenko

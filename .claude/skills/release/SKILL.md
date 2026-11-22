@@ -8,10 +8,12 @@ argument-hint: "[major|minor|patch]"
 # Release
 
 A release is a `vX.Y.Z` tag on `main`, the same `version` in
-`.codex-plugin/plugin.json`, a section in `CHANGELOG.md` and a GitHub release
-with that section as its notes. Codex reinstalls the plugin when the `version`
-field changes. Claude Code tracks commits instead, which is why
-`.claude-plugin/plugin.json` carries no `version` — never add one.
+`.codex-plugin/plugin.json`, in `.claude-plugin/plugin.json` and in the
+plugin's entry of `.claude-plugin/marketplace.json`, a section in
+`CHANGELOG.md` and a GitHub release with that section as its notes. An
+install from GitHub, in Claude Code, Codex or ZCode, updates only when that
+`version` changes (PDR 0015), and `make check` fails when the three fields
+differ.
 
 This skill is the only place `version` and `CHANGELOG.md` change; other pull
 requests leave them alone. It releases what is already on `main`: merging
@@ -79,20 +81,27 @@ commit hash) into every later command.
    alphabetical order, comma-separated: `(react, typescript)`. Four or more
    areas, or none, give `(plugin)`. Breaking subjects (`!`) get `(breaking)` at
    the end of the line.
-5. **Bump and check.**
-   `tmp=$(mktemp) && jq --arg v "$version" '.version = $v' .codex-plugin/plugin.json >"$tmp" && mv "$tmp" .codex-plugin/plugin.json`,
-   then `make check`. If the check fails, restore both files and stop.
+5. **Bump and check.** Set the three fields:
+
+   ```sh
+   for f in .codex-plugin/plugin.json .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
+     tmp=$(mktemp) && jq --arg v "$version" 'if .plugins then .plugins[0].version = $v else .version = $v end' "$f" >"$tmp" && mv "$tmp" "$f" || exit 1
+   done
+   ```
+
+   Then `make check`. If the loop or the check fails, restore the four files
+   and stop.
 6. **Merge through a pull request, then tag the merge commit.** Commit on a
    branch and push it:
 
    ```sh
    git switch -C "chore/release-$version"
-   git commit -m "chore(release): bump the Codex version to $version" -- .codex-plugin/plugin.json CHANGELOG.md
+   git commit -m "chore(release): bump the version to $version" -- .codex-plugin/plugin.json .claude-plugin/plugin.json .claude-plugin/marketplace.json CHANGELOG.md
    git push -u origin "chore/release-$version"
    ```
 
    After the push succeeds, in a separate command:
-   `gh pr create --assignee @me --title "chore(release): bump the Codex version to $version" --body "The version in .codex-plugin/plugin.json and the $version section of CHANGELOG.md."`.
+   `gh pr create --assignee @me --title "chore(release): bump the version to $version" --body "The version in the Claude and Codex manifests and the $version section of CHANGELOG.md."`.
    Wait for its checks as `merge.md` of `craft:github` says, and stop
    where it stops. When the person drops the release there, close it:
    `gh pr close <PR> --delete-branch`, then `git switch main`. When the checks
@@ -104,8 +113,8 @@ commit hash) into every later command.
 
    ```sh
    gh pr merge <PR> --squash --delete-branch \
-     --subject "chore(release): bump the Codex version to $version (#<PR>)" \
-     --body "- Set the Codex version to $version
+     --subject "chore(release): bump the version to $version (#<PR>)" \
+     --body "- Set the version to $version in the Claude and Codex manifests
    - Add the $version section to CHANGELOG.md"
    ```
 

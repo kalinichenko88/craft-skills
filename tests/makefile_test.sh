@@ -3,9 +3,10 @@
 # harness of the real ones: set -eu, an EXIT trap and check. Under bash 3.2 a
 # script that set -u stops exits 0 when it has an EXIT trap, so make test must
 # fail a script that does not print its ok line. Then checks that make check
-# runs invariants.sh, and that its target fails on a broken invariant; and that
+# runs invariants.sh, and that its target fails on a broken invariant; that
 # make check runs the scenarios target, which fails on each kind of fault in
-# the shape of a scenario file.
+# the shape of a scenario file; and that it runs the versions target, which
+# fails when the three version fields of the manifests differ.
 
 set -eu
 
@@ -119,4 +120,27 @@ fails 'the outcomes of a heading that does not exist' 'x/z.md:6: no scenario has
   "$(well 'A new task' 'the outcomes of A missing task hold for #91')"
 fails 'as in a heading that does not exist, on two lines' 'x/z.md:6: no scenario has the name A missing task' x/z.md \
   "$(well 'A new task' $'a branch for #91 exists, as in A\n  missing task')"
+
+# make check runs the versions target, which fails unless the Claude manifest,
+# its marketplace entry and the Codex manifest carry one version: ZCode offers
+# no update when the entry's version does not grow (#464).
+want=$(make -n -s -C "$root" versions 2>&1) || fail 'make -n versions fails' "$want"
+[[ $got == *"$want"* ]] || fail 'make check does not run the versions target' "$got"
+ver=$tmp/ver
+field() { [ -z "$1" ] || printf ', "version": "%s"' "$1"; }
+# versions <claude> <entry> <codex>: make versions on manifests with these
+# versions, an empty one with no version field.
+versions() {
+  rm -rf "$ver"
+  mkdir -p "$ver/.claude-plugin" "$ver/.codex-plugin"
+  printf '{"name": "craft"%s}\n' "$(field "$1")" >"$ver/.claude-plugin/plugin.json"
+  printf '{"plugins": [{"name": "craft"%s}]}\n' "$(field "$2")" >"$ver/.claude-plugin/marketplace.json"
+  printf '{"name": "craft"%s}\n' "$(field "$3")" >"$ver/.codex-plugin/plugin.json"
+  make -s -C "$ver" -f "$root/Makefile" versions >"$tmp/out" 2>&1
+}
+versions 2.5.1 2.5.1 2.5.1 || fail 'make versions fails on one version' "$(cat "$tmp/out")"
+for v in ',,2.5.1' ',,' '2.5.1,2.5.0,2.5.1' '2.5.1,2.5.1,2.5.0'; do
+  IFS=, read -r a b c <<<"$v"
+  versions "$a" "$b" "$c" && fail "make versions passes the versions $v" "$(cat "$tmp/out")"
+done
 echo 'makefile_test: ok'

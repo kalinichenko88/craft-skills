@@ -295,3 +295,14 @@ skills/architecture/SKILL.md|Status: accepted | accepted, narrowed by NNNN | rej
 skills/review-loop/spec-and-plan.md|When the spec records a decision that needs an ADR (*ADRs* in `craft:architecture`), send the second reader of step 8 of that skill, with its brief and its model, in the same message as the two readers
 skills/review-loop/spec-and-plan.md|a point that step 8 gives to the person is Theirs.
 skills/review-loop/spec-and-plan.md|After those piles change the spec, one `Agent` call with `model: "fable"` and the prompt of the builder check reads the changed text before the handover.
+
+# #464: an install updates only at a release (PDR 0015), so a version names
+# every commit up to the next release, and an update does not bring a fix
+# that is only on `main`. A defect report gives the commit of the copy that
+# runs: a Claude Code record names the last install, which a running session
+# may not have loaded, so it is matched by its `installPath`. The version
+# comes from the manifest of the root, in each host and in a checkout.
+skills/github/plugin-defect.md|The version is `version` in the root's `.claude-plugin/plugin.json`, or in `.codex-plugin/plugin.json` in Codex.
+skills/github/plugin-defect.md|When `<root>/.git` exists, as in Codex or with `claude --plugin-dir`, the commit is `git -C "<root>" rev-parse --short=12 HEAD`.
+skills/github/plugin-defect.md|`gitCommitSha` in the entry of `~/.claude/plugins/installed_plugins.json` whose `installPath` is the root
+skills/github/plugin-defect.md|and that an update brings the fix only when a release holds it.

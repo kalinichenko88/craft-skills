@@ -287,9 +287,11 @@ hold 10. A new number needs an ADR.
 - **Safety.** No step of the debt and architecture skills runs the code of
   the project it reads. Nothing from a private source goes into a public
   repository (`craft:github`).
-- **Release.** `/release` alone moves `version` in
-  `.codex-plugin/plugin.json` and writes `CHANGELOG.md`.
-  `.claude-plugin/plugin.json` carries no `version`.
+- **Release.** `/release` alone moves `version` and writes `CHANGELOG.md`.
+  The `version` is one, in `.claude-plugin/plugin.json`, in the plugin's
+  entry of `.claude-plugin/marketplace.json` and in
+  `.codex-plugin/plugin.json`, and each host updates the plugin only when it
+  changes (PDR 0015). `make lint` fails when the three differ.
 - **CI.** `make check` on Ubuntu 26.04 with mawk and ShellCheck 0.11.0, and
   a gitleaks scan. On a pull request from this repository, a third job runs
   `tests/scenarios_text_eval.sh --changed` with the secret
