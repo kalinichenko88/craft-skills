@@ -62,7 +62,8 @@ When `main` does not have the defect, file nothing. Tell the person that `main`
 does not have the defect. Give the file and the line of the defect in the copy
 that runs. Give the link
 `https://github.com/kalinichenko88/craft-skills#update`, and say that it is for
-an installed plugin.
+an installed plugin, and that an update brings the fix only from the first
+release after it.
 
 **Search**, by the name of the script, the skill or the rule's heading:
 
@@ -121,7 +122,10 @@ problem and starts with the part of the plugin: the skill, as `github:`,
 `rules:` for the global prompt, `hooks:` for a hook. The body says:
 
 - The plugin version. In Claude Code, this skill's base directory ends in
-  `<version>/skills/github`, as `2.5.1/skills/github`. A plugin that runs
+  `<version>/skills/github`, as `2.5.1/skills/github`. One version holds the
+  commits up to the next release, so give the commit too: the first 12
+  characters of `gitCommitSha` of `craft@kalinichenko` in
+  `~/.claude/plugins/installed_plugins.json`. A plugin that runs
   from a checkout, as with `claude --plugin-dir`, gives the commit of that
   checkout instead: `git rev-parse --short=12 HEAD`. In Codex, it is `version`
   in the plugin's `.codex-plugin/plugin.json`. Write the version, not the path.

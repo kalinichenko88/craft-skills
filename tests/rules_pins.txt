@@ -295,3 +295,10 @@ skills/architecture/SKILL.md|Status: accepted | accepted, narrowed by NNNN | rej
 skills/review-loop/spec-and-plan.md|When the spec records a decision that needs an ADR (*ADRs* in `craft:architecture`), send the second reader of step 8 of that skill, with its brief and its model, in the same message as the two readers
 skills/review-loop/spec-and-plan.md|a point that step 8 gives to the person is Theirs.
 skills/review-loop/spec-and-plan.md|After those piles change the spec, one `Agent` call with `model: "fable"` and the prompt of the builder check reads the changed text before the handover.
+
+# #464: an install updates only at a release (PDR 0015), so the version in a
+# Claude Code path names every commit up to the next release, and an update
+# does not bring a fix that is only on `main`. A defect report gives the
+# commit of the install, and the person hears when a fix on `main` arrives.
+skills/github/plugin-defect.md|the first 12 characters of `gitCommitSha` of `craft@kalinichenko` in `~/.claude/plugins/installed_plugins.json`.
+skills/github/plugin-defect.md|and that an update brings the fix only from the first release after it.

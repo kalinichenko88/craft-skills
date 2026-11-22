@@ -178,10 +178,11 @@ does nothing.
 
 ## Update
 
-An update comes with a release: a release moves the same `version` in
-`.claude-plugin/plugin.json`, in the plugin's entry of
-`.claude-plugin/marketplace.json` and in `.codex-plugin/plugin.json`, and a
-commit on `main` with no release reaches no install.
+An installed plugin updates at a release: a release moves the same `version`
+in `.claude-plugin/plugin.json`, in the plugin's entry of
+`.claude-plugin/marketplace.json` and in `.codex-plugin/plugin.json`, and an
+install updates only when that `version` changes. A new install takes `main`
+as it is, under the last version.
 
 Claude Code: background auto-update is off for third-party marketplaces; turn
 it on under `/plugin` → Marketplaces → `kalinichenko`, or update by hand:

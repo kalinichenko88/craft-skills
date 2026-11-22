@@ -10,7 +10,8 @@ We will give the plugin one `version`, the same in `.claude-plugin/plugin.json`,
 in the plugin's entry of `.claude-plugin/marketplace.json` and in
 `.codex-plugin/plugin.json`, and only `/release` moves it. Claude Code, Codex
 and ZCode then update craft at a release. A push to `main` with no release
-reaches no install, in Claude Code too, where each push was an update before.
+updates no install, in Claude Code too, where each push was an update before.
+A new install takes `main` as it is, under the last version.
 `make check` fails when the three fields differ.
 
 ## Rests on
