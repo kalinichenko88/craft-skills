@@ -289,8 +289,9 @@ skills/architecture/SKILL.md|Status: accepted | accepted, narrowed by NNNN | rej
 # text that the piles changed got no read before the handover in 10 of 10.
 # With these sentences: 10 of 10 and 9 of 10, and a spec with no such
 # decision got no third reader in 5 of 5 (#434). Step 8 gives the person
-# each point on which the agent and that reader do not agree; the Minor pile
-# of brainstorming would settle it with no person.
+# each point on which the agent and that reader do not agree, but a choice of
+# a technology that the person left to the agent; the Minor pile of
+# brainstorming would settle such a point with no person.
 skills/review-loop/spec-and-plan.md|When the spec records a decision that needs an ADR (*ADRs* in `craft:architecture`), send the second reader of step 8 of that skill, with its brief and its model, in the same message as the two readers
-skills/review-loop/spec-and-plan.md|a point on which you and that reader do not agree is Theirs, as step 8 says.
+skills/review-loop/spec-and-plan.md|a point that step 8 gives to the person is Theirs.
 skills/review-loop/spec-and-plan.md|After those piles change the spec, one `Agent` call with `model: "fable"` and the prompt of the builder check reads the changed text before the handover.

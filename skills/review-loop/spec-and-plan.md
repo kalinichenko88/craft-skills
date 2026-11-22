@@ -29,8 +29,8 @@ piles of brainstorming.
 When the spec records a decision that needs an ADR (*ADRs* in
 `craft:architecture`), send the second reader of step 8 of that skill, with
 its brief and its model, in the same message as the two readers, and sort its
-points into the three piles too: a point on which you and that reader do not
-agree is Theirs, as step 8 says. After those piles change the spec, one
+points into the three piles too: a point that step 8 gives to the person is
+Theirs. After those piles change the spec, one
 `Agent` call with `model: "fable"` and the prompt of the builder check reads
 the changed text before the handover.
 
