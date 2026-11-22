@@ -89,7 +89,8 @@ commit hash) into every later command.
    done
    ```
 
-   Then `make check`. If the check fails, restore the four files and stop.
+   Then `make check`. If the loop or the check fails, restore the four files
+   and stop.
 6. **Merge through a pull request, then tag the merge commit.** Commit on a
    branch and push it:
 
