@@ -171,10 +171,13 @@ each task stays as that skill sets it. In place of the final review of
   nothing in them would be lost. This needs a passing check and a branch
   other than the default branch. Only the merge and the open questions on
   business logic wait for you.
-- **Two readers of a spec, one of a plan.** In Claude Code, the builder check
+- **Readers of a spec and of a plan.** In Claude Code, the builder check
   of a superpowers spec goes to Fable and Codex in parallel, in place of one
   subagent. Without the Codex CLI or its login, or when Codex fails or runs
-  past 20 minutes, Fable reads it alone, and the agent says so. After the self-review of the plan,
+  past 20 minutes, Fable reads it alone, and the agent says so. When the
+  spec records a decision that needs an ADR, the second reader of
+  `craft:architecture` reads it beside them, and Fable reads again the text
+  that their answers changed. After the self-review of the plan,
   one more subagent checks the plan against the spec: a requirement with no
   task, a task that contradicts the spec, or a value that differs from it.
 

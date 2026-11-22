@@ -283,3 +283,15 @@ skills/github/SKILL.md|sleep 3; gh pr view <PR> --json closingIssuesReferences
 # partial narrowing, which docs/adr/0006 and 0009 already use.
 skills/architecture/SKILL.md|When the new ADR narrows part of the old one, the old ADR gets the Status `accepted, narrowed by NNNN`, and the new ADR names the point of the old one that it narrows. Else, as for a narrowing of the whole ADR or a reversal, the new ADR supersedes it.
 skills/architecture/SKILL.md|Status: accepted | accepted, narrowed by NNNN | rejected | superseded by NNNN
+
+# At the spec check, a spec with four decisions that need an ADR got no
+# second reader of step 8 of craft:architecture in 10 of 10 runs, and the
+# text that the piles changed got no read before the handover in 10 of 10.
+# With these sentences: 10 of 10 and 9 of 10, and a spec with no such
+# decision got no third reader in 5 of 5 (#434). Step 8 gives the person
+# each point on which the agent and that reader do not agree, but a choice of
+# a technology that the person left to the agent; the Minor pile of
+# brainstorming would settle such a point with no person.
+skills/review-loop/spec-and-plan.md|When the spec records a decision that needs an ADR (*ADRs* in `craft:architecture`), send the second reader of step 8 of that skill, with its brief and its model, in the same message as the two readers
+skills/review-loop/spec-and-plan.md|a point that step 8 gives to the person is Theirs.
+skills/review-loop/spec-and-plan.md|After those piles change the spec, one `Agent` call with `model: "fable"` and the prompt of the builder check reads the changed text before the handover.
