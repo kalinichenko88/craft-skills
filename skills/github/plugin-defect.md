@@ -121,9 +121,9 @@ problem and starts with the part of the plugin: the skill, as `github:`,
 `rules:` for the global prompt, `hooks:` for a hook. The body says:
 
 - The plugin version. In Claude Code, this skill's base directory ends in
-  `<version>/skills/github`, as `a5b733322e79/skills/github`. A plugin that
-  runs from a checkout, as with `claude --plugin-dir`, has the version
-  `git rev-parse --short=12 HEAD` of that checkout. In Codex, it is `version`
+  `<version>/skills/github`, as `2.5.1/skills/github`. A plugin that runs
+  from a checkout, as with `claude --plugin-dir`, gives the commit of that
+  checkout instead: `git rev-parse --short=12 HEAD`. In Codex, it is `version`
   in the plugin's `.codex-plugin/plugin.json`. Write the version, not the path.
 - The tool: Claude Code or Codex.
 - The file and the line in the plugin, and what the rule or the script says.
