@@ -62,8 +62,8 @@ When `main` does not have the defect, file nothing. Tell the person that `main`
 does not have the defect. Give the file and the line of the defect in the copy
 that runs. Give the link
 `https://github.com/kalinichenko88/craft-skills#update`, and say that it is for
-an installed plugin, and that an update brings the fix only from the first
-release after it.
+an installed plugin, and that an update brings the fix only when a release
+holds it.
 
 **Search**, by the name of the script, the skill or the rule's heading:
 
@@ -121,14 +121,16 @@ neutral names. Paths inside the plugin, as
 problem and starts with the part of the plugin: the skill, as `github:`,
 `rules:` for the global prompt, `hooks:` for a hook. The body says:
 
-- The plugin version. In Claude Code, this skill's base directory ends in
-  `<version>/skills/github`, as `2.5.1/skills/github`. One version holds the
-  commits up to the next release, so give the commit too: the first 12
-  characters of `gitCommitSha` of `craft@kalinichenko` in
-  `~/.claude/plugins/installed_plugins.json`. A plugin that runs
-  from a checkout, as with `claude --plugin-dir`, gives the commit of that
-  checkout instead: `git rev-parse --short=12 HEAD`. In Codex, it is `version`
-  in the plugin's `.codex-plugin/plugin.json`. Write the version, not the path.
+- The plugin version and its commit: one version holds the commits up to the
+  next release. The plugin root is this skill's base directory without
+  `/skills/github`. In Codex, the version is `version` in the root's
+  `.codex-plugin/plugin.json`. When the root is a git checkout, as in Codex or
+  with `claude --plugin-dir`, the commit is
+  `git -C <root> rev-parse --short=12 HEAD`. Else, in Claude Code, the root
+  ends in the version, as `2.5.1`, and the commit is the first 12 characters
+  of `gitCommitSha` in the entry of `~/.claude/plugins/installed_plugins.json`
+  whose `installPath` is the root; with no such entry, give the version
+  alone. Write the version, not the path.
 - The tool: Claude Code or Codex.
 - The file and the line in the plugin, and what the rule or the script says.
 - What happened, and what you expected.
