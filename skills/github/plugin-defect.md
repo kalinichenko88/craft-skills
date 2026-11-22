@@ -124,9 +124,9 @@ problem and starts with the part of the plugin: the skill, as `github:`,
 - The plugin version and its commit: one version holds the commits up to the
   next release. The plugin root is this skill's base directory without
   `/skills/github`. In Codex, the version is `version` in the root's
-  `.codex-plugin/plugin.json`. When the root is a git checkout, as in Codex or
-  with `claude --plugin-dir`, the commit is
-  `git -C <root> rev-parse --short=12 HEAD`. Else, in Claude Code, the root
+  `.codex-plugin/plugin.json`. When `<root>/.git` exists, as in Codex or with
+  `claude --plugin-dir`, the commit is
+  `git -C "<root>" rev-parse --short=12 HEAD`. Else, in Claude Code, the root
   ends in the version, as `2.5.1`, and the commit is the first 12 characters
   of `gitCommitSha` in the entry of `~/.claude/plugins/installed_plugins.json`
   whose `installPath` is the root; with no such entry, give the version
