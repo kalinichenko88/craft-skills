@@ -17,7 +17,9 @@ Both hosts read the same skills and `rules.md`; each host has its own
 `plugin.json`. `hooks/rules.sh` injects `rules.md` at the
 start of each session and each subagent, in two parts split at its marker
 line (ADR 0004). An `Explore` subagent of Claude Code gets none (PDR 0012).
-In Claude Code,
+ZCode has no hook at the start of a subagent: there `hooks/subagent-rules.sh`
+puts a line first in the prompt of each subagent but `Explore` that sends it
+to read `rules.md` (ADR 0012). In Claude Code,
 `hooks/session-title.sh` names the session after an issue when the prompt
 is the issue alone, and shows the person the issue's number and title
 (PDR 0014). A skill loads when its
@@ -44,7 +46,8 @@ size is not its recorded size (ADR 0009, ADR 0010).
 ## Codemap
 
 - `rules.md` — the base prompt. `hooks/rules.sh` and `hooks/hooks.json`
-  inject it. `hooks/session-title.sh` names a Claude Code session after an
+  inject it; in ZCode, `hooks/subagent-rules.sh` sends each subagent to read
+  it. `hooks/session-title.sh` names a Claude Code session after an
   issue, and shows the person its number and title.
 - `skills/<name>/` — one skill: `SKILL.md`, `README.md`, its other `.md`
   files, and `scripts/`.
@@ -209,8 +212,9 @@ Pattern 4 holds for the `.md` files of each skill and for `hooks/hooks.json`.
 A `grep` check finds the usual forms of a breach, not every form: the review
 reads for the rest.
 
-- **I-1.** `hooks/rules.sh` MUST escape `rules.md` in bash: it calls no text
-  tool, as `jq`, `awk` or `sed`.
+- **I-1.** A script in `hooks/` MUST call no text tool, as `jq`, `awk` or
+  `sed`: `hooks/rules.sh` escapes `rules.md` in bash, and `gh`'s own `--jq`
+  writes the JSON of `hooks/session-title.sh` (ADR 0012).
   Check: grep `(^|[[:space:]|(;/])(jq|[gmn]?awk|g?sed|[ef]?grep|tr|cut|head|tail|iconv|perl|python3?|node|ruby)([[:space:]<>|);]|$)` in `hooks`.
 - **I-2.** A script in `skills/` or `hooks/` MUST NOT call `jq`: a filter is
   `gh`'s own `--jq`, and the hook escapes by hand.
@@ -258,11 +262,16 @@ hold 10. A new number needs an ADR.
   Codex fails a hook run whose output has a field that Codex does not know,
   as `sessionTitle`. Such a hook prints only for a Claude Code input: one
   with `prompt_id`, which Claude Code sends, and with no `turn_id`, which
-  only Codex sends. A hook whose output depends on the agent type reads
-  `agent_type` from its input, as `hooks/rules.sh` does. In
+  only Codex sends. A hook whose output depends on the type of a subagent
+  reads it from its input: `agent_type` on SubagentStart, as
+  `hooks/rules.sh` does, or `subagent_type` of the tool input on
+  PreToolUse, as `hooks/subagent-rules.sh` does. In
   `hooks/hooks.json`, an entry with no matcher fires for each type, beside
   an entry with a matcher. A matcher for each type but one is a look-ahead
-  in Claude Code, and the regex of Codex has none.
+  in Claude Code, and the regex of Codex has none. ZCode runs the same
+  `hooks/hooks.json`, but it has no `SubagentStart`. A hook that acts only
+  in ZCode tests `ZCODE_PLUGIN_ROOT`, which only ZCode sets, as
+  `hooks/subagent-rules.sh` does (ADR 0012).
 - **Portability.** bash 3.2 on macOS, three kinds of awk, Git Bash on
   Windows, NixOS with no `/bin/bash`: every script starts with
   `#!/usr/bin/env bash`, and every file is LF (`.gitattributes`).
@@ -313,3 +322,4 @@ status of an ADR that is not accepted, or that a later one narrows.
 - [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md) — narrowed by 0010
 - [0010 The recorded size of a text is its exact size, and a flow is a list of files](adr/0010-recorded-size-is-exact.md)
 - [0011 rules.md holds the triggers of the skills and the habits of each turn](adr/0011-rules-hold-triggers-and-habits.md)
+- [0012 In ZCode, a hook puts a line into the prompt of each subagent that sends it to rules.md](adr/0012-zcode-subagent-reads-rules.md)
