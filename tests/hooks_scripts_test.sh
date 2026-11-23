@@ -188,17 +188,35 @@ want() {
     '.tool_input | .prompt = $l + "\n\n" + .prompt' <<<"$2"
 }
 call=$(<"$fixtures/zcode-agent.json")
+# hooks.json runs the hook on the tool name of the recorded call.
+# shellcheck disable=SC2016 # the variable as hooks.json holds it
+check 'hooks.json: the PreToolUse command' 'bash "${CLAUDE_PLUGIN_ROOT}/hooks/subagent-rules.sh"' \
+  "$(jq -r --arg t "$(jq -r .tool_name <<<"$call")" \
+    '.hooks.PreToolUse[] | select(.matcher | split("|") | index($t)) | .hooks[].command' \
+    "$root/hooks/hooks.json")"
 zroot=/Users/me/.zcode/plugins/cache/kalinichenko/craft/2.5.1
-check 'ZCode, general-purpose' "$(want "$zroot" "$call")" "$(agent "$zroot" "$call")"
-# A prompt with a quote, a backslash, a newline and the keys that the hook
-# cuts at, and a Windows root with backslashes and a quote.
+# A Windows root with backslashes and a quote, and a prompt with a quote, a
+# backslash, a newline and the keys that the hook cuts at.
+win='C:\Users\me\.zcode\craft "2.5.1"'
+check 'ZCode, a Windows root' "$(want "$win" "$call")" "$(agent "$win" "$call")"
 odd=$(jq -c '.tool_input.prompt = "say \"hi\" \\ ok\n\"tool_input\":{,\"tool_use_id\":\"prompt\":\"" |
   .toolInput = .tool_input' <<<"$call")
 check 'ZCode, a prompt with quotes and keys' "$(want "$zroot" "$odd")" "$(agent "$zroot" "$odd")"
-win='C:\Users\me\.zcode\craft "2.5.1"'
-check 'ZCode, a Windows root' "$(want "$win" "$call")" "$(agent "$win" "$call")"
 check 'ZCode, Explore' none "$(agent "$zroot" "${call//general-purpose/Explore}")"
-check 'ZCode, an input with no tool input' none "$(agent "$zroot" '{}')"
+# Each line is the name|the jq program of a call that is not Explore.
+while IFS='|' read -r name program; do
+  input=$(jq -c "$program | .toolInput = .tool_input" <<<"$call")
+  check "ZCode, $name" "$(want "$zroot" "$input")" "$(agent "$zroot" "$input")"
+done <<'EOF'
+a type that starts with Explore|.tool_input.subagent_type = "Explorer"
+Explore in the description|.tool_input.description = "Explore the repo"
+EOF
+# An input of another shape gives no output, so the call runs as it is.
+check 'ZCode, no tool input' none "$(agent "$zroot" '{}')"
+check 'ZCode, a tool input with no prompt' none \
+  "$(agent "$zroot" '{"tool_input":{"description":"x"},"tool_use_id":"y"}')"
+check 'ZCode, tool_use_id before tool_input' none \
+  "$(agent "$zroot" '{"tool_use_id":"y","tool_input":{"prompt":"x"}}')"
 check 'Claude Code and Codex' none "$(agent '' "$call")"
 
 # A plugin packager can drop the executable bit: ZCode 3.19.0 installs each
