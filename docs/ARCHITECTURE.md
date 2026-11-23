@@ -212,9 +212,9 @@ Pattern 4 holds for the `.md` files of each skill and for `hooks/hooks.json`.
 A `grep` check finds the usual forms of a breach, not every form: the review
 reads for the rest.
 
-- **I-1.** A script in `hooks/` MUST make its output in bash, as
-  `hooks/rules.sh` escapes `rules.md`: it calls no text tool, as `jq`, `awk`
-  or `sed` (ADR 0012).
+- **I-1.** A script in `hooks/` MUST call no text tool, as `jq`, `awk` or
+  `sed`: `hooks/rules.sh` escapes `rules.md` in bash, and `gh`'s own `--jq`
+  writes the JSON of `hooks/session-title.sh` (ADR 0012).
   Check: grep `(^|[[:space:]|(;/])(jq|[gmn]?awk|g?sed|[ef]?grep|tr|cut|head|tail|iconv|perl|python3?|node|ruby)([[:space:]<>|);]|$)` in `hooks`.
 - **I-2.** A script in `skills/` or `hooks/` MUST NOT call `jq`: a filter is
   `gh`'s own `--jq`, and the hook escapes by hand.
@@ -262,8 +262,10 @@ hold 10. A new number needs an ADR.
   Codex fails a hook run whose output has a field that Codex does not know,
   as `sessionTitle`. Such a hook prints only for a Claude Code input: one
   with `prompt_id`, which Claude Code sends, and with no `turn_id`, which
-  only Codex sends. A hook whose output depends on the agent type reads
-  `agent_type` from its input, as `hooks/rules.sh` does. In
+  only Codex sends. A hook whose output depends on the type of a subagent
+  reads it from its input: `agent_type` on SubagentStart, as
+  `hooks/rules.sh` does, or `subagent_type` of the tool input on
+  PreToolUse, as `hooks/subagent-rules.sh` does. In
   `hooks/hooks.json`, an entry with no matcher fires for each type, beside
   an entry with a matcher. A matcher for each type but one is a look-ahead
   in Claude Code, and the regex of Codex has none. ZCode runs the same

@@ -71,8 +71,9 @@ the rules there. ZCode gives a child the agent name `zcode-<type>`
 
 Good: each subagent of ZCode but `Explore` reads `rules.md`, with no step in
 a skill and no sentence in `rules.md`. The main session does nothing, and
-the path is the current one on each call. When the hook fails, or the stdin
-has another shape, the call runs as it is: the behaviour before.
+the path is the current one on each call. When the hook fails, or the part
+that it takes from the stdin is not an object with a prompt, the call runs
+as it is: the behaviour before.
 
 Bad: the hook depends on the order of the keys in the stdin of ZCode, which
 no contract of ZCode fixes. A version that makes the cut a valid object of
