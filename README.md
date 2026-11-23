@@ -166,7 +166,7 @@ codex plugin marketplace add kalinichenko88/craft-skills
 codex plugin add craft@kalinichenko
 ```
 
-Then run `codex`, open `/hooks` and trust the plugin's five hooks. Codex skips
+Then run `codex`, open `/hooks` and trust the plugin's six hooks. Codex skips
 plugin hooks until you do, so without that the skills load but the rules do
 not.
 
@@ -174,7 +174,9 @@ The hooks are plain bash. The four that inject the rules, two parts of
 `rules.md` at the start of a session and of a subagent, have no other
 dependency. For an `Explore` subagent of Claude Code they print nothing. The fifth names a Claude Code session after an issue,
 and shows you the issue's number and title: it calls `gh`, and in Codex it
-does nothing.
+does nothing. The sixth does something only in ZCode, which has no hook at
+the start of a subagent: it puts a line into the prompt of each subagent but
+`Explore` that sends it to read `rules.md`.
 
 ## Update
 

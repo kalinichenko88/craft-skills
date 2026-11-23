@@ -53,7 +53,8 @@ or that hangs, for the time limit. The session-title
 hook runs on prompts recorded from Claude Code and Codex, in
 `tests/fixtures/hooks/`, against a fake `gh`. The rules hook runs on the
 inputs that Claude Code gave a SubagentStart hook for three agent types,
-recorded there too. The architecture skill's
+recorded there too, and the subagent hook on the input that ZCode 4.0.0 gave
+a PreToolUse hook for a call of its Agent tool. The architecture skill's
 `invariants.sh` runs on repositories the tests build: each kind of check, the
 `debt` lists, `--new-since` over renamed files, changed checks and a base
 file that it cannot read, and the calls that must exit 2.

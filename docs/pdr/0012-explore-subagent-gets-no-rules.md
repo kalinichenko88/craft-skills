@@ -69,3 +69,12 @@ transcripts of 14 days are `Plan`.
 
 #414, ADR 0004, ADR 0009, ADR 0011, `hooks/rules.sh`,
 `tests/hooks_scripts_test.sh`
+
+## Checked
+
+- 2026-11-23 #465: ZCode 4.0.0 has no SubagentStart, so a subagent there got
+  no rules. Now each subagent of ZCode but `Explore` reads `rules.md`, from a
+  line that a hook puts into its prompt (ADR 0012). The panel said to wait
+  for a run in ZCode with a subagent that writes: 0 of 7 recorded ZCode
+  subagents wrote. The person chose to do it now: ZCode has few sessions
+  yet, and the flows of superpowers send subagents that write.

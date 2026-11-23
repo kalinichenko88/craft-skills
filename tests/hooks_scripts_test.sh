@@ -2,7 +2,9 @@
 # The session-title hook, run on the prompts that Claude Code and Codex send:
 # recorded payloads with their paths replaced, and a fake gh that answers from
 # a recorded issue. Then the rules hook, run on the inputs that Claude Code
-# 2.1.325 gave a SubagentStart hook for three agent types. Last, each command
+# 2.1.325 gave a SubagentStart hook for three agent types, and the subagent
+# hook on the input that ZCode 4.0.0 gave a PreToolUse hook for a call of its
+# Agent tool. Last, each command
 # of hooks.json, run on a copy of the hooks with no executable bit.
 
 set -eu
@@ -167,6 +169,38 @@ a type that starts with Explore|s/"Explore"/"Explorer"/
 EOF
 done
 
+# ZCode has no SubagentStart (#465): on a call of the Agent tool, the hook
+# puts the line that sends the subagent to rules.md first in its prompt.
+# Claude Code and Codex set no ZCODE_PLUGIN_ROOT, and an Explore subagent
+# only reads (PDR 0012).
+# agent <root> <input>: the updatedInput that the hook gives, or none when it
+# prints nothing. An empty root is a host with no ZCODE_PLUGIN_ROOT.
+agent() {
+  local out
+  out=$(if [ -n "$1" ]; then export ZCODE_PLUGIN_ROOT=$1; else unset ZCODE_PLUGIN_ROOT; fi
+    bash "$root/hooks/subagent-rules.sh" <<<"$2") || fail "subagent-rules.sh: exit $?"
+  [ -n "$out" ] || { echo none; return; }
+  jq -c '.hookSpecificOutput | select(.hookEventName == "PreToolUse") | .updatedInput' <<<"$out"
+}
+# want <root> <input>: the tool input with the line first in its prompt.
+want() {
+  jq -c --arg l "Read $1/rules.md before you start: it holds the rules of this session." \
+    '.tool_input | .prompt = $l + "\n\n" + .prompt' <<<"$2"
+}
+call=$(<"$fixtures/zcode-agent.json")
+zroot=/Users/me/.zcode/plugins/cache/kalinichenko/craft/2.5.1
+check 'ZCode, general-purpose' "$(want "$zroot" "$call")" "$(agent "$zroot" "$call")"
+# A prompt with a quote, a backslash, a newline and the keys that the hook
+# cuts at, and a Windows root with backslashes and a quote.
+odd=$(jq -c '.tool_input.prompt = "say \"hi\" \\ ok\n\"tool_input\":{,\"tool_use_id\":\"prompt\":\"" |
+  .toolInput = .tool_input' <<<"$call")
+check 'ZCode, a prompt with quotes and keys' "$(want "$zroot" "$odd")" "$(agent "$zroot" "$odd")"
+win='C:\Users\me\.zcode\craft "2.5.1"'
+check 'ZCode, a Windows root' "$(want "$win" "$call")" "$(agent "$win" "$call")"
+check 'ZCode, Explore' none "$(agent "$zroot" "${call//general-purpose/Explore}")"
+check 'ZCode, an input with no tool input' none "$(agent "$zroot" '{}')"
+check 'Claude Code and Codex' none "$(agent '' "$call")"
+
 # A plugin packager can drop the executable bit: ZCode 3.19.0 installs each
 # file of a plugin as 0644, and a hook that runs its script directly fails
 # with "permission denied". A host runs a command in a shell, with
@@ -181,7 +215,7 @@ while IFS= read -r command; do
     fail "$command: exit $? on a copy with no executable bit"
   # rules.sh exits 0 also when it finds no rules.md: it gives an empty context.
   case $command in
-  *rules.sh*) [[ $out == *'"additionalContext":"# Global instructions, part '* ]] ||
+  */hooks/rules.sh*) [[ $out == *'"additionalContext":"# Global instructions, part '* ]] ||
     fail "$command: no rules on a copy with no executable bit" "$out" ;;
   esac
 done <<<"$commands"
