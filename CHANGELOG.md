@@ -6,6 +6,20 @@ type, and the PR number when it has one. The `/release` skill writes the
 section and merges it through a pull request of its own; other pull requests
 leave this file alone.
 
+## 2.5.2 - 2026-11-23
+
+### Changed
+
+- (research) record one task done in Claude Code and in ZCode, and rows 7 to 14 (#468)
+
+### Fixed
+
+- (hooks) give a ZCode subagent the rules through a PreToolUse hook on its Agent tool (#483)
+- (release) move one version in the Claude and Codex manifests, so an update reaches ZCode (#481)
+- (review-loop) send the second reader of step 8 at the spec check of a spec with an ADR decision (#480)
+- (architecture) drop the order of superpowers:brainstorming that its 7.0.2 no longer has (#479)
+- (hooks) run each hook script with bash, as ZCode installs it with no executable bit (#463)
+
 ## 2.5.1 - 2026-11-19
 
 ### Changed
