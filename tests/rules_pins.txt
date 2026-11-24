@@ -161,6 +161,11 @@ skills/architecture/adrs.md|Each correction, of a fact or of the decision, adds 
 skills/architecture/adrs.md|A reversal or a narrowing rewrites that ADR in its own file (*A changed ADR*): no ADR supersedes another.
 skills/architecture/adrs.md|The Status line stays, but a Status `accepted, narrowed by NNNN` becomes `accepted` when the rewrite takes the narrowed point into the ADR, with a line for the section *Status*.
 skills/architecture/adrs.md|Status: accepted | rejected
+# #492, the rules of an ADR are in `adrs.md`: the row of the table of moments
+# is the only pointer for a session that writes, checks or corrects an ADR
+# with no decision, as a false fact in an accepted ADR. A row for a decision
+# alone left those moments with no read of the file.
+skills/architecture/SKILL.md|A decision may need an ADR; an ADR is written, checked or corrected
 skills/review-loop/architecture-lens.md|It changes only as *A changed ADR* in `adrs.md` says: each edit of it has its line under `## Updates` that quotes the old words.
 skills/product/store.md|A PDR says what holds now, and no PDR supersedes another.
 skills/product/store.md|The decision: only after the person changes it. Rewrite the title and each section that the decision changes, put the old choice into *Options considered* with the reason that it was dropped

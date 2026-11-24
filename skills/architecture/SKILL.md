@@ -17,7 +17,7 @@ principles and the steps.
 | Where new code goes; a new module, layer, dependency, pattern or data store; a choice between options; a change to a file or a folder past its limit | The eight steps and the gate; for a new technology, first the question of who chooses | *The moment of a decision* |
 | A decision in a project with no architecture file | Offer to write one, once a session; write nothing without a yes | `first-file.md` |
 | An edit exists, before its commit | `invariants.sh` | `invariants.md` |
-| A decision may need an ADR; an ADR is written, or a sentence of an accepted one is corrected | The four reasons, the template and *A changed ADR* | `adrs.md` |
+| A decision may need an ADR; an ADR is written, checked or corrected | The four reasons, the template and *A changed ADR* | `adrs.md` |
 
 `first-file.md`, `invariants.md` and `adrs.md` sit next to this file, in this
 skill's base directory `<dir>`. Read all of each before you use it.

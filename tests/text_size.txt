@@ -15,7 +15,7 @@
 3087 skills/architecture/adrs.md
 10513 skills/architecture/first-file.md
 4637 skills/architecture/invariants.md
-16911 skills/architecture/SKILL.md
+16886 skills/architecture/SKILL.md
 3238 skills/debt/instructions-lens.md
 17757 skills/debt/SKILL.md
 8291 skills/docker/SKILL.md
