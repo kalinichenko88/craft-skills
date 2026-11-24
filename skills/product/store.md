@@ -116,23 +116,25 @@ ADR 0021, #45
     false; else in a later change, as its task or as a finding outside its
     task. When that fact was a reason for the decision, also file an issue
     that asks whether the decision still holds.
-  - The decision: only after the person changes it. Rewrite the title,
-    *Decision*, *Rests on* and *Revisit when*, put the old choice into
+  - The decision: only after the person changes it. Rewrite the title and
+    each section that the decision changes, put the old choice into
     *Options considered* with the reason that it was dropped, and remove the
     lines of *Got in the way* and *Checked*: they are about the old decision.
 - Each correction adds a line under `## Updates`, right after the Status,
   Level and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old
-  words>".` For a changed decision, the old words are the old title. The
+  words>".` For a changed decision, the section is *Decision*, and the old
+  words are its first sentence. The
   source is the issue, the pull request or the run that shows the new fact
   or decision. A later correction adds a line; no line is rewritten.
-- *Got in the way* records a task that had to go around the decision, which
-  stayed as it is. A false sentence is a correction, not a line there. With
+- *Got in the way* records what had to go around the decision, as a task or
+  an ADR, while the decision stayed as it is. A false sentence is a correction, not a line there. With
   two lines in *Got in the way*, propose to revisit the decision. Only the
   person changes a decision or its status.
 - A decision that the person rejects for a lasting reason gets a PDR with
   the status `rejected`, so that the next agent does not offer it again.
-- A new PDR adds its line to the index of `PRODUCT.md`, and a new title
-  changes that line, in the same commit.
+- A new PDR adds its line to the index of `PRODUCT.md`, and a change of its
+  title, its status or its *Revisit when* changes that line, in the same
+  commit.
 
 **Where it is written.** A PDR, new or rewritten, goes in the pull request of
 the work that it decides. A decision with no work of its own goes in a pull

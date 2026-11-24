@@ -6,7 +6,7 @@
 
 ## Updates
 
-- 2026-11-24 #405: Decision. Was: "A fact that changed after an ADR is accepted is corrected in the ADR, with a dated line that keeps the old words".
+- 2026-11-24 #405: Decision. Was: "We will let `craft:architecture` correct a sentence of an accepted ADR that a later fact made false, when the decision of the ADR is the same".
 
 ## Decision
 
@@ -20,13 +20,13 @@ of the work that carries it out. The rewrite changes the title and the
 sections that the decision changes, and puts the old choice into *Options
 considered* with the reason that it was dropped. Each correction adds a
 line under `## Updates`, after the Status and Date lines, with the date, the
-source, the section and the old words; for a changed decision, the old
-title. The Status stays, and no record supersedes another. A sentence is a
-fact when code that kept the ADR keeps it after the correction, or, for a
-PDR, when what the users see, pay or get, and what the company owes, stay
-the same. When the false fact was a reason for the decision, an issue asks
+source, the section and the old words; for a changed decision, the first
+sentence of the old *Decision*. The Status stays, and no record supersedes
+another. A sentence is a fact when code that kept the ADR keeps it after the
+correction, and code that broke it still breaks it, or, for a PDR, when what
+the users see, pay or get, and what the company owes, stay the same. When the false fact was a reason for the decision, an issue asks
 whether the decision is still right. *Got in the way* of a PDR records only
-a task that went around the decision. The review lens reports an edit of an
+what went around the decision, as a task or an ADR. The review lens reports an edit of an
 ADR at the base with no `## Updates` line, and an ADR that a change made
 false.
 
@@ -62,8 +62,8 @@ false.
   date stamp. The same guide also asks not to alter existing information.
   AWS, Fowler and Microsoft keep an accepted ADR immutable; Google Cloud
   allows an adjustment that keeps the previous decision and says why. PEP 1
-  keeps a Draft open to change, and asks that a change after acceptance be
-  noted in the PEP.
+  keeps a Draft open to change; an accepted PEP is in general no longer
+  substantially modified, and a later PEP supersedes it.
 - The person's choice on #343, and on #405 of 2026-11-24, each after the
   panel of Fable and Codex. On #405: two records of one decision, one of
   them stale, do not stay in a repository. A decision that the person

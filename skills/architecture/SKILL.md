@@ -25,7 +25,7 @@ directory above `<dir>`.
 
 **The files.** The architecture file is `docs/ARCHITECTURE.md`, or
 `ARCHITECTURE.md` at the root when the project keeps it there. The ADRs are
-`docs/adr/NNNN-title.md`, or in `doc/adr/` or `docs/decisions/` when the
+`docs/adr/NNNN-name.md`, or in `doc/adr/` or `docs/decisions/` when the
 project already keeps them there. Never make a second place for the same
 document.
 
@@ -164,8 +164,8 @@ with the code, with the status `accepted`. The review of the pull request is
 where it is argued, and the merge makes it true. An ADR file that
 `git diff <base>..HEAD` adds or rewrites is under review. One that exists at
 the base changes only as *A changed ADR*, in *ADRs*, says. A spec or a
-plan names the ADR that the work will add, by its title, and does not write
-it.
+plan names the ADR that the work will add or rewrite, by its title, and does
+not write it.
 
 A finding outside the task, such as two competing ways that the task does not
 touch, becomes an issue through `craft:github`. When the decision is
@@ -279,14 +279,15 @@ false; else in a later change, as its task or as a finding outside its
 task. When that fact was a reason for the decision, also file an issue that
 asks whether the decision is still right. A decision: by the steps of *The
 moment of a decision*, in the pull request of the work that carries it out.
-Rewrite the title, the *Context*, the *Decision* and the *Consequences*, and
-put the old choice into *Options considered* with the reason that it was
-dropped. Then add a line under `## Updates`, a heading right after the
-Status and Date lines:
+Rewrite the title and each section that the decision changes, and put the
+old choice into *Options considered* with the reason that it was dropped.
+Each correction, of a fact or of the decision, adds a line under
+`## Updates`, a heading right after the Status and Date lines:
 `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
-For a changed decision, the old words are the old title. The source is the
-issue, the pull request or the run that shows the new fact or decision. The
-Status line stays. A later correction adds a line; no line is rewritten.
+For a changed decision, the section is *Decision*, and the old words are its
+first sentence. The source is the issue, the pull request or the run that
+shows the new fact or decision. The Status line stays. A later correction
+adds a line; no line is rewritten.
 
 One decision per file, `NNNN-name.md`, numbered after the highest one in the
 folder; the name gives the question, not the answer, as `0007-ui-library.md`.
