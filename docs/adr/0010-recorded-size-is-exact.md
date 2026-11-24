@@ -7,6 +7,7 @@
 
 - 2026-11-16 #415: Options considered, a flow as a list of files. Was: "the check asks only that each file of the list has a line".
 - 2026-11-16 #415: Decision. Was: "We will record a flow as a line that names its files, with no number." and "The target of a flow still goes into the record when its map gives one, as ADR 0009 says; #415 gives its line a form."
+- 2026-11-24 #485: Decision. Was: "This narrows one point of ADR 0009: there, a text below its recorded size passed.", "This narrows a second point of ADR 0009, which recorded a size for a flow." and "The rest of ADR 0009 holds: the admission rule, the budgets, and a recorded size for `rules.md`, each `SKILL.md` and each side file."
 
 ## Context
 
@@ -47,17 +48,15 @@ branches that edit two files of one flow conflict on the line of the flow.
 ## Decision
 
 We will fail `make check` on a text whose size is not its recorded size,
-above it or below it. This narrows one point of ADR 0009: there, a text
-below its recorded size passed. The person chose it on 2026-11-15.
+above it or below it. The person chose it on 2026-11-15.
 
 We will record a flow as a line that names its files, with no size of its
 own: its one number is its target. Its size is the sum of the lines of its
-files. This narrows a second point of ADR 0009, which recorded a size for a
-flow. Since #415, a flow gets its line with its map, so each line holds its
+files. Since #415, a flow gets its line with its map, so each line holds its
 target, in the form `flow <name> <target> <path>...`.
 
-The rest of ADR 0009 holds: the admission rule, the budgets, and a recorded
-size for `rules.md`, each `SKILL.md` and each side file.
+ADR 0009 holds the admission rule, the budgets, and the texts and flows
+that the record holds.
 
 ## Consequences
 
