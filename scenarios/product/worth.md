@@ -483,10 +483,9 @@ When: the person answers option 2
 Then:
 - the file of 0002 says that the shop reads the database of its warehouse
   and writes each new order to it
-- the file of 0002 has a line under *Updates* that names #91 and keeps the
-  old words of the decision
-- the file of 0002 names the access that only reads among its options
-  considered
+- the file of 0002 has a line under *Updates* that names #91
+- that line keeps the old words of the decision of 0002
+- the options considered of 0002 name the access that only reads
 - `docs/PRODUCT.md` lists 0002 with its new decision
 - one commit on `feat/91-orders-to-warehouse` changes the file of 0002 and
   its line in `docs/PRODUCT.md`
