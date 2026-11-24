@@ -52,7 +52,7 @@ The skill reads it at each run. Its sections:
 
 ## Decisions
 
-- [0012 Three plans, monthly billing](pdr/0012-three-plans.md) — accepted; revisit when: payment failures pass 5 %
+- [0012 Three plans, monthly billing](pdr/0012-plans.md) — accepted; revisit when: payment failures pass 5 %
 ```
 
 A link in the index is relative to `PRODUCT.md`: `pdr/…` from `docs/`,
@@ -61,14 +61,20 @@ and its entry leaves the list.
 
 ## A PDR
 
-`docs/pdr/NNNN-title.md`, one decision per file:
+`docs/pdr/NNNN-name.md`, one decision per file. The name gives the question
+that the decision answers, not the answer, as `0012-plans.md`: the answer
+can change, and the name cannot.
 
 ```markdown
 # 0012 Three plans, monthly billing
 
-- Status: accepted | revisit | superseded by NNNN | rejected
+- Status: accepted | revisit | rejected
 - Level: project | feature
 - Date: 2026-09-14
+
+## Updates
+
+- 2026-11-02 #96: Rests on. Was: "<the old words>".
 
 ## Decision
 
@@ -102,18 +108,37 @@ ADR 0021, #45
 
 - The number comes after the highest PDR. A number is never used again. A
   file is never renamed or deleted, so a link to it does not rot.
-- After the decision is accepted, its text does not change. Only the Status
-  line changes, and lines are added to *Got in the way* and *Checked*.
-- With two lines in *Got in the way*, propose to revisit the decision. Only
-  the person changes its status.
-- A reversed decision stays, with `superseded by NNNN`.
+- A PDR says what holds now, and no PDR supersedes another. When a sentence
+  of it is false now, correct it in place. It is a fact when what the
+  decision says the users see, pay or get, and what the company owes, stays
+  the same; else it is the decision.
+  - A fact, as a number, a name or a citation: in the change that makes it
+    false; else in a later change, as its task or as a finding outside its
+    task. When that fact was a reason for the decision, also file an issue
+    that asks whether the decision still holds.
+  - The decision: only after the person changes it. Rewrite the title and
+    each section that the decision changes, put the old choice into
+    *Options considered* with the reason that it was dropped, and remove the
+    lines of *Got in the way* and *Checked*: they are about the old decision.
+- Each correction adds a line under `## Updates`, right after the Status,
+  Level and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old
+  words>".` For a changed decision, the section is *Decision*, and the old
+  words are the sentence that held the old choice. The
+  source is the issue, the pull request or the run that shows the new fact
+  or decision. A later correction adds a line; no line is rewritten.
+- *Got in the way* records what had to go around the decision, as a task or
+  an ADR, while the decision stayed as it is. A false sentence is a correction, not a line there. With
+  two lines in *Got in the way*, propose to revisit the decision. Only the
+  person changes a decision or its status.
 - A decision that the person rejects for a lasting reason gets a PDR with
   the status `rejected`, so that the next agent does not offer it again.
-- A new PDR adds its line to the index of `PRODUCT.md` in the same commit.
+- A new PDR adds its line to the index of `PRODUCT.md`, and a change of its
+  title, its status or its *Revisit when* changes that line, in the same
+  commit.
 
-**Where it is written.** A PDR goes in the pull request of the work that it
-decides. A decision with no work of its own goes in a pull request of its
-own. A new line of *Got in the way* or *Checked* goes in the pull request of
+**Where it is written.** A PDR, new or rewritten, goes in the pull request of
+the work that it decides. A decision with no work of its own goes in a pull
+request of its own. A new line of *Got in the way* or *Checked* goes in the pull request of
 the task that found it.
 
 ## A new store

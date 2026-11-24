@@ -4,6 +4,10 @@
 - Level: feature
 - Date: 2026-11-06
 
+## Updates
+
+- 2026-11-24 #405: Rests on. Was: "(`skills/roadmap/SKILL.md:151`, `skills/roadmap/README.md:40`)".
+
 ## Decision
 
 We will not give an out-of-scope finding a class of its own for low
@@ -22,7 +26,7 @@ use runs with no test, is filed (`skills/github/filing.md`).
   reads (`skills/roadmap/triage.md:35-38`). A low finding filed into
   `Later` with a label would never be triaged.
 - A task goes into `Later` only after the person says so
-  (`skills/roadmap/SKILL.md:151`, `skills/roadmap/README.md:40`). The
+  (`skills/roadmap/SKILL.md:184`, `skills/roadmap/README.md:45`). The
   milestone is the importance, and no priority labels (PR #110).
 - Of the 54 issues that hold a filed out-of-scope finding, 48 are closed,
   with a median of 0 days to close: no backlog of findings waits for

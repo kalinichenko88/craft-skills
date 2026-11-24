@@ -42,7 +42,10 @@ product ships or sends to a model counts as a change of behaviour.
 - **Decisions on record, and checked again.** Each decision you take goes
   into a PDR, with what it rests on and when to revisit it. When a task
   touches an accepted decision, its ground is checked again. A decision that
-  got in the way twice comes back to you.
+  got in the way twice comes back to you. A PDR says what holds now: a false
+  fact is corrected in place, and a decision that you change is rewritten in
+  its own file, with a dated line under `## Updates` that keeps the old
+  words.
 - **You decide.** The work waits for your answer. With no one to answer, it
   goes on as asked, and the question stays open in the summary, and on your
   own branch in the spec or the pull request's description.

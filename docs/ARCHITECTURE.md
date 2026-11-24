@@ -308,7 +308,7 @@ hold 10. A new number needs an ADR.
 
 ## ADRs
 
-An ADR goes in `docs/adr/NNNN-title.md` and on this list. A line names the
+An ADR goes in `docs/adr/NNNN-name.md` and on this list. A line names the
 status of an ADR that is not accepted, or that a later one narrows.
 
 - [0001 Each script prints its usage from its header](adr/0001-usage-from-the-header.md)
