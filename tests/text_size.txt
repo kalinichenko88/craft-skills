@@ -15,7 +15,7 @@
 3087 skills/architecture/adrs.md
 10513 skills/architecture/first-file.md
 4637 skills/architecture/invariants.md
-16828 skills/architecture/SKILL.md
+16911 skills/architecture/SKILL.md
 3238 skills/debt/instructions-lens.md
 17757 skills/debt/SKILL.md
 8291 skills/docker/SKILL.md
@@ -38,7 +38,7 @@
 4742 skills/review-loop/docs-lens.md
 3355 skills/review-loop/documents.md
 17756 skills/review-loop/SKILL.md
-2307 skills/review-loop/spec-and-plan.md
+2329 skills/review-loop/spec-and-plan.md
 5350 skills/review-loop/summary.md
 2801 skills/review-loop/tests-lens.md
 2847 skills/review-loop/walk.md

@@ -26,13 +26,13 @@ folder that Codex does not trust, go on with Fable alone, and say so when you
 hand over the document. Put the questions from both readers into the three
 piles of brainstorming.
 
-When the spec records a decision that needs an ADR (`adrs.md` in
-`craft:architecture`), send the second reader of step 8 of that skill, with
-its brief and its model, in the same message as the two readers, and sort its
-points into the three piles too: a point that step 8 gives to the person is
-Theirs. After those piles change the spec, one
-`Agent` call with `model: "fable"` and the prompt of the builder check reads
-the changed text before the handover.
+When the spec records a decision that needs an ADR
+(`<dir>/../architecture/adrs.md` of `craft:architecture`), send the second
+reader of step 8 of that skill, with its brief and its model, in the same
+message as the two readers, and sort its points into the three piles too: a
+point that step 8 gives to the person is Theirs. After those piles change the
+spec, one `Agent` call with `model: "fable"` and the prompt of the builder
+check reads the changed text before the handover.
 
 **The plan.** `superpowers:writing-plans` checks the plan against the spec
 itself. After that check, send one `general-purpose` subagent with no
