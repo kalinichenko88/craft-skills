@@ -17,7 +17,7 @@
 - 2026-11-24 #485: Status. Was: "accepted, narrowed by 0010".
 - 2026-11-24 #485: Context. Was: "ADR 0006 caps each `SKILL.md` at 20,000 characters, and lets a file under the cap grow up to it".
 - 2026-11-24 #485: Options considered. Was: "ADR 0006 alone: a `SKILL.md` under the cap grows with no decision" and "Supersede ADR 0006: its cap and the reason for it hold. One point of it changes, so it gets the Status `accepted, narrowed by 0009`, the form that the person decided on 2026-11-13 (#267)".
-- 2026-11-24 #485: Decision, from ADR 0010. Was: "We will record the size of each `SKILL.md`, each side file and `rules.md` in the repository, and of each flow that has a named list of its files." and "A text that grows past its recorded size fails `make check` until the same pull request changes the record. This narrows one point of ADR 0006: there, a `SKILL.md` under the cap can grow up to 20,000 characters with no decision. The cap of ADR 0006, its count and its debt list hold."
+- 2026-11-24 #485: Decision. Was: "We will record the size of each `SKILL.md`, each side file and `rules.md` in the repository, and of each flow that has a named list of its files." and "A text that grows past its recorded size fails `make check` until the same pull request changes the record. This narrows one point of ADR 0006: there, a `SKILL.md` under the cap can grow up to 20,000 characters with no decision. The cap of ADR 0006, its count and its debt list hold."
 - 2026-11-24 #485: Confirmation. Was: "as ADR 0010 narrows it".
 
 ## Context
@@ -66,8 +66,9 @@ cannot be told from noise.
   form that the person decided on 2026-11-13 (#267): its cap and the reason
   for it hold, and since #405 a changed point is rewritten in the ADR's own
   file, so that one decision needs no two files. ADR 0006 holds that point.
-- A record that is a ceiling for each text, and a size of its own for a
-  flow: dropped by ADR 0010, as a cut leaves the record stale.
+- A ceiling for each text, and a size of its own for a flow: dropped by
+  ADR 0010. A cut leaves a ceiling stale, and the number of a flow can fail
+  only on its arithmetic.
 
 ## Decision
 
@@ -117,8 +118,7 @@ in the repository, and the files of each flow that has a named list of
 them. The target of a flow goes into that record when its map gives one. A
 text whose size is not its recorded size fails `make check` until the same
 pull request changes the record; ADR 0010 gives the form of the record and
-the reasons for it. ADR 0006 holds the cap, its count, its debt list, and
-this record for a `SKILL.md` within the cap.
+the reasons for it. ADR 0006 holds the cap, its count and its debt list.
 
 ## Consequences
 
