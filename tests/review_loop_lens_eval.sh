@@ -28,8 +28,8 @@
 # runs it: for #87, whether Codex finds what the Claude lens misses.
 #
 # It calls the model, so it costs tokens and is not part of `make check`: run
-# it by hand after a change to architecture-lens.md, or to the parts of
-# skills/architecture/SKILL.md and invariants.md that the lens reads.
+# it by hand after a change to architecture-lens.md, or in skills/architecture
+# to adrs.md, to invariants.md or to the parts of SKILL.md that the lens reads.
 # It runs with this machine's other plugins and settings.
 #
 # Usage: tests/review_loop_lens_eval.sh [--codex] [runs of each case, default 1]
