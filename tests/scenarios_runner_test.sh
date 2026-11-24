@@ -135,10 +135,16 @@ got=$(stub free conv)
 got=$(STUB_COMPANION=error_max_budget_usd stub conv)
 { ! grep -q '^companion' "$tmp/stub.events" && grep -qxF 'conv: not checked, as its check says above' <<<"$got"; } ||
   fail 'an other conversation that ends with an error holds the Given of conv' "$got"
-# An other conversation that does not end at the end of its texts is stopped.
+# An other conversation that does not end at the end of its texts is stopped,
+# and a sleep 60 of another process, as a session that waits, does not count.
+sleep 60 >/dev/null 2>&1 &
+decoy=$!
 SECONDS=0
 got=$(STUB_HANG=1 stub conv)
-{ [ "$SECONDS" -lt 30 ] && [ -s "$tmp/stub.args.pid" ] && ! kill -0 "$(cat "$tmp/stub.args.pid")" 2>/dev/null; } || fail 'an other conversation that does not end is not stopped' "$got"
+{ [ "$SECONDS" -lt 30 ] && [ -s "$tmp/stub.args.pid" ] && ! kill -0 "$(cat "$tmp/stub.args.pid")" 2>/dev/null; } ||
+  { kill "$decoy"; fail 'an other conversation that does not end is not stopped' "$got"; }
+kill "$decoy"
+wait "$decoy" 2>/dev/null || true
 got=$(STUB_BREAK=1 stub free conv)
 { grep -q '^pass^1 free: ' <<<"$got" && grep -q '^runs: ' <<<"$got"; } || fail 'a run of conv that fails stops the eval' "$got"
 # A case named twice runs once.
