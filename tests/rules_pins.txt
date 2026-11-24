@@ -144,11 +144,28 @@ skills/github/merge.md|it still runs: wait for its end, in Codex with `write_std
 
 # A settled ADR took no edit past its Status line, so 6 sentences of 3
 # ADRs that a later fact made false stayed false; on the two sentences of
-# ADR 0007, Sonnet gave the stale answers in 5 of 5 runs (#343). The skill
-# corrects such a sentence in place with a dated line under `## Updates`
-# that keeps the old words, and the lens accepts it.
-skills/architecture/SKILL.md|correct the sentence in place: in the change that makes it false; else in a later change, as its task or as a finding outside its task. Then add a line under `## Updates`, a heading right after the Status and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
-skills/review-loop/architecture-lens.md|The one exception is *A fact that changed* in *ADRs*: a sentence that is false now, corrected in place, with its line under `## Updates` that quotes the old words, and with the same decision.
+# ADR 0007, Sonnet gave the stale answers in 5 of 5 runs (#343). An accepted
+# PDR kept the same rule, and an agent asked the person to choose between a
+# superseding PDR and a false sentence (#405). By the person's decision on
+# #405, an ADR and a PDR say what holds now: a false fact and a changed
+# decision are both corrected in the record's own file, with a dated line
+# under `## Updates` that keeps the old words, no record supersedes
+# another, and the lens accepts the edit with its line.
+skills/architecture/SKILL.md|An accepted ADR says what holds now. When a sentence of it is false now, correct it in place.
+skills/architecture/SKILL.md|A fact: in the change that makes it false; else in a later change, as its task or as a finding outside its task.
+skills/architecture/SKILL.md|Then add a line under `## Updates`, a heading right after the Status and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".` For a changed decision, the old words are the old title.
+skills/architecture/SKILL.md|A reversal or a narrowing rewrites that ADR in its own file (*A changed ADR*): no ADR supersedes another.
+skills/architecture/SKILL.md|Status: accepted | rejected
+skills/review-loop/architecture-lens.md|It changes only as *A changed ADR* in *ADRs* says: each edit of it has its line under `## Updates` that quotes the old words.
+skills/product/store.md|A PDR says what holds now, and no PDR supersedes another.
+skills/product/store.md|The decision: only after the person changes it. Rewrite the title, *Decision*, *Rests on* and *Revisit when*, put the old choice into *Options considered* with the reason that it was dropped
+skills/product/store.md|*Got in the way* records a task that had to go around the decision, which stayed as it is. A false sentence is a correction, not a line there.
+skills/product/SKILL.md|A changed decision is rewritten in its own PDR, and a false fact is corrected there (`store.md`): no PDR supersedes another.
+
+# After the person took an option of a worth report, no line said that the
+# work then builds that option: 10 of 10 Haiku runs of the text eval gave no
+# line for it on 2026-11-12 (#366).
+skills/product/SKILL.md|The work then builds what the option that the person took says, and nothing of the options that the person did not take.
 
 # The merge passed no `--subject`, so the squash commit took the PR title
 # as its subject: 29 of the last 30 merges here have the subject
@@ -276,13 +293,6 @@ skills/review-loop/summary.md|a failing hit marked `new` fails the check.
 # recorded reads ran in the command of the edit or of `gh pr create` (#385).
 # The read waits first.
 skills/github/SKILL.md|sleep 3; gh pr view <PR> --json closingIssuesReferences
-
-# An ADR that narrows one point of an accepted ADR superseded the whole old
-# one, so its other decisions lost their status; an agent then left the old
-# ADR with no link to the new one (#267). The person decided the form of a
-# partial narrowing, which docs/adr/0006 and 0009 already use.
-skills/architecture/SKILL.md|When the new ADR narrows part of the old one, the old ADR gets the Status `accepted, narrowed by NNNN`, and the new ADR names the point of the old one that it narrows. Else, as for a narrowing of the whole ADR or a reversal, the new ADR supersedes it.
-skills/architecture/SKILL.md|Status: accepted | accepted, narrowed by NNNN | rejected | superseded by NNNN
 
 # At the spec check, a spec with four decisions that need an ADR got no
 # second reader of step 8 of craft:architecture in 10 of 10 runs, and the

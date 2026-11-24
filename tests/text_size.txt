@@ -14,7 +14,7 @@
 5919 rules.md
 10513 skills/architecture/first-file.md
 4637 skills/architecture/invariants.md
-19693 skills/architecture/SKILL.md
+19631 skills/architecture/SKILL.md
 3238 skills/debt/instructions-lens.md
 17757 skills/debt/SKILL.md
 8291 skills/docker/SKILL.md
@@ -28,11 +28,11 @@
 15870 skills/github/take-in.md
 6441 skills/github/tracker.md
 4717 skills/product/reader.md
-11639 skills/product/SKILL.md
-5349 skills/product/store.md
+11938 skills/product/SKILL.md
+6711 skills/product/store.md
 12737 skills/react-conventions/SKILL.md
 3293 skills/review-loop/architecture-and-tests.md
-7515 skills/review-loop/architecture-lens.md
+7372 skills/review-loop/architecture-lens.md
 2073 skills/review-loop/codex.md
 4742 skills/review-loop/docs-lens.md
 3355 skills/review-loop/documents.md

@@ -109,7 +109,9 @@ one, check three things:
   propose to revisit it.
 
 The report names the decision in **Touches decisions:**, with what changed.
-Only the person changes its status.
+Only the person changes a decision or its status. A changed decision is
+rewritten in its own PDR, and a false fact is corrected there (`store.md`):
+no PDR supersedes another.
 
 ## The person decides
 
@@ -124,8 +126,10 @@ someone else's pull request, with no yes, it stays in that message.
 
 After the answer:
 
-- The decision goes into the store, by `store.md`: a new PDR, or a line in
-  *Got in the way* or *Checked* of an existing one.
+- The decision goes into the store, by `store.md`: a new PDR, the PDR that
+  it changes rewritten, or a line in *Got in the way* or *Checked* of an
+  existing one. The work then builds what the option that the person took
+  says, and nothing of the options that the person did not take.
 - `defer until <condition>`: after a yes, the issue goes to Later with
   `plan.sh later` of `craft:roadmap`, and the condition goes into the
   issue's text.
