@@ -16,8 +16,7 @@
 #   write the block of *The start of a feature* before their first write;
 # - store, orders that work offline, which need a store on the device and a
 #   sync, a quality goal that is costly to undo: the runs that write one ADR
-#   in docs/adr/, with two options and a Confirmation section. A small store
-#   is local and cheap to undo, and the skill gives it no ADR (#494);
+#   in docs/adr/, with two options and a Confirmation section (PDR 0016);
 # - split, discount codes in the cart, a file past the limit: the runs whose
 #   first commit moves code out of src/features/cart/index.ts into a new file,
 #   with a commit after it;
