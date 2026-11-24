@@ -8,6 +8,7 @@
 
 - 2026-11-24 #405: Decision. Was: "We will let `craft:architecture` correct a sentence of an accepted ADR that a later fact made false, when the decision of the ADR is the same".
 - 2026-11-24 #487: Decision. Was: "The Status stays, and no record supersedes another".
+- 2026-11-24 #492: Links. Was: "`skills/architecture/SKILL.md`".
 
 ## Decision
 
@@ -115,6 +116,6 @@ reason that a rewrite took out of a record, twice.
 
 ## Links
 
-#343, #405, #267, #284, #487, ADR 0006, ADR 0007, `skills/architecture/SKILL.md`,
+#343, #405, #267, #284, #487, ADR 0006, ADR 0007, `skills/architecture/adrs.md`,
 `skills/review-loop/architecture-lens.md`, `skills/product/store.md`,
 `skills/product/SKILL.md`

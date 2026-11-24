@@ -12,9 +12,10 @@
 # A read that a condition starts, as a small file that the session reads
 # itself, or a duplicate held for its reproduction, is not on a flow line.
 5919 rules.md
+3087 skills/architecture/adrs.md
 10513 skills/architecture/first-file.md
 4637 skills/architecture/invariants.md
-19883 skills/architecture/SKILL.md
+16828 skills/architecture/SKILL.md
 3238 skills/debt/instructions-lens.md
 17757 skills/debt/SKILL.md
 8291 skills/docker/SKILL.md
@@ -32,12 +33,12 @@
 6860 skills/product/store.md
 12737 skills/react-conventions/SKILL.md
 3293 skills/review-loop/architecture-and-tests.md
-7379 skills/review-loop/architecture-lens.md
+7419 skills/review-loop/architecture-lens.md
 2073 skills/review-loop/codex.md
 4742 skills/review-loop/docs-lens.md
 3355 skills/review-loop/documents.md
 17756 skills/review-loop/SKILL.md
-2304 skills/review-loop/spec-and-plan.md
+2307 skills/review-loop/spec-and-plan.md
 5350 skills/review-loop/summary.md
 2801 skills/review-loop/tests-lens.md
 2847 skills/review-loop/walk.md
