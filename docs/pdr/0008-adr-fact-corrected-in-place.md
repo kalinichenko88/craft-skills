@@ -103,6 +103,10 @@ reason that a rewrite took out of a record, twice.
   0 of the 15 PDRs of this repository would take it.
 - For a PDR, a rewrite in place only while its title stays true: a changed
   decision, as another UI library, makes the title false.
+- The Status as it is on each rewrite, also `accepted, narrowed by NNNN`:
+  dropped on #487. Once the rewrite takes the narrowed point in, that
+  Status names a later ADR that no longer narrows it; 10 of 10 Opus runs
+  on ADR 0006 kept it.
 - A correction in place of each false sentence, a fact or a decision, with
   a dated `## Updates` line that keeps the old words: chosen.
 
