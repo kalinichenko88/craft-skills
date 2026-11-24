@@ -1,6 +1,6 @@
 # 0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps
 
-- Status: accepted, narrowed by 0009
+- Status: accepted
 - Date: 2026-11-09
 
 ## Updates
@@ -11,6 +11,8 @@
 - 2026-11-15 #412: Consequences, Bad. Was: "The files beside `SKILL.md` and the text of a whole flow have no cap yet (#412)".
 - 2026-11-18 #283: Consequences, Good. Was: "The debt list holds review-loop (#283), which cannot grow; architecture left it with its split (#284)".
 - 2026-11-18 #283: Consequences, Bad. Was: "each sentence added to review-loop needs a cut in the same file until its split".
+- 2026-11-24 #485: Status. Was: "accepted, narrowed by 0009".
+- 2026-11-24 #485: Decision, from ADR 0009. Was: "A file over the cap is on a debt list in the check, with its size and its debt issue: it must not grow past that size, and it leaves the list when it is within the cap".
 
 ## Context
 
@@ -50,6 +52,8 @@ agent reads the file again. Codex was not measured.
 - Real tokens from the API: a test that calls the network breaks I-7.
 - A line in the `lint` target of the `Makefile`: a debt list with sizes does
   not fit a recipe line.
+- The cap alone, with a file under it free to grow up to it: dropped by
+  ADR 0009, as a growth under the cap shows in no line of a diff.
 
 ## Decision
 
@@ -58,9 +62,10 @@ length` counts them. The whole file counts: its front matter, which the load
 leaves out, pays for the header and the arguments that the load adds. A file
 over the cap is on a debt list in the check, with its size and its debt
 issue: it must not grow past that size, and it leaves the list when it is
-within the cap. A split follows the github skill: `SKILL.md` keeps the
-trigger, the table of moments with its *Read first* column, and the steps
-that each run takes.
+within the cap. Within the cap, a file grows only in a pull request that
+changes its recorded size (ADR 0009). A split follows the github skill:
+`SKILL.md` keeps the trigger, the table of moments with its *Read first*
+column, and the steps that each run takes.
 
 ## Consequences
 
