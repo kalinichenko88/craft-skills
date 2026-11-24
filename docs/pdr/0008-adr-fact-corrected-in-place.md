@@ -7,6 +7,7 @@
 ## Updates
 
 - 2026-11-24 #405: Decision. Was: "We will let `craft:architecture` correct a sentence of an accepted ADR that a later fact made false, when the decision of the ADR is the same".
+- 2026-11-24 #487: Decision. Was: "The Status stays, and no record supersedes another".
 
 ## Decision
 
@@ -21,7 +22,9 @@ sections that the decision changes, and puts the old choice into *Options
 considered* with the reason that it was dropped. Each correction adds a
 line under `## Updates`, after the Status and Date lines, with the date, the
 source, the section and the old words; for a changed decision, the
-sentence of *Decision* that held the old choice. The Status stays, and no record supersedes
+sentence of *Decision* that held the old choice. The Status stays, but an
+ADR's Status `accepted, narrowed by NNNN` becomes `accepted` when the
+rewrite takes the narrowed point into the ADR, and no record supersedes
 another. A sentence is a fact when code that kept the ADR keeps it after the
 correction, and code that broke it still breaks it, or, for a PDR, when what
 the users see, pay or get, and what the company owes, stay the same. When the false fact was a reason for the decision, an issue asks

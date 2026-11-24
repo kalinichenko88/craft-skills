@@ -150,11 +150,16 @@ skills/github/merge.md|it still runs: wait for its end, in Codex with `write_std
 # #405, an ADR and a PDR say what holds now: a false fact and a changed
 # decision are both corrected in the record's own file, with a dated line
 # under `## Updates` that keeps the old words, no record supersedes
-# another, and the lens accepts the edit with its line.
+# another, and the lens accepts the edit with its line. A Status
+# `accepted, narrowed by NNNN` from before #405 stayed on a rewrite that took
+# the narrowed point in, in 10 of 10 Opus runs on ADR 0006, and then named a
+# later ADR that no longer narrows it; by the person's decision on #487, it
+# becomes `accepted`, with its line (0 of 10 kept it after).
 skills/architecture/SKILL.md|An accepted ADR says what holds now. When a sentence of it is false now, correct it in place.
 skills/architecture/SKILL.md|A fact: in the change that makes it false; else in a later change, as its task or as a finding outside its task.
 skills/architecture/SKILL.md|Each correction, of a fact or of the decision, adds a line under `## Updates`, a heading right after the Status and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
 skills/architecture/SKILL.md|A reversal or a narrowing rewrites that ADR in its own file (*A changed ADR*): no ADR supersedes another.
+skills/architecture/SKILL.md|The Status line stays, but a Status `accepted, narrowed by NNNN` becomes `accepted` when the rewrite takes the narrowed point into the ADR, with a line for the section *Status*.
 skills/architecture/SKILL.md|Status: accepted | rejected
 skills/review-loop/architecture-lens.md|It changes only as *A changed ADR* in *ADRs* says: each edit of it has its line under `## Updates` that quotes the old words.
 skills/product/store.md|A PDR says what holds now, and no PDR supersedes another.
