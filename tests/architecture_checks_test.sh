@@ -6,6 +6,7 @@
 # replaced. Its Write calls keep no path, and the checks take such a call as a
 # write into the run's folder. Its call, split and search runs ran on an
 # earlier repo/, whose src/api/client.ts read the token from localStorage.
+# Its store runs had the task before PDR 0016: recently viewed orders.
 # call-none-1 keeps that src/api/client.ts, which calls fetch and which the
 # wrapper check must pass.
 # The runs numbered 2 and 3 change a recorded run into a case that a check
