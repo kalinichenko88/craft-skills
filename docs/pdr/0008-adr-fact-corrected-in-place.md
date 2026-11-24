@@ -73,6 +73,10 @@ false.
   changes, as a UI library after a talk with a designer, or an access that
   only reads and becomes a full integration, is rewritten in its file, in the
   pull request of the work. The same holds for an ADR.
+- The person's choice on #487, 2026-11-24: on a rewrite that took the
+  narrowed point in, 10 of 10 Opus runs on ADR 0006 kept the Status
+  `accepted, narrowed by 0009`, and 0 of 10 with the clause (`claude -p`
+  with no tool). GitHub code search found that Status in no other ADR.
 
 ## Revisit when
 
@@ -105,13 +109,12 @@ reason that a rewrite took out of a record, twice.
   decision, as another UI library, makes the title false.
 - The Status as it is on each rewrite, also `accepted, narrowed by NNNN`:
   dropped on #487. Once the rewrite takes the narrowed point in, that
-  Status names a later ADR that no longer narrows it; 10 of 10 Opus runs
-  on ADR 0006 kept it.
+  Status names a later ADR that no longer narrows it.
 - A correction in place of each false sentence, a fact or a decision, with
   a dated `## Updates` line that keeps the old words: chosen.
 
 ## Links
 
-#343, #405, #267, #284, ADR 0006, ADR 0007, `skills/architecture/SKILL.md`,
+#343, #405, #267, #284, #487, ADR 0006, ADR 0007, `skills/architecture/SKILL.md`,
 `skills/review-loop/architecture-lens.md`, `skills/product/store.md`,
 `skills/product/SKILL.md`
