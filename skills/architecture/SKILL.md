@@ -284,8 +284,8 @@ old choice into *Options considered* with the reason that it was dropped.
 Each correction, of a fact or of the decision, adds a line under
 `## Updates`, a heading right after the Status and Date lines:
 `- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
-For a changed decision, the section is *Decision*, and the old words are its
-first sentence. The source is the issue, the pull request or the run that
+For a changed decision, the section is *Decision*, and the old words are the
+sentence that held the old choice. The source is the issue, the pull request or the run that
 shows the new fact or decision. The Status line stays. A later correction
 adds a line; no line is rewritten.
 

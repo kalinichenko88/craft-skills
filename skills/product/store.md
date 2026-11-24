@@ -109,9 +109,9 @@ ADR 0021, #45
 - The number comes after the highest PDR. A number is never used again. A
   file is never renamed or deleted, so a link to it does not rot.
 - A PDR says what holds now, and no PDR supersedes another. When a sentence
-  of it is false now, correct it in place. It is a fact when what the users
-  see, pay or get, and what the company owes, stay the same; else it is the
-  decision.
+  of it is false now, correct it in place. It is a fact when what the
+  decision says the users see, pay or get, and what the company owes, stays
+  the same; else it is the decision.
   - A fact, as a number, a name or a citation: in the change that makes it
     false; else in a later change, as its task or as a finding outside its
     task. When that fact was a reason for the decision, also file an issue
@@ -123,7 +123,7 @@ ADR 0021, #45
 - Each correction adds a line under `## Updates`, right after the Status,
   Level and Date lines: `- YYYY-MM-DD <source>: <section>. Was: "<the old
   words>".` For a changed decision, the section is *Decision*, and the old
-  words are its first sentence. The
+  words are the sentence that held the old choice. The
   source is the issue, the pull request or the run that shows the new fact
   or decision. A later correction adds a line; no line is rewritten.
 - *Got in the way* records what had to go around the decision, as a task or

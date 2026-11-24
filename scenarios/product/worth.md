@@ -489,6 +489,7 @@ Then:
 - `docs/PRODUCT.md` lists 0002 with its new decision
 - one commit on `feat/91-orders-to-warehouse` changes the file of 0002 and
   its line in `docs/PRODUCT.md`
+- the work on #91 writes each new order to the database of the warehouse
 Never:
 - `docs/pdr/` holds a new product decision
 - the status of 0002 changes

@@ -20,8 +20,8 @@ of the work that carries it out. The rewrite changes the title and the
 sections that the decision changes, and puts the old choice into *Options
 considered* with the reason that it was dropped. Each correction adds a
 line under `## Updates`, after the Status and Date lines, with the date, the
-source, the section and the old words; for a changed decision, the first
-sentence of the old *Decision*. The Status stays, and no record supersedes
+source, the section and the old words; for a changed decision, the
+sentence of *Decision* that held the old choice. The Status stays, and no record supersedes
 another. A sentence is a fact when code that kept the ADR keeps it after the
 correction, and code that broke it still breaks it, or, for a PDR, when what
 the users see, pay or get, and what the company owes, stay the same. When the false fact was a reason for the decision, an issue asks

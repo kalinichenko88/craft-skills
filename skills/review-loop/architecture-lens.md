@@ -87,8 +87,8 @@ Report:
   `Check:` line in the same change.
 - **No ADR.** A decision that needs an ADR by the four reasons of *ADRs*,
   with no ADR in the range.
-- **ADR.** A change against an accepted ADR that the range does not
-  rewrite, an edit of an ADR at the base with no line under `## Updates`,
+- **ADR.** A change against an accepted ADR, as it stands at the head of
+  the range, an edit of an ADR at the base with no line under `## Updates`,
   and a defect in an ADR that the range adds or rewrites.
 - **False doc.** A passage of the architecture file, of an instruction file
   or of an accepted ADR that the change made false, also in a file that the
