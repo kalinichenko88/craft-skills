@@ -27,7 +27,7 @@ set -euo pipefail
 }
 
 awk -F ' [|] ' '
-  /^count: [0-9]+[[:space:]]*$/ { count = $0; sub(/^count: /, "", count); counted = 1 }
+  /^[`*]*count: [0-9]+[`*]*[[:space:]]*$/ { count = $0; gsub(/[^0-9]/, "", count); counted = 1 }
   /^[-* ]*read: none/ { none = 1 }
   NF >= 3 && ($1 ~ /:[0-9]+/ || $2 ~ /:[0-9]+/) { found++ }
   END {
