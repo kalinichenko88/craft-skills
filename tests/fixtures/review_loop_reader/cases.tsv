@@ -17,7 +17,10 @@
 # the runs that report it: a finding line that matches the regex.
 case	pr9	dce07f86f49287f02606d603c748ec152f8bac96	code-lens.md	0
 case	pr289	9f3c7ae87cee834095fa413a06088dd89a2d314b	code-lens.md	5
-case	pr426	6c0ce2843f5a055bdcb60a6b69892a4d4b1c7578	code-lens.md	12
+# pr426: the review command of the host named 12 of the 30. The lens names
+# 7 to 11 a pass, and the person accepted that on 2026-11-25 (PDR 0017): the
+# floor is 0, and the "lost:" lines watch the case.
+case	pr426	6c0ce2843f5a055bdcb60a6b69892a4d4b1c7578	code-lens.md	0
 case	swap	swap	code-lens.md	1
 case	holes	holes	security-lens.md	9
 defect	swap	check	ci\.yml|tsconfig	TS6059|rootDir|build config|(build|release|publish).{0,80}(fail|break|error)|no longer.{0,80}(build|tsconfig\.json)	3

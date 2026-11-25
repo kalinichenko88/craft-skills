@@ -47,7 +47,8 @@ review. A session in Codex reviews with `/review` until a run of its own
   loop declines each of them. The lens named one of the four defects of #427
   in 2 of 15 runs, and the built-in command in none. On 2026-11-25 the
   person saw the counts of the first passes, the lens 20 of 36 and the
-  built-in 24 to 25 of 36, and decided to go on.
+  built-in 24 to 25 of 36, and decided to go on; and with the sums of this
+  table, the person accepted the lens as it is.
 - Three runs tell apart only a large effect: the same text named 9, 5 and 5
   of the 15 chances of PR #289 in three passes. So the table compares sums.
 - Inside the loop of rounds, `tests/review_loop_eval.sh` passed in 3 of 3
