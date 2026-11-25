@@ -203,10 +203,12 @@ rm "$stub/logged-in" "$stub/fails"
 # review is checked out in a linked worktree: the eval reads each from a
 # clone, and moves no branch of the source.
 git -C "$repo" worktree add -q "$stub/local/three" review
+before=$(git -C "$repo" rev-parse main review)
 printf 'case\tthree\tthree\tcode-lens.md\t0\n' >>"$stub/local/cases.tsv"
 got=$(PATH="$stub:$PATH" READER_LOCAL="$stub/local" READER_CASES='two three' tests/review_loop_reader_eval.sh 1 2>&1) || true
 logs=$(printf '%s\n' "$got" | sed -n 's/^Logs: //p')
 if [ "$(printf '%s\n' "$got" | grep -c ', 0 failed reads, 1 findings a run$')" != 2 ] ||
+  [ "$(git -C "$repo" rev-parse main review)" != "$before" ] ||
   [ "$(git -C "$repo" symbolic-ref --short HEAD)" != main ] ||
   [ "$(git -C "$stub/local/three" symbolic-ref --short HEAD)" != review ] ||
   [ "$(git -C "$logs/three-1" symbolic-ref --short HEAD)" != review ]; then

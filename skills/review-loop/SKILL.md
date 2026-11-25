@@ -145,19 +145,19 @@ and for a move that a script or a test proves unchanged.
 
    Write its report, word for word, to a file in the session's scratchpad
    directory, or in a new folder from `mktemp -d` when there is none, with
-   the Write tool, and run `bash <dir>/scripts/report-check.sh <file>`: on
-   `failed read:`, send the reader once more. In Codex: `/review`, *Review
-   against a base branch*, with no check.
+   the Write tool, and run `bash <dir>/scripts/report-check.sh <file>`. In
+   Codex: `/review`, *Review against a base branch*, with no check.
 2. **The fixes of a round are one commit.** The next round reads only that
    commit: the same prompt with `Range: <sha>^..<sha>`. In Codex: `/review`,
    *Review a commit*. Inside the loop, never send the whole branch again.
 3. **Stop at the first round that confirms no defect**, whatever that round
-   declines, for the first time or again. A round whose report says it read
-   no file of its range, or fails the check of step 1, does not count:
-   correct the range and the tree, and run it once more. When that read
-   fails too, stop the review there: the summary names the range that has
-   no read, and the pull request and the merge question say that the review
-   is not complete. A defect is a confirmed finding of one of two kinds:
+   declines, for the first time or again. A reader whose report says it read
+   no file of its range, or gets `failed read:` from the check of step 1,
+   gave no review: correct the range and the tree, and send the reader once
+   more. When the second read fails too, stop the review there: the summary
+   names the range that has no read, and the pull request and the merge
+   question say that the review is not complete. A defect is a confirmed
+   finding of one of two kinds:
    - a wrong result, a crash or a broken contract, on an input or a state
      that the project's real use reaches;
    - data loss or a security hole, on any input.
@@ -283,8 +283,8 @@ more: see `documents.md`.
 After the last pass, the Codex review, the review of the tests and their
 rounds, the security review runs once, on the final branch. A change to
 documents only gets none, unless the person asks for it. It is one subagent
-as in step 1 of *The rounds*, with `effort: "high"` and this prompt, whose
-`<head>` is the SHA of `HEAD` now:
+as in step 1 of *The rounds*, with `effort: "high"` and this prompt, where
+`<base>` is the base of step 1 and `<head>` the SHA of `HEAD` now:
 
 ```
 Read <dir>/security-lens.md and do what it says.
@@ -292,8 +292,8 @@ Range: <base>..<head>
 Tree: <the working tree of the branch>
 ```
 
-The report of the subagent goes through the check of step 1. Its findings
-go through *The findings*, and its fixes through *Fixes from other places*. In Codex:
+Its report goes through the check of step 1. Its findings go through *The
+findings*, and its fixes through *Fixes from other places*. In Codex:
 `/review` with the custom instructions "Find security defects on this branch
 against origin/<default branch>: injection, authentication, authorization,
 secrets and data exposure." Where there is no `origin` remote, say so in the

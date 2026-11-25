@@ -18,10 +18,13 @@
 # names a case under its floor, and "lost:" a defect that 2 or 3 runs of the
 # last recorded pass named and that no run names now. It exits 1 on either.
 #
+# With Claude, a case of security-lens.md runs at the effort high, as in the
+# product, whatever READER_LEVEL says. The tree of a case from a repository
+# is a clone: it holds the tracked files only.
+#
 # With --codex, Codex reads each case in the place of Claude, in its read-only
 # sandbox and with the person's Codex config; a run of Codex that fails is a
-# failed read. A case of security-lens.md runs at the effort high, as in the
-# product, whatever READER_LEVEL says. With --check, it calls no model:
+# failed read. With --check, it calls no model:
 # it counts the reports <case>-<n>.txt of the folder, with the cases.tsv of
 # that folder when it has one.
 #
@@ -112,7 +115,7 @@ fixture() {
       ;;
     repo*)
       # A clone, not a copy: a copy of a linked worktree shares its HEAD.
-      git clone -q "$source" "$2"
+      git clone -q -o origin "$source" "$2"
       git -C "$2" checkout -q --detach
       git -C "$2" branch -qf main origin/main
       git -C "$2" branch -qf review origin/review

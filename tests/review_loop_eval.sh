@@ -4,13 +4,14 @@
 # answer its questions. It prints, for each run, the counts, then each review
 # subagent's prompt after its kind: W reads the whole branch, C one commit, T
 # is the review of the tests, A the review of the architecture, P a reader of
-# craft:product's worth check, S the security review. It exits 1 when a run
-# has fewer than two rounds, read the whole branch more than once after round
-# 1, ran more than three rounds in one count, sent the review of the tests
-# other than once next to the last pass, or sent one with no last pass, sent
-# the review of the architecture other than once before round 2, ran no
-# security review after its last read of the whole branch, ran a review
-# command of the host in the session or in a subagent,
+# craft:product's worth check, S the security review, H a review command of
+# the host. It exits 1 when a run has fewer than two rounds, read the whole
+# branch more than once after round 1, ran more than three rounds in one
+# count, sent the review of the tests other than once next to the last pass,
+# or sent one with no last pass, sent the review of the architecture other
+# than once before round 2, ran no security review after its last read of the
+# whole branch, ran a review command of the host in the session or in a
+# subagent,
 # had Codex read the branch other than once, did not invoke the skill, or
 # ended on a report that names no docs, no review of the tests or no review
 # of the architecture. With stop, the run starts at the step 4 stop of an
@@ -167,7 +168,7 @@ for log in "$logs"/run-*.jsonl; do
   prompts=$(jq -rR --arg commit "$commit" 'fromjson?
     | select(.type == "assistant") | (.parent_tool_use_id == null) as $top
     | .message.content[]? | select(.type == "tool_use")
-    | if .name == "Skill" and (.input.skill | test("^(code-review|security-review)$")) then
+    | if .name == "Skill" and (.input.skill // "" | test("(^|:)(code-review|security-review)$")) then
         "H\tSkill: /" + .input.skill + (if $top then "" else ", in a subagent" end)
       elif .name == "Agent" and $top then (.input.model // "") as $model | .input.prompt | gsub("\n"; " ")
         | (if test("Product reader|product/reader\\.md") then "P" elif test("tests-lens\\.md") then "T" elif test("security-lens\\.md") then "S"
@@ -175,8 +176,8 @@ for log in "$logs"/run-*.jsonl; do
       else empty end' "$log")
   arch=$(cut -f1 <<<"$prompts" | grep -c A || true)
   early=$(cut -f1 <<<"$prompts" | tr -d '\n' | grep -cE '^[^C]*A' || true)
-  # The counts of rounds below leave the review of the architecture and the
-  # readers of the worth check out.
+  # The counts of rounds below leave the review of the architecture, the
+  # readers of the worth check and the commands of the host out.
   kinds=$(cut -f1 <<<"$prompts" | grep -v '[APH]' || true)
   rounds=$(grep -c '[CW]' <<<"$kinds" || true)
   whole=$(grep '[CW]' <<<"$kinds" | tail -n +2 | grep -c W || true)
