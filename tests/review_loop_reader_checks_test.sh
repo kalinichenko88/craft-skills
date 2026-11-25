@@ -199,10 +199,21 @@ logs=$(printf '%s\n' "$got" | sed -n 's/^Logs: //p')
 rm -rf "$logs"
 rm "$stub/logged-in" "$stub/fails"
 
-# A case whose source is a linked worktree is refused: a checkout in a copy of
-# it moves the branch of the worktree itself.
+# A case from a linked worktree, and a case from a repository whose branch
+# review is checked out in a linked worktree: the eval reads each from a
+# clone, and moves no branch of the source.
 git -C "$repo" worktree add -q "$stub/local/three" review
 printf 'case\tthree\tthree\tcode-lens.md\t0\n' >>"$stub/local/cases.tsv"
-READER_LOCAL="$stub/local" READER_CASES=three refused 'no commit, no repository and no folder of two trees'
+got=$(PATH="$stub:$PATH" READER_LOCAL="$stub/local" READER_CASES='two three' tests/review_loop_reader_eval.sh 1 2>&1) || true
+logs=$(printf '%s\n' "$got" | sed -n 's/^Logs: //p')
+if [ "$(printf '%s\n' "$got" | grep -c ', 0 failed reads, 1 findings a run$')" != 2 ] ||
+  [ "$(git -C "$repo" symbolic-ref --short HEAD)" != main ] ||
+  [ "$(git -C "$stub/local/three" symbolic-ref --short HEAD)" != review ] ||
+  [ "$(git -C "$logs/three-1" symbolic-ref --short HEAD)" != review ]; then
+  echo 'FAIL: a case whose source has a linked worktree:'
+  echo "$got"
+  exit 1
+fi
+rm -rf "$logs"
 
 echo 'review_loop_reader_checks_test: ok'

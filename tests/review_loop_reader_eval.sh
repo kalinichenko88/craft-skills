@@ -19,7 +19,9 @@
 # last recorded pass named and that no run names now. It exits 1 on either.
 #
 # With --codex, Codex reads each case in the place of Claude, in its read-only
-# sandbox and with the person's Codex config. With --check, it calls no model:
+# sandbox and with the person's Codex config; a run of Codex that fails is a
+# failed read. A case of security-lens.md runs at the effort high, as in the
+# product, whatever READER_LEVEL says. With --check, it calls no model:
 # it counts the reports <case>-<n>.txt of the folder, with the cases.tsv of
 # that folder when it has one.
 #
@@ -80,9 +82,7 @@ origin() {
     case $source in /*) break ;; esac
     [ -z "$(awk -F '\t' -v kase="$1" '$1 == "case" && $2 == kase' "$file")" ] || dir=$(cd "$(dirname "$file")" && pwd)/$source
   done
-  # A linked worktree has a file .git: a checkout in its copy would move its
-  # own branch.
-  if [ -d "$dir/.git" ]; then
+  if [ -e "$dir/.git" ]; then
     echo "repo $dir"
   elif [ -d "$dir/main" ] && [ -d "$dir/review" ]; then
     echo "trees $dir"
@@ -111,7 +111,11 @@ fixture() {
       git -C "$2" checkout -q review
       ;;
     repo*)
-      cp -R "$source" "$2"
+      # A clone, not a copy: a copy of a linked worktree shares its HEAD.
+      git clone -q "$source" "$2"
+      git -C "$2" checkout -q --detach
+      git -C "$2" branch -qf main origin/main
+      git -C "$2" branch -qf review origin/review
       git -C "$2" checkout -q review
       ;;
     trees*)
@@ -130,13 +134,15 @@ fixture() {
 # of the plugin is turned off, so the rules come from this checkout. The
 # reader may read, and run git: it has no tool that writes, and no subagent.
 run() {
-  local work=$logs/$1-$2 lens prompt effort=$level
+  local work=$logs/$1-$2 lens base prompt effort=$level
   lens=$(rows case "$1" | cut -f4)
   # A run whose fixture fails has an empty report: a failed read.
   : >"$work.txt"
   fixture "$1" "$work"
+  # As the product: the range starts at the merge base.
+  base=$(git -C "$work" merge-base main review)
   prompt="Read $skill/$lens and do what it says.
-Range: $(git -C "$work" merge-base main review)..$(git -C "$work" rev-parse review)
+Range: $base..$(git -C "$work" rev-parse review)
 Tree: $work"
   [ "$lens" = security-lens.md ] || prompt="$prompt
 Level: $level"

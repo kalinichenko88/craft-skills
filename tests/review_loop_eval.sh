@@ -162,12 +162,14 @@ failed=0
 for log in "$logs"/run-*.jsonl; do
   # One line a prompt: W when it reads the whole branch, C one commit, T the
   # review of the tests, P a reader of the worth check, S the security review,
-  # then a tab and the prompt.
+  # H a review command of the host, in the session or in a subagent, then a
+  # tab and the prompt.
   prompts=$(jq -rR --arg commit "$commit" 'fromjson?
-    | select(.type == "assistant" and .parent_tool_use_id == null)
-    | .message.content[] | select(.type == "tool_use")
-    | if .name == "Skill" then empty
-      elif .name == "Agent" then (.input.model // "") as $model | .input.prompt | gsub("\n"; " ")
+    | select(.type == "assistant") | (.parent_tool_use_id == null) as $top
+    | .message.content[]? | select(.type == "tool_use")
+    | if .name == "Skill" and (.input.skill | test("^(code-review|security-review)$")) then
+        "H\tSkill: /" + .input.skill + (if $top then "" else ", in a subagent" end)
+      elif .name == "Agent" and $top then (.input.model // "") as $model | .input.prompt | gsub("\n"; " ")
         | (if test("Product reader|product/reader\\.md") then "P" elif test("tests-lens\\.md") then "T" elif test("security-lens\\.md") then "S"
           elif test("code-lens\\.md") then (if test($commit) then "C" else "W" end) elif test("architecture-lens\\.md") and $model == "opus" then "A" else empty end) + "\t" + .
       else empty end' "$log")
@@ -175,14 +177,12 @@ for log in "$logs"/run-*.jsonl; do
   early=$(cut -f1 <<<"$prompts" | tr -d '\n' | grep -cE '^[^C]*A' || true)
   # The counts of rounds below leave the review of the architecture and the
   # readers of the worth check out.
-  kinds=$(cut -f1 <<<"$prompts" | grep -v '[AP]' || true)
+  kinds=$(cut -f1 <<<"$prompts" | grep -v '[APH]' || true)
   rounds=$(grep -c '[CW]' <<<"$kinds" || true)
   whole=$(grep '[CW]' <<<"$kinds" | tail -n +2 | grep -c W || true)
   last=$(grep -n W <<<"$kinds" | tail -n 1 | cut -d: -f1)
   security=$(tail -n +"$((${last:-0} + 1))" <<<"$kinds" | grep -c S || true)
-  # A review command of the host, in the session or in a subagent.
-  inline=$(jq -rR 'fromjson? | select(.type == "assistant") | .message.content[]?
-    | select(.type == "tool_use" and .name == "Skill") | .input.skill' "$log" | grep -cxE 'code-review|security-review' || true)
+  inline=$(cut -f1 <<<"$prompts" | grep -c H || true)
   long=$(tr -d '\n' <<<"$kinds" | grep -oE '^WCCC|[WST]CCCC' | grep -c . || true)
   tests=$(grep -c T <<<"$kinds" || true)
   paired=$(tr -d '\n' <<<"$kinds" | grep -cE '(WT|TW)[^W]*$' || true)

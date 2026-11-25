@@ -112,8 +112,8 @@ check. A change to a check updates the output that the test expects.
 It checks that no count of rounds goes past three, that the review of the
 tests runs once next to the last pass and never without one, that the
 review of the architecture runs once before round 2, that a security review
-follows the last pass, that Codex reads the branch once, and that the session
-runs no review command of the host: a round is a subagent whose prompt names
+follows the last pass, that Codex reads the branch once, and that neither the
+session nor a subagent runs a review command of the host: a round is a subagent whose prompt names
 `code-lens.md`, and the security review one that names `security-lens.md`. Its
 fixture has a local `origin` and an architecture file, and its task says
 that no one can answer questions. With `stop` after the count of runs, as

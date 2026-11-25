@@ -135,5 +135,5 @@ and I-4 as each script of a skill.
 `tests/fixtures/review_loop_reader/cases.tsv`; `tests/review_loop_report_test.sh`
 for the check of a report; the pins of `code-lens.md` and of the prompts in
 `tests/rules_pins.txt`; and `tests/review_loop_eval.sh`, which fails a run
-whose session runs a review command of the host, and counts a round by the
+in which the session or a subagent runs a review command of the host, and counts a round by the
 lens file that its prompt names.
