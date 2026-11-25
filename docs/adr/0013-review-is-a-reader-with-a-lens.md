@@ -9,7 +9,7 @@ A round of `craft:review-loop` was `/code-review <level> <range>` in Claude
 Code and `/review` in Codex, and the security review was `/security-review`
 in a subagent. ZCode has no such command: the agent there wrote a reviewer of
 its own, which missed a defect that the command of Claude Code found (#466).
-PDR 0016 decides that the plugin reviews with its own texts.
+PDR 0017 decides that the plugin reviews with its own texts.
 
 The review of the architecture, of the tests and of the documents already
 have one form: one subagent with three lines of prompt that send it to a lens
@@ -31,7 +31,7 @@ The measure of #466 showed how a review text behaves:
 
 ## Options considered
 
-- A review command of the host as the reviewer, as before: PDR 0016 rejects
+- A review command of the host as the reviewer, as before: PDR 0017 rejects
   it. The plugin cannot read, change or ship that text, and ZCode has none.
 - One reader with a lens file of the plugin: the form that three reviews of
   the skill have already.
@@ -75,8 +75,8 @@ defect. A part of a lens joins only with a gain that the runs show, and a
 part with no shown gain stays out. A text is compared with another by the
 sums of all their runs, not by one pass. `tests/rules_pins.txt` pins the
 five sentences of the code lens that a run fixed, so that a change of their
-words fails `make check` and sends the person to the eval. For a lens file,
-this measure stands in the place of the ten runs of ADR 0009.
+words fails `make check` and sends the person to the eval. ADR 0009 holds
+this measure for a lens file, in the place of its ten runs.
 
 ## Consequences
 
@@ -88,7 +88,7 @@ $0.73 to $1.00. A cut report no longer reads as a clean round.
 Bad:
 
 - On PR #426 the code lens names fewer known wrong results than the built-in
-  command did: 2.8 of six a run against 4.1. PDR 0016 holds the table.
+  command did: 2.8 of six a run against 4.1. PDR 0017 holds the table.
 - The sender writes each report out once more, to a file, for the check.
 - The code lens reads no instruction file of the project, as a `CLAUDE.md`,
   which the built-in command did (#499).

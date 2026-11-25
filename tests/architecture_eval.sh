@@ -14,8 +14,9 @@
 # - call, a screen with a new request: the runs that import src/api/client
 #   and call no fetch, axios or XMLHttpRequest outside it, and the runs that
 #   write the block of *The start of a feature* before their first write;
-# - store, recently viewed orders, which need a data store: the runs that
-#   write one ADR in docs/adr/, with two options and a Confirmation section;
+# - store, orders that work offline, which need a store on the device and a
+#   sync: the runs that write one ADR in docs/adr/, with two options and a
+#   Confirmation section (PDR 0016);
 # - split, discount codes in the cart, a file past the limit: the runs whose
 #   first commit moves code out of src/features/cart/index.ts into a new file,
 #   with a commit after it;
@@ -48,7 +49,7 @@ usage() { echo "usage: $0 [runs per arm and task, at least 1] | --check <logs fo
 
 arms='none files skill line'
 call_task='Add a reports screen to this project, in src/features/reports/: it lists the monthly reports from GET /api/reports, which returns a JSON array of { month, totalCents }, and shows each total as a price.'
-store_task='Add recently viewed orders to this project: remember the last 10 orders the user opened, also after the browser restarts, and export a function that lists them, newest first.'
+store_task='Make the orders of this project work offline: keep every order of the user on the device, so that listOrders() and getOrder() answer with no network, also after the browser restarts, and bring the stored orders up to date from GET /api/orders when the network comes back.'
 split_task='Add discount codes to the cart in src/features/cart/: a code takes a percent off the cart total, and the server checks it at POST /api/discounts/check with { code }, which returns { percent }.'
 ask='Do not ask questions: decide yourself. Write the files and commit them with git, then reply with the path of every file you wrote.'
 link='The architecture of this project: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).'

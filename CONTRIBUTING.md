@@ -144,8 +144,9 @@ already, a folder with no code file added to the `Check:` line of an
 invariant, and that folder taken out again on a base where a second
 invariant names one too. With `--codex`, Codex reads the six branches with
 the same prompt. Run it after a change to
-`skills/review-loop/architecture-lens.md`, to `skills/architecture/invariants.md`
-or to the parts of `skills/architecture/SKILL.md` that it reads.
+`skills/review-loop/architecture-lens.md`, to `skills/architecture/invariants.md`,
+to `skills/architecture/adrs.md` or to the parts of
+`skills/architecture/SKILL.md` that it reads.
 `tests/review_loop_reader_eval.sh` sends the reader of the code review to
 changes with known defects, three runs each, and counts the runs whose
 report names each defect. Its cases are the lines of

@@ -14,11 +14,12 @@ one change, at `<head>`: the state of a commit inside it is no finding.
 and run no code of the project.
 
 1. Read `<skills>/architecture/SKILL.md` for its principles: *Consistency
-   first*, *Modules and layers*, *Decomposition* and *ADRs*, and
-   `<skills>/architecture/invariants.md`. Do none of their steps. When the
-   range changes a `.ts`, `.tsx`, `.mts` or `.cts` file, read the rules of
-   `<skills>/typescript-conventions/SKILL.md` too. When it changes React
-   code, read the rules of `<skills>/react-conventions/SKILL.md` too.
+   first*, *Modules and layers* and *Decomposition*, and
+   `<skills>/architecture/adrs.md` and `<skills>/architecture/invariants.md`.
+   Do none of their steps. When the range changes a `.ts`, `.tsx`, `.mts` or
+   `.cts` file, read the rules of `<skills>/typescript-conventions/SKILL.md`
+   too. When it changes React code, read the rules of
+   `<skills>/react-conventions/SKILL.md` too.
 2. In the tree, read the architecture file and the ADRs, where *The files*
    of that `SKILL.md` finds them. Read every instruction file of the tree
    too, also one that the range does not change: each file that
@@ -61,12 +62,11 @@ and run no code of the project.
    the range closes, also when no file of B imports A. A file of B that
    imports A is only the shortest path.
 
-An ADR file that the range adds is under review: check it against *ADRs*, and
-its reason against the code that already does the same work. An ADR that
-exists at the base is settled: argue nothing in it, and report an edit of it
-past its Status line. The one exception is *A fact that changed* in *ADRs*:
-a sentence that is false now, corrected in place, with its line under
-`## Updates` that quotes the old words, and with the same decision.
+An ADR file that the range adds, or whose decision it rewrites, is under
+review: check it against `adrs.md`, and its reason against the code that
+already does the same work. Argue nothing else in an ADR that exists at the
+base. It changes only as *A changed ADR* in `adrs.md` says: each edit of it
+has its line under `## Updates` that quotes the old words.
 
 A change that follows the project's own way, where its code breaks a
 principle of *Modules and layers* everywhere, is no Second structure and no
@@ -86,17 +86,16 @@ Report:
   adds, outside the `except` paths of the invariant. Put its `I-n` in the
   claim. No ADR excuses a FAIL: an ADR that amends an invariant changes its
   `Check:` line in the same change.
-- **No ADR.** A decision that needs an ADR by the four reasons of *ADRs*,
+- **No ADR.** A decision that needs an ADR by the four reasons of `adrs.md`,
   with no ADR in the range.
-- **ADR.** A change against an accepted ADR with no ADR that supersedes or
-  narrows it,
-  an edit of an ADR at the base past its Status line that is not that
-  exception, and a defect in an ADR that the range adds.
+- **ADR.** A change against an accepted ADR, as it stands at the head of
+  the range, an edit of an ADR at the base with no line under `## Updates`,
+  and a defect in an ADR that the range adds or rewrites.
 - **False doc.** A passage of the architecture file, of an instruction file
   or of an accepted ADR that the change made false, also in a file that the
   range does not change: the change corrects it, so it is no Outside
-  finding. In an ADR whose decision is the same, the change corrects the
-  sentence as *A fact that changed* says. Code that
+  finding. The change corrects a sentence of an ADR as *A changed ADR*
+  says. Code that
   breaks a rule does not make the rule false: only a change of the fact,
   or an ADR that amends the rule, does.
 - **Size.** A `new` `debt` hit of a `lines` or `files` check, when its split

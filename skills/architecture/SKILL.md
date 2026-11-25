@@ -17,15 +17,15 @@ principles and the steps.
 | Where new code goes; a new module, layer, dependency, pattern or data store; a choice between options; a change to a file or a folder past its limit | The eight steps and the gate; for a new technology, first the question of who chooses | *The moment of a decision* |
 | A decision in a project with no architecture file | Offer to write one, once a session; write nothing without a yes | `first-file.md` |
 | An edit exists, before its commit | `invariants.sh` | `invariants.md` |
-| A decision may need an ADR | The four reasons and the template | *ADRs* |
+| A decision may need an ADR; an ADR is written, checked or corrected | The four reasons, the template and *A changed ADR* | `adrs.md` |
 
-`first-file.md` and `invariants.md` sit next to this file, in this skill's
-base directory `<dir>`. Read all of each before you use it. `<skills>` is the
-directory above `<dir>`.
+`first-file.md`, `invariants.md` and `adrs.md` sit next to this file, in this
+skill's base directory `<dir>`. Read all of each before you use it.
+`<skills>` is the directory above `<dir>`.
 
 **The files.** The architecture file is `docs/ARCHITECTURE.md`, or
 `ARCHITECTURE.md` at the root when the project keeps it there. The ADRs are
-`docs/adr/NNNN-title.md`, or in `doc/adr/` or `docs/decisions/` when the
+`docs/adr/NNNN-name.md`, or in `doc/adr/` or `docs/decisions/` when the
 project already keeps them there. Never make a second place for the same
 document.
 
@@ -113,8 +113,8 @@ offer and the gate has no invariant to check; the other steps are the same.
      with its debt issue, by *When to split*.
 
    Never a silent exception.
-7. Decide whether the decision needs an ADR (see *ADRs*). Most decisions do
-   not.
+7. Decide whether the decision needs an ADR (see `adrs.md`). Most decisions
+   do not.
 8. **A second reader**, for a decision that needs an ADR. One subagent that
    does not see the conversation (see *Models*) gets the area of the
    architecture file, its ADRs, the code that step 2 found, the options and
@@ -162,11 +162,10 @@ consistently does otherwise, only an accepted ADR of the project overrides it.
 **When the ADR is written.** When the decision is final: in the pull request
 with the code, with the status `accepted`. The review of the pull request is
 where it is argued, and the merge makes it true. An ADR file that
-`git diff <base>..HEAD` adds is under review. One that exists at the base is
-settled: a branch changes only its Status line, except for the correction
-of *A fact that changed*, in *ADRs*. A spec or a
-plan names the ADR that the work will add, by its title, and does not write
-it.
+`git diff <base>..HEAD` adds or rewrites is under review. One that exists at
+the base changes only as *A changed ADR*, in `adrs.md`, says. A spec or a
+plan names the ADR that the work will add or rewrite, by its title, and does
+not write it.
 
 A finding outside the task, such as two competing ways that the task does not
 touch, becomes an issue through `craft:github`. When the decision is
@@ -252,83 +251,6 @@ wins in that project, and it names the convention that it replaces.
 
   When one of them fails, keep the copy. Two copies are fine. A third copy is
   the time to check the three again.
-
-## ADRs
-
-A decision needs an ADR when:
-
-1. it changes the structure, the direction of a dependency, a public
-   interface, or a quality goal;
-2. it is costly to undo, or it adds an external dependency;
-3. it sets a pattern that later code must follow: without the ADR, a reviewer
-   would see two competing ways;
-4. it reverses or narrows an accepted ADR, or amends an invariant. Then the
-   old ADR, when there is one, changes only its Status line. When the new ADR
-   narrows part of the old one, the old ADR gets the Status `accepted,
-   narrowed by NNNN`, and the new ADR names the point of the old one that it
-   narrows. Else, as for a narrowing of the whole ADR or a reversal, the new
-   ADR supersedes it.
-
-No ADR when none of the four holds: the choice is local and cheap to undo, or
-a lint rule or a documented convention already enforces it. The four win: a
-new external dependency needs an ADR, however small. An option that the
-person rejects for a lasting reason gets an ADR with the status `rejected`,
-so that the next agent does not offer it again.
-
-**A fact that changed.** When a sentence of an accepted ADR is false now and
-its decision is the same, correct the sentence in place: in the change that
-makes it false; else in a later change, as its task or as a finding outside
-its task. Then add a line under `## Updates`, a heading right after the
-Status and Date lines:
-`- YYYY-MM-DD <source>: <section>. Was: "<the old words>".`
-The date is the day of the correction; the source is the issue, the pull
-request or the run that shows the new fact. The Status line stays. A
-later correction adds a line; no line is rewritten. The decision is the same
-when code that kept it before the correction keeps it after, and code that
-broke it still breaks it. Otherwise it is reason 4, however few words change:
-"every write goes through the service" to "a component may write to the
-store" is a new ADR. When the false sentence was a reason for the decision,
-also file an issue that asks whether the decision is still right.
-
-One decision per file, `NNNN-title.md`, numbered after the highest one in the
-folder. A file is never renamed or deleted, so a link to it does not rot. The
-template:
-
-```markdown
-# NNNN Title
-
-- Status: accepted | accepted, narrowed by NNNN | rejected | superseded by NNNN
-- Date: YYYY-MM-DD
-
-## Context
-
-## Options considered
-
-- <option>: <one line>
-- <option>: <one line>
-
-## Decision
-
-We will …
-
-## Consequences
-
-Good: …
-Bad: …
-
-## Invariants
-
-I-n, added or amended, or none.
-
-## Confirmation
-
-The check that enforces it: a `Check:` line, a lint rule, a test, or "review
-only".
-```
-
-At least two options, one line each, and both good and bad consequences: one
-decision a file, no policy in disguise, no option with no cost. Add an
-accepted ADR to the index of the architecture file in the same commit.
 
 ## Red flags
 

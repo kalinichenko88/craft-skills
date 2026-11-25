@@ -207,7 +207,7 @@ defect	pr426	F6	count\.jq	(another|other|different) plugin|same(-| )named	0
 
 - [ ] **Step 3: When a run did not run the list**, in this order, change one thing and run `swap` and the #466 case again: the lens asks for one line `worklist: <the count of items>` in the report, and `report-check.sh` takes `<base> <head>` before the file and compares the number with its own count, with a test for it; else the sender runs the script into a file, and the prompt names that file. Keep the first form that reaches the gate. Write the counts of each form into the pull request, for ADR 0013.
 
-- [ ] **Step 4: The third configuration.** Two runs in ZCode on GLM-5.4, one after the other, on `swap`, on `pr426`, whose range has 23 places, and on the #466 case: the main session sends one subagent with the four lines of the prompt, through the CLI that ZCode ships, as the control runs of the measurement did. Score the reports with `--check`. What must hold: the subagent reads the lens by its path, runs the list, and ends with `count: N`. The counts go into PDR 0016.
+- [ ] **Step 4: The third configuration.** Two runs in ZCode on GLM-5.4, one after the other, on `swap`, on `pr426`, whose range has 23 places, and on the #466 case: the main session sends one subagent with the four lines of the prompt, through the CLI that ZCode ships, as the control runs of the measurement did. Score the reports with `--check`. What must hold: the subagent reads the lens by its path, runs the list, and ends with `count: N`. The counts go into PDR 0017.
 
 - [ ] **Step 5: Commit**, with the counts in the bullets, and the new `was` counts.
 
@@ -318,10 +318,10 @@ A part joins in two steps. First the evidence that the lens needs it, from the r
 ### Task 11: Records, notices and READMEs
 
 **Files:**
-- Create: `docs/pdr/0016-own-review-texts.md`, `docs/adr/0013-review-is-a-reader-with-a-lens.md`, `THIRD-PARTY-NOTICES.md`
+- Create: `docs/pdr/0017-own-review-texts.md`, `docs/adr/0013-review-is-a-reader-with-a-lens.md`, `THIRD-PARTY-NOTICES.md`
 - Modify: `docs/PRODUCT.md` (the index of decisions), `docs/ARCHITECTURE.md` (the index of ADRs), `docs/adr/0009-skill-text-admission-and-budgets.md` (its Status line, when ADR 0013 narrows it), `docs/research/2026-11-16-zcode-third-host.md` (`:52`, `:101`, `:123-124`), `README.md:62-63`, `skills/review-loop/README.md` (`:53-62`, `:75`, `:89-95`, `:150`)
 
-- [ ] **Step 1: PDR 0016**, in the form of `docs/pdr/0015-update-at-a-release.md`: the decision; *Rests on* with the table of the spec's measurement, the final table of Task 5 and the ZCode counts of Task 4; *Revisit when* as the spec gives it; the three options of the spec's *Approaches*; and the verdict of the panel with the person's decision of 2026-11-24.
+- [ ] **Step 1: PDR 0017**, in the form of `docs/pdr/0015-update-at-a-release.md`: the decision; *Rests on* with the table of the spec's measurement, the final table of Task 5 and the ZCode counts of Task 4; *Revisit when* as the spec gives it; the three options of the spec's *Approaches*; and the verdict of the panel with the person's decision of 2026-11-24.
 - [ ] **Step 2: ADR 0013**, by the template of `craft:architecture`. The decision: a review is one reader with a lens file; the table of *The level* in `SKILL.md` picks the level, the prompt carries it, and `effort` and Codex's `xhigh` follow it; two scripts hold the list and the check; the measure of a pass for a lens file. Options: a command of the host as the reviewer; the list from the sender, in the prompt or in a file. *Consequences*: the line of each part of Task 5; the sender writes each report out once more for the check; the proof of the list, public or private; the gaps: no read of the instruction files, no measure of precision. *Confirmation*: `tests/review_loop_reader_eval.sh`, and the counter of host commands in `tests/review_loop_eval.sh`. The answers of the person to *Open, for the person* of the spec go in as they are: Codex at each level, with the measure of 2026-10-28 against it and #90 for it; Codex as a host waits for its run.
 - [ ] **Step 3: `THIRD-PARTY-NOTICES.md`**, as the spec's *Notices* says.
 - [ ] **Step 4: The research document.** Rows 13 and 14 get the measured answer; step 3 of its plan names the lens files; the row of `:52` says which text is public under MIT.

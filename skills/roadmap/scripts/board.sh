@@ -2,7 +2,9 @@
 # Sets up the GitHub Project that shows the plan: finds the project titled
 # "<repository> roadmap", or creates it under the repository's owner; links
 # it to the repository; adds the open issues it does not hold yet; creates
-# its saved views. Then it prints the two settings the API cannot make.
+# its saved views. Then it prints each setting that the API cannot make,
+# unless the project shows it as made: the grouping of a view, and the
+# auto-add workflow.
 #
 #   board.sh
 #
@@ -72,8 +74,11 @@ if [ -n "$found" ]; then
 
   id=$(gh project view "$number" --owner "$owner" --format json --jq .id)
   views=$(gh api graphql -f id="$id" -f query='
-    query($id: ID!) { node(id: $id) { ... on ProjectV2 { views(first: 20) { nodes { id name filter } } } } }' \
-    --jq '.data.node.views.nodes[] | "\(.name)\t\(.id)\t\(.filter // "")"')
+    query($id: ID!) { node(id: $id) { ... on ProjectV2 { views(first: 20) { nodes { id name filter
+      groupByFields(first: 5) { nodes { ... on ProjectV2FieldCommon { dataType } } } } } } } }' \
+    --jq '.data.node.views.nodes[] | "\(.name)\t\(.id)\t\(.filter // "")\t\([.groupByFields.nodes[]?.dataType] | join(","))"')
+  # The API reads the grouping of a view, but cannot set it.
+  grouped=$(awk -F'\t' '$1 == "By milestone" && $4 ~ /MILESTONE/' <<<"$views")
   while IFS='|' read -r view layout filter; do
     # A view there keeps its filter; one without a filter, as after a run that
     # stopped between the two writes, gets it.
@@ -103,10 +108,16 @@ if [ -n "$found" ]; then
 Unassigned|BOARD_LAYOUT|is:issue is:open no:assignee -milestone:Later
 By milestone|TABLE_LAYOUT|is:issue is:open
 EOF
+
+  # The API reads whether a workflow is on, but not its repository or its
+  # filter. A project where it was never turned on lists no node of that name.
+  auto=$(gh api graphql -f id="$id" -f query='
+    query($id: ID!) { node(id: $id) { ... on ProjectV2 { workflows(first: 20) { nodes { name enabled } } } } }' \
+    --jq 'if any(.data.node.workflows.nodes[]; .name == "Auto-add to project" and .enabled) then "on" else "off" end')
+  echo "workflow Auto-add to project: $auto"
 fi
 
-cat <<EOF
-Two settings the API cannot make. Open $url:
-1. In the view "By milestone", group by Milestone.
-2. Under Workflows, turn on "Auto-add to project" for $repo with the filter is:issue is:open.
-EOF
+todo=''
+[ -n "${grouped:-}" ] || todo+=$'\n- In the view "By milestone", group by Milestone.'
+[ "${auto:-}" = on ] || todo+=$'\n'"- Under Workflows, turn on \"Auto-add to project\" for $repo with the filter is:issue is:open."
+[ -z "$todo" ] || echo "Settings the API cannot make. Open $url:$todo"

@@ -308,18 +308,18 @@ hold 10. A new number needs an ADR.
 
 ## ADRs
 
-An ADR goes in `docs/adr/NNNN-title.md` and on this list. A line names the
-status of an ADR that is not accepted, or that a later one narrows.
+An ADR goes in `docs/adr/NNNN-name.md` and on this list. A line names the
+status of an ADR that is not accepted.
 
 - [0001 Each script prints its usage from its header](adr/0001-usage-from-the-header.md)
 - [0002 The plugin is named craft](adr/0002-plugin-name-craft.md)
 - [0003 The flows are specified as host-neutral scenarios in scenarios/](adr/0003-host-neutral-scenarios.md) — superseded by 0008
 - [0004 rules.md reaches the session in two hook outputs](adr/0004-rules-in-two-hook-outputs.md)
 - [0005 A pinned tool prints the import graph for the architecture checks](adr/0005-import-graph-from-a-pinned-tool.md) — rejected
-- [0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps](adr/0006-skill-text-within-the-compaction-budget.md) — narrowed by 0009
+- [0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps](adr/0006-skill-text-within-the-compaction-budget.md)
 - [0007 CI runs the text eval on each scenario row whose skill files a pull request changes](adr/0007-text-eval-in-ci.md)
 - [0008 The flows are specified as host-neutral scenarios, and a run is checked by the words that the person reads](adr/0008-scenarios-read-narration-as-messages.md)
-- [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md) — narrowed by 0010 and 0013
+- [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md)
 - [0010 The recorded size of a text is its exact size, and a flow is a list of files](adr/0010-recorded-size-is-exact.md)
 - [0011 rules.md holds the triggers of the skills and the habits of each turn](adr/0011-rules-hold-triggers-and-habits.md)
 - [0012 In ZCode, a hook puts a line into the prompt of each subagent that sends it to rules.md](adr/0012-zcode-subagent-reads-rules.md)

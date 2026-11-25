@@ -27,7 +27,7 @@ basis to replace the built-in command, and one user.
 
 **The person decided on 2026-11-24:** the plugin's own texts in every host,
 now. The reason: the plugin must not depend on a command of a host, and all
-its review rules must be its own, so that they can change. PDR 0016 records
+its review rules must be its own, so that they can change. PDR 0017 records
 the decision, what it rests on and when to revisit it.
 
 ## Intent
@@ -245,7 +245,7 @@ BMAD-METHOD (the second read when a pass gives nothing).
 
 ### Records
 
-- **PDR 0016.** The plugin reviews with its own texts in every host. Rests
+- **PDR 0017.** The plugin reviews with its own texts in every host. Rests
   on the measurement below. Revisit when the own text names fewer confirmed
   defects than a host's command on three new cases, or when a text of the
   plugin cannot be kept at the level of a host's command for its cost.

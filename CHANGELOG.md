@@ -6,6 +6,30 @@ type, and the PR number when it has one. The `/release` skill writes the
 section and merges it through a pull request of its own; other pull requests
 leave this file alone.
 
+## 2.6.1 - 2026-11-25
+
+### Changed
+
+- (product) name M7 and M8 as the current goal in PRODUCT.md, in place of M3 (#509)
+- (readme) open with the problem and six feature lines, add a social preview card (#497)
+- (architecture) measure the ADR of the store task on orders that work offline (#496)
+- (architecture) move the ADRs moment of the skill into adrs.md, a file beside SKILL.md (#495)
+
+## 2.6.0 - 2026-11-24
+
+### Added
+
+- (plugin) rewrite a changed PDR or ADR in its own file, with a dated Updates line that keeps the old words (#486)
+
+### Changed
+
+- (scenarios) check the pid of the hung stub conversation, not every sleep 60 on the computer (#490)
+- (adr) rewrite the narrowed points in ADR 0006 and ADR 0009, so each says what holds now (#489)
+
+### Fixed
+
+- (architecture) set an ADR's narrowed-by Status to accepted when the rewrite takes the point in (#491)
+
 ## 2.5.2 - 2026-11-23
 
 ### Changed

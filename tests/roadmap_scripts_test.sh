@@ -171,21 +171,44 @@ check 'links a project found by title' 'linked kalinichenko88/agent-skills' "$(g
 check 'adds only the missing issues' 'issues to add: 2' "$(grep '^issues to add: ' <<<"$out")"
 check 'both views missing' "$(printf 'view Unassigned: missing\nview By milestone: missing')" "$(grep '^view ' <<<"$out")"
 check 'the filter of Unassigned' 1 "$(grep -c 'is:issue\\ is:open\\ no:assignee\\ -milestone:Later' <<<"$out" || true)"
-check 'the manual steps' 1 "$(grep -c '^Two settings the API cannot make. Open ' <<<"$out" || true)"
+# Each setting that the API cannot make is told only while it is not made
+# (#507). Auto-add is on in the recorded workflows of this repository's board;
+# a missing view has no grouping.
+check 'only the grouping step' "$(printf -- '- In the view "By milestone", group by Milestone.')" "$(grep '^- ' <<<"$out")"
+check 'the manual steps' 'Settings the API cannot make. Open https://github.com/users/kalinichenko88/projects/6:' \
+  "$(grep '^Settings the API cannot make' <<<"$out")"
+# A project where it was never turned on lists no node of that name.
+jq '.data.node.workflows.nodes |= map(select(.name != "Auto-add to project"))' \
+  "$fixtures/project-workflows.json" >"$FAKE/project-workflows.json"
+out=$(DRY_RUN=1 bash "$scripts/board.sh")
+check 'the step for an auto-add that is off' \
+  '- Under Workflows, turn on "Auto-add to project" for kalinichenko88/agent-skills with the filter is:issue is:open.' "$(grep '^- Under ' <<<"$out")"
+# A node of that name that is not enabled is off too.
+jq '(.data.node.workflows.nodes[] | select(.name == "Auto-add to project")).enabled = false' \
+  "$fixtures/project-workflows.json" >"$FAKE/project-workflows.json"
+check 'the step for an auto-add that is not enabled' 1 "$(DRY_RUN=1 bash "$scripts/board.sh" | grep -c '^- Under Workflows, ' || true)"
+rm "$FAKE/project-workflows.json"
 # A linked project of that title is not linked again; views there are not
 # made again.
 jq '.data.repository.projectsV2.nodes = [{number: 6, title: "agent-skills roadmap", url: "https://github.com/users/kalinichenko88/projects/6", closed: false}]' \
   "$fixtures/projects-linked.json" >"$FAKE/projects-linked.json"
-jq '.data.node.views.nodes = [{id: "PVV_1", name: "Unassigned", filter: "is:open"}, {id: "PVV_2", name: "By milestone", filter: "is:open"}]' \
+# By milestone is grouped by its milestone, as on this repository's board.
+jq '.data.node.views.nodes = [{id: "PVV_1", name: "Unassigned", filter: "is:open", groupByFields: {nodes: []}},
+    {id: "PVV_2", name: "By milestone", filter: "is:open", groupByFields: {nodes: [{dataType: "MILESTONE"}]}}]' \
   "$fixtures/project-views.json" >"$FAKE/project-views.json"
 out=$(DRY_RUN=1 bash "$scripts/board.sh")
 check 'a linked project is not linked again' 0 "$(grep -c '^linked ' <<<"$out" || true)"
 check 'views there' "$(printf 'view Unassigned: there\nview By milestone: there')" "$(grep '^view ' <<<"$out")"
+check 'no settings left when both are made' 0 "$(grep -ci 'settings the API cannot make' <<<"$out" || true)"
 # A view whose filter was never set, as after a failed run, gets it.
-jq '.data.node.views.nodes = [{id: "PVV_1", name: "Unassigned", filter: null}, {id: "PVV_2", name: "By milestone", filter: "is:open"}]' \
+# By milestone is there with no grouping, as on a board where nobody set it;
+# a grouping of another view by milestone does not count.
+jq '.data.node.views.nodes = [{id: "PVV_1", name: "Unassigned", filter: null, groupByFields: {nodes: [{dataType: "MILESTONE"}]}},
+    {id: "PVV_2", name: "By milestone", filter: "is:open", groupByFields: {nodes: []}}]' \
   "$fixtures/project-views.json" >"$FAKE/project-views.json"
 out=$(DRY_RUN=1 bash "$scripts/board.sh")
 check 'a view without its filter' "$(printf 'view Unassigned: no filter\nview By milestone: there')" "$(grep '^view ' <<<"$out")"
+check 'the grouping step for a view with no grouping' 1 "$(grep -c '^- In the view "By milestone", group by Milestone\.$' <<<"$out" || true)"
 check 'the filter goes to that view' 1 "$(grep -c 'view=PVV_1.*no:assignee' <<<"$out" || true)"
 # None: create and link it, in a dry run.
 reset
@@ -193,6 +216,7 @@ out=$(DRY_RUN=1 bash "$scripts/board.sh")
 case $out in *'dry run: gh project create --owner kalinichenko88 --title agent-skills\ roadmap'*'dry run: gh project link'*'no project yet'*) ;;
   *) fail 'creates and links the project' "$out" ;;
 esac
+check 'a new project gets both steps' 2 "$(grep -c '^- ' <<<"$out" || true)"
 # A failed create stops with the reason.
 reset
 FAKE_FAIL='project create' bash "$scripts/board.sh" >"$tmp/out" 2>&1 && fail 'board.sh exits 0 when create fails'

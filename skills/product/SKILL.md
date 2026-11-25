@@ -45,7 +45,7 @@ search, and neither sees the other's answer. The main session merges them.
 The person's own work gets no second report: a report exists when a message of
 this session about this work, the spec of the work, the pull request's
 description or the issue holds a `**Verdict:**` line, or when the branch adds
-a PDR for this work. The report of a fork in brainstorming is no report of the
+or rewrites a PDR for this work. The report of a fork in brainstorming is no report of the
 feature. The test is the trace, not the author: the person's branch with no
 report at its start gets one at the review.
 
@@ -104,12 +104,15 @@ one, check three things:
 - Does its *Rests on* still hold? At the full depth, search for a change: a
   new law, a new price, a new limit.
 - Did its *Revisit when* condition come?
-- Did it get in the way: does the task have to go around it? Then a line goes
-  into its *Got in the way* after the person decides. With two lines there,
-  propose to revisit it.
+- Did it get in the way: does the task have to go around it? When the person
+  keeps the decision, a line goes into its *Got in the way*; when the person
+  changes it, its PDR is rewritten. With two lines there, propose to
+  revisit it.
 
 The report names the decision in **Touches decisions:**, with what changed.
-Only the person changes its status.
+Only the person changes a decision or its status. A changed decision is
+rewritten in its own PDR, and a false fact is corrected there (`store.md`):
+no PDR supersedes another.
 
 ## The person decides
 
@@ -124,8 +127,10 @@ someone else's pull request, with no yes, it stays in that message.
 
 After the answer:
 
-- The decision goes into the store, by `store.md`: a new PDR, or a line in
-  *Got in the way* or *Checked* of an existing one.
+- The decision goes into the store, by `store.md`: a new PDR, the PDR that
+  it changes rewritten, or a line in *Got in the way* or *Checked* of an
+  existing one. The work then builds what the option that the person took
+  says, and nothing of the options that the person did not take.
 - `defer until <condition>`: after a yes, the issue goes to Later with
   `plan.sh later` of `craft:roadmap`, and the condition goes into the
   issue's text.

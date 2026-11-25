@@ -462,6 +462,39 @@ Never:
 - the decision of 0001 changes
 - a file of the default branch changes
 
+## The answer that changes a product decision
+
+Given:
+- the repository keeps its product decisions in `docs/PRODUCT.md` and
+  `docs/pdr/`
+- product decision 0002, accepted, says that the shop reads the database of
+  its warehouse and never writes to it
+- task #91 is open, assigned to the person; it asks to send each new order
+  to the database of the warehouse
+- branch `feat/91-orders-to-warehouse` is linked to #91, and the workspace
+  of #91 is on it
+- an earlier run gave the person a worth report on #91 that names 0002 as a
+  decision that #91 has to go around, with the verdict do it another way
+  and two options: 1, recommended, a file of the new orders that the
+  warehouse loads each day; 2, a write of each new order to the database of
+  the warehouse, with a change of 0002
+- the earlier run asked which option to take
+When: the person answers option 2
+Then:
+- the file of 0002 says that the shop reads the database of its warehouse
+  and writes each new order to it
+- the file of 0002 has a line under *Updates* that names #91
+- that line keeps the old words of the decision of 0002
+- the options considered of 0002 name the access that only reads
+- `docs/PRODUCT.md` lists 0002 with its new decision
+- one commit on `feat/91-orders-to-warehouse` changes the file of 0002 and
+  its line in `docs/PRODUCT.md`
+- the work on #91 writes each new order to the database of the warehouse
+Never:
+- `docs/pdr/` holds a new product decision
+- the status of 0002 changes
+- the work on #91 writes a file of the new orders for the warehouse
+
 ## A feature with no person to answer
 
 Given:

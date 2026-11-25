@@ -1,6 +1,6 @@
 # 0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget
 
-- Status: accepted, narrowed by 0010 and 0013
+- Status: accepted
 - Date: 2026-11-15
 
 ## Updates
@@ -14,6 +14,12 @@
 - 2026-11-16 #417: Consequences, Bad. Was: "Review alone keeps the admission rule until review-loop asks for a failing run (#417)".
 - 2026-11-16 #417: Confirmation. Was: "#417 puts the ask for a failing run into review-loop, and #418 gives the rule to an agent that edits the text of a skill".
 - 2026-11-16 #415: Decision, the table of budgets. Was: "A flow: the files that one scenario reads | No growth; a target after the map of its files (#415)".
+- 2026-11-24 #485: Status. Was: "accepted, narrowed by 0010".
+- 2026-11-24 #485: Context. Was: "ADR 0006 caps each `SKILL.md` at 20,000 characters, and lets a file under the cap grow up to it".
+- 2026-11-24 #485: Options considered. Was: "ADR 0006 alone: a `SKILL.md` under the cap grows with no decision" and "Supersede ADR 0006: its cap and the reason for it hold. One point of it changes, so it gets the Status `accepted, narrowed by 0009`, the form that the person decided on 2026-11-13 (#267)".
+- 2026-11-24 #485: Decision. Was: "We will record the size of each `SKILL.md`, each side file and `rules.md` in the repository, and of each flow that has a named list of its files." and "A text that grows past its recorded size fails `make check` until the same pull request changes the record. This narrows one point of ADR 0006: there, a `SKILL.md` under the cap can grow up to 20,000 characters with no decision. The cap of ADR 0006, its count and its debt list hold."
+- 2026-11-24 #485: Confirmation. Was: "as ADR 0010 narrows it".
+- 2026-11-25 #466: Decision. Was: the steps, with the 10 runs of step 1, for each text: "We will admit a sentence for a case into the text of a skill, a side file or `rules.md` by these steps."
 
 ## Context
 
@@ -22,9 +28,9 @@ from a real run added a sentence for its case to a skill, and the review of
 each fix found a narrower case in its next round. No record said when a case
 earns a sentence.
 
-ADR 0006 caps each `SKILL.md` at 20,000 characters, and lets a file under
-the cap grow up to it. The cap does not see where the cost is. In 14 days
-the github skill put 9.7 million characters of its `SKILL.md` into context,
+ADR 0006 caps each `SKILL.md` at 20,000 characters. Before this ADR, a file
+under the cap could grow up to it. The cap does not see where the cost is.
+In 14 days the github skill put 9.7 million characters of its `SKILL.md` into context,
 and 15.2 million of its side files. `rules.md`, 11,672 characters on
 2026-11-15, goes into each session and each subagent, but an `Explore`
 subagent of Claude Code (PDR 0012). A side file is a file beside a `SKILL.md`
@@ -55,11 +61,19 @@ cannot be told from noise.
 - A hard cap for each budget now: five side files, three `SKILL.md` files
   and, on 2026-11-15, `rules.md` are past their numbers, and of the numbers
   below only the 20,000 of ADR 0006 is measured.
-- ADR 0006 alone: a `SKILL.md` under the cap grows with no decision, and the
-  side files, the flows and `rules.md` have no number.
-- Supersede ADR 0006: its cap and the reason for it hold. One point of it
-  changes, so it gets the Status `accepted, narrowed by 0009`, the form that
-  the person decided on 2026-11-13 (#267).
+- The cap of ADR 0006 alone: a `SKILL.md` under the cap grows with no
+  decision, and the side files, the flows and `rules.md` have no number.
+- Supersede ADR 0006, or give it the Status `accepted, narrowed by 0009`, the
+  form that the person decided on 2026-11-13 (#267): its cap and the reason
+  for it hold, and since #405 a changed point is rewritten in the ADR's own
+  file, so that one decision needs no two files. ADR 0006 holds that point.
+- Ten runs for a lens file of the review too, as for each other text: a
+  pass of its eval is three runs of each case, with 15 to 30 chances a case,
+  and ten runs make a pass three times the cost, $14 to $37. Dropped on
+  2026-11-25 (#466).
+- A ceiling for each text, and a size of its own for a flow: dropped by
+  ADR 0010. A cut leaves a ceiling stale, and the number of a flow can fail
+  only on its arithmetic.
 
 ## Decision
 
@@ -89,6 +103,12 @@ decides:
 A false fact in a text, as a wrong path or a wrong number, is not a case: it
 is corrected at once.
 
+A lens file of the review, `code-lens.md` or `security-lens.md`, has another
+measure for the runs of steps 1 and 8: `tests/review_loop_reader_eval.sh`,
+three runs of each case with known defects. A part of such a lens joins
+only with a gain that the sums of all passes of a text show, since three
+runs of one case tell apart only a large effect (ADR 0013).
+
 We will keep these budgets, in characters as `jq -Rs length` counts them:
 
 | Text | Budget | Reason |
@@ -105,12 +125,11 @@ characters on each of the two parts of `rules.md` holds beside them, with
 its check (ADR 0004): this ADR changes no decision of ADR 0004.
 
 We will record the size of each `SKILL.md`, each side file and `rules.md`
-in the repository, and of each flow that has a named list of its files. The
-target of a flow goes into that record when its map gives one. A text that grows past its recorded size fails
-`make check` until the same pull request changes the record. This narrows
-one point of ADR 0006: there, a `SKILL.md` under the cap can grow up to
-20,000 characters with no decision. The cap of ADR 0006, its count and its
-debt list hold.
+in the repository, and the files of each flow that has a named list of
+them. The target of a flow goes into that record when its map gives one. A
+text whose size is not its recorded size fails `make check` until the same
+pull request changes the record; ADR 0010 gives the form of the record and
+the reasons for it. ADR 0006 holds the cap, its count and its debt list.
 
 ## Consequences
 
@@ -119,7 +138,8 @@ so a review round cannot add a sentence by its report alone. Growth of a
 text past its record is a line in a diff that a reviewer sees. The reasons and the numbers
 are in one place, out of the text that a run reads.
 
-Bad: step 1 costs 10 runs before an edit, and step 8 the runs after it. The
+Bad: step 1 costs 10 runs before an edit, and step 8 the runs after it; for
+a lens file of the review, a pass of its eval. The
 numbers other than 20,000, and the 3 of 10 of step 1, have no measurement
 behind them and can be wrong. A
 record of sizes changes in most pull requests that edit a skill, and two
@@ -135,7 +155,7 @@ None: no `Check:` line sees a `.md` file.
 
 `tests/rules_test.sh` for the cap of 20,000. The record of sizes is
 `tests/text_size.txt`, and `tests/text_size_test.sh` checks it in
-`make check`, as ADR 0010 narrows it. The admission rule: review only;
+`make check`, in the form of ADR 0010. The admission rule: review only;
 review-loop keeps its part of it, as PDR 0013 says (#417), and
 `.claude/rules/skill-text.md` gives the rule to
 an agent that edits the text of a skill in this repository (#418).

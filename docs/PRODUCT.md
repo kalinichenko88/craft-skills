@@ -18,11 +18,15 @@ The first user is the author.
   place by a measured run, not by a guess.
 - The plugin grows past development: skills for content and against AI slop
   (ADR 0002, #214). One plugin, one namespace `craft:`.
-- **Current goal:** M3 · Skills hold in real runs. The skills do what their
-  rules say in real runs: a task goes from take-in to merge with no step left
-  for the person, the decision records stay true, and the checks give no
-  false result. The `Done when` of the milestone names the issues that the
-  goal needs.
+- **Current goal:** M7 · The skills work in ZCode, then M8 · craft works
+  without Superpowers; both milestones are current. A person whose project
+  allows only ZCode does a task with craft from take-in to merge, with the
+  same steps and reviews as in Claude Code, and gets each update of craft.
+  Then a person does a feature with craft alone, with the discipline that
+  superpowers gives today. Until then both plugins are installed, and no
+  step runs twice or contradicts the other plugin. craft takes over only the
+  steps that a measured run needs. The `Done when` of each milestone names
+  the issues that the goal needs.
 
 ## What it will not do
 
@@ -60,7 +64,7 @@ None.
 - [0005 The architecture skill stays whole](pdr/0005-architecture-skill-stays.md) — accepted; revisit when: a run of `tests/architecture_eval.sh` gives an arm with no skill the same count as the arms with the skill on each task
 - [0006 The agent asks once whether the person chooses the technologies](pdr/0006-ask-who-chooses-technologies.md) — accepted; revisit when: a person who answered no stops the agent over a technology that it chose, or one who answered yes calls a question too small to ask
 - [0007 An assignee says who may take an issue, and the label in progress says that its work runs](pdr/0007-in-progress-by-label.md) — accepted; revisit when: two sessions take one issue because one did not put the label on, or the person asks for a step that takes the label off stopped work
-- [0008 A fact that changed after an ADR is accepted is corrected in the ADR, with a dated line that keeps the old words](pdr/0008-adr-fact-corrected-in-place.md) — accepted; revisit when: a review lens or a reader takes a correction for a change of the decision, or misses one that changed it, twice; or a run shows that an agent takes the old words of an `## Updates` line as the current fact
+- [0008 An accepted ADR or PDR says what holds now: a fact or a decision that changed is corrected in its own file, with a dated line that keeps the old words](pdr/0008-adr-fact-corrected-in-place.md) — accepted; revisit when: a review lens or a reader takes a changed decision for a fact, or a fact for a changed decision, twice; or a run shows that an agent takes the old words of an `## Updates` line as the current fact; or a later decision needs a reason that a rewrite took out of a record, twice
 - [0009 The next task and the parallel work come from the goal of the nearest milestone, in at most three lanes](pdr/0009-next-task-from-the-goal.md) — accepted; revisit when: a lane 1 on a real tracker leaves out a task that the goal needs twice, or the person declines the re-plan that a note offers twice
 - [0010 A failure that a check or a default in the code keeps its input from is not filed](pdr/0010-ruled-out-failure-not-filed.md) — accepted; revisit when: a finding that the trace ruled out turns out to be a defect that real use reaches, or a tracker that uses craft closes two issues in a month because their input never reaches the code
 - [0011 A finding in the task's module that needs only a choice goes to the person as a question](pdr/0011-choice-in-the-module-asked.md) — accepted; revisit when: of the first 5 real questions by this rule, the person calls 2 not worth a question, or answers 2 of them with "file it"
@@ -68,4 +72,5 @@ None.
 - [0013 A review agent's guess about a case that the text of a skill does not name is declined until a run shows the failure](pdr/0013-unseen-case-declined.md) — accepted; revisit when: a gap that the loop declined fails in at least 3 of 10 runs later, twice, or a person asks twice in a month for a declined case to be run and added
 - [0014 The hook shows the number and the title of an issue that a prompt names alone](pdr/0014-hook-shows-issue-title.md) — accepted; revisit when: Claude Code stops giving a message before a tool call as a narration, or a take-in from a prompt that is not the issue alone shows a narration with no title, twice
 - [0015 An update of craft reaches each host at a release, not at a push](pdr/0015-update-at-a-release.md) — accepted; revisit when: a fix waits on `main` for more than 7 days with no release, twice, or a person asks for the update of each push in Claude Code
-- [0016 The plugin reviews with its own texts, in every host](pdr/0016-own-review-texts.md) — accepted; revisit when: the lens names fewer confirmed defects than the review command of a host on three new cases, or a text of the plugin cannot be kept at the level of a host's command for its cost
+- [0016 The first data store of its kind gets an ADR for that alone](pdr/0016-adr-for-a-first-store.md) — rejected; revisit when: the `store` task gets no ADR in at least 3 of 10 runs with the skill; or a real project has to migrate a first store that got no ADR, twice
+- [0017 The plugin reviews with its own texts, in every host](pdr/0017-own-review-texts.md) — accepted; revisit when: the lens names fewer confirmed defects than the review command of a host on three new cases, or a text of the plugin cannot be kept at the level of a host's command for its cost
