@@ -36,7 +36,8 @@ case $1 in
     [ -z "${FAKE_FAIL:-}" ] || { echo 'ERROR: stream disconnected before completion'; exit 1; }
     [ -z "${FAKE_NO_MESSAGE:-}" ] || exit 0
     # codex exec -o writes its last message with no new line at its end.
-    [ -z "${FAKE_CUT:-}" ] || { printf '%s' 'a.txt:1 | a claim | an input' >"$out"; exit 0; }
+    [ "${FAKE_CUT:-}" != 1 ] || { printf '%s' 'a.txt:1 | a claim | an input' >"$out"; exit 0; }
+    [ "${FAKE_CUT:-}" != line ] || { echo 'a.txt:1 | a claim | an input' >"$out"; exit 0; }
     cp "$FIXTURES/${answer:-codex-report.txt}" "$out" ;;
   *) echo "fake codex: no answer for: $*" >&2; exit 1 ;;
 esac
@@ -134,6 +135,10 @@ out=$(FAKE_CUT=1 review "$base" 2>"$tmp/err") || code=$?
 check 'a report with no count line exits 1' 1 "$code"
 check 'a report with no count line prints no findings' '' "$out"
 check 'a report with no count line shows the report and the reason on stderr' \
+  "$(printf '%s\n' 'a.txt:1 | a claim | an input' 'failed read: no count line')" "$(cat "$tmp/err")"
+
+FAKE_CUT=line review "$base" >/dev/null 2>"$tmp/err" || true
+check 'a report that ends with a new line gets no empty line before the reason' \
   "$(printf '%s\n' 'a.txt:1 | a claim | an input' 'failed read: no count line')" "$(cat "$tmp/err")"
 
 # Without the limit, the fake's sleep ends after 30 seconds and its findings

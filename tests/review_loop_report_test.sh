@@ -51,18 +51,27 @@ report 'read: none between backticks is a failed read' 1 'failed read: read: non
 report 'read: none as an item of a numbered list is a failed read' 1 'failed read: read: none' \
   '1. read: none | no diff' 'count: 0'
 report 'Read: none with a capital is a failed read' 1 'failed read: read: none' 'Read: none | no diff' 'count: 0'
-report 'read: none with another separator after it is a failed read' 1 'failed read: read: none' \
-  'read: none - the range is empty' 'count: 0'
-# A sentence that only holds the words is no such line, in each script.
+report 'read: none with its reason as words is a failed read' 1 'failed read: read: none' \
+  'read: none because the range is empty' 'count: 0'
+report 'read: none behind a heading mark is a failed read' 1 'failed read: read: none' '## read: none | no diff' 'count: 0'
+# A sentence that holds the words after other words is no such line, in each
+# script.
 report 'a sentence that holds the words read: none is no such line' 0 'ok: 0 findings' \
   'The lens says to return read: none for an empty range, and this range has files.' 'count: 0'
 report 'a sentence in another script that holds the words is no such line' 0 'ok: 0 findings' \
   'Линза просит вернуть read: none для пустого диапазона, а в этом диапазоне есть файлы.' 'count: 0'
-report 'a sentence that starts with the words is no such line' 0 'ok: 1 findings' \
+# A report with a finding read a file: there the words start a sentence.
+report 'a line that starts with the words in a report with a finding is a sentence' 0 'ok: 1 findings' \
   '`read: none` does not apply here: I read all 14 files of the range.' 'Read: none of the files is outside the range.' \
   "$one" 'count: 1'
-# The count line takes the same marks.
-report 'a count line with a capital or in a numbered list is a count line' 0 'ok: 1 findings' "1. $one" '2. Count: 1'
+# With no finding, the check cannot tell that sentence from a reader that read
+# nothing: one more read costs less than a round that read nothing.
+report 'a line that starts with the words in a report with no finding is a failed read' 1 'failed read: read: none' \
+  '`read: none` does not apply here: I read all 14 files of the range.' 'count: 0'
+report 'a count line with a capital is a count line' 0 'ok: 1 findings' "$one" 'Count: 1'
+report 'a count line that ends with a carriage return is a count line' 0 'ok: 1 findings' "$one" $'count: 1\r'
+report 'a quoted count in a note after the count line is not the count' 0 'ok: 1 findings' \
+  "$one" 'count: 1' '> count: 0 would be the answer for an empty range.' '- count: 0'
 report 'a claim with a shell pipe in it is one finding' 0 'ok: 1 findings' \
   'a.sh:2 | cat x | wc -l gives 0 | an empty file' 'count: 1'
 report 'a list marker before a finding is allowed' 0 'ok: 1 findings' '- a.sh:2 | claim | failure' 'count: 1'

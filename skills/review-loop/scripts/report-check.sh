@@ -6,13 +6,13 @@
 #
 # For a whole report it prints "ok: <N> findings" and exits 0. For a report
 # that the reader cut or did not make, it prints "failed read: <reason>" and
-# exits 1: no count line, a line "read: none" with its reason, or a count
-# that is not the number of finding lines. A finding line has " | " at
-# least twice, and ":<digits>", as in path:line, in its first or its second
-# field: each of the 803 finding lines of 148 recorded reports has it. The
-# last count line is the count: a sentence before the lines or after it, and
-# the fence of a code block around them, change nothing. It exits 2 for a
-# wrong call, as a file that does not exist.
+# exits 1: no count line, a line that starts with "read: none" in a report
+# with no finding, or a count that is not the number of finding lines. A
+# finding line has " | " at least twice, and ":<digits>", as in path:line, in
+# its first or its second field: each of the 803 finding lines of 148
+# recorded reports has it. The last count line is the count: a sentence
+# before the lines or after it, and the fence of a code block around them,
+# change nothing. It exits 2 for a wrong call, as a file that does not exist.
 #
 # Needs bash and awk.
 
@@ -27,13 +27,13 @@ set -euo pipefail
   exit 2
 }
 
-# marks: what a reader puts before a line, as a list item, a quote or
-# emphasis. After "read: none" comes the end of the line or a separator, not
-# a word: a sentence that starts with the words is no such line.
+# A line that starts with "read: none", after any ASCII marks, as a list item,
+# a quote, a heading or emphasis, is a failed read only in a report with no
+# finding line: a report with one read a file, and the words start a sentence.
 awk -F ' [|] ' '
   { line = tolower($0) }
-  line ~ /^[-*`>0-9. \t]*read: none[`*]*([^a-z`* \t]|[ \t]+[^a-z \t]|[ \t]*$)/ { none = 1 }
-  line ~ /^[-*`>0-9. \t]*count: [0-9]+[`*]*[ \t]*$/ {
+  line ~ /^[ -@[-`{-~\t]*read: none/ { none = 1 }
+  line ~ /^[`*]*count: [0-9]+[`*]*[[:space:]]*$/ {
     sub(/^.*count: /, "", line)
     gsub(/[^0-9]/, "", line)
     count = line
@@ -42,7 +42,7 @@ awk -F ' [|] ' '
   NF >= 3 && ($1 ~ /:[0-9]+/ || $2 ~ /:[0-9]+/) { found++ }
   END {
     if (!counted) { print "failed read: no count line"; exit 1 }
-    if (none) { print "failed read: read: none"; exit 1 }
+    if (none && !found) { print "failed read: read: none"; exit 1 }
     if (count + 0 != found + 0) {
       print "failed read: count says " (count + 0) ", the report has " (found + 0) " finding lines"
       exit 1
