@@ -25,7 +25,8 @@ set -euo pipefail
 }
 
 awk -F ' [|] ' '
-  /^[[:space:]]*$/ { next }
+  # A blank line, and the fence of a code block around the lines, are no line.
+  /^[[:space:]]*(```[a-z]*)?[[:space:]]*$/ { next }
   { last = $0 }
   /^[-* ]*read: none/ { none = 1 }
   NF >= 3 && ($1 ~ /:[0-9]+/ || $2 ~ /:[0-9]+/) { found++ }

@@ -44,6 +44,9 @@ report 'a claim with a shell pipe in it is one finding' 0 'ok: 1 findings' \
 report 'a list marker before a finding is allowed' 0 'ok: 1 findings' '- a.sh:2 | claim | failure' 'count: 1'
 report 'a finding whose first field is a kind has its place in the second field' 0 'ok: 2 findings' \
   'Outside | lib/y.sh:9 | claim | failure' 'Inject | src/r.js:14 | claim | evidence' 'count: 2'
+# A reader on Opus put its lines into a code block, with a sentence before it.
+report 'a report inside a code block, after a sentence, passes' 0 'ok: 1 findings' \
+  'I could not run the compiler: the findings come from reading.' '```' "$one" 'count: 1' '```'
 report 'a line with one separator is no finding' 0 'ok: 0 findings' 'invariants.sh | did not run' 'count: 0'
 
 code=0

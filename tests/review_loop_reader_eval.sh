@@ -159,7 +159,7 @@ You are one reviewer that another agent runs: start no skill, change no file, an
 # score <dir>: the count of each case that has a report in the folder. It
 # returns 1 when a case is below its floor or a defect is lost.
 score() {
-  local dir=$1 kase files file n failed sum whole found defect place how was named total defects floor line below='' lost=''
+  local dir=$1 kase files file n failed sum mean whole found defect place how was named total defects floor line below='' lost=''
   for kase in $cases; do
     files=("$dir/$kase"-[0-9]*.txt)
     [ -e "${files[0]}" ] || continue
@@ -189,7 +189,9 @@ score() {
 "
     done < <(rows defect "$kase")
     floor=$(($(rows case "$kase" | cut -f5) * n / 3))
-    line="$kase: $total of $((defects * n)), floor $floor, $failed failed reads, $((n > failed ? sum / (n - failed) : 0)) findings a run"
+    mean=0
+    [ "$n" -eq "$failed" ] || mean=$((sum / (n - failed)))
+    line="$kase: $total of $((defects * n)), floor $floor, $failed failed reads, $mean findings a run"
     [ -n "$check" ] || line="$line, ran the list $(find "$dir" -maxdepth 1 -name "$kase-[0-9]*.list" | grep -c . || true) of $n"
     echo "$line"
     [ "$total" -ge "$floor" ] || below="${below}below: $kase
@@ -203,6 +205,8 @@ if [ -n "$check" ]; then
   score "$check"
   exit
 fi
+# An error of the shell inside the count must not go on to a paid run.
+[ -z "$check" ] || exit 1
 
 # Each check of a case comes before the first paid run.
 [ "$reader" = claude ] || codex login status >/dev/null 2>&1 || { echo "$0: codex is not installed or not logged in" >&2; exit 2; }

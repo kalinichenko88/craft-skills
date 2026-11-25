@@ -72,6 +72,8 @@ counted() {
 }
 counted named 0
 counted below 1
+# A case whose reads all failed has no mean of findings to divide.
+counted failed 0
 
 # One whole run of a private case of two trees, as READER_LOCAL gives it.
 mkdir -p "$stub/local/one/main" "$stub/local/one/review"

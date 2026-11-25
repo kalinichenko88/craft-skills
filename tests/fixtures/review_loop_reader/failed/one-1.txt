@@ -1,0 +1,1 @@
+a.sh:2 | the check of the release is gone | an import that only the release build refuses
