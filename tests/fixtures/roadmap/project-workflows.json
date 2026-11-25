@@ -1,0 +1,38 @@
+{
+  "data": {
+    "node": {
+      "workflows": {
+        "nodes": [
+          {
+            "name": "Auto-add sub-issues to project",
+            "enabled": true
+          },
+          {
+            "name": "Auto-add to project",
+            "enabled": true
+          },
+          {
+            "name": "Auto-close issue",
+            "enabled": true
+          },
+          {
+            "name": "Item added to project",
+            "enabled": true
+          },
+          {
+            "name": "Item closed",
+            "enabled": true
+          },
+          {
+            "name": "Pull request linked to issue",
+            "enabled": true
+          },
+          {
+            "name": "Pull request merged",
+            "enabled": true
+          }
+        ]
+      }
+    }
+  }
+}
