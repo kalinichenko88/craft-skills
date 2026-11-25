@@ -171,7 +171,19 @@ check 'links a project found by title' 'linked kalinichenko88/agent-skills' "$(g
 check 'adds only the missing issues' 'issues to add: 2' "$(grep '^issues to add: ' <<<"$out")"
 check 'both views missing' "$(printf 'view Unassigned: missing\nview By milestone: missing')" "$(grep '^view ' <<<"$out")"
 check 'the filter of Unassigned' 1 "$(grep -c 'is:issue\\ is:open\\ no:assignee\\ -milestone:Later' <<<"$out" || true)"
-check 'the manual steps' 1 "$(grep -c '^Two settings the API cannot make. Open ' <<<"$out" || true)"
+# Auto-add is on in the recorded workflows of this repository's board, so the
+# person is not told to turn it on (#507).
+check 'no step for an auto-add that is on' 0 "$(grep -c 'turn on "Auto-add to project"' <<<"$out" || true)"
+check 'auto-add on' 'workflow Auto-add to project: on' "$(grep '^workflow ' <<<"$out")"
+check 'the manual steps' 1 "$(grep -c '^Settings the API cannot make. Open ' <<<"$out" || true)"
+# A project where it was never turned on lists no node of that name.
+jq '.data.node.workflows.nodes |= map(select(.name != "Auto-add to project"))' \
+  "$fixtures/project-workflows.json" >"$FAKE/project-workflows.json"
+out=$(DRY_RUN=1 bash "$scripts/board.sh")
+check 'auto-add off' 'workflow Auto-add to project: off' "$(grep '^workflow ' <<<"$out")"
+check 'the step for an auto-add that is off' \
+  '2. Under Workflows, turn on "Auto-add to project" for kalinichenko88/agent-skills with the filter is:issue is:open.' "$(grep '^2\. ' <<<"$out")"
+rm "$FAKE/project-workflows.json"
 # A linked project of that title is not linked again; views there are not
 # made again.
 jq '.data.repository.projectsV2.nodes = [{number: 6, title: "agent-skills roadmap", url: "https://github.com/users/kalinichenko88/projects/6", closed: false}]' \
@@ -193,6 +205,7 @@ out=$(DRY_RUN=1 bash "$scripts/board.sh")
 case $out in *'dry run: gh project create --owner kalinichenko88 --title agent-skills\ roadmap'*'dry run: gh project link'*'no project yet'*) ;;
   *) fail 'creates and links the project' "$out" ;;
 esac
+check 'a new project gets the auto-add step' 1 "$(grep -c '^2\. Under Workflows, turn on ' <<<"$out" || true)"
 # A failed create stops with the reason.
 reset
 FAKE_FAIL='project create' bash "$scripts/board.sh" >"$tmp/out" 2>&1 && fail 'board.sh exits 0 when create fails'

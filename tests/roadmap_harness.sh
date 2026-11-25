@@ -47,6 +47,7 @@ case "$*" in
     jq -nr --arg a "$a" --arg b "$b" '{data: {repository: {a: {id: "I_\($a)"}, b: {id: "I_\($b)"}}}}' | jq -r "$filter" ;;
   'api graphql'*'projectsV2('*) jq -r "$filter" "$(src projects-linked.json)" ;;
   'api graphql'*'views('*) jq -r "$filter" "$(src project-views.json)" ;;
+  'api graphql'*'workflows('*) jq -r "$filter" "$(src project-workflows.json)" ;;
   'api -X '*) ;;
   'api repos/{owner}/{repo}/milestones?state=closed'*) jq -r "$filter" "$(src milestones-closed.json)" ;;
   'api repos/{owner}/{repo}/milestones?'*) jq -r "$filter" "$(src milestones.json)" ;;

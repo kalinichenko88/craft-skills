@@ -22,7 +22,7 @@ and stop.
 | Start a roadmap | read `docs/`, propose, one approval, then write | `planning.md` |
 | A milestone has no open issues left, or the person asks to re-plan | the same, from that milestone | `planning.md`, *Re-planning* |
 | Open issues have no label or no milestone, or the person asks to triage | duplicates first; a verdict for each with no entry in its `status:` line, then its label and milestone, or its close; one approval, then write | `triage.md` |
-| The person wants the board | `board.sh`; pass on the two settings it prints | *The board* below |
+| The person wants the board | `board.sh`; pass on the settings it prints | *The board* below |
 
 A file in the last column sits next to this one, in this skill's base
 directory. Read all of it before the first step of that moment.
@@ -208,7 +208,7 @@ It finds the GitHub Project titled `<repository> roadmap`, or creates it
 under the repository's owner, and links it to the repository. It adds the
 open issues it does not hold yet, and creates two views: *Unassigned*, a board
 of the open issues that nobody has, and *By milestone*, a table. It ends with
-two settings the API cannot make; pass them to the person. Run it again at
+the settings the API cannot make; pass them to the person. Run it again at
 any time: it only adds what is missing. The *Unassigned* view does not know
 blockers or sub-issues, so it is not the list of free tasks: `next.sh` is.
 

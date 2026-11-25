@@ -2,7 +2,8 @@
 # Sets up the GitHub Project that shows the plan: finds the project titled
 # "<repository> roadmap", or creates it under the repository's owner; links
 # it to the repository; adds the open issues it does not hold yet; creates
-# its saved views. Then it prints the two settings the API cannot make.
+# its saved views. Then it prints the settings the API cannot make: the
+# grouping of a view, and the auto-add workflow while it is off.
 #
 #   board.sh
 #
@@ -103,10 +104,15 @@ if [ -n "$found" ]; then
 Unassigned|BOARD_LAYOUT|is:issue is:open no:assignee -milestone:Later
 By milestone|TABLE_LAYOUT|is:issue is:open
 EOF
+
+  # The API reads whether a workflow is on, but not its filter. A project
+  # where it was never turned on lists no node of that name.
+  auto=$(gh api graphql -f id="$id" -f query='
+    query($id: ID!) { node(id: $id) { ... on ProjectV2 { workflows(first: 20) { nodes { name enabled } } } } }' \
+    --jq 'if any(.data.node.workflows.nodes[]; .name == "Auto-add to project" and .enabled) then "on" else "off" end')
+  echo "workflow Auto-add to project: $auto"
 fi
 
-cat <<EOF
-Two settings the API cannot make. Open $url:
-1. In the view "By milestone", group by Milestone.
-2. Under Workflows, turn on "Auto-add to project" for $repo with the filter is:issue is:open.
-EOF
+echo "Settings the API cannot make. Open $url:"
+echo '1. In the view "By milestone", group by Milestone.'
+[ "${auto:-}" = on ] || echo "2. Under Workflows, turn on \"Auto-add to project\" for $repo with the filter is:issue is:open."
