@@ -6,6 +6,15 @@ type, and the PR number when it has one. The `/release` skill writes the
 section and merges it through a pull request of its own; other pull requests
 leave this file alone.
 
+## 2.6.1 - 2026-11-25
+
+### Changed
+
+- (product) name M7 and M8 as the current goal in PRODUCT.md, in place of M3 (#509)
+- (readme) open with the problem and six feature lines, add a social preview card (#497)
+- (architecture) measure the ADR of the store task on orders that work offline (#496)
+- (architecture) move the ADRs moment of the skill into adrs.md, a file beside SKILL.md (#495)
+
 ## 2.6.0 - 2026-11-24
 
 ### Added
