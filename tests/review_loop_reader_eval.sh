@@ -153,10 +153,20 @@ You are one reviewer that another agent runs: start no skill, change no file, an
   jq -r 'select(.type == "result" and .is_error != true) | .result // empty' "$work.jsonl" >"$work.txt" 2>/dev/null || true
 }
 
+# names <how> [<place>]: how many reports of $whole, one path a line, have a
+# finding line that matches both patterns. A failed read is not in $whole.
+names() {
+  local file count=0
+  while IFS= read -r file; do
+    [ -z "$file" ] || ! grep -E ' [|] .* [|] ' "$file" | grep -iE -e "${2:-.}" | grep -qiE -e "$1" || count=$((count + 1))
+  done <<<"$whole"
+  echo "$count"
+}
+
 # score <dir>: the count of each case that has a report in the folder. It
 # returns 1 when a case is below its floor or a defect is lost.
 score() {
-  local dir=$1 kase files file n failed sum mean whole found defect place how was named total defects floor line below='' lost=''
+  local dir=$1 kase files file n failed sum mean whole found defect place how was named total defects floor below='' lost=''
   for kase in $cases; do
     files=("$dir/$kase"-[0-9]*.txt)
     [ -e "${files[0]}" ] || continue
@@ -173,13 +183,7 @@ score() {
     done
     total=0 defects=0
     while IFS=$'\t' read -r _ _ defect place how was; do
-      named=0
-      for file in "${files[@]}"; do
-        # A failed read names no defect.
-        case $whole in *"$file
-"*) ;; *) continue ;; esac
-        ! grep -E ' [|] .* [|] ' "$file" | grep -iE -e "$place" | grep -qiE -e "$how" || named=$((named + 1))
-      done
+      named=$(names "$how" "$place")
       echo "$kase $defect: $named of $n, was $was"
       total=$((total + named)) defects=$((defects + 1))
       [ "$named" -gt 0 ] || [ "$was" -lt 2 ] || lost="${lost}lost: $kase $defect
@@ -188,18 +192,12 @@ score() {
     floor=$(($(rows case "$kase" | cut -f5) * n / 3))
     mean=0
     [ "$n" -eq "$failed" ] || mean=$((sum / (n - failed)))
-    line="$kase: $total of $((defects * n)), floor $floor, $failed failed reads, $mean findings a run"
-    echo "$line"
+    echo "$kase: $total of $((defects * n)), floor $floor, $failed failed reads, $mean findings a run"
     [ "$total" -ge "$floor" ] || below="${below}below: $kase
 "
     total=0 defects=0
     while IFS=$'\t' read -r _ _ _ how; do
-      for file in "${files[@]}"; do
-        case $whole in *"$file
-"*) ;; *) continue ;; esac
-        ! grep -E ' [|] .* [|] ' "$file" | grep -qiE -e "$how" || total=$((total + 1))
-      done
-      defects=$((defects + 1))
+      total=$((total + $(names "$how"))) defects=$((defects + 1))
     done < <(rows noise "$kase")
     [ "$defects" -eq 0 ] || echo "$kase noise: $total of $((defects * n))"
   done
