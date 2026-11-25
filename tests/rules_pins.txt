@@ -344,4 +344,4 @@ skills/review-loop/code-lens.md|What does a second run do after the first one st
 # third one.
 skills/review-loop/SKILL.md|Read <dir>/code-lens.md and do what it says.
 skills/review-loop/SKILL.md|Read <dir>/security-lens.md and do what it says.
-skills/review-loop/SKILL.md|correct the range and the tree, and send the reader once more. When the second read fails too, stop the review there
+skills/review-loop/SKILL.md|correct a wrong range or tree, and send its reader once more. When the second read fails too, stop the review there

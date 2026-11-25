@@ -205,7 +205,9 @@ rm "$stub/logged-in" "$stub/fails"
 git -C "$repo" worktree add -q "$stub/local/three" review
 before=$(git -C "$repo" rev-parse main review)
 printf 'case\tthree\tthree\tcode-lens.md\t0\n' >>"$stub/local/cases.tsv"
-got=$(PATH="$stub:$PATH" READER_LOCAL="$stub/local" READER_CASES='two three' tests/review_loop_reader_eval.sh 1 2>&1) || true
+# A person's config can name the remote of a clone in another way.
+got=$(PATH="$stub:$PATH" GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=clone.defaultRemoteName GIT_CONFIG_VALUE_0=upstream \
+  READER_LOCAL="$stub/local" READER_CASES='two three' tests/review_loop_reader_eval.sh 1 2>&1) || true
 logs=$(printf '%s\n' "$got" | sed -n 's/^Logs: //p')
 if [ "$(printf '%s\n' "$got" | grep -c ', 0 failed reads, 1 findings a run$')" != 2 ] ||
   [ "$(git -C "$repo" rev-parse main review)" != "$before" ] ||

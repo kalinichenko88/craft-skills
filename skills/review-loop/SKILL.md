@@ -144,18 +144,18 @@ and for a move that a script or a test proves unchanged.
    ```
 
    Write its report, word for word, to a file in the session's scratchpad
-   directory, or in a new folder from `mktemp -d` when there is none, with
-   the Write tool, and run `bash <dir>/scripts/report-check.sh <file>`. In
+   directory, or, with none, in a new folder from `mktemp -d`, with the
+   Write tool, and run `bash <dir>/scripts/report-check.sh <file>`. In
    Codex: `/review`, *Review against a base branch*, with no check.
 2. **The fixes of a round are one commit.** The next round reads only that
    commit: the same prompt with `Range: <sha>^..<sha>`. In Codex: `/review`,
    *Review a commit*. Inside the loop, never send the whole branch again.
 3. **Stop at the first round that confirms no defect**, whatever that round
-   declines, for the first time or again. A reader whose report says it read
-   no file of its range, or gets `failed read:` from the check of step 1,
-   gave no review: correct the range and the tree, and send the reader once
-   more. When the second read fails too, stop the review there: the summary
-   names the range that has no read, and the pull request and the merge
+   declines, for the first time or again. A round or security review whose
+   report says it read no file of its range, or gets `failed read:` from the
+   check of step 1, read nothing: correct a wrong range or tree, and send
+   its reader once more. When the second read fails too, stop the review
+   there: the summary names that range, and the pull request and the merge
    question say that the review is not complete. A defect is a confirmed
    finding of one of two kinds:
    - a wrong result, a crash or a broken contract, on an input or a state
