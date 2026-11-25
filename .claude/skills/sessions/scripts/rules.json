@@ -33,7 +33,7 @@
     "from": "rules.md",
     "says": "review-loop",
     "text": "review-loop/SKILL.md",
-    "call": "^(code-review|security-review)$|code-reviewer$",
+    "call": "^(code-review|security-review|(code|security)-lens\\.md)$|code-reviewer$",
     "main": true
   },
   {

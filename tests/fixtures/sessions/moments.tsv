@@ -40,6 +40,9 @@ react-conventions before a React edit	edit	/p/src/user.ts	0
 review-loop before a review	call	code-review	1
 review-loop before a review	call	feature-dev:code-reviewer	1
 review-loop before a review	call	craft:review-loop	0
+review-loop before a review	call	code-lens.md	1
+review-loop before a review	call	security-lens.md	1
+review-loop before a review	call	general-purpose	0
 take-in.md before take-in-check.sh	bash	bash /c/skills/github/scripts/take-in-check.sh 1	1
 take-in.md before take-in-check.sh	bash	grep -n x skills/github/scripts/take-in-check.sh	0
 merge.md before gh pr merge	bash	gh pr merge 2 --squash	1
