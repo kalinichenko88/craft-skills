@@ -4,7 +4,7 @@
 # model opus. It counts the runs whose report names each defect:
 #
 #   pr9 #91: 3 of 3, was 3
-#   pr9: 3 of 6, floor 0, 0 failed reads, 11 findings a run, ran the list 3 of 3
+#   pr9: 3 of 6, floor 0, 0 failed reads, 11 findings a run
 #   holes noise: 1 of 9
 #   below: pr289
 #   lost: pr9 #91
@@ -124,10 +124,9 @@ fixture() {
   esac
 }
 
-# run <case> <run>: the report goes to <case>-<run>.txt, and <case>-<run>.list
-# says that the reader ran worklist.sh. The installed copy of the plugin is
-# turned off, so the rules come from this checkout. The reader may read, and
-# run git and worklist.sh: it has no tool that writes, and no subagent.
+# run <case> <run>: the report goes to <case>-<run>.txt. The installed copy
+# of the plugin is turned off, so the rules come from this checkout. The
+# reader may read, and run git: it has no tool that writes, and no subagent.
 run() {
   local work=$logs/$1-$2 lens prompt
   lens=$(rows case "$1" | cut -f4)
@@ -141,21 +140,17 @@ Level: $level"
   if [ "$reader" = codex ]; then
     bash "$skill/scripts/time-limit.sh" 1200 codex exec -s read-only --ephemeral -C "$work" -o "$work.txt" "$prompt
 You are one reviewer that another agent runs: start no skill, change no file, and file nothing." </dev/null >"$work.log" 2>&1 || true
-    # The log holds the lens, which names the script with <base>: a call has a commit.
-    ! grep -qE 'worklist\.sh[^<]{0,3}[0-9a-f]{7}' "$work.log" || : >"$work.list"
     return
   fi
   printf '%s\n' "$prompt" >"$work.prompt"
   (cd "$work" && claude -p --model opus --effort "$level" --output-format stream-json --verbose \
     --settings '{"enabledPlugins":{"craft@kalinichenko":false,"kalinichenko@kalinichenko":false},"language":"English"}' \
     --plugin-dir "$root" --add-dir "$skill" \
-    --allowedTools 'Bash(git:*)' "Bash(bash $skill/scripts/worklist.sh:*)" Read Grep Glob \
+    --allowedTools 'Bash(git:*)' Read Grep Glob \
     --disallowedTools Agent ListAgents Edit Write NotebookEdit ReportFindings \
     --permission-mode default <"$work.prompt") >"$work.jsonl" 2>"$work.err" || true
   # The text of a session that ends in an error is no report.
   jq -r 'select(.type == "result" and .is_error != true) | .result // empty' "$work.jsonl" >"$work.txt" 2>/dev/null || true
-  ! jq -es 'any(.[]; .type == "assistant" and any(.message.content[]?; .type == "tool_use" and .name == "Bash" and (.input.command | test("worklist\\.sh"))))' \
-    "$work.jsonl" >/dev/null 2>&1 || : >"$work.list"
 }
 
 # score <dir>: the count of each case that has a report in the folder. It
@@ -194,7 +189,6 @@ score() {
     mean=0
     [ "$n" -eq "$failed" ] || mean=$((sum / (n - failed)))
     line="$kase: $total of $((defects * n)), floor $floor, $failed failed reads, $mean findings a run"
-    [ -n "$check" ] || line="$line, ran the list $(find "$dir" -maxdepth 1 -name "$kase-[0-9]*.list" | grep -c . || true) of $n"
     echo "$line"
     [ "$total" -ge "$floor" ] || below="${below}below: $kase
 "

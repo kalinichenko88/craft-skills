@@ -15,15 +15,13 @@ fixtures=tests/fixtures/review_loop_reader
 stub=$(mktemp -d)
 trap 'rm -rf "$stub"' EXIT
 # claude records each call and its prompt, and answers with a stream that
-# holds a call of worklist.sh and a report; codex records each exec, and
-# fails `login status`.
+# holds a report; codex records each exec, and fails `login status`.
 cat >"$stub/claude" <<'EOF'
 #!/usr/bin/env bash
 here=$(dirname "$0")
 touch "$here/called"
 printf '%s\n' "$@" >"$here/args"
 cat >"$here/prompt"
-echo '{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Bash","input":{"command":"bash /x/skills/review-loop/scripts/worklist.sh abc def"}}]}}'
 echo '{"type":"result","is_error":false,"result":"a.sh:2 | the check of the release is gone | an import that only the release build refuses\ncount: 1"}'
 EOF
 cat >"$stub/codex" <<'EOF'
@@ -99,7 +97,7 @@ code=0
 got=$(PATH="$stub:$PATH" READER_LOCAL="$stub/local" READER_CASES=one tests/review_loop_reader_eval.sh 1 2>&1) || code=$?
 logs=$(printf '%s\n' "$got" | sed -n 's/^Logs: //p')
 want="one X: 1 of 1, was 0
-one: 1 of 1, floor 1, 0 failed reads, 1 findings a run, ran the list 1 of 1"
+one: 1 of 1, floor 1, 0 failed reads, 1 findings a run"
 if [ "$code" != 0 ] || [ "$(printf '%s\n' "$got" | sed -n 1,2p)" != "$want" ] || [ -z "$logs" ]; then
   echo "FAIL: a run of one case exited $code with:"
   echo "$got"
