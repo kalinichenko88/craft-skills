@@ -18,11 +18,12 @@ The first user is the author.
   place by a measured run, not by a guess.
 - The plugin grows past development: skills for content and against AI slop
   (ADR 0002, #214). One plugin, one namespace `craft:`.
-- **Current goal:** M3 · Skills hold in real runs. The skills do what their
-  rules say in real runs: a task goes from take-in to merge with no step left
-  for the person, the decision records stay true, and the checks give no
-  false result. The `Done when` of the milestone names the issues that the
-  goal needs.
+- **Current goal:** M7 · The skills work in ZCode, and beside it M8 · craft
+  works without Superpowers. A person whose project allows only ZCode does a
+  task with craft from take-in to merge, with the same steps and reviews as
+  in Claude Code. A person does a feature with craft alone, with the
+  discipline that superpowers gives today. The `Done when` of each milestone
+  names the issues that the goal needs.
 
 ## What it will not do
 
