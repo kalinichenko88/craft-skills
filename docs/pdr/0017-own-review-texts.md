@@ -39,7 +39,7 @@ review. A session in Codex reviews with `/review` until a run of its own
   | PR #289, five defects (#290) | 5 of 15 in one pass | 47 of 105 in seven passes: 5 to 9 of 15 a pass |
   | PR #426, six wrong results of one function | 24 to 25 of 36 in six runs: 4.1 a run | 42 of 90 in 15 runs: 2.8 a run |
   | Four pull requests of a private repository, seven defects, no text tuned on them | 10 of 21 | 8 to 9 of 21 in the first pass and 11 to 15 in the last, by reading: the statements of two of the defects were not at hand |
-  | Three holes, and three things that are no hole (`holes`) | 9 of 9, noise 0 of 9 | 18 of 18, noise 0 of 18 |
+  | Three holes, and three things that are no hole (`holes`) | 9 of 9, noise 0 of 9 | 27 of 27, noise 0 of 27 |
 
 - On PR #426 the lens names fewer of the six forms than the built-in command
   did: 2.8 a run against 4.1. Each of the six has a count of zero in the

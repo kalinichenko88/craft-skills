@@ -147,18 +147,18 @@ and for a move that a script or a test proves unchanged.
    session's scratchpad directory, or in a new folder from `mktemp -d` when
    there is none, with the Write tool, and run
    `bash <dir>/scripts/report-check.sh <file>`: on `failed read:`, send the
-   reader once more, with the range and the tree corrected when one was
-   wrong. In Codex: `/review`, *Review against a base branch*, with no such
-   check.
+   reader once more. In Codex: `/review`, *Review against a base branch*.
 2. **The fixes of a round are one commit.** The next round reads only that
    commit: the same prompt with `Range: <sha>^..<sha>`. In Codex: `/review`,
    *Review a commit*. Inside the loop, never send the whole branch again.
 3. **Stop at the first round that confirms no defect**, whatever that round
-   declines, for the first time or again. A round whose report fails that
-   check twice did not run. Stop the review there: the summary names the
-   range that has no read, and the pull request and the merge question say
-   that the review is not complete. A defect is a confirmed finding of one
-   of two kinds:
+   declines, for the first time or again. A round whose report says it read
+   no file of its range confirms nothing and does not count: correct the
+   range, and run it again. A reader with a lens whose report
+   fails the check of step 1 twice did not run. Stop the review there: the
+   summary names the range that has no read, and the pull request and the
+   merge question say that the review is not complete. A defect is a
+   confirmed finding of one of two kinds:
    - a wrong result, a crash or a broken contract, on an input or a state
      that the project's real use reaches;
    - data loss or a security hole, on any input.
@@ -167,7 +167,7 @@ and for a move that a script or a test proves unchanged.
    the defects that later rounds find are there.
    In the text of a skill or a prompt, a defect is a rule that, followed as
    written, gives a wrong result in a case that real use reaches. When the
-   only proof that a review subagent, `/review` or Codex gives for a finding is its guess of what a model does in a case that the
+   only proof that a reviewer gives for a finding is its guess of what a model does in a case that the
    text does not name, the finding is a defect only when a run or a
    real session outside the review has already shown a wrong result there,
    or when the case is data loss or a security hole. Else decline it, as no
@@ -283,8 +283,8 @@ more: see `documents.md`.
 After the last pass, the Codex review, the review of the tests and their
 rounds, the security review runs once, on the final branch. A change to
 documents only gets none, unless the person asks for it. It is one subagent
-as in step 1 of *The rounds*, with `effort: "high"`, the range of step 1 and
-this prompt:
+as in step 1 of *The rounds*, with `effort: "high"` and this prompt, whose
+range goes from the `<base>` of step 1 to the SHA of `HEAD` now:
 
 ```
 Read <dir>/security-lens.md and do what it says.
@@ -292,13 +292,12 @@ Range: <base>..<head>
 Tree: <the working tree of the branch>
 ```
 
-Its report goes through the check of step 1, and a report that fails it
-twice stops the review as step 3 says. Its findings go through *The
-findings*, and its fixes through *Fixes from other places*. In Codex, with
-no such check: `/review` with the custom instructions "Find security defects
-on this branch against origin/<default branch>: injection, authentication,
-authorization, secrets and data exposure." Where there is no `origin`
-remote, say so in the summary.
+Its report goes through the check of step 1. Its findings go through *The
+findings*, and its fixes through *Fixes from other places*. In Codex:
+`/review` with the custom instructions "Find security defects on this branch
+against origin/<default branch>: injection, authentication, authorization,
+secrets and data exposure." Where there is no `origin` remote, say so in the
+summary.
 
 After its report and the rounds on its findings, read `summary.md` and go on
 to *The summary*, then to the conditions of *The pull request*.

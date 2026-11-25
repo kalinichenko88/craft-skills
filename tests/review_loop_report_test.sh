@@ -82,6 +82,10 @@ report 'a report inside a code block, after a sentence, passes' 0 'ok: 1 finding
   'I could not run the compiler: the findings come from reading.' '```' "$one" 'count: 1' '```'
 # A reader on Opus put each of its lines between two backticks.
 report 'a count line between backticks or asterisks is a count line' 0 'ok: 1 findings' "\`$one\`" '`count: 1`'
+report 'a count line between asterisks is a count line' 0 'ok: 1 findings' "$one" '**count: 1**'
+# A row of a table, or a note with two separators, has no path:line.
+report 'a line with two separators and no path:line is no finding' 0 'ok: 0 findings' \
+  '| Place | Claim | Failure |' 'invariants.sh | did not run | no node on PATH' 'count: 0'
 report 'a line with one separator is no finding' 0 'ok: 0 findings' 'invariants.sh | did not run' 'count: 0'
 
 code=0

@@ -269,7 +269,7 @@ skills/github/take-in.md|A line that is not output of the tool whose log it is c
 # does not name. The review of the tests of #432 found that no test failed
 # when the list of those agents, or the exception for data loss, was gone
 # (#417).
-skills/review-loop/SKILL.md|only proof that a review subagent, `/review` or Codex gives for a finding is its guess of what a model does in a case that the text does not name
+skills/review-loop/SKILL.md|only proof that a reviewer gives for a finding is its guess of what a model does in a case that the text does not name
 skills/review-loop/SKILL.md|or when the case is data loss or a security hole. Else decline it, as no defect and no nit, on the **Declined** line with "no failing run" as its reason
 
 # #283: the SKILL.md of review-loop is split by moment, and the row of a

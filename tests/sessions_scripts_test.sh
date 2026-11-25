@@ -126,14 +126,15 @@ bad=$(jq -r --slurpfile rules "$scripts/rules.json" -f "$scripts/count.jq" "$tmp
 # moment of the gh call only, then reads merge.md in the message of a gh -R
 # merge: each result comes before the next call, as in Claude Code. r4 reads
 # with gh api --hostname <host> graphql, no write, before the github load
-# and a gh write. n1 has moments but no rules.md.
+# and a gh write, and sends a reader with security-lens.md with no load of
+# review-loop. n1 has moments but no rules.md.
 cp -R "$root/tests/fixtures/sessions/rules" "$tmp/"
 expected="rule	contexts	kept	share	subagents	kept	share
 github before a gh write	4	3	75%	1	0	0%
 github before a gh call	4	1	25%	0	0	-
 typescript-conventions before a TypeScript edit	2	1	50%	1	1	100%
 react-conventions before a React edit	2	1	50%	0	0	-
-review-loop before a review	2	1	50%	0	0	-
+review-loop before a review	3	1	33%	0	0	-
 take-in.md before take-in-check.sh	2	1	50%	0	0	-
 merge.md before gh pr merge	2	1	50%	0	0	-
 filing.md before a new issue or add-finding.sh	2	1	50%	0	0	-"

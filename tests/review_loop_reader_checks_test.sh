@@ -15,7 +15,8 @@ fixtures=tests/fixtures/review_loop_reader
 stub=$(mktemp -d)
 trap 'rm -rf "$stub"' EXIT
 # claude records each call and its prompt, and answers with a stream that
-# holds a report; codex records each exec, and fails `login status`.
+# holds a report; codex records each exec and writes that report, is logged
+# in when the file logged-in is beside it, and fails when the file fails is.
 cat >"$stub/claude" <<'EOF'
 #!/usr/bin/env bash
 here=$(dirname "$0")
@@ -26,8 +27,21 @@ echo '{"type":"result","is_error":false,"result":"a.sh:2 | the check of the rele
 EOF
 cat >"$stub/codex" <<'EOF'
 #!/usr/bin/env bash
-[ "$1" != exec ] || touch "$(dirname "$0")/called"
-exit 1
+here=$(dirname "$0")
+case $1 in
+  login) [ -e "$here/logged-in" ] ;;
+  exec)
+    touch "$here/called"
+    printf '%s\n' "$@" >"$here/codex-args"
+    while [ $# -gt 0 ]; do
+      [ "$1" != -o ] || out=$2
+      shift
+    done
+    printf '%s\n' 'a.sh:2 | the check of the release is gone | an import that only the release build refuses' 'count: 1' >"$out"
+    [ ! -e "$here/fails" ]
+    ;;
+  *) exit 1 ;;
+esac
 EOF
 chmod +x "$stub/claude" "$stub/codex"
 for tool in claude codex; do
@@ -54,6 +68,9 @@ refused usage: 3 --codex
 refused usage: --codex 3 4
 refused usage: --check
 refused usage: --check "$stub/nosuch"
+# On macOS `seq 0` prints 1 and 0: two paid runs.
+refused usage: 0
+refused usage: x
 refused 'not logged in' --codex
 READER_CASES=nosuch refused 'no case nosuch'
 READER_LEVEL=max refused usage:
@@ -73,6 +90,8 @@ counted below 1
 # A case whose reads all failed has no mean of findings to divide.
 counted failed 0
 # A security case counts the things that are no hole and that a run reports.
+# A note with two separators and no path:line names no defect, as the check
+# of a report counts no finding for it.
 counted noise 0
 
 # Two real reports of each public case, with the cases.tsv of the eval: its
@@ -121,5 +140,69 @@ Level: high"
   exit 1
 }
 rm -rf "$logs"
+
+# A security case from a repository whose main moved past the branch point.
+# The prompt has three lines, its range starts at the merge base, and the
+# reader has the effort of the product, whatever the level of the pass.
+repo=$stub/local/two
+git init -q -b main "$repo"
+commit() { git -C "$repo" -c user.name=t -c user.email=t@example.com -c commit.gpgsign=false commit -qam "$1"; }
+echo 'npm run build' >"$repo/a.sh"
+git -C "$repo" add a.sh
+commit base
+git -C "$repo" checkout -qb review
+echo 'npm run check' >"$repo/a.sh"
+commit change
+git -C "$repo" checkout -q main
+echo later >>"$repo/a.sh"
+commit later
+printf 'case\ttwo\ttwo\tsecurity-lens.md\t0\ndefect\ttwo\tX\ta\\.sh\trelease\t0\n' >>"$stub/local/cases.tsv"
+got=$(PATH="$stub:$PATH" READER_LOCAL="$stub/local" READER_CASES=two READER_LEVEL=low tests/review_loop_reader_eval.sh 1 2>&1) || true
+logs=$(printf '%s\n' "$got" | sed -n 's/^Logs: //p')
+want="Read $root/skills/review-loop/security-lens.md and do what it says.
+Range: $(git -C "$repo" merge-base main review)..$(git -C "$repo" rev-parse review)
+Tree: $logs/two-1"
+[ -n "$logs" ] && [ "$(cat "$stub/prompt")" = "$want" ] || {
+  echo 'FAIL: the prompt of a security case is not the prompt of the product:'
+  cat "$stub/prompt"
+  exit 1
+}
+[ "$(grep -A1 -xF -- --effort "$stub/args" | sed -n 2p)" = high ] || {
+  echo 'FAIL: a security case does not run at the effort high:'
+  cat "$stub/args"
+  exit 1
+}
+rm -rf "$logs"
+
+# Codex reads a case in its read-only sandbox, and a run of Codex that fails
+# is a failed read, also when it wrote a report.
+touch "$stub/logged-in"
+got=$(PATH="$stub:$PATH" READER_LOCAL="$stub/local" READER_CASES=one tests/review_loop_reader_eval.sh --codex 1 2>&1) || true
+logs=$(printf '%s\n' "$got" | sed -n 's/^Logs: //p')
+if [ "$(printf '%s\n' "$got" | sed -n 2p)" != 'one: 1 of 1, floor 1, 0 failed reads, 1 findings a run' ] ||
+  [ "$(grep -A1 -xF -- -s "$stub/codex-args" | sed -n 2p)" != read-only ] ||
+  ! grep -qxF "Read $root/skills/review-loop/code-lens.md and do what it says." "$stub/codex-args"; then
+  echo 'FAIL: a run of Codex on one case:'
+  echo "$got"
+  cat "$stub/codex-args"
+  exit 1
+fi
+rm -rf "$logs"
+touch "$stub/fails"
+got=$(PATH="$stub:$PATH" READER_LOCAL="$stub/local" READER_CASES=one tests/review_loop_reader_eval.sh --codex 1 2>&1) || true
+logs=$(printf '%s\n' "$got" | sed -n 's/^Logs: //p')
+[ "$(printf '%s\n' "$got" | sed -n 2p)" = 'one: 0 of 1, floor 1, 1 failed reads, 0 findings a run' ] || {
+  echo 'FAIL: a run of Codex that fails after its report is no failed read:'
+  echo "$got"
+  exit 1
+}
+rm -rf "$logs"
+rm "$stub/logged-in" "$stub/fails"
+
+# A case whose source is a linked worktree is refused: a checkout in a copy of
+# it moves the branch of the worktree itself.
+git -C "$repo" worktree add -q "$stub/local/three" review
+printf 'case\tthree\tthree\tcode-lens.md\t0\n' >>"$stub/local/cases.tsv"
+READER_LOCAL="$stub/local" READER_CASES=three refused 'no commit, no repository and no folder of two trees'
 
 echo 'review_loop_reader_checks_test: ok'

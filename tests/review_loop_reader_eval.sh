@@ -80,7 +80,9 @@ origin() {
     case $source in /*) break ;; esac
     [ -z "$(awk -F '\t' -v kase="$1" '$1 == "case" && $2 == kase' "$file")" ] || dir=$(cd "$(dirname "$file")" && pwd)/$source
   done
-  if [ -e "$dir/.git" ]; then
+  # A linked worktree has a file .git: a checkout in its copy would move its
+  # own branch.
+  if [ -d "$dir/.git" ]; then
     echo "repo $dir"
   elif [ -d "$dir/main" ] && [ -d "$dir/review" ]; then
     echo "trees $dir"
@@ -128,23 +130,26 @@ fixture() {
 # of the plugin is turned off, so the rules come from this checkout. The
 # reader may read, and run git: it has no tool that writes, and no subagent.
 run() {
-  local work=$logs/$1-$2 lens prompt
+  local work=$logs/$1-$2 lens prompt effort=$level
   lens=$(rows case "$1" | cut -f4)
   # A run whose fixture fails has an empty report: a failed read.
   : >"$work.txt"
   fixture "$1" "$work"
   prompt="Read $skill/$lens and do what it says.
-Range: $(git -C "$work" rev-parse main)..$(git -C "$work" rev-parse review)
+Range: $(git -C "$work" merge-base main review)..$(git -C "$work" rev-parse review)
 Tree: $work"
   [ "$lens" = security-lens.md ] || prompt="$prompt
 Level: $level"
   if [ "$reader" = codex ]; then
     bash "$skill/scripts/time-limit.sh" 1200 codex exec -s read-only --ephemeral -C "$work" -o "$work.txt" "$prompt
-You are one reviewer that another agent runs: start no skill, change no file, and file nothing." </dev/null >"$work.log" 2>&1 || true
+You are one reviewer that another agent runs: start no skill, change no file, and file nothing." </dev/null >"$work.log" 2>&1 ||
+      : >"$work.txt"
     return
   fi
   printf '%s\n' "$prompt" >"$work.prompt"
-  (cd "$work" && claude -p --model opus --effort "$level" --output-format stream-json --verbose \
+  # The security review of the product runs at high, whatever the level.
+  [ "$lens" != security-lens.md ] || effort=high
+  (cd "$work" && claude -p --model opus --effort "$effort" --output-format stream-json --verbose \
     --settings '{"enabledPlugins":{"craft@kalinichenko":false,"kalinichenko@kalinichenko":false},"language":"English"}' \
     --plugin-dir "$root" --add-dir "$skill" \
     --allowedTools 'Bash(git:*)' Read Grep Glob \
@@ -155,11 +160,13 @@ You are one reviewer that another agent runs: start no skill, change no file, an
 }
 
 # names <how> [<place>]: how many reports of $whole, one path a line, have a
-# finding line that matches both patterns. A failed read is not in $whole.
+# finding line, as report-check.sh counts one, that matches both patterns. A
+# failed read is not in $whole.
 names() {
   local file count=0
   while IFS= read -r file; do
-    [ -z "$file" ] || ! grep -E ' [|] .* [|] ' "$file" | grep -iE -e "${2:-.}" | grep -qiE -e "$1" || count=$((count + 1))
+    [ -z "$file" ] || ! awk -F ' [|] ' 'NF >= 3 && ($1 ~ /:[0-9]+/ || $2 ~ /:[0-9]+/)' "$file" |
+      grep -iE -e "${2:-.}" | grep -qiE -e "$1" || count=$((count + 1))
   done <<<"$whole"
   echo "$count"
 }

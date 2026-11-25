@@ -4,13 +4,13 @@
 # answer its questions. It prints, for each run, the counts, then each review
 # subagent's prompt after its kind: W reads the whole branch, C one commit, T
 # is the review of the tests, A the review of the architecture, P a reader of
-# craft:product's worth check, S the security review, and H a review command
-# of the host that the session ran. It exits 1 when a run has fewer than two
-# rounds, read the whole branch more than once after round 1, ran more than
-# three rounds in one count, sent the review of the tests other than once
-# next to the last pass, or sent one with no last pass, sent the review of
-# the architecture other than once before round 2, ran no security review
-# after its last read of the whole branch, ran a review command of the host,
+# craft:product's worth check, S the security review. It exits 1 when a run
+# has fewer than two rounds, read the whole branch more than once after round
+# 1, ran more than three rounds in one count, sent the review of the tests
+# other than once next to the last pass, or sent one with no last pass, sent
+# the review of the architecture other than once before round 2, ran no
+# security review after its last read of the whole branch, ran a review
+# command of the host in the session or in a subagent,
 # had Codex read the branch other than once, did not invoke the skill, or
 # ended on a report that names no docs, no review of the tests or no review
 # of the architecture. With stop, the run starts at the step 4 stop of an
@@ -132,8 +132,8 @@ wait
 # prompt of each one names. A round names code-lens.md: with one commit as its
 # range, `<sha>^..<sha>`, it read that commit, and else the whole branch. The
 # security review names security-lens.md. No step of the skill runs a review
-# command of the host, so a top-level Skill call of code-review or
-# security-review fails the run. The fixture always has a defect, so a run
+# command of the host, so a Skill call of code-review or security-review, in
+# the session or in a subagent, fails the run. The fixture always has a defect, so a run
 # that follows the skill has two rounds or more. At most one of them after
 # round 1 reads the whole branch: the last pass, which a stop after three
 # rounds skips. A security review follows the last read of the whole branch.
@@ -162,11 +162,11 @@ failed=0
 for log in "$logs"/run-*.jsonl; do
   # One line a prompt: W when it reads the whole branch, C one commit, T the
   # review of the tests, P a reader of the worth check, S the security review,
-  # H a review command of the host, then a tab and the prompt.
+  # then a tab and the prompt.
   prompts=$(jq -rR --arg commit "$commit" 'fromjson?
     | select(.type == "assistant" and .parent_tool_use_id == null)
     | .message.content[] | select(.type == "tool_use")
-    | if .name == "Skill" and (.input.skill | test("^(code-review|security-review)$")) then "H\tSkill: /" + .input.skill
+    | if .name == "Skill" then empty
       elif .name == "Agent" then (.input.model // "") as $model | .input.prompt | gsub("\n"; " ")
         | (if test("Product reader|product/reader\\.md") then "P" elif test("tests-lens\\.md") then "T" elif test("security-lens\\.md") then "S"
           elif test("code-lens\\.md") then (if test($commit) then "C" else "W" end) elif test("architecture-lens\\.md") and $model == "opus" then "A" else empty end) + "\t" + .
@@ -175,12 +175,14 @@ for log in "$logs"/run-*.jsonl; do
   early=$(cut -f1 <<<"$prompts" | tr -d '\n' | grep -cE '^[^C]*A' || true)
   # The counts of rounds below leave the review of the architecture and the
   # readers of the worth check out.
-  kinds=$(cut -f1 <<<"$prompts" | grep -v '[APH]' || true)
+  kinds=$(cut -f1 <<<"$prompts" | grep -v '[AP]' || true)
   rounds=$(grep -c '[CW]' <<<"$kinds" || true)
   whole=$(grep '[CW]' <<<"$kinds" | tail -n +2 | grep -c W || true)
   last=$(grep -n W <<<"$kinds" | tail -n 1 | cut -d: -f1)
   security=$(tail -n +"$((${last:-0} + 1))" <<<"$kinds" | grep -c S || true)
-  inline=$(cut -f1 <<<"$prompts" | grep -c H || true)
+  # A review command of the host, in the session or in a subagent.
+  inline=$(jq -rR 'fromjson? | select(.type == "assistant") | .message.content[]?
+    | select(.type == "tool_use" and .name == "Skill") | .input.skill' "$log" | grep -cxE 'code-review|security-review' || true)
   long=$(tr -d '\n' <<<"$kinds" | grep -oE '^WCCC|[WST]CCCC' | grep -c . || true)
   tests=$(grep -c T <<<"$kinds" || true)
   paired=$(tr -d '\n' <<<"$kinds" | grep -cE '(WT|TW)[^W]*$' || true)

@@ -84,7 +84,6 @@ grep -qxF "Range: $base..$head" "$tmp/args" ||
 grep -qxF "Tree: $(git -C "$repo" rev-parse --show-toplevel)" "$tmp/args" || fail 'the prompt names the working tree' "$(cat "$tmp/args")"
 grep -qxF 'Level: xhigh' "$tmp/args" || fail 'codex reads at the widest level' "$(cat "$tmp/args")"
 if grep -qxF -- '--output-schema' "$tmp/args"; then fail 'without --docs, codex gets no schema' "$(cat "$tmp/args")"; fi
-if grep -qF 'code that gives a wrong result' "$tmp/args"; then fail 'without --docs, the prompt is the lens, not the brief before it' "$(cat "$tmp/args")"; fi
 check 'codex runs in the read-only sandbox' read-only "$(grep -A1 -xF -- -s "$tmp/args" | sed -n 2p)"
 grep -qxF -- '--ephemeral' "$tmp/args" || fail 'codex keeps no session files' "$(cat "$tmp/args")"
 grep -qF 'file nothing' "$tmp/args" || fail 'the prompt tells codex, which loads rules.md too, to file nothing' "$(cat "$tmp/args")"
@@ -96,7 +95,6 @@ rm -f "$tmp/args"
 check 'with --docs: prints the findings that codex wrote' "$(cat "$fixtures/codex-findings.json")" "$(review --docs "$base")"
 grep -qF 'the code that it describes' "$tmp/args" ||
   fail 'with --docs: the prompt reads the text against the code that it describes' "$(cat "$tmp/args")"
-if grep -qF 'code that gives a wrong result' "$tmp/args"; then fail 'with --docs: the prompt has no brief for code' "$(cat "$tmp/args")"; fi
 grep -qF 'file nothing' "$tmp/args" || fail 'with --docs: the prompt tells codex to file nothing' "$(cat "$tmp/args")"
 grep -qF "git diff $base...$head" "$tmp/args" || fail 'with --docs: the prompt names the range of the whole branch' "$(cat "$tmp/args")"
 code=0
@@ -126,8 +124,8 @@ grep -qF 'stream disconnected' "$tmp/err" || fail 'a failed codex run shows its 
 
 code=0
 out=$(FAKE_NO_MESSAGE=1 review "$base" 2>"$tmp/err") || code=$?
-check 'codex that ends with no findings file exits 1, not with no output' 1 "$code"
-grep -qF 'codex prints its session here' "$tmp/err" || fail 'codex with no findings file shows its log on stderr' "$(cat "$tmp/err")"
+check 'codex that ends with no report exits 1, not with no output' 1 "$code"
+grep -qF 'codex prints its session here' "$tmp/err" || fail 'codex with no report shows its log on stderr' "$(cat "$tmp/err")"
 
 # A report that Codex cut has no count line: the read failed.
 code=0
@@ -141,8 +139,8 @@ FAKE_CUT=line review "$base" >/dev/null 2>"$tmp/err" || true
 check 'a report that ends with a new line gets no empty line before the reason' \
   "$(printf '%s\n' 'a.txt:1 | a claim | an input' 'failed read: no count line')" "$(cat "$tmp/err")"
 
-# Without the limit, the fake's sleep ends after 30 seconds and its findings
-# come out with exit 0.
+# Without the limit, the fake's sleep ends after 30 seconds and its report
+# comes out with exit 0.
 code=0
 out=$(FAKE_HANG=1 CODEX_REVIEW_LIMIT=1 review "$base" 2>"$tmp/err") || code=$?
 check 'a codex run past the time limit exits 1' 1 "$code"

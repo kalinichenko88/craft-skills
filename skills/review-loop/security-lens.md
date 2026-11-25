@@ -107,7 +107,7 @@ it. A hole stands on the code alone.
   error; a check of a certificate that is off; a hash or a source of
   random values that does not protect a secret.
 - **Outside.** A hole in code that the range does not change. The agent
-  that sent you files it.
+  that sent you decides on it.
 
 Give the evidence for each finding: the entry, the path and the effect. The
 entry says who can send the value and how. The path names each station with

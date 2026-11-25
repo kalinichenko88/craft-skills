@@ -38,8 +38,8 @@
 2085 skills/review-loop/codex.md
 4742 skills/review-loop/docs-lens.md
 3350 skills/review-loop/documents.md
-6554 skills/review-loop/security-lens.md
-17738 skills/review-loop/SKILL.md
+6559 skills/review-loop/security-lens.md
+17748 skills/review-loop/SKILL.md
 2329 skills/review-loop/spec-and-plan.md
 5338 skills/review-loop/summary.md
 2801 skills/review-loop/tests-lens.md

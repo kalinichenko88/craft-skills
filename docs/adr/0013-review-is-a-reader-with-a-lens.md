@@ -60,7 +60,8 @@ the level of the change.
 
 `scripts/report-check.sh` reads each report of these two lenses: its last line is
 `count: N`, and a report with no such line, with another count than its
-finding lines, or with `read: none` is a failed read. The sender sends the
+finding lines, or with a line that starts with `read: none` and no finding
+line is a failed read. The sender sends the
 reader once more. After two failed reads the review stops, and the summary,
 the pull request and the merge question say that it is not complete.
 `codex-review.sh` runs the check on the report of Codex itself.

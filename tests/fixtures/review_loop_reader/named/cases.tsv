@@ -1,3 +1,3 @@
 case	pr9	dce07f86f49287f02606d603c748ec152f8bac96	code-lens.md	0
 defect	pr9	#90	worktree\.sh	URL column|fork	0
-defect	pr9	#91	add-finding	twice|second time|retry	0
+defect	pr9	#91	add-finding	twice|second time|retry	3

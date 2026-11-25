@@ -1,0 +1,2 @@
+Checked | src/routes/reports.js | the SQL of the cover route binds its values
+count: 0

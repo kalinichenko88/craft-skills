@@ -80,7 +80,7 @@ each task stays as that skill sets it. In place of the final review of
   comment, a name or wording is a nit, applied without another round. A
   finding that needs a particular input is counted first in a sample of real
   data: a count of zero declines it, unless it is data loss or a security
-  hole. A finding of a review subagent, `/review` or Codex
+  hole. A finding of a reviewer
   whose only proof is its guess of what a model does in a case that the
   text of a skill or a prompt does not name is declined too, until a run or
   a real session outside the review shows a wrong result there, unless it
