@@ -18,12 +18,15 @@ The first user is the author.
   place by a measured run, not by a guess.
 - The plugin grows past development: skills for content and against AI slop
   (ADR 0002, #214). One plugin, one namespace `craft:`.
-- **Current goal:** M7 · The skills work in ZCode, and beside it M8 · craft
-  works without Superpowers. A person whose project allows only ZCode does a
-  task with craft from take-in to merge, with the same steps and reviews as
-  in Claude Code. A person does a feature with craft alone, with the
-  discipline that superpowers gives today. The `Done when` of each milestone
-  names the issues that the goal needs.
+- **Current goal:** M7 · The skills work in ZCode, then M8 · craft works
+  without Superpowers; both milestones are current. A person whose project
+  allows only ZCode does a task with craft from take-in to merge, with the
+  same steps and reviews as in Claude Code, and gets each update of craft.
+  Then a person does a feature with craft alone, with the discipline that
+  superpowers gives today. Until then both plugins are installed, and no
+  step runs twice or contradicts the other plugin. craft takes over only the
+  steps that a measured run needs. The `Done when` of each milestone names
+  the issues that the goal needs.
 
 ## What it will not do
 
