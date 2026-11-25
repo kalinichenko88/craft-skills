@@ -75,6 +75,18 @@ counted below 1
 # A case whose reads all failed has no mean of findings to divide.
 counted failed 0
 
+# Two real reports of each public case, with the cases.tsv of the eval: its
+# patterns must give the table that a person made by reading the reports. One
+# report is inside a code block, and one goes on after its count line. The
+# "was" of a defect changes with each recorded pass, so it is cut off here,
+# with the lines and the exit code that come from it.
+got=$(tests/review_loop_reader_eval.sh --check "$fixtures/recorded" 2>&1 | sed -e 's/, was [0-9]*$//' -e '/^lost: /d' || true)
+if [ "$got" != "$(cat "$fixtures/recorded/expected.txt")" ]; then
+  echo 'FAIL: --check recorded: the patterns of cases.tsv do not give the table by reading:'
+  echo "$got"
+  exit 1
+fi
+
 # One whole run of a private case of two trees, as READER_LOCAL gives it.
 mkdir -p "$stub/local/one/main" "$stub/local/one/review"
 printf 'case\tone\tone\tcode-lens.md\t3\ndefect\tone\tX\ta\\.sh\trelease\t0\n' >"$stub/local/cases.tsv"

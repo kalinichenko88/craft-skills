@@ -1,0 +1,11 @@
+// The config of the type check, for CI and by hand: it reads src and tests.
+// tsconfig.json stays the config of the build (rootDir "src", outDir "dist").
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "."
+  },
+  "include": ["src", "tests"],
+  "exclude": ["node_modules", "dist"]
+}

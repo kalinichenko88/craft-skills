@@ -33,6 +33,7 @@
 12737 skills/react-conventions/SKILL.md
 3293 skills/review-loop/architecture-and-tests.md
 7515 skills/review-loop/architecture-lens.md
+2556 skills/review-loop/code-lens.md
 2073 skills/review-loop/codex.md
 4742 skills/review-loop/docs-lens.md
 3355 skills/review-loop/documents.md

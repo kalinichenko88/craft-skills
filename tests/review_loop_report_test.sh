@@ -34,8 +34,12 @@ report 'a report with no finding passes' 0 'ok: 0 findings' 'count: 0'
 report 'a count that is not the number of finding lines is a failed read' 1 \
   'failed read: count says 3, the report has 2 finding lines' "$one" "$two" 'count: 3'
 report 'a report with no count line is a failed read' 1 'failed read: no count line' "$one" "$two"
-report 'a report that goes on after its count line has no count line' 1 'failed read: no count line' \
-  "$one" 'count: 1' 'I also looked at the tests.'
+# A reader on Opus wrote what it could not run after its count line: the
+# report is whole. A finding after the count line makes the count wrong.
+report 'a sentence after the count line changes nothing' 0 'ok: 1 findings' \
+  "$one" 'count: 1' 'I could not run the tests: this session needs approval for each command.'
+report 'a finding after the count line is a failed read' 1 \
+  'failed read: count says 1, the report has 2 finding lines' "$one" 'count: 1' "$two"
 report 'an empty report is a failed read' 1 'failed read: no count line'
 report 'a reader that read no file of the range is a failed read' 1 'failed read: read: none' \
   'read: none | the range is empty' 'count: 0'

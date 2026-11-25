@@ -1,0 +1,21 @@
+{
+  "name": "linkcheck",
+  "version": "0.4.1",
+  "description": "Finds the broken links in Markdown files",
+  "type": "module",
+  "bin": {
+    "linkcheck": "dist/cli.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.0.0"
+  }
+}

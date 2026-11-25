@@ -306,3 +306,13 @@ skills/github/plugin-defect.md|The version is `version` in the root's `.claude-p
 skills/github/plugin-defect.md|When `<root>/.git` exists, as in Codex or with `claude --plugin-dir`, the commit is `git -C "<root>" rev-parse --short=12 HEAD`.
 skills/github/plugin-defect.md|`gitCommitSha` in the entry of `~/.claude/plugins/installed_plugins.json` whose `installPath` is the root
 skills/github/plugin-defect.md|and that an update brings the fix only when a release holds it.
+
+# The words of five devices of the code lens are fixed by a run (#466): with
+# other words for the device of a replaced check, the reader named the defect
+# of #466 in 1 of 8 runs, and with these in 7 of 8. A change of one of these
+# sentences needs a pass of tests/review_loop_reader_eval.sh before and after.
+skills/review-loop/code-lens.md|Write up to six candidates for one reading before you start the next one. When a reading of new code gives no candidate, read it once more before you go on.
+skills/review-loop/code-lens.md|also when you are not sure that the state occurs; then say what makes you unsure.
+skills/review-loop/code-lens.md|Where a line matches, parses or filters text, name the shapes of input that real use gives it, as one item, two items, an item inside quotes, an item with an option before it, and trace each one.
+skills/review-loop/code-lens.md|When the change puts one check, build or command in place of another, compare what each one reads: its config, its working directory, its inputs. A candidate is each thing that the old line stopped and that nothing stops now.
+skills/review-loop/code-lens.md|What does a second run do after the first one stopped half-way, or after it finished?

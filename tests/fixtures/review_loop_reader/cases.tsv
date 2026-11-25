@@ -13,20 +13,22 @@
 case	pr9	dce07f86f49287f02606d603c748ec152f8bac96	code-lens.md	0
 case	pr289	9f3c7ae87cee834095fa413a06088dd89a2d314b	code-lens.md	5
 case	pr426	6c0ce2843f5a055bdcb60a6b69892a4d4b1c7578	code-lens.md	12
+case	swap	swap	code-lens.md	1
+defect	swap	check	ci\.yml|tsconfig	TS6059|rootDir|build config|(build|release|publish).{0,80}(fail|break|error)|no longer.{0,80}(build|tsconfig\.json)	3
 defect	pr9	#90	worktree\.sh|develop	branch-repo|cut -f1|second column|URL column|(linked|existing) branch.{0,120}(fork|other repo|another repo)|(fork|other repo|another repo).{0,120}linked branch	0
-defect	pr9	#91	add-finding	twice|re-?run|retry|second (time|run)|duplicate|comment fails|after the edit|partial	0
-defect	pr289	D1	count\.sh	output.{0,120}(read|\.md)|\.md.{0,80}(anywhere|word|argument)	0
-defect	pr289	D2	count\.sh	(two|second|both|several) (scripts?|runs?)|first (match|script)|only the first	0
-defect	pr289	D3	count\.sh	bash -x|run(s)? .{0,40}directly|without bash|variable .{0,60}whole	0
+defect	pr9	#91	add-finding	twice|re-?run|retry|second (time|run)|duplicate|comment fails|after the edit|partial	3
+defect	pr289	D1	count\.sh	(script.{0,3}s|whole|its) output.{0,80}read|output of (a|the) script.{0,80}read|\.md.{0,40}(anywhere|word|argument)	0
+defect	pr289	D2	count\.sh	(two|second|both|several) (scripts?|runs?)|first (match|script)|only the first	3
+defect	pr289	D3	count\.sh	bash -x|run(s)? .{0,40}directly|without bash|variable .{0,60}whole	3
 defect	pr289	D4	count\.sh	quoted (command|string|text)|inside (a )?(quote|string)|grep.{0,60}bash	0
-defect	pr289	D5	count\.sh	first (plugin|skill)|not .{0,40}craft|outside craft|\./scripts	0
-defect	pr426	E1	count\.jq	[a-z]=\$\(|inside (double )?quotes	0
+defect	pr289	D5	count\.sh	first (plugin|(craft |cache )?skill)|falls back to .{0,20}skill|not .{0,40}craft|outside craft|\./scripts	3
+defect	pr426	E1	count\.jq	echo "[a-z]+=\$\((cat|sed)	2
 defect	pr426	E2	count\.jq	length\(\$0\)	0
 defect	pr426	E3	count\.jq	-i inplace	0
 defect	pr426	E4	count\.jq	diff <\(|process substitution	0
-defect	pr426	F1	count\.jq	\|\| true	0
-defect	pr426	F2	count\.jq	\$\(.{0,60}(later|second|next) (stage|command)|later stage	0
-defect	pr426	F3	count\.jq	&>|1>|>&2	0
-defect	pr426	F4	count\.jq	(quoted|"|').{0,20}-l\b|--count	0
-defect	pr426	F5	count\.jq	(fail|error|missing|no such).{0,80}(trace|counts?)	0
-defect	pr426	F6	count\.jq	(another|other|different) plugin|same(-| )named	0
+defect	pr426	F1	count\.(jq|sh)	\|\| true|\|\|.{0,60}(pipe|two)	1
+defect	pr426	F2	count\.(jq|sh)	\$\(.{0,80}(later|second|next|last) (stage|command)|later stage|inside a pipeline|grep -c "\$\(	3
+defect	pr426	F3	count\.(jq|sh)	&>|1>|>&2	2
+defect	pr426	F4	count\.(jq|sh)	--count|(inside|in) (the |a )?quoted (pattern|text|string)|holds the quoted|quotes still in	1
+defect	pr426	F5	count\.(jq|sh)	(fail|error|missing|no such).{0,120}(trace|counts?|kept)|(trace|kept).{0,120}(fail|error|no such)	2
+defect	pr426	F6	count\.(jq|sh)	(another|other|different) plugin|same(-| )named	0
