@@ -180,8 +180,8 @@ and for a move that a script or a test proves unchanged.
 4. **The third round still confirms a defect:** stop the rounds, and skip
    what is left of step 5. Do not fix that defect: its fix needs a fourth
    round, and only the person can start one. The nits of round 3 are one
-   commit, and no round reads it. In Claude Code, when the Codex step has
-   not run in this review, Codex then reads the whole branch, as `codex.md`
+   commit, and no round reads it. In Claude Code, in a code review whose
+   Codex step has not run, Codex then reads the whole branch, as `codex.md`
    says. Then go to
    the security review, or to the summary when the security review has
    already run. The summary's **Rounds:** item names the findings of round 3

@@ -61,6 +61,10 @@ case $status in
     exit 2
     ;;
 esac
+# The lens reads its range with two dots, so the range starts at the merge
+# base: a base that the default branch moved past the branch point would show
+# its commits as reverted.
+from=$(git merge-base "$base" "$head")
 
 command -v codex >/dev/null || {
   echo 'skipped: the codex CLI is not installed'
@@ -93,12 +97,10 @@ if [ -z "$docs" ]; then
   # The prompt of a reader of the review loop, and the last line that the
   # measure of #466 sent with it: Codex named #90 and #91 of pull request 9 in
   # 2 of 2 runs, as with the prompt before it. Codex reads at the widest
-  # level, whatever the level of the change. The lens reads its range with
-  # two dots, so the range starts at the merge base: a base that the default
-  # branch moved past the branch point would show its commits as reverted.
+  # level, whatever the level of the change.
   out=$tmp/report.txt
   prompt="Read $(cd "$(dirname "$0")/.." && pwd)/code-lens.md and do what it says.
-Range: $(git merge-base "$base" "$head")..$head
+Range: $from..$head
 Tree: $(git rev-parse --show-toplevel)
 Level: xhigh
 You are one reviewer that another agent runs: start no skill, change no file, and file nothing."
@@ -157,7 +159,7 @@ if [ -z "$docs" ] && ! bash "$(dirname "$0")/report-check.sh" "$out" >"$tmp/chec
   # Codex ends its last message with no new line.
   {
     cat "$out"
-    echo
+    [ -z "$(tail -c 1 "$out")" ] || echo
     cat "$tmp/check"
   } >&2
   exit 1

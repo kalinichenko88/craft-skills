@@ -94,7 +94,7 @@ each task stays as that skill sets it. In place of the final review of
   the review subagent, and no round reads its fixes. In Claude Code, Codex
   then reads the whole branch once, with the fixes in place, when the branch
   changes the text of a skill or a prompt, or a superpowers spec. No last
-  pass runs, and no security review: the security lens reads no document. The
+  pass runs, and no security review. The
   fixes for your review comments are one commit, with no round. Ask for more
   rounds, a last pass or a security review, and they run, with rounds on
   their fixes. Why: on eight branches of this plugin that changed only

@@ -58,7 +58,7 @@ a level makes. Where the `Agent` tool of the host takes them, the call names
 `model: "opus"` and `effort` at the level. Codex reads at `xhigh`, whatever
 the level of the change.
 
-`scripts/report-check.sh` reads each report: the last line of a lens is
+`scripts/report-check.sh` reads each report of these two lenses: its last line is
 `count: N`, and a report with no such line, with another count than its
 finding lines, or with `read: none` is a failed read. The sender sends the
 reader once more. After two failed reads the review stops, and the summary,

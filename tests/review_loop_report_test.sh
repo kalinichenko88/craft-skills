@@ -51,8 +51,18 @@ report 'read: none between backticks is a failed read' 1 'failed read: read: non
 report 'read: none as an item of a numbered list is a failed read' 1 'failed read: read: none' \
   '1. read: none | no diff' 'count: 0'
 report 'Read: none with a capital is a failed read' 1 'failed read: read: none' 'Read: none | no diff' 'count: 0'
+report 'read: none with another separator after it is a failed read' 1 'failed read: read: none' \
+  'read: none - the range is empty' 'count: 0'
+# A sentence that only holds the words is no such line, in each script.
 report 'a sentence that holds the words read: none is no such line' 0 'ok: 0 findings' \
   'The lens says to return read: none for an empty range, and this range has files.' 'count: 0'
+report 'a sentence in another script that holds the words is no such line' 0 'ok: 0 findings' \
+  'Линза просит вернуть read: none для пустого диапазона, а в этом диапазоне есть файлы.' 'count: 0'
+report 'a sentence that starts with the words is no such line' 0 'ok: 1 findings' \
+  '`read: none` does not apply here: I read all 14 files of the range.' 'Read: none of the files is outside the range.' \
+  "$one" 'count: 1'
+# The count line takes the same marks.
+report 'a count line with a capital or in a numbered list is a count line' 0 'ok: 1 findings' "1. $one" '2. Count: 1'
 report 'a claim with a shell pipe in it is one finding' 0 'ok: 1 findings' \
   'a.sh:2 | cat x | wc -l gives 0 | an empty file' 'count: 1'
 report 'a list marker before a finding is allowed' 0 'ok: 1 findings' '- a.sh:2 | claim | failure' 'count: 1'

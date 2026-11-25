@@ -6,8 +6,8 @@
 #
 # For a whole report it prints "ok: <N> findings" and exits 0. For a report
 # that the reader cut or did not make, it prints "failed read: <reason>" and
-# exits 1: no count line, a line whose first words are "read: none", or a
-# count that is not the number of finding lines. A finding line has " | " at
+# exits 1: no count line, a line "read: none" with its reason, or a count
+# that is not the number of finding lines. A finding line has " | " at
 # least twice, and ":<digits>", as in path:line, in its first or its second
 # field: each of the 803 finding lines of 148 recorded reports has it. The
 # last count line is the count: a sentence before the lines or after it, and
@@ -27,9 +27,18 @@ set -euo pipefail
   exit 2
 }
 
+# marks: what a reader puts before a line, as a list item, a quote or
+# emphasis. After "read: none" comes the end of the line or a separator, not
+# a word: a sentence that starts with the words is no such line.
 awk -F ' [|] ' '
-  /^[`*]*count: [0-9]+[`*]*[[:space:]]*$/ { count = $0; gsub(/[^0-9]/, "", count); counted = 1 }
-  tolower($0) ~ /^[^a-z]*read: none/ { none = 1 }
+  { line = tolower($0) }
+  line ~ /^[-*`>0-9. \t]*read: none[`*]*([^a-z`* \t]|[ \t]+[^a-z \t]|[ \t]*$)/ { none = 1 }
+  line ~ /^[-*`>0-9. \t]*count: [0-9]+[`*]*[ \t]*$/ {
+    sub(/^.*count: /, "", line)
+    gsub(/[^0-9]/, "", line)
+    count = line
+    counted = 1
+  }
   NF >= 3 && ($1 ~ /:[0-9]+/ || $2 ~ /:[0-9]+/) { found++ }
   END {
     if (!counted) { print "failed read: no count line"; exit 1 }
