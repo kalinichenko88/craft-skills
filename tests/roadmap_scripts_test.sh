@@ -196,10 +196,12 @@ check 'a linked project is not linked again' 0 "$(grep -c '^linked ' <<<"$out" |
 check 'views there' "$(printf 'view Unassigned: there\nview By milestone: there')" "$(grep '^view ' <<<"$out")"
 check 'no settings left when both are made' 0 "$(grep -ci 'settings the API cannot make' <<<"$out" || true)"
 # A view whose filter was never set, as after a failed run, gets it.
-jq '.data.node.views.nodes = [{id: "PVV_1", name: "Unassigned", filter: null}, {id: "PVV_2", name: "By milestone", filter: "is:open"}]' \
+# By milestone is there with no grouping, as on a board where nobody set it.
+jq '.data.node.views.nodes = [{id: "PVV_1", name: "Unassigned", filter: null}, {id: "PVV_2", name: "By milestone", filter: "is:open", groupByFields: {nodes: []}}]' \
   "$fixtures/project-views.json" >"$FAKE/project-views.json"
 out=$(DRY_RUN=1 bash "$scripts/board.sh")
 check 'a view without its filter' "$(printf 'view Unassigned: no filter\nview By milestone: there')" "$(grep '^view ' <<<"$out")"
+check 'the grouping step for a view with no grouping' 1 "$(grep -c '^- In the view "By milestone", group by Milestone\.$' <<<"$out" || true)"
 check 'the filter goes to that view' 1 "$(grep -c 'view=PVV_1.*no:assignee' <<<"$out" || true)"
 # None: create and link it, in a dry run.
 reset

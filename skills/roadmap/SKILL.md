@@ -208,8 +208,8 @@ It finds the GitHub Project titled `<repository> roadmap`, or creates it
 under the repository's owner, and links it to the repository. It adds the
 open issues it does not hold yet, and creates two views: *Unassigned*, a board
 of the open issues that nobody has, and *By milestone*, a table. It ends with
-each setting that the API cannot make and that is not made yet; pass them to
-the person. Run it again at any time: it only adds what is missing. The
+each setting that the API cannot make, unless the project shows it as made;
+pass them to the person. Run it again at any time: it only adds what is missing. The
 *Unassigned* view does not know blockers or sub-issues, so it is not the list
 of free tasks: `next.sh` is.
 

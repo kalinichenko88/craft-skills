@@ -2,8 +2,9 @@
 # Sets up the GitHub Project that shows the plan: finds the project titled
 # "<repository> roadmap", or creates it under the repository's owner; links
 # it to the repository; adds the open issues it does not hold yet; creates
-# its saved views. Then it prints each setting that the API cannot make and
-# that is not made yet: the grouping of a view, and the auto-add workflow.
+# its saved views. Then it prints each setting that the API cannot make,
+# unless the project shows it as made: the grouping of a view, and the
+# auto-add workflow.
 #
 #   board.sh
 #
