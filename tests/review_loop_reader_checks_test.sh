@@ -74,6 +74,8 @@ counted named 0
 counted below 1
 # A case whose reads all failed has no mean of findings to divide.
 counted failed 0
+# A security case counts the things that are no hole and that a run reports.
+counted noise 0
 
 # Two real reports of each public case, with the cases.tsv of the eval: its
 # patterns must give the table that a person made by reading the reports. One

@@ -1,0 +1,5 @@
+case	holes	holes	security-lens.md	0
+defect	holes	H1	reports\.js	SQL|UNION	0
+noise	holes	N1	RegExp|regular expression
+noise	holes	N2	REPORT_FONT
+noise	holes	N3	rate.?limit

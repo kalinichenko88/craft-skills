@@ -5,6 +5,7 @@
 #
 #   pr9 #91: 3 of 3, was 3
 #   pr9: 3 of 6, floor 0, 0 failed reads, 11 findings a run, ran the list 3 of 3
+#   holes noise: 1 of 9
 #   below: pr289
 #   lost: pr9 #91
 #
@@ -12,7 +13,8 @@
 # tests/fixtures/review_loop_reader/cases.tsv, which says what a line holds.
 # READER_LOCAL names a folder with a cases.tsv of more cases, as the cases of
 # a private repository, which stay outside this one. A report that
-# report-check.sh refuses is a failed read, and names no defect. "below:"
+# report-check.sh refuses is a failed read, and names no defect. "noise" is
+# how often a run reports a thing that the case lists as no defect. "below:"
 # names a case under its floor, and "lost:" a defect that 2 or 3 runs of the
 # last recorded pass named and that no run names now. It exits 1 on either.
 #
@@ -196,6 +198,16 @@ score() {
     echo "$line"
     [ "$total" -ge "$floor" ] || below="${below}below: $kase
 "
+    total=0 defects=0
+    while IFS=$'\t' read -r _ _ _ how; do
+      for file in "${files[@]}"; do
+        case $whole in *"$file
+"*) ;; *) continue ;; esac
+        ! grep -E ' [|] .* [|] ' "$file" | grep -qiE -e "$how" || total=$((total + 1))
+      done
+      defects=$((defects + 1))
+    done < <(rows noise "$kase")
+    [ "$defects" -eq 0 ] || echo "$kase noise: $total of $((defects * n))"
   done
   printf '%s%s' "$below" "$lost"
   [ -z "$below$lost" ]

@@ -1,0 +1,3 @@
+holes H1: 1 of 1, was 0
+holes: 1 of 1, floor 0, 0 failed reads, 2 findings a run
+holes noise: 1 of 3

@@ -10,10 +10,16 @@
 # what the review command of the host named in three runs. A run names a
 # defect when one finding line of its report matches both patterns, with
 # grep -iE. "was" is the count of the last recorded pass of three runs.
+#
+#   noise   <case>  <name>  <regex>
+#
+# A noise line names a thing of the case that is no defect. The eval counts
+# the runs that report it: a finding line that matches the regex.
 case	pr9	dce07f86f49287f02606d603c748ec152f8bac96	code-lens.md	0
 case	pr289	9f3c7ae87cee834095fa413a06088dd89a2d314b	code-lens.md	5
 case	pr426	6c0ce2843f5a055bdcb60a6b69892a4d4b1c7578	code-lens.md	12
 case	swap	swap	code-lens.md	1
+case	holes	holes	security-lens.md	9
 defect	swap	check	ci\.yml|tsconfig	TS6059|rootDir|build config|(build|release|publish).{0,80}(fail|break|error)|no longer.{0,80}(build|tsconfig\.json)	3
 defect	pr9	#90	worktree\.sh|develop	branch-repo|cut -f1|second column|URL column|(linked|existing) branch.{0,120}(fork|other repo|another repo)|(fork|other repo|another repo).{0,120}linked branch	0
 defect	pr9	#91	add-finding	twice|re-?run|retry|second (time|run)|duplicate|comment fails|after the edit|partial	3
@@ -32,3 +38,9 @@ defect	pr426	F3	count\.(jq|sh)	&>|1>|>&2	2
 defect	pr426	F4	count\.(jq|sh)	--count|(inside|in) (the |a )?quoted (pattern|text|string)|holds the quoted|quotes still in	1
 defect	pr426	F5	count\.(jq|sh)	(fail|error|missing|no such).{0,120}(trace|counts?|kept)|(trace|kept).{0,120}(fail|error|no such)	2
 defect	pr426	F6	count\.(jq|sh)	(another|other|different) plugin|same(-| )named	0
+defect	holes	H1	reports\.js	SQL|UNION|status.{0,60}(concat|quot|string)	3
+defect	holes	H2	reports\.js	travers|\.\./|outside (the |its |their )?(exports|folder|directory)	3
+defect	holes	H3	reports\.js	delet.{0,200}(owner|another (user|person)|any (logged-in |signed-in )?user|not (the )?own|other (user|people))|(owner|another user).{0,200}delet	3
+noise	holes	N1	RegExp|regular expression|ReDoS
+noise	holes	N2	REPORT_FONT
+noise	holes	N3	rate.?limit|no limit on

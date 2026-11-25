@@ -20,3 +20,8 @@ pr426 F6: 0 of 2
 pr426: 8 of 20, floor 8, 0 failed reads, 7 findings a run
 swap check: 2 of 2
 swap: 2 of 2, floor 0, 0 failed reads, 3 findings a run
+holes H1: 2 of 2
+holes H2: 2 of 2
+holes H3: 2 of 2
+holes: 6 of 6, floor 6, 0 failed reads, 3 findings a run
+holes noise: 0 of 6
