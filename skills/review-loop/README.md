@@ -3,7 +3,7 @@
 A review that ends: a check of a capability's worth before any round, a walk
 through a changed screen in the app, rounds that read only the last fixes, a
 stop at the first clean round, one last pass over the whole branch when the loop needed more
-than one round, Codex as a second reviewer for `xhigh` changes in Claude Code,
+than one round, Codex as a second reviewer in Claude Code,
 a review of the tests for `high` and `xhigh` changes, a review against the
 project's architecture file and ADRs beside round 1, a security review last,
 and a summary of what the branch changed and what was decided and fixed. A
@@ -49,30 +49,38 @@ each task stays as that skill sets it. In place of the final review of
   app, or when the app does not start, the step is skipped, and the summary
   says why: see *The browser step* below.
 - **A level with a reason.** `low` to `xhigh` by the weight of the change, and
-  one sentence that says why. `ultra` only when you ask for it. A change to a
-  test file is never `low`: `/code-review low` skips test files. A change to
+  one sentence that says why. A change to
   documents only, the text of a skill or a prompt included, gets one review
-  subagent in place of `/code-review`. Its prompt only sends it to
+  subagent in place of the code review. Its prompt only sends it to
   `docs-lens.md`, with no limit on its report: it reads the text against the
   code and the rules that it cites, follows each flow across the files, and
   tries the commands and patterns that the change adds or changes on a small
   sample, in a temporary folder, except a command that writes outside it or
   runs the project's code.
   When a skill's or a prompt's text comes with
-  code, `/code-review` takes the level of the code, and the subagent reviews
+  code, the code review takes the level of the code, and the subagent reviews
   the text.
+- **A reader with the plugin's own text.** A round is one subagent that reads
+  `code-lens.md`, and the security review one that reads `security-lens.md`:
+  no step runs a review command of the host, so the review is the same in
+  Claude Code and in ZCode, and you can read and change each rule of it. The
+  code lens reads the diff four times, each time with one question, and the
+  level says which of the readings it makes. Its report ends with a count of
+  its findings, which `scripts/report-check.sh` compares with its lines. A
+  session in Codex reviews with `/review` until its own run (#498).
 - **Rounds that read less.** The first round reads the whole branch, with the
   docs that the change made false already fixed. Each round of fixes is one
   commit, and the next round reads only that commit.
 - **A stop.** The loop ends at the first round that confirms no defect. A
-  round that read no file of its range does not count: it runs again, one
-  level up when its level skipped the files. A defect is a wrong result, a
+  round whose report is cut, or that read no file of its range, does not
+  count: its reader goes once more, and after two such reads the review
+  stops, and the pull request says that it is not complete. A defect is a wrong result, a
   crash or a broken contract that real use reaches, or data loss or a
   security hole on any input, also in the fixes of the loop. A test, a
   comment, a name or wording is a nit, applied without another round. A
   finding that needs a particular input is counted first in a sample of real
   data: a count of zero declines it, unless it is data loss or a security
-  hole. A finding of a review subagent, `/code-review`, `/review` or Codex
+  hole. A finding of a review subagent, `/review` or Codex
   whose only proof is its guess of what a model does in a case that the
   text of a skill or a prompt does not name is declined too, until a run or
   a real session outside the review shows a wrong result there, unless it
@@ -86,7 +94,7 @@ each task stays as that skill sets it. In place of the final review of
   the review subagent, and no round reads its fixes. In Claude Code, Codex
   then reads the whole branch once, with the fixes in place, when the branch
   changes the text of a skill or a prompt, or a superpowers spec. No last
-  pass runs, and no `/security-review`: its prompt excludes Markdown. The
+  pass runs, and no security review: the security lens reads no document. The
   fixes for your review comments are one commit, with no round. Ask for more
   rounds, a last pass or a security review, and they run, with rounds on
   their fixes. Why: on eight branches of this plugin that changed only
@@ -100,8 +108,8 @@ each task stays as that skill sets it. In place of the final review of
 - **One last look at the whole branch.** When the loop needed more than one
   round, one pass reads the whole branch again after it stops, to see how the
   fixes fit the rest. It never runs twice.
-- **A second model for `xhigh` changes.** In Claude Code, Codex reads the
-  whole branch once: beside the last pass, after round 1 when the loop
+- **A second model.** In Claude Code, Codex reads the whole branch once, at
+  each level: beside the last pass, after round 1 when the loop
   needed only one round, or after the stop at round 3. Its findings go
   through the same checks. After that stop, its defects stay unfixed, as
   round 3's do, and the summary names them. Without the Codex CLI or its
@@ -147,9 +155,8 @@ each task stays as that skill sets it. In place of the final review of
   calculation, a state, a permission, the data the product keeps or deletes.
   It asks too when a small finding next to the task needs a choice before it
   goes into the PR, as which of two ways fixes it.
-- **A security review last.** `/security-review` runs once on the final
-  branch, in a subagent in Claude Code, so that its report does not end the
-  turn. Its fixes get rounds of their own, as the later fixes above. A
+- **A security review last.** One subagent reads the final branch once, with
+  `security-lens.md`. Its fixes get rounds of their own, as the later fixes above. A
   change to documents only gets no security review, unless you ask for one.
 - **A summary.** First a run of the repository's check on the final branch.
   In a project with an architecture file, the check also runs

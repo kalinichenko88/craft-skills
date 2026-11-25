@@ -23,7 +23,7 @@ summary is not the turn's last message, the report starts that message too.
   `ponytail-review`'s lines saved, or why it did not run. The walk: its
   tool and the count of findings it confirmed, or why it did not run. Each
   round, its level and range, and the count of findings it confirmed. The
-  last pass, the same way. At `xhigh`, the Codex review: its range and the
+  last pass, the same way. The Codex review: its range and the
   count of findings it confirmed, or why it did not run. At `high` and
   `xhigh`, and for a change to tests only, the review of the tests, the same
   way. The review of the architecture, the same way. With no architecture

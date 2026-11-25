@@ -241,7 +241,7 @@ skills/github/take-in.md|A line that is not output of the tool whose log it is c
 # does not name. The review of the tests of #432 found that no test failed
 # when the list of those agents, or the exception for data loss, was gone
 # (#417).
-skills/review-loop/SKILL.md|only proof that a review subagent, `/code-review`, `/review` or Codex gives for a finding is its guess of what a model does in a case that the text does not name
+skills/review-loop/SKILL.md|only proof that a review subagent, `/review` or Codex gives for a finding is its guess of what a model does in a case that the text does not name
 skills/review-loop/SKILL.md|or when the case is data loss or a security hole. Else decline it, as no defect and no nit, on the **Declined** line with "no failing run" as its reason
 
 # #283: the SKILL.md of review-loop is split by moment, and the row of a
@@ -250,7 +250,7 @@ skills/review-loop/SKILL.md|or when the case is data loss or a security hole. El
 # that are read only after those conditions decide: they stay in SKILL.md,
 # with the rule for a project with no architecture file, which the summary
 # reads.
-skills/review-loop/SKILL.md|One review subagent reads that text, in place of `/code-review` or beside it | `documents.md`
+skills/review-loop/SKILL.md|One review subagent reads that text, in place of the code review or beside it | `documents.md`
 skills/review-loop/SKILL.md|Its six steps in the app | `walk.md`
 skills/review-loop/SKILL.md|Its subagent and its prompt, beside round 1 | `architecture-and-tests.md`
 skills/review-loop/SKILL.md|The review of the tests | `architecture-and-tests.md`
@@ -316,3 +316,11 @@ skills/review-loop/code-lens.md|also when you are not sure that the state occurs
 skills/review-loop/code-lens.md|Where a line matches, parses or filters text, name the shapes of input that real use gives it, as one item, two items, an item inside quotes, an item with an option before it, and trace each one.
 skills/review-loop/code-lens.md|When the change puts one check, build or command in place of another, compare what each one reads: its config, its working directory, its inputs. A candidate is each thing that the old line stopped and that nothing stops now.
 skills/review-loop/code-lens.md|What does a second run do after the first one stopped half-way, or after it finished?
+
+# #466: a round and the security review are a subagent that reads a lens file
+# of the plugin by its path, not a review command of the host, which ZCode
+# does not have. A report that the check refuses gets one more read, and no
+# third one.
+skills/review-loop/SKILL.md|Read <dir>/code-lens.md and do what it says.
+skills/review-loop/SKILL.md|Read <dir>/security-lens.md and do what it says.
+skills/review-loop/SKILL.md|on `failed read:`, send the reader once more

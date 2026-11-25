@@ -3,7 +3,7 @@
 *The level*, *The rounds* and *The findings* are sections of `SKILL.md`, next
 to this file.
 
-A change to documents only takes no `/code-review`: one review subagent reads
+A change to documents only takes no code review: one review subagent reads
 the text the range changes, with this prompt alone, and no limit on its
 report:
 
@@ -22,9 +22,9 @@ findings each. From the second run on, most were in the sentences the run
 before had written. The rounds stopped only when the person stopped them.
 
 When that text comes with code, each range of the rounds and the last pass
-goes to one review or to both, by what it changes. The code review,
-`/code-review` at the level of the code alone or `/review` in Codex, reads
-each range that changes anything but that text. The agent does not act on
+goes to one review or to both, by what it changes. The code review, the
+reader with `code-lens.md` at the level of the code alone or `/review` in
+Codex, reads each range that changes anything but that text. The agent does not act on
 its findings in that text, and does not count them. The subagent reads each
 range that changes that text, or code that the text names, as a script or a
 flag. It reviews the text the range changes and the text that names the code
@@ -59,8 +59,7 @@ A change to documents only, as *The level* says, gets one round:
    one commit, and no round reads it.
    Other documents, as a README or a note in `docs/`, get no Codex read. In
    Codex, there is no Codex read.
-3. **No security review.** The prompt of `/security-review` says: "Do not
-   report any findings in documentation files such as markdown files."
+3. **No security review.** The security lens reads no document.
 4. **A person's review comments** go through *The findings*. Their fixes are
    one commit, and no round reads it.
 
