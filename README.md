@@ -8,22 +8,25 @@ leaves the issue tracker out of date.
 rules and skills, so that it works on your project as a careful engineer
 does:
 
-- **From an issue to a pull request.** Type `#91`: the agent checks that
-  nobody works on the issue, makes its own branch, does the work, opens the
-  pull request and asks you before the merge.
+- **From an issue to a pull request.** Start a session with `#91`: the
+  agent checks that nobody works on the issue, makes a branch for it, does
+  the work, runs the check and the review, opens the pull request and asks
+  you before the merge.
 - **Each fix with its test.** A bug fix comes with the test that catches the
   bug, and the agent runs the project's own check before it calls a task
   done.
-- **A review that ends.** Each round reads only the last fixes. The loop
-  stops at the first clean round or after round 3, and a second model reads
-  risky changes.
-- **A tracker that stays true.** A problem outside the task becomes an
-  issue, and an open issue is corrected when a decision makes it false.
+- **A review that ends.** The first round reads the whole branch, and each
+  later round reads only the last fixes. The loop stops at the first clean
+  round or after round 3, and Codex can read risky changes as a second
+  model.
+- **A tracker that stays true.** A problem outside the task is fixed in the
+  change or filed as an issue, and an open issue is corrected when a
+  decision makes it false.
 - **A roadmap on GitHub.** Milestones, the next task, the work that can run
   in parallel, and triage of new issues.
-- **Structure and debt.** New code follows the project's architecture,
-  decisions go into ADRs, and a map of the technical debt is filed as a few
-  issues a run.
+- **Structure and debt.** New code follows the project's architecture, a
+  decision that is costly to undo goes into an ADR, and a map of the
+  technical debt is filed as a few issues a run.
 
 It is for a solo developer or a small team that keeps its work on GitHub.
 
