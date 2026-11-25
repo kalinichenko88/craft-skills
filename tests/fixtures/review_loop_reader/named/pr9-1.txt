@@ -1,0 +1,2 @@
+skills/github/scripts/add-finding.sh:88 | a rerun adds the section twice | the comment call fails after the body edit
+count: 1

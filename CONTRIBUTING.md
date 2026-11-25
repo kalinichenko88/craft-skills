@@ -145,6 +145,20 @@ invariant names one too. With `--codex`, Codex reads the six branches with
 the same prompt. Run it after a change to
 `skills/review-loop/architecture-lens.md`, to `skills/architecture/invariants.md`
 or to the parts of `skills/architecture/SKILL.md` that it reads.
+`tests/review_loop_reader_eval.sh` sends the reader of the code review to
+changes with known defects, three runs each, and counts the runs whose
+report names each defect. Its cases are the lines of
+`tests/fixtures/review_loop_reader/cases.tsv`: three merged pull requests of
+this repository, each with the defects that its issues name, and with a
+floor, the count that the review command of the host named. A case from a
+commit needs the full history of the repository. `READER_LOCAL` names a
+folder with more cases, as the cases of a private repository, which stay
+outside this one. It exits 1 when a case is below its floor, or when no run
+names a defect that the last recorded pass named. With `--codex`, Codex
+reads the cases. Run it alone, before and after each change to a lens file
+of the code review or the security review, and write the new counts into
+`cases.tsv`. `tests/review_loop_reader_checks_test.sh` runs its counter in
+`make check`, on reports written by hand and with a stub of `claude`.
 `tests/debt_lens_eval.sh` sends the review of the instruction files to a
 monorepo whose `CLAUDE.md` files repeat and contradict its architecture file
 and each other. It checks each repeat, contradiction, redundancy and

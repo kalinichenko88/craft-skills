@@ -1,0 +1,6 @@
+case	pr289	9f3c7ae87cee834095fa413a06088dd89a2d314b	code-lens.md	5
+defect	pr289	D1	count\.sh	output	2
+defect	pr289	D2	count\.sh	second script	0
+defect	pr289	D3	count\.sh	bash -x	3
+defect	pr289	D4	count\.sh	quoted	1
+defect	pr289	D5	count\.sh	first plugin	0

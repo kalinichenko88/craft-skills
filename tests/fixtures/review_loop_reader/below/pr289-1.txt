@@ -1,0 +1,2 @@
+.claude/skills/sessions/scripts/count.sh:30 | the sum has no unit | a table that a person reads
+count: 1
