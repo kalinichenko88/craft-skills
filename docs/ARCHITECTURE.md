@@ -319,7 +319,8 @@ status of an ADR that is not accepted, or that a later one narrows.
 - [0006 Each SKILL.md stays within the 20,000 characters that a compaction keeps](adr/0006-skill-text-within-the-compaction-budget.md) — narrowed by 0009
 - [0007 CI runs the text eval on each scenario row whose skill files a pull request changes](adr/0007-text-eval-in-ci.md)
 - [0008 The flows are specified as host-neutral scenarios, and a run is checked by the words that the person reads](adr/0008-scenarios-read-narration-as-messages.md)
-- [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md) — narrowed by 0010
+- [0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget](adr/0009-skill-text-admission-and-budgets.md) — narrowed by 0010 and 0013
 - [0010 The recorded size of a text is its exact size, and a flow is a list of files](adr/0010-recorded-size-is-exact.md)
 - [0011 rules.md holds the triggers of the skills and the habits of each turn](adr/0011-rules-hold-triggers-and-habits.md)
 - [0012 In ZCode, a hook puts a line into the prompt of each subagent that sends it to rules.md](adr/0012-zcode-subagent-reads-rules.md)
+- [0013 A review is one reader with a lens file of the plugin, and the lens holds the levels](adr/0013-review-is-a-reader-with-a-lens.md)

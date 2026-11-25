@@ -1,10 +1,11 @@
 # 0009 A case gets a sentence in skill text only after a failing run, and each text has a size budget
 
-- Status: accepted, narrowed by 0010
+- Status: accepted, narrowed by 0010 and 0013
 - Date: 2026-11-15
 
 ## Updates
 
+- 2026-11-25 #466: Status. Was: "accepted, narrowed by 0010". ADR 0013 gives a lens file of the review its own measure: three runs of each case with known defects.
 - 2026-11-15 #412: Consequences, Bad. Was: "Until the checks exist, review alone keeps the rule, and compares a text with its size at the base (#412, #417)".
 - 2026-11-15 #412: Confirmation. Was: "The record of sizes and its check in `make check`: #412".
 - 2026-11-15 #413: Context. Was: "`rules.md`, 11,672 characters, goes into each session and each subagent".

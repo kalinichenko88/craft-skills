@@ -26,17 +26,17 @@ defect	pr9	#91	add-finding	twice|re-?run|retry|second (time|run)|duplicate|comme
 defect	pr289	D1	count\.sh	(script.{0,3}s|whole|its) output.{0,80}read|output of (a|the) script.{0,80}read|\.md.{0,40}(anywhere|word|argument)	0
 defect	pr289	D2	count\.sh	(two|second|both|several) (scripts?|runs?)|first (match|script)|only the first	3
 defect	pr289	D3	count\.sh	bash -x|run(s)? .{0,40}directly|without bash|variable .{0,60}whole	3
-defect	pr289	D4	count\.sh	quoted (command|string|text)|inside (a )?(quote|string)|grep.{0,60}bash	0
-defect	pr289	D5	count\.sh	first (plugin|(craft |cache )?skill)|falls back to .{0,20}skill|not .{0,40}craft|outside craft|\./scripts|checkout.s copy counts	3
-defect	pr426	E1	count\.jq	echo "[a-z]+=\$\((cat|sed)	2
+defect	pr289	D4	count\.sh	quoted (command|string|text)|inside (a )?(quote|string)|grep.{0,60}bash	1
+defect	pr289	D5	count\.sh	first (plugin|(craft |cache )?skill)|falls back to .{0,20}skill|not .{0,40}craft|outside craft|\./scripts|checkout.s copy counts	0
+defect	pr426	E1	count\.jq	echo "[a-z]+=\$\((cat|sed)	0
 defect	pr426	E2	count\.jq	length\(\$0\)	0
 defect	pr426	E3	count\.jq	-i inplace	0
 defect	pr426	E4	count\.jq	diff <\(|process substitution	0
-defect	pr426	F1	count\.(jq|sh)	\|\| true|\|\|.{0,60}(pipe|two)	1
-defect	pr426	F2	count\.(jq|sh)	\$\(.{0,80}(later|second|next|last) (stage|command)|later stage|inside a pipeline|grep -c "\$\(	3
+defect	pr426	F1	count\.(jq|sh)	\|\| true|\|\|.{0,60}(pipe|two)	3
+defect	pr426	F2	count\.(jq|sh)	\$\(.{0,80}(later|second|next|last) (stage|command)|later (stage|part)|inside a pipeline|grep -c "\$\(	1
 defect	pr426	F3	count\.(jq|sh)	&>|1>|>&2	2
-defect	pr426	F4	count\.(jq|sh)	--count|(inside|in) (the |a )?quoted (pattern|text|string)|holds the quoted|quotes still in	1
-defect	pr426	F5	count\.(jq|sh)	(fail|error|missing|no such).{0,120}(trace|counts?|kept)|(trace|kept).{0,120}(fail|error|no such)	2
+defect	pr426	F4	count\.(jq|sh)	--count|(inside|in) (the |a )?quoted (pattern|text|string)|holds the quoted|quotes still in	2
+defect	pr426	F5	count\.(jq|sh)	(fail|error|missing|no such).{0,120}(trace|kept)|(trace|kept).{0,120}(fail|error|no such)	0
 defect	pr426	F6	count\.(jq|sh)	(another|other|different) plugin|same(-| )named	0
 defect	holes	H1	reports\.js	SQL|UNION|status.{0,60}(concat|quot|string)	3
 defect	holes	H2	reports\.js	travers|\.\./|outside (the |its |their )?(exports|folder|directory)	3
