@@ -32,6 +32,15 @@ new code gives no candidate, read it once more before you go on.
    happens twice, a state that stays half-done, or a failure that looks like
    success.
 
+The level of your prompt says which of these readings you make:
+
+| Level | Readings |
+| --- | --- |
+| `low` | 1 |
+| `medium` | 1 and 2 |
+| `high` | 1 to 4 |
+| `xhigh` | 1 to 4, then each entry point that reaches the changed code |
+
 Do not report style, names or cleanup.
 
 The agent that sent you checks each finding against the code. So report each

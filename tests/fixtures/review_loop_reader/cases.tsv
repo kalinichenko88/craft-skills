@@ -21,7 +21,7 @@ defect	pr289	D1	count\.sh	(script.{0,3}s|whole|its) output.{0,80}read|output of 
 defect	pr289	D2	count\.sh	(two|second|both|several) (scripts?|runs?)|first (match|script)|only the first	3
 defect	pr289	D3	count\.sh	bash -x|run(s)? .{0,40}directly|without bash|variable .{0,60}whole	3
 defect	pr289	D4	count\.sh	quoted (command|string|text)|inside (a )?(quote|string)|grep.{0,60}bash	0
-defect	pr289	D5	count\.sh	first (plugin|(craft |cache )?skill)|falls back to .{0,20}skill|not .{0,40}craft|outside craft|\./scripts	3
+defect	pr289	D5	count\.sh	first (plugin|(craft |cache )?skill)|falls back to .{0,20}skill|not .{0,40}craft|outside craft|\./scripts|checkout.s copy counts	3
 defect	pr426	E1	count\.jq	echo "[a-z]+=\$\((cat|sed)	2
 defect	pr426	E2	count\.jq	length\(\$0\)	0
 defect	pr426	E3	count\.jq	-i inplace	0

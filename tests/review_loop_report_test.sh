@@ -3,6 +3,7 @@
 # writes: a whole report passes with its count of findings, and a report that
 # the reader cut, or that read nothing, is a failed read.
 
+# shellcheck disable=SC2016 # the backticks are Markdown's
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
