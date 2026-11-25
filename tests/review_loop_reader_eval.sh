@@ -130,13 +130,14 @@ fixture() {
 run() {
   local work=$logs/$1-$2 lens prompt
   lens=$(rows case "$1" | cut -f4)
+  # A run whose fixture fails has an empty report: a failed read.
+  : >"$work.txt"
   fixture "$1" "$work"
   prompt="Read $skill/$lens and do what it says.
 Range: $(git -C "$work" rev-parse main)..$(git -C "$work" rev-parse review)
 Tree: $work"
   [ "$lens" = security-lens.md ] || prompt="$prompt
 Level: $level"
-  : >"$work.txt"
   if [ "$reader" = codex ]; then
     bash "$skill/scripts/time-limit.sh" 1200 codex exec -s read-only --ephemeral -C "$work" -o "$work.txt" "$prompt
 You are one reviewer that another agent runs: start no skill, change no file, and file nothing." </dev/null >"$work.log" 2>&1 || true

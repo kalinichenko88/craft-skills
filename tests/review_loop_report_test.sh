@@ -44,6 +44,15 @@ report 'a finding after the count line is a failed read' 1 \
 report 'an empty report is a failed read' 1 'failed read: no count line'
 report 'a reader that read no file of the range is a failed read' 1 'failed read: read: none' \
   'read: none | the range is empty' 'count: 0'
+# A reader marks a line as it marks the others: with backticks, a number of a
+# list, or a capital letter.
+report 'read: none between backticks is a failed read' 1 'failed read: read: none' \
+  '`read: none | the range is empty`' '`count: 0`'
+report 'read: none as an item of a numbered list is a failed read' 1 'failed read: read: none' \
+  '1. read: none | no diff' 'count: 0'
+report 'Read: none with a capital is a failed read' 1 'failed read: read: none' 'Read: none | no diff' 'count: 0'
+report 'a sentence that holds the words read: none is no such line' 0 'ok: 0 findings' \
+  'The lens says to return read: none for an empty range, and this range has files.' 'count: 0'
 report 'a claim with a shell pipe in it is one finding' 0 'ok: 1 findings' \
   'a.sh:2 | cat x | wc -l gives 0 | an empty file' 'count: 1'
 report 'a list marker before a finding is allowed' 0 'ok: 1 findings' '- a.sh:2 | claim | failure' 'count: 1'

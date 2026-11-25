@@ -20,7 +20,7 @@
 #   foreign  narrated  the review of a teammate's branch whose spec holds a
 #                      report: the skill loads, and the answer names Fable,
 #                      the full depth. Codex is no sign of it: review-loop
-#                      sends Codex at xhigh
+#                      sends Codex too
 #   start    real      the feature, before any code: the skill, a Fable
 #                      subagent and a codex exec call before the first write,
 #                      and a verdict line that is not "do it". It needs a

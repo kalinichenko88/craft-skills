@@ -59,7 +59,8 @@ A change to documents only, as *The level* says, gets one round:
    one commit, and no round reads it.
    Other documents, as a README or a note in `docs/`, get no Codex read. In
    Codex, there is no Codex read.
-3. **No security review.** The security lens reads no document.
+3. **No security review.** On eight branches of this plugin that changed
+   only documents, the security review found nothing.
 4. **A person's review comments** go through *The findings*. Their fixes are
    one commit, and no round reads it.
 

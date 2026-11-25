@@ -112,7 +112,9 @@ What the measure left out of the code lens, each with its counts:
   the text without it gave 9, 5 and 5; PR #426 gave 12 of 30, where the text
   without it gave 11, 11 and 7. No case showed a gain, and the lens names
   the defect of #466 without it: 5 of 6 on Opus, 2 of 2 in ZCode on GLM-5.4.
-  The script and its test are deleted; commit `2454c9d` holds them.
+  The script and its test are deleted; the pull request of #466 holds
+  them, in its commit "feat(review-loop): add the list of replaced places
+  and the check of a report".
 - A cap on the findings of a level: the counts of a run were the same with
   it and without it, 4 to 6 at `medium` and 4 to 9 at `high`.
 - The parts of the shell of the other draft: a kind for a finding outside

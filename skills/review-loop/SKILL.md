@@ -40,7 +40,7 @@ this skill's base directory.
 | Before round 1, when *The walk* says that the change is walked | Its six steps in the app | `walk.md` |
 | Round 1 starts, and *A review of the architecture* says that its step runs | Its subagent and its prompt, beside round 1 | `architecture-and-tests.md` |
 | The last pass starts, or the only round of the loop confirms no defect: at `high` or `xhigh`, or for a change to tests only | The review of the tests | `architecture-and-tests.md` |
-| In Claude Code: the last pass starts, the only round of the loop confirms no defect, or step 4 of *The rounds* stops the rounds | Codex reads the whole branch | `codex.md` |
+| In Claude Code, in a code review: the last pass starts, the only round of the loop confirms no defect, or step 4 of *The rounds* stops the rounds | Codex reads the whole branch | `codex.md` |
 | The review ends, or the person answers the merge question | The check, the summary, and on its conditions the pull request and the merge question | `summary.md` |
 | In Claude Code, the checks of superpowers on a spec and on a plan | Two readers of the spec and one of the plan, with no rounds | `spec-and-plan.md` |
 
@@ -143,10 +143,13 @@ and for a move that a script or a test proves unchanged.
    Level: <level>
    ```
 
-   Write the report, word for word, to a file in the session's scratchpad
-   directory, with the Write tool, and run
+   Write the report of the subagent, word for word, to a file in the
+   session's scratchpad directory, or in a new folder from `mktemp -d` when
+   there is none, with the Write tool, and run
    `bash <dir>/scripts/report-check.sh <file>`: on `failed read:`, send the
-   reader once more. In Codex: `/review`, *Review against a base branch*.
+   reader once more, with the range and the tree corrected when one was
+   wrong. In Codex: `/review`, *Review against a base branch*, with no such
+   check.
 2. **The fixes of a round are one commit.** The next round reads only that
    commit: the same prompt with `Range: <sha>^..<sha>`. In Codex: `/review`,
    *Review a commit*. Inside the loop, never send the whole branch again.
@@ -291,11 +294,11 @@ Tree: <the working tree of the branch>
 
 Its report goes through the check of step 1, and a report that fails it
 twice stops the review as step 3 says. Its findings go through *The
-findings*, and its fixes through *Fixes from other places*. In Codex:
-`/review` with the custom instructions "Find security defects on this branch
-against origin/<default branch>: injection, authentication, authorization,
-secrets and data exposure." Where there is no `origin` remote, say so in the
-summary.
+findings*, and its fixes through *Fixes from other places*. In Codex, with
+no such check: `/review` with the custom instructions "Find security defects
+on this branch against origin/<default branch>: injection, authentication,
+authorization, secrets and data exposure." Where there is no `origin`
+remote, say so in the summary.
 
 After its report and the rounds on its findings, read `summary.md` and go on
 to *The summary*, then to the conditions of *The pull request*.

@@ -6,9 +6,10 @@
 #
 # For a whole report it prints "ok: <N> findings" and exits 0. For a report
 # that the reader cut or did not make, it prints "failed read: <reason>" and
-# exits 1: no count line, a line that says "read: none", or a count that is
-# not the number of finding lines. A finding line has " | " at least twice,
-# and ":<digits>", as in path:line, in its first or its second field. The
+# exits 1: no count line, a line whose first words are "read: none", or a
+# count that is not the number of finding lines. A finding line has " | " at
+# least twice, and ":<digits>", as in path:line, in its first or its second
+# field: each of the 803 finding lines of 148 recorded reports has it. The
 # last count line is the count: a sentence before the lines or after it, and
 # the fence of a code block around them, change nothing. It exits 2 for a
 # wrong call, as a file that does not exist.
@@ -28,7 +29,7 @@ set -euo pipefail
 
 awk -F ' [|] ' '
   /^[`*]*count: [0-9]+[`*]*[[:space:]]*$/ { count = $0; gsub(/[^0-9]/, "", count); counted = 1 }
-  /^[-* ]*read: none/ { none = 1 }
+  tolower($0) ~ /^[^a-z]*read: none/ { none = 1 }
   NF >= 3 && ($1 ~ /:[0-9]+/ || $2 ~ /:[0-9]+/) { found++ }
   END {
     if (!counted) { print "failed read: no count line"; exit 1 }

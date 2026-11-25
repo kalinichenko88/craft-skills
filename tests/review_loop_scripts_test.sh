@@ -35,7 +35,8 @@ case $1 in
     [ -z "${FAKE_HANG:-}" ] || { exec 3> >(sleep 30 & echo $! >"$FAKE/hung"; read -r _); sleep 30 3>&-; }
     [ -z "${FAKE_FAIL:-}" ] || { echo 'ERROR: stream disconnected before completion'; exit 1; }
     [ -z "${FAKE_NO_MESSAGE:-}" ] || exit 0
-    [ -z "${FAKE_CUT:-}" ] || { echo 'a.txt:1 | a claim | an input' >"$out"; exit 0; }
+    # codex exec -o writes its last message with no new line at its end.
+    [ -z "${FAKE_CUT:-}" ] || { printf '%s' 'a.txt:1 | a claim | an input' >"$out"; exit 0; }
     cp "$FIXTURES/${answer:-codex-report.txt}" "$out" ;;
   *) echo "fake codex: no answer for: $*" >&2; exit 1 ;;
 esac
@@ -104,6 +105,13 @@ grep -qxF 'usage: codex-review.sh [--docs] <base>' "$tmp/err" || fail 'the usage
 rm -f "$tmp/args"
 review HEAD~1 >/dev/null
 grep -qxF "Range: $base..$head" "$tmp/args" || fail 'a base given as a name goes into the prompt as its SHA' "$(cat "$tmp/args")"
+# The lens reads the range with two dots, so a base that the default branch
+# moved past the branch point must not show its commits as reverted.
+ahead=$(git -C "$repo" -c user.name=t -c user.email=t@example.com commit-tree "$base^{tree}" -p "$base" -m ahead)
+rm -f "$tmp/args"
+review "$ahead" >/dev/null
+grep -qxF "Range: $base..$head" "$tmp/args" ||
+  fail 'a base that is not an ancestor of HEAD goes into the prompt as the merge base' "$(cat "$tmp/args")"
 check 'the schema asks for the fields of a finding' 'file line summary failure_scenario' \
   "$(jq -r '.properties.findings.items.required | join(" ")' "$tmp/schema.json")"
 check 'the recorded findings fit the schema' 'true' \

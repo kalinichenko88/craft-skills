@@ -62,7 +62,7 @@ fixture() {
 EOF
   git -C "$work" add .
   git -C "$work" commit -qm "chore: start"
-  # A local origin, so /security-review has a default branch to read against.
+  # A local origin, so the base of the review is the merge base with origin/main.
   git init -q --bare -b main "$work.git"
   git -C "$work" remote add origin "$work.git"
   git -C "$work" push -q origin main
@@ -95,7 +95,8 @@ EOF
 # exec with the prompt of codex-review.sh logs one read and returns one defect
 # that no round reported: the class drops each letter outside ASCII. An
 # empty Codex home makes a real codex that the shell profile puts first print
-# "skipped:", so no run spends the Codex limit, and that run logs no read.
+# "skipped:", so no run spends the Codex limit: that run logs no read, and
+# fails for it.
 run() {
   local work=${1%.jsonl}
   fixture "$work"
@@ -150,7 +151,9 @@ wait
 # Round 1, the last pass, the review of the tests and the security review each
 # start a count of rounds. Step 4 stops a count at its third round when no one
 # can answer: round 1 and two more, or three after the others.
-# ponytail: the count reads prompt text. A round whose range is one commit in
+# ponytail: the count reads prompt text. A reader that goes once more after a
+# failed read counts as one more read of its range: no reader on Opus gave a
+# failed read in 148 recorded reports. A round whose range is one commit in
 # another form than `<sha>^..<sha>` or `git show <sha>` counts as the whole
 # branch, starts a new count, and so can hide a count past three rounds.
 # Whether the last pass ran is left to the printed prompts.

@@ -116,9 +116,10 @@ input_filename as $f
         .input.file_path // "" | moments($f; "edit"; .) as $n | [$f, "moment", $n, $t, $msg]
       elif .name == "Skill" or .name == "Agent" then
         (select(.name == "Skill") | [$f, "skill", $id, $msg]),
-        # A reader of the review loop is an Agent call whose prompt starts
-        # with the path of its lens file: the call takes the name of that file.
-        (.input.skill // (.input.prompt // "" | capture("^Read [^\n]*/(?<lens>[a-z-]+-lens[.]md) ").lens) // .input.subagent_type // ""
+        # A round or the security review of the review loop is an Agent call
+        # whose prompt starts with the path of its lens file: the call takes
+        # the name of that file.
+        (.input.skill // (.input.prompt // "" | capture("^Read [^\n]*/(?<lens>(code|security)-lens[.]md) ").lens) // .input.subagent_type // ""
           | moments($f; "call"; .) as $n | [$f, "moment", $n, $t, $msg])
       elif .name == "Bash" then
         # A call has one output and one exit code, so a failure goes to the
