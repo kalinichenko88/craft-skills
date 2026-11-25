@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <!-- The repository's social preview. Render: rsvg-convert -o docs/social-preview.png docs/social-preview.svg,
+       then upload the PNG under Settings > General > Social preview. -->
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b47a8"/>
+      <stop offset="1" stop-color="#012a6b"/>
+    </linearGradient>
+    <pattern id="diamonds" width="48" height="48" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="48" height="48" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <rect width="1280" height="640" fill="url(#diamonds)"/>
+  <rect x="120" y="190" width="96" height="10" rx="5" fill="#2ec4b6"/>
+  <g font-family="Avenir Next, Helvetica Neue, Arial, sans-serif" fill="#ffffff">
+    <text x="112" y="350" font-size="176" font-weight="700" letter-spacing="-4">craft</text>
+    <text x="120" y="440" font-size="44" font-weight="500">Rules and skills that make Claude Code and Codex</text>
+    <text x="120" y="498" font-size="44" font-weight="500">work like a careful engineer.</text>
+    <text x="120" y="570" font-size="26" font-weight="500" fill-opacity="0.7">github.com/kalinichenko88/craft-skills</text>
+  </g>
+</svg>

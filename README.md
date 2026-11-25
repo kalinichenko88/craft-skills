@@ -1,14 +1,34 @@
 # craft-skills
 
-> The plugin was `kalinichenko`, and this repository was `agent-skills`. If
-> you installed it under the old name, [move to `craft`](docs/migrating-from-kalinichenko.md).
+With no rules, a coding agent often writes code before it reads the project,
+ships a fix with no test, calls its own change done with no review, and
+leaves the issue tracker out of date.
 
-`craft` is a plugin for Claude Code and Codex. It gives the agent a set of
-working rules and skills, so that it works on your project as a careful
-engineer does: it reads the code before it writes, ships each fix with its
-test, reviews its own change, and keeps the issue tracker true.
+`craft` is a plugin for Claude Code and Codex. It gives the agent working
+rules and skills, so that it works on your project as a careful engineer
+does:
+
+- **From an issue to a pull request.** Type `#91`: the agent checks that
+  nobody works on the issue, makes its own branch, does the work, opens the
+  pull request and asks you before the merge.
+- **Each fix with its test.** A bug fix comes with the test that catches the
+  bug, and the agent runs the project's own check before it calls a task
+  done.
+- **A review that ends.** Each round reads only the last fixes. The loop
+  stops at the first clean round or after round 3, and a second model reads
+  risky changes.
+- **A tracker that stays true.** A problem outside the task becomes an
+  issue, and an open issue is corrected when a decision makes it false.
+- **A roadmap on GitHub.** Milestones, the next task, the work that can run
+  in parallel, and triage of new issues.
+- **Structure and debt.** New code follows the project's architecture,
+  decisions go into ADRs, and a map of the technical debt is filed as a few
+  issues a run.
 
 It is for a solo developer or a small team that keeps its work on GitHub.
+
+> The plugin was `kalinichenko`, and this repository was `agent-skills`. If
+> you installed it under the old name, [move to `craft`](docs/migrating-from-kalinichenko.md).
 
 ## What it does
 
