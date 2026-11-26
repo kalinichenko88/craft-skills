@@ -19,7 +19,8 @@ feeling that the author never gave.
   still to come is not told as done. A claim that no line holds goes out of
   the text. On 2026-11-26, a blog post from a public pull request held such
   a claim in 10 of 10 runs with no skill, 78 claims in all, and in 5 of 10
-  with it, 8 in all (#230).
+  with it, 8 in all. Five of the 8 are one line on the rate limit, which the
+  pull request gives in other words (#230).
 - **The list behind the text.** After the text, outside it, each claim with
   the line of the input that it comes from, so you see what each sentence
   stands on.
