@@ -1,70 +1,90 @@
 #!/usr/bin/env bash
-# Asks the model for a blog post from the facts and notes of
-# tests/fixtures/writing/stars-notes.md, with the plugin of a given ref, and
-# counts the factual claims of each post that no line of the input holds.
-# The facts come from kalinichenko88/kalinichenko88.github.io#53, a public PR;
-# the notes are its author's. On 2026-11-26, with the plugin of origin/main,
-# 9 of 10 posts held such claims, 29 in all, by this judge with headings left
-# out (#230).
+# Asks the model for a text from a recorded input, with the plugin of a given
+# ref, and counts the factual claims of each text that no line of the input
+# holds. Two cases:
 #
-# A judge on Opus counts the claims. Before the posts count, it runs on two
-# recorded texts: judge-positive.md, a post that Opus 5.5 with no plugin
-# wrote from this input on 2026-11-26, must give at least one claim, and
-# judge-negative.md, written from the input alone, none.
+# - post (the default): a blog post from the facts and notes of
+#   tests/fixtures/writing/stars-notes.md. The facts come from
+#   kalinichenko88/kalinichenko88.github.io#53, a public PR; the notes are its
+#   author's. On 2026-11-26, with the plugin of 049dba0, the last commit with
+#   no craft:writing, 9 of 10 posts held such claims, 29 in all, by this judge
+#   with headings left out (#230).
+# - pr: the description of PR #511 of this repository, from its title, the
+#   issue that it closes and its diff, in tests/fixtures/writing/pr-511.md.
 #
-# It prints each run's claims and whether the session loaded craft:writing,
-# and exits 1 when a post holds a claim with no input line, or the judge fails
-# its check.
+# A judge on Opus counts the claims. Before the texts count, it runs on two
+# recorded posts for stars-notes.md: judge-positive.md, a post that Opus 5.5
+# with no plugin wrote from it on 2026-11-26, must give at least one claim,
+# and judge-negative.md, written from the input alone, none.
+#
+# It prints each run's claims and whether the session loaded craft:writing.
+# It exits 1 when the judge fails its check on the two posts, or a run gives
+# no text, a text that the judge gives no list for, or a text with a claim
+# that no input line holds. tests/writing_checks_test.sh runs its guards with
+# a stub claude.
 #
 # It calls the model, so it costs tokens and is not part of `make check`: run
-# it by hand after a change to skills/writing/. A run sees no plugin of this
-# machine, only the plugin of <ref>.
+# it by hand after a change to skills/writing/, with 049dba0 as the control.
+# A run sees no plugin of this machine, only the plugin of <ref>.
 #
-# Usage: tests/writing_eval.sh [runs, default 3] [ref, default: this checkout]
+# Usage: [CASE=pr] tests/writing_eval.sh [runs, default 3] [ref, default: this checkout]
 
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 runs=${1:-3}
 ref=${2:-}
+case=${CASE:-post}
 [ "$#" -le 2 ] && [ "$runs" -ge 1 ] 2>/dev/null || { echo "usage: $0 [runs, at least 1] [ref]" >&2; exit 2; }
 fixtures=$root/tests/fixtures/writing
+case $case in
+  post) input=$fixtures/stars-notes.md
+    ask='Write an English post for my blog from these facts and notes.' ;;
+  pr) input=$fixtures/pr-511.md
+    ask='Write the description of the pull request for this change.' ;;
+  *) echo "usage: CASE is post or pr, not '$case'" >&2; exit 2 ;;
+esac
+if [ -n "$ref" ]; then
+  git -C "$root" rev-parse --verify -q "$ref^{commit}" >/dev/null || { echo "usage: $0: no commit $ref" >&2; exit 2; }
+fi
 logs=$(mktemp -d)
 plugin=$root
 if [ -n "$ref" ]; then
-  git -C "$root" rev-parse --verify -q "$ref^{commit}" >/dev/null || { echo "$0: no commit $ref" >&2; exit 2; }
   plugin=$logs/plugin
   mkdir -p "$plugin"
   git -C "$root" archive "$ref" | tar -x -C "$plugin"
 fi
-notes=$(cat "$fixtures/stars-notes.md")
 
-# judge <text file> <out file>: one JSON object, {"invented": [...]}.
+# judge <input file> <text file> <out file>: one JSON object,
+# {"invented": [...]}, read from the first "{" of the judge's reply.
 judge() {
   local prompt
   prompt="Below are the INPUT that a writer had and the TEXT written from it.
 List every factual claim of the TEXT that no line of the INPUT states or
 directly implies: an event, a number, a name, a property of a thing, a cause,
 or an opinion or a feeling given as the author's. Do not list wording, order
-or tone; a claim in a heading counts. Answer with one JSON object and nothing else:
+or tone; a claim in a heading counts. Answer with one JSON object and nothing
+else:
 {\"invented\": [\"<the claim, quoted from the TEXT>\", ...]}
 
 <INPUT>
-$notes
+$(cat "$1")
 </INPUT>
 
 <TEXT>
-$(cat "$1")
+$(cat "$2")
 </TEXT>"
   (cd "$logs" && claude -p --model opus --safe-mode --setting-sources project \
     --tools "" --no-session-persistence --output-format json <<<"$prompt") \
-    | jq -r '.result // empty' | sed -n '/^{/,$p' | jq -c -n input >"$2" 2>/dev/null || true
+    | jq -r '.result // empty' \
+    | awk 'f || /\{/ { if (!f) sub(/^[^{]*/, ""); f = 1; print }' \
+    | jq -c -n input >"$3" 2>/dev/null || true
 }
 # count <file>: the number of claims, or "error" when the file holds no list.
 count() { jq -e '.invented | arrays | length' "$1" 2>/dev/null || echo error; }
 
-judge "$fixtures/judge-positive.md" "$logs/positive.json"
-judge "$fixtures/judge-negative.md" "$logs/negative.json"
+judge "$fixtures/stars-notes.md" "$fixtures/judge-positive.md" "$logs/positive.json"
+judge "$fixtures/stars-notes.md" "$fixtures/judge-negative.md" "$logs/negative.json"
 pos=$(count "$logs/positive.json")
 neg=$(count "$logs/negative.json")
 echo "== judge: positive $pos, negative $neg"
@@ -73,16 +93,17 @@ if [ "$pos" = error ] || [ "$pos" -lt 1 ] || [ "$neg" != 0 ]; then
   exit 1
 fi
 
-# run <n>: a session in an empty folder, with only the plugin of <ref>.
+# run <n>: a session in an empty folder, with only the plugin of <ref>. The
+# log holds stderr too, so each read of it takes only its JSON lines.
 run() {
   mkdir -p "$logs/$1"
   (cd "$logs/$1" && claude -p --model opus --setting-sources project \
     --plugin-dir "$plugin" --dangerously-skip-permissions --no-session-persistence \
     --disallowedTools ListAgents --output-format stream-json --verbose \
-    <<<"Write an English post for my blog from these facts and notes. Put the post between <final> and </final>.
+    <<<"$ask Put the text between <final> and </final>.
 
-$notes") >"$logs/$1.jsonl" 2>&1 || true
-  jq -r 'select(.type == "result") | .result // empty' "$logs/$1.jsonl" 2>/dev/null \
+$(cat "$input")") >"$logs/$1.jsonl" 2>&1 || true
+  jq -rR 'fromjson? | select(.type == "result") | .result // empty' "$logs/$1.jsonl" \
     | sed -n '/<final>/,/<\/final>/p' | sed '1s/.*<final>//; $s/<\/final>.*//' >"$logs/$1.md"
 }
 
@@ -92,15 +113,15 @@ wait
 failed=0
 for i in $(seq "$runs"); do
   loaded=no
-  jq -r 'select(.type == "assistant") | .message.content[]?
-    | select(.type == "tool_use" and .name == "Skill") | .input.skill' "$logs/$i.jsonl" 2>/dev/null \
+  jq -rR 'fromjson? | select(.type == "assistant") | .message.content[]?
+    | select(.type == "tool_use" and .name == "Skill") | .input.skill' "$logs/$i.jsonl" \
     | grep -qE '^(craft:)?writing$' && loaded=yes
   if [ ! -s "$logs/$i.md" ]; then
-    echo "== $i: FAIL, no post; skill loaded: $loaded"
+    echo "== $i: FAIL, no text; skill loaded: $loaded"
     failed=1
     continue
   fi
-  judge "$logs/$i.md" "$logs/$i.json"
+  judge "$input" "$logs/$i.md" "$logs/$i.json"
   n=$(count "$logs/$i.json")
   if [ "$n" = 0 ]; then verdict=pass
   elif [ "$n" = error ]; then verdict="FAIL, the judge gave no list"; failed=1

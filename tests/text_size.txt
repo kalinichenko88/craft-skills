@@ -47,7 +47,7 @@
 12464 skills/roadmap/SKILL.md
 10239 skills/roadmap/triage.md
 11970 skills/typescript-conventions/SKILL.md
-1500 skills/writing/SKILL.md
+1328 skills/writing/SKILL.md
 flow take-in 66000 rules.md skills/github/SKILL.md skills/github/take-in.md skills/github/tracker.md skills/review-loop/SKILL.md skills/review-loop/summary.md
 flow continue 76000 rules.md skills/github/SKILL.md skills/github/take-in.md skills/github/continue.md skills/github/tracker.md skills/review-loop/SKILL.md skills/review-loop/summary.md
 flow filing 41000 rules.md skills/github/SKILL.md skills/github/filing.md skills/github/tracker.md
