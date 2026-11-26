@@ -134,8 +134,7 @@ roadmap. roadmap names github. react-conventions names
 typescript-conventions. architecture and debt name each other, and so do
 architecture and product, github and review-loop, debt and review-loop,
 product and review-loop, and review-loop and each of the two conventions.
-github, review-loop, writing and the two conventions name the global prompt
-back. No
+github, review-loop and the two conventions name the global prompt back. No
 cycle closes in code.
 
 **Where a module's files are.** A module's test and fixtures are outside its

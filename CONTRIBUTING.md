@@ -192,6 +192,12 @@ checks that the scout gives a sentence of #117 and the title of #205 as false,
 no sentence of #179, and the moved citation of #179.
 It needs the history of the checkout down to #217. Run it after a change to
 `skills/github/citations.md` or to *Finishing* in `skills/github/merge.md`.
+`tests/writing_eval.sh` asks Opus for a blog post from the facts and notes of
+`tests/fixtures/writing/stars-notes.md`, with the plugin of a ref, and a judge
+on Opus counts the claims of each post that no line of the input holds. The
+judge runs first on a recorded post with such claims and on one with none.
+Run it after a change to `skills/writing/`, with `tests/writing_eval.sh 10
+origin/main` as the control.
 `tests/scenarios_eval.sh` runs craft on each of the 37 scenarios of
 `scenarios/github/take-in.md`: those that the first message of the person
 starts, from a free task and a closed task to a task of another repository

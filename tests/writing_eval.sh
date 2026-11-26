@@ -3,8 +3,9 @@
 # tests/fixtures/writing/stars-notes.md, with the plugin of a given ref, and
 # counts the factual claims of each post that no line of the input holds.
 # The facts come from kalinichenko88/kalinichenko88.github.io#53, a public PR;
-# the notes are its author's. On 2026-11-26, plain Opus 5.5 with no plugin
-# wrote 3 such claims from this input (#230).
+# the notes are its author's. On 2026-11-26, with the plugin of origin/main,
+# 9 of 10 posts held such claims, 29 in all, by the count of this judge
+# (#230).
 #
 # A judge on Opus counts the claims. Before the posts count, it runs on two
 # recorded texts: judge-positive.md, that post of 2026-11-26, must give at
@@ -30,6 +31,7 @@ fixtures=$root/tests/fixtures/writing
 logs=$(mktemp -d)
 plugin=$root
 if [ -n "$ref" ]; then
+  git -C "$root" rev-parse --verify -q "$ref^{commit}" >/dev/null || { echo "$0: no commit $ref" >&2; exit 2; }
   plugin=$logs/plugin
   mkdir -p "$plugin"
   git -C "$root" archive "$ref" | tar -x -C "$plugin"
@@ -42,8 +44,8 @@ judge() {
   prompt="Below are the INPUT that a writer had and the TEXT written from it.
 List every factual claim of the TEXT that no line of the INPUT states or
 directly implies: an event, a number, a name, a property of a thing, a cause,
-or an opinion or a feeling given as the author's. Do not list wording, order,
-tone or a heading. Answer with one JSON object and nothing else:
+or an opinion or a feeling given as the author's. Do not list wording, order
+or tone; a claim in a heading counts. Answer with one JSON object and nothing else:
 {\"invented\": [\"<the claim, quoted from the TEXT>\", ...]}
 
 <INPUT>
@@ -55,9 +57,10 @@ $(cat "$1")
 </TEXT>"
   (cd "$logs" && claude -p --model opus --safe-mode --setting-sources project \
     --tools "" --no-session-persistence --output-format json <<<"$prompt") \
-    | jq -r '.result // empty' | grep -v '^```' | sed -n '/^{/,/^}/p' >"$2" || true
+    | jq -r '.result // empty' | sed -n '/^{/,$p' | jq -c -n input >"$2" 2>/dev/null || true
 }
-count() { jq '.invented | length' "$1" 2>/dev/null || echo error; }
+# count <file>: the number of claims, or "error" when the file holds no list.
+count() { jq -e '.invented | arrays | length' "$1" 2>/dev/null || echo error; }
 
 judge "$fixtures/judge-positive.md" "$logs/positive.json"
 judge "$fixtures/judge-negative.md" "$logs/negative.json"
@@ -88,7 +91,9 @@ wait
 failed=0
 for i in $(seq "$runs"); do
   loaded=no
-  grep -q '"skill":"craft:writing"' "$logs/$i.jsonl" && loaded=yes
+  jq -r 'select(.type == "assistant") | .message.content[]?
+    | select(.type == "tool_use" and .name == "Skill") | .input.skill' "$logs/$i.jsonl" 2>/dev/null \
+    | grep -qE '^(craft:)?writing$' && loaded=yes
   if [ ! -s "$logs/$i.md" ]; then
     echo "== $i: FAIL, no post; skill loaded: $loaded"
     failed=1

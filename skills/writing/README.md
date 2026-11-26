@@ -22,8 +22,8 @@ feeling that the author never gave.
   voice file in the project's `CLAUDE.md` or `AGENTS.md`, as
   `Voice: docs/VOICE.md`: who speaks, to whom, the length and the format.
   The agent follows it over the plain technical English of the base prompt,
-  with no rule in the skill: in 20 of 20 runs on 2026-11-26. With no voice
-  file, the text is plain technical English.
+  with no rule in the skill: in 20 of 20 runs on 2026-11-26 (#230). With no
+  voice file, the text is plain technical English.
 
 ## What it does not do
 
@@ -33,5 +33,6 @@ feeling that the author never gave.
   after a rewrite by a second model. No skill changes that; only the
   author's own sentences do.
 - **No list of banned words or patterns.** Opus 5.5 wrote a pull request
-  description with no invented fact and no sign of model prose in each of
-  four ways, so this skill adds no rule for them (ADR 0009).
+  description with no invented fact and no sign from the structure list of
+  Wikipedia's *Signs of AI writing* in each of four ways, so this skill adds
+  no rule for them (ADR 0009, #230).

@@ -6,8 +6,8 @@ description: Use when writing a text for readers from notes, facts or a source â
 # Writing
 
 A text for readers says only what its input holds. The input is what the
-person gave and the files that the task names: notes, facts, a diff, an
-issue. The reader takes each sentence as the author's word, so a claim
+person gave and what the work of the task gave: notes, facts, a diff, an
+issue, a file that you read, the output of a command that you ran. The reader takes each sentence as the author's word, so a claim
 that the author never made is a false statement in their name.
 
 ## Each claim comes from a line of the input
@@ -18,11 +18,10 @@ author's. Each claim of the text comes from a line of the input that states
 it or directly implies it. A claim that no line holds goes out of the text,
 however true or harmless it sounds.
 
-The usual added claim is a cause or a feeling that makes the story flow. On
-2026-11-26, from notes that said "`astro dev` skips the call, because dev
-renders the home page on each request", a post added "a GitHub call on each
-page load is too much for local work". The notes gave the cause; the post
-gave another one, and the author never said it.
+The usual added claim is a cause or an opinion that makes the story flow.
+On 2026-11-26, from facts that a project card showed 1 star where GitHub
+showed 2, a post added "A number on the page that is not true is worse than
+no number." The author never said it.
 
 When the text needs a claim that the input does not hold, as the number
 behind "faster" or what went wrong, ask the person for it. Do not write it
