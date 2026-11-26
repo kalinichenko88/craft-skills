@@ -17,9 +17,9 @@ feeling that the author never gave.
   input: your notes, the diff, the issue, a file that the agent read, the
   output of a command that it ran. A claim that no line holds goes out of
   the text. On 2026-11-26, a blog post from a public pull request held such
-  a claim in 10 of 10 runs with no skill, 65 claims in all, and in 6 of 10
-  with it, 7 in all. Four of the 7 told as done a step that the pull
-  request gives as still to come (#230).
+  a claim in 10 of 10 runs with no skill, 65 claims in all, and in 7 of 10
+  with it, 8 in all. Four of the 8 say that a file "has one function", where
+  the pull request names one function of it (#230).
 - **The list behind the text.** After the text, outside it, each claim with
   the line of the input that it comes from, so you see what each sentence
   stands on.

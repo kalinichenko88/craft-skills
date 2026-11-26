@@ -13,11 +13,12 @@ author never made is a false statement in their name.
 
 ## Each claim comes from a line of the input
 
-A claim is a statement of what is or was: an event, a number, a name, a
-property of a thing, a cause, or an opinion or a feeling given as the
-author's. Each claim of the text comes from a line of the input that states
-it or directly implies it. A claim that no line holds goes out of the text,
-however true or harmless it sounds.
+A claim is a statement of what is, was or will be: an event, a number, a
+name, a property of a thing, a cause, or an opinion or a feeling given as
+the author's. Each claim of the text comes from a line of the input that
+states it or directly implies it, at the time that the line gives: a step
+that the line gives as still to come stays to come in the text. A claim
+that no line holds goes out of the text, however true or harmless it sounds.
 
 The usual added claim is a cause or an opinion that makes the story flow.
 On 2026-11-26, from a pull request that reads star counts from GitHub at
