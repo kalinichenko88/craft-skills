@@ -116,7 +116,7 @@ for i in $(seq "$runs"); do
   jq -rR 'fromjson? | select(.type == "assistant") | .message.content[]?
     | select(.type == "tool_use" and .name == "Skill") | .input.skill' "$logs/$i.jsonl" \
     | grep -qE '^(craft:)?writing$' && loaded=yes
-  if [ ! -s "$logs/$i.md" ]; then
+  if [ "$(wc -w <"$logs/$i.md")" -eq 0 ]; then
     echo "== $i: FAIL, no text; skill loaded: $loaded"
     failed=1
     continue

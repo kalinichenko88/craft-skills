@@ -197,9 +197,10 @@ It needs the history of the checkout down to #217. Run it after a change to
 description of PR #511 from its issue and diff, with the plugin of a ref. A
 judge on Opus counts the claims of each text that no line of the input
 holds; it runs first on a recorded post with such claims and on one with
-none. Run `tests/writing_eval.sh 10` after a change to `skills/writing/`,
-and `tests/writing_eval.sh 10 049dba0`, the last commit with no skill, as the
-control. `tests/writing_checks_test.sh` runs its guards in `make check`, with
+none. After a change to `skills/writing/`, run `tests/writing_eval.sh 10`
+and `CASE=pr tests/writing_eval.sh 10`, and each again with the base of the
+change, as `origin/main`, for the control. `049dba0`, the last commit with no
+skill, gives the runs with none. `tests/writing_checks_test.sh` runs its guards in `make check`, with
 a stub claude.
 `tests/scenarios_eval.sh` runs craft on each of the 37 scenarios of
 `scenarios/github/take-in.md`: those that the first message of the person

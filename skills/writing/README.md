@@ -15,7 +15,9 @@ feeling that the author never gave.
   thing, cause, opinion or feeling in the text comes from a line of the
   input: your notes, the diff, the issue, a file that the agent read, the
   output of a command that it ran. A claim that no line holds goes out of
-  the text.
+  the text. On 2026-11-26, a blog post from facts and notes held such a
+  claim in 9 of 10 runs with no skill, 29 claims in all, and in 1 to 3 of
+  10 with it, one claim each (#230).
 - **The list behind the text.** After the text, outside it, each claim with
   the line of the input that it comes from, so you see what each sentence
   stands on.
@@ -29,8 +31,8 @@ feeling that the author never gave.
 ## What it does not do
 
 - **It does not hide that a model wrote the text.** In a test on
-  2026-11-26, Pangram scored each text whose English sentences a model wrote
-  as 100 % AI, a close translation of the author's own dictation too, and
+  2026-11-26, Pangram scored the first 400 words of each text whose English
+  sentences a model wrote as 100 % AI, a close translation of the author's own dictation too, and
   after a rewrite by Codex or by GLM. No skill changed that (#230).
 - **No list of banned words or patterns.** Opus 5.5 wrote a pull request
   description with no invented fact and no sign from the structure list of
