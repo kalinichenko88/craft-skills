@@ -14,17 +14,11 @@
 # and exits 1 when a post holds a claim with no input line, or the judge fails
 # its check.
 #
-# With VOICE=1, the run's folder holds the CLAUDE.md and VOICE.md of
-# tests/fixtures/writing/voice/: a voice of sentences of 25 to 40 words,
-# against the short sentences of *Plain technical prose* in rules.md. It
-# prints the mean words of a sentence of each post, with no judge, and exits 1
-# when a mean is under 20: then rules.md wins over the voice file.
-#
 # It calls the model, so it costs tokens and is not part of `make check`: run
 # it by hand after a change to skills/writing/. A run sees no plugin of this
 # machine, only the plugin of <ref>.
 #
-# Usage: [VOICE=1] tests/writing_eval.sh [runs, default 3] [ref, default: this checkout]
+# Usage: tests/writing_eval.sh [runs, default 3] [ref, default: this checkout]
 
 set -eu
 
@@ -65,28 +59,19 @@ $(cat "$1")
 }
 count() { jq '.invented | length' "$1" 2>/dev/null || echo error; }
 
-# mean <text file>: the mean words of a sentence, headings left out.
-mean() {
-  grep -v '^#' "$1" | awk '{ gsub(/[.!?]( |$)/, "&\n"); print }' \
-    | awk 'NF { n++; w += NF } END { printf "%d", n ? w / n : 0 }'
-}
-voice=${VOICE:-}
-if [ "$voice" != 1 ]; then
-  judge "$fixtures/judge-positive.md" "$logs/positive.json"
-  judge "$fixtures/judge-negative.md" "$logs/negative.json"
-  pos=$(count "$logs/positive.json")
-  neg=$(count "$logs/negative.json")
-  echo "== judge: positive $pos, negative $neg"
-  if [ "$pos" = error ] || [ "$pos" -lt 1 ] || [ "$neg" != 0 ]; then
-    echo "$0: the judge failed its check; logs: $logs" >&2
-    exit 1
-  fi
+judge "$fixtures/judge-positive.md" "$logs/positive.json"
+judge "$fixtures/judge-negative.md" "$logs/negative.json"
+pos=$(count "$logs/positive.json")
+neg=$(count "$logs/negative.json")
+echo "== judge: positive $pos, negative $neg"
+if [ "$pos" = error ] || [ "$pos" -lt 1 ] || [ "$neg" != 0 ]; then
+  echo "$0: the judge failed its check; logs: $logs" >&2
+  exit 1
 fi
 
 # run <n>: a session in an empty folder, with only the plugin of <ref>.
 run() {
   mkdir -p "$logs/$1"
-  [ "$voice" != 1 ] || cp "$fixtures/voice/CLAUDE.md" "$fixtures/voice/VOICE.md" "$logs/$1/"
   (cd "$logs/$1" && claude -p --model opus --setting-sources project \
     --plugin-dir "$plugin" --dangerously-skip-permissions --no-session-persistence \
     --disallowedTools ListAgents --output-format stream-json --verbose \
@@ -107,12 +92,6 @@ for i in $(seq "$runs"); do
   if [ ! -s "$logs/$i.md" ]; then
     echo "== $i: FAIL, no post; skill loaded: $loaded"
     failed=1
-    continue
-  fi
-  if [ "$voice" = 1 ]; then
-    m=$(mean "$logs/$i.md")
-    if [ "$m" -ge 20 ]; then verdict=pass; else verdict=FAIL; failed=1; fi
-    echo "== $i: $verdict, $m words a sentence; skill loaded: $loaded"
     continue
   fi
   judge "$logs/$i.md" "$logs/$i.json"

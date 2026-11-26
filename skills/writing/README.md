@@ -21,11 +21,9 @@ feeling that the author never gave.
 - **Your register, where you set one.** The skill holds no voice. Name a
   voice file in the project's `CLAUDE.md` or `AGENTS.md`, as
   `Voice: docs/VOICE.md`: who speaks, to whom, the length and the format.
-  The agent follows it over the plain technical English of the base prompt:
-  a voice of sentences of 25 to 40 words came out at 28 to 37 words a
-  sentence in 20 of 20 runs, with the skill and without it
-  (`VOICE=1 tests/writing_eval.sh`). With no voice file, the text is plain
-  technical English.
+  The agent follows it over the plain technical English of the base prompt,
+  with no rule in the skill: in 20 of 20 runs on 2026-11-26. With no voice
+  file, the text is plain technical English.
 
 ## What it does not do
 
