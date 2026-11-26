@@ -13,7 +13,8 @@ feeling that the author never gave.
 
 - **No claim that you never made.** Each event, number, name, cause or
   opinion in the text comes from a line of the input: your notes, the diff,
-  the issue. A claim that no line holds goes out of the text. When the text
+  the issue, a file that the agent read, the output of a command that it
+  ran. A claim that no line holds goes out of the text. When the text
   needs a fact that the input lacks, the agent asks you for it.
 - **The list behind the text.** After the text, outside it, each claim with
   the line of the input that it comes from, so you see what each sentence

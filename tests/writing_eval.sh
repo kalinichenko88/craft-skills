@@ -4,12 +4,13 @@
 # counts the factual claims of each post that no line of the input holds.
 # The facts come from kalinichenko88/kalinichenko88.github.io#53, a public PR;
 # the notes are its author's. On 2026-11-26, with the plugin of origin/main,
-# 9 of 10 posts held such claims, 29 in all, by the count of this judge
-# (#230).
+# 9 of 10 posts held such claims, 29 in all, by this judge with headings left
+# out (#230).
 #
 # A judge on Opus counts the claims. Before the posts count, it runs on two
-# recorded texts: judge-positive.md, that post of 2026-11-26, must give at
-# least one claim, and judge-negative.md, written from the input alone, none.
+# recorded texts: judge-positive.md, a post that Opus 5.5 with no plugin
+# wrote from this input on 2026-11-26, must give at least one claim, and
+# judge-negative.md, written from the input alone, none.
 #
 # It prints each run's claims and whether the session loaded craft:writing,
 # and exits 1 when a post holds a claim with no input line, or the judge fails
@@ -101,7 +102,9 @@ for i in $(seq "$runs"); do
   fi
   judge "$logs/$i.md" "$logs/$i.json"
   n=$(count "$logs/$i.json")
-  if [ "$n" = 0 ]; then verdict=pass; else verdict="FAIL, $n claims with no input line"; failed=1; fi
+  if [ "$n" = 0 ]; then verdict=pass
+  elif [ "$n" = error ]; then verdict="FAIL, the judge gave no list"; failed=1
+  else verdict="FAIL, $n claims with no input line"; failed=1; fi
   echo "== $i: $verdict; skill loaded: $loaded; words: $(wc -w <"$logs/$i.md" | tr -d ' ')"
   jq -r '.invented[]? | "   - " + .' "$logs/$i.json" 2>/dev/null || true
 done
