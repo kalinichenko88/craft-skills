@@ -3,17 +3,16 @@
 # ref, and counts the factual claims of each text that no line of the input
 # holds. Two cases:
 #
-# - post (the default): a blog post from the facts and notes of
-#   tests/fixtures/writing/stars-notes.md. The facts come from
-#   kalinichenko88/kalinichenko88.github.io#53, a public PR; the notes are its
-#   author's. On 2026-11-26, with the plugin of 049dba0, the last commit with
-#   no craft:writing, 9 of 10 posts held such claims, 29 in all, by this judge
-#   with headings left out (#230).
+# - post (the default): a blog post from the title and description of
+#   kalinichenko88/kalinichenko88.github.io#53, a public PR, in
+#   tests/fixtures/writing/blog-pr-53.md. On 2026-11-26, with the plugin of
+#   049dba0, the last commit with no craft:writing, 10 of 10 posts held such
+#   claims, 65 in all (#230).
 # - pr: the description of PR #511 of this repository, from its title, the
 #   issue that it closes and its diff, in tests/fixtures/writing/pr-511.md.
 #
 # A judge on Opus counts the claims. Before the texts count, it runs on two
-# recorded posts for stars-notes.md: judge-positive.md, a post that Opus 5.5
+# recorded posts for blog-pr-53.md: judge-positive.md, a post that Opus 5.5
 # with no plugin wrote from it on 2026-11-26, must give at least one claim,
 # and judge-negative.md, written from the input alone, none.
 #
@@ -38,8 +37,8 @@ case=${CASE:-post}
 [ "$#" -le 2 ] && [ "$runs" -ge 1 ] 2>/dev/null || { echo "usage: $0 [runs, at least 1] [ref]" >&2; exit 2; }
 fixtures=$root/tests/fixtures/writing
 case $case in
-  post) input=$fixtures/stars-notes.md
-    ask='Write an English post for my blog from these facts and notes.' ;;
+  post) input=$fixtures/blog-pr-53.md
+    ask='Write a post for my blog from this pull request.' ;;
   pr) input=$fixtures/pr-511.md
     ask='Write the description of the pull request for this change.' ;;
   *) echo "usage: CASE is post or pr, not '$case'" >&2; exit 2 ;;
@@ -83,8 +82,8 @@ $(cat "$2")
 # count <file>: the number of claims, or "error" when the file holds no list.
 count() { jq -e '.invented | arrays | length' "$1" 2>/dev/null || echo error; }
 
-judge "$fixtures/stars-notes.md" "$fixtures/judge-positive.md" "$logs/positive.json"
-judge "$fixtures/stars-notes.md" "$fixtures/judge-negative.md" "$logs/negative.json"
+judge "$fixtures/blog-pr-53.md" "$fixtures/judge-positive.md" "$logs/positive.json"
+judge "$fixtures/blog-pr-53.md" "$fixtures/judge-negative.md" "$logs/negative.json"
 pos=$(count "$logs/positive.json")
 neg=$(count "$logs/negative.json")
 echo "== judge: positive $pos, negative $neg"

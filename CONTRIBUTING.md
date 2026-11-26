@@ -192,8 +192,9 @@ checks that the scout gives a sentence of #117 and the title of #205 as false,
 no sentence of #179, and the moved citation of #179.
 It needs the history of the checkout down to #217. Run it after a change to
 `skills/github/citations.md` or to *Finishing* in `skills/github/merge.md`.
-`tests/writing_eval.sh` asks Opus for a blog post from the facts and notes of
-`tests/fixtures/writing/stars-notes.md`, or with `CASE=pr` for the
+`tests/writing_eval.sh` asks Opus for a blog post from the title and
+description of a public pull request, `tests/fixtures/writing/blog-pr-53.md`,
+or with `CASE=pr` for the
 description of PR #511 from its issue and diff, with the plugin of a ref. A
 judge on Opus counts the claims of each text that no line of the input
 holds; it runs first on a recorded post with such claims and on one with

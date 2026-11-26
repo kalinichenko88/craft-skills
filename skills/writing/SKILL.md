@@ -20,8 +20,9 @@ it or directly implies it. A claim that no line holds goes out of the text,
 however true or harmless it sounds.
 
 The usual added claim is a cause or an opinion that makes the story flow.
-On 2026-11-26, from facts and notes on star counts that drifted, a post
-added "This was the part I cared about most." The author never said it.
+On 2026-11-26, from a pull request that reads star counts from GitHub at
+build time, a post added "It's also why I switched to hand-typed YAML in the
+first place." The pull request gives no such cause.
 
 ## What you give
 

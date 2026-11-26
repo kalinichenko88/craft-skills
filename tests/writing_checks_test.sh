@@ -25,7 +25,7 @@ touch "$(dirname "$0")/called"
 prompt=$(cat)
 case $prompt in
   "Below are the INPUT"*)
-    if [[ $prompt == *"Were Lying"* ]]; then reply='{"invented": ["x"]}'
+    if [[ $prompt == *"a token I have to manage"* ]]; then reply='{"invented": ["x"]}'
     else reply=${STUB_JUDGE:-'{"invented": []}'}; fi
     jq -cn --arg r "$reply" '{result: $r}' ;;
   *)
