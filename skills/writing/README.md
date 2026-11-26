@@ -18,9 +18,8 @@ feeling that the author never gave.
   output of a command that it ran, at the time that the line gives: a step
   still to come is not told as done. A claim that no line holds goes out of
   the text. On 2026-11-26, a blog post from a public pull request held such
-  a claim in 10 of 10 runs with no skill, 71 claims in all, and in 5 of 10
-  with it, 6 in all. Three of the 6 are a line that the pull request states,
-  which the judge of the eval lists all the same (#230).
+  a claim in 10 of 10 runs with no skill, 78 claims in all, and in 5 of 10
+  with it, 8 in all (#230).
 - **The list behind the text.** After the text, outside it, each claim with
   the line of the input that it comes from, so you see what each sentence
   stands on.

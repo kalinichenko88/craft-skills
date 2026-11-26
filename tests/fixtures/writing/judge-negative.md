@@ -17,8 +17,7 @@ sends `Authorization` only when `GITHUB_TOKEN` is set.
 The four project fetches on the homepage run in parallel through
 `Promise.all`. Under `astro dev` the call is skipped and the YAML counts show:
 dev renders `/` per request, and each load cost 4 calls of the 60/h anonymous
-limit. Over two loads the limit went from 50 to 42; after the change, two loads
-left it at 42.
+limit, measured as 50 → 42 over two loads, and 42 → 42 after the change.
 
 ## The workflow
 

@@ -7,7 +7,7 @@
 #   kalinichenko88/kalinichenko88.github.io#53, a public PR, in
 #   tests/fixtures/writing/blog-pr-53.md. On 2026-11-26, with the plugin of
 #   049dba0, the last commit with no craft:writing, 10 of 10 posts held such
-#   claims, 71 in all (#230).
+#   claims, 78 in all (#230).
 # - pr: the description of PR #511 of this repository, from its title, the
 #   issue that it closes and its diff, in tests/fixtures/writing/pr-511.md.
 #
@@ -62,9 +62,8 @@ judge() {
 List every factual claim of the TEXT that no line of the INPUT states or
 directly implies: an event, a number, a name, a property of a thing, a cause,
 or an opinion or a feeling given as the author's. A step that the INPUT gives
-as still to come and the TEXT tells as done counts too, but not a step or a
-measurement that the INPUT gives as done. Do not list wording, order or tone;
-a claim in a heading counts. Answer with one JSON object and nothing
+as still to come and the TEXT tells as done counts too. Do not list wording,
+order or tone; a claim in a heading counts. Answer with one JSON object and nothing
 else:
 {\"invented\": [\"<the claim, quoted from the TEXT>\", ...]}
 
