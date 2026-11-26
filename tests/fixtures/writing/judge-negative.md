@@ -27,7 +27,7 @@ hosted-runner IPs. A weekly schedule, Monday 06:00 UTC, rebuilds the site, so
 the counts refresh between pushes.
 
 With the token in the build's environment, `pages: write` would have reached
-every build-time dependency. So the workflow now defaults to `contents: read`,
+every build-time dependency. The workflow now defaults to `contents: read`,
 the build job adds only `pages: read`, and `pages: write` and `id-token: write`
 sit on the deploy job alone.
 

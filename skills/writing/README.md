@@ -7,7 +7,8 @@ feeling that the author never gave.
 
 - The agent writes a pull request description, a README, a doc file or a
   release note from notes, facts or a source.
-- The agent writes a blog or social post from your notes.
+- The agent writes a blog or social post from your notes or from a source,
+  as a pull request.
 
 ## What you get
 
