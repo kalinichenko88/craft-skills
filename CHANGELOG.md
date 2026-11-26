@@ -6,6 +6,16 @@ type, and the PR number when it has one. The `/release` skill writes the
 section and merges it through a pull request of its own; other pull requests
 leave this file alone.
 
+## 2.7.0 - 2026-11-26
+
+### Added
+
+- (writing) add a skill that keeps each claim of a text for readers to a line of its input (#513)
+
+### Fixed
+
+- (roadmap) print only the board settings that the project does not show as made (#511)
+
 ## 2.6.1 - 2026-11-25
 
 ### Changed
