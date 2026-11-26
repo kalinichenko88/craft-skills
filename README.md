@@ -69,6 +69,9 @@ starts and what you get.
   as a few issues a run.
 - [`craft:docker`](skills/docker/README.md) — the newest stable image, pinned
   exactly, on the smallest base that runs the app.
+- [`craft:writing`](skills/writing/README.md) — a pull request description,
+  a README or a post that says only what its input holds, with the list of
+  what each claim stands on.
 - [`craft:typescript-conventions`](skills/typescript-conventions/README.md) —
   house TypeScript style.
 - [`craft:react-conventions`](skills/react-conventions/README.md) — layers and

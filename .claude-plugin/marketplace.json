@@ -9,7 +9,7 @@
       "name": "craft",
       "source": "./",
       "version": "2.6.1",
-      "description": "Engineering rules as an always-on base prompt, plus the github, roadmap, review-loop, debt, architecture, product, docker, typescript-conventions and react-conventions skills."
+      "description": "Engineering rules as an always-on base prompt, plus the github, roadmap, review-loop, debt, architecture, product, docker, writing, typescript-conventions and react-conventions skills."
     }
   ],
   "description": "Ivan Kalinichenko's engineering rules and skills for Claude Code and Codex."
