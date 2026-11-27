@@ -57,9 +57,10 @@ directory. Read all of it before the first step of that moment.
   wait on, wherever it is. When the `Done when` names no issue, the path is
   the issues of the milestone without the bug label, and what they wait on.
   Bugs are the other free issues with the bug label. Secondary is every other
-  free issue, the rest of the goal milestone too. A track ranks by milestone
-  order — a blocker of an `M1` task ranks with `M1` — then by how many issues
-  wait on it, then oldest first.
+  free issue, the rest of the goal milestone too. A track ranks the issues of
+  a current milestone first, then by milestone order — a blocker of an `M1`
+  task ranks with `M1` — then by how many issues wait on it, then oldest
+  first.
 - An issue goes into a milestone with `gh issue edit <n> --milestone '<title>'`,
   out of it with `--remove-milestone`, and into `Later` with `plan.sh later`.
 

@@ -82,9 +82,11 @@ function closure(set,   q, h, t, k, e, i, j) {
   }
 }
 
+# The place of n's milestone in a track, as text that sorts: a current
+# milestone first, then by milestone order.
 function order_of(n,   e) {
   e = ems(n)
-  return e ? msorder[e] : 500000000
+  return sprintf("%d %012d", !(e && mscur[e]), e ? msorder[e] : 500000000)
 }
 
 # What holds the issue: its busy text, its blockers, its open sub-issues.
