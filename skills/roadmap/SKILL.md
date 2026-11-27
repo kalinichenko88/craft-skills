@@ -58,9 +58,10 @@ directory. Read all of it before the first step of that moment.
   the issues of the milestone without the bug label, and what they wait on.
   Bugs are the other free issues with the bug label. Secondary is every other
   free issue, the rest of the goal milestone too. A track ranks the issues of
-  a current milestone first, then by milestone order — a blocker of an `M1`
-  task ranks with `M1` — then by how many issues wait on it, then oldest
-  first.
+  a current milestone first, then by milestone order, then by how many issues
+  wait on it, then oldest first. By milestone, an issue ranks with the first
+  of its own milestone and the milestones of the issues that wait on it: a
+  blocker of an `M1` task ranks with `M1` or before it.
 - An issue goes into a milestone with `gh issue edit <n> --milestone '<title>'`,
   out of it with `--remove-milestone`, and into `Later` with `plan.sh later`.
 

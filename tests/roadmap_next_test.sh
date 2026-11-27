@@ -67,18 +67,22 @@ check 'fallback by order' 'note: nothing on the main path of M1 · Stage 1 is fr
 check 'fallback main path' '#40 Issue 40 (M2 · Stage 2), unblocks 0' "$(section 'main path' <<<"$out")"
 check 'a second current milestone is secondary' '#30 Issue 30 (M3 · Stage 3), unblocks 0' "$(section secondary <<<"$out" | head -1)"
 # Each track ranks the issues of a current milestone first, then by milestone
-# order: M4 before M3 when M2 and M4 are current. A blocker in M3 of an M4
-# issue ranks with M4.
+# order: with M2, M4 and M5 current, M4 before M5, and both before M1 and M3.
+# A blocker in M3 of an M4 issue ranks with M4.
 reset
-mark M2
+ms 'map(if (.title | startswith("M2 ")) then .description = $d else . end)' \
+  --arg d $'Done when:\n- the export works (#10, #20)\n\nCurrent.'
 mark M4
-put '20:M2 30:M3 31:M3 32:M3 40:M4 41:M4 42:M4'
+mark M5
+put '10:M1 20:M2 30:M3 31:M3 32:M3 35:M5 40:M4 41:M4 42:M4'
 blocks 41 31
 edit 32 '.labels.nodes = [{name: "bug"}]'
 edit 42 '.labels.nodes = [{name: "bug"}]'
 out=$(bash "$scripts/next.sh")
+check 'a current milestone ranks first on the main path' \
+  "$(printf '#20 Issue 20 (M2 · Stage 2), unblocks 0\n#10 Issue 10 (M1 · Stage 1), unblocks 0')" "$(section 'main path' <<<"$out")"
 check 'a current milestone ranks first in secondary, and a blocker with it' \
-  "$(printf '#31 Issue 31 (M3 · Stage 3), unblocks 1\n#40 Issue 40 (M4 · Stage 4), unblocks 0\n#30 Issue 30 (M3 · Stage 3), unblocks 0')" "$(section secondary <<<"$out")"
+  "$(printf '#31 Issue 31 (M3 · Stage 3), unblocks 1\n#40 Issue 40 (M4 · Stage 4), unblocks 0\n#35 Issue 35 (M5 · Stage 5), unblocks 0\n#30 Issue 30 (M3 · Stage 3), unblocks 0')" "$(section secondary <<<"$out")"
 check 'a current milestone ranks first in bugs' \
   "$(printf '#42 Issue 42 (M4 · Stage 4), unblocks 0\n#32 Issue 32 (M3 · Stage 3), unblocks 0')" "$(section bugs <<<"$out")"
 # The main path is what the Done when of the goal names, with any label, and

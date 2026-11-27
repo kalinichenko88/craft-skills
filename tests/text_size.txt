@@ -44,7 +44,7 @@
 2847 skills/review-loop/walk.md
 3516 skills/roadmap/lanes.md
 4724 skills/roadmap/planning.md
-12512 skills/roadmap/SKILL.md
+12640 skills/roadmap/SKILL.md
 10239 skills/roadmap/triage.md
 11970 skills/typescript-conventions/SKILL.md
 1499 skills/writing/SKILL.md
