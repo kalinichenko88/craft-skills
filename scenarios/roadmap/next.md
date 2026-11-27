@@ -18,6 +18,8 @@ Not covered yet:
 - a task in `Later` that a task outside `Later` waits on;
 - a first current milestone with no free task that its `Done when` needs,
   when the run takes the `Done when` of the next milestone in its place;
+- two current milestones or more, when the tasks of a current milestone
+  come before the tasks of a milestone that is not current;
 - a repository with no milestone, where the run takes the tasks from the
   documents of the product;
 - a task whose text waits on a decision;

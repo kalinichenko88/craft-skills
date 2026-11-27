@@ -12,8 +12,9 @@
 # issues of the goal and what they wait on. Its free issues are the main path.
 # When none is free, the next milestone that is not Later is the goal. Bugs and
 # secondary are the free issues outside the main set. A track ranks by the
-# effective order (the lowest milestone order among the issue and the issues
-# that wait on it), then by how many issues wait on it, then by number.
+# effective order (the first among the issue and the issues that wait on it,
+# with a current milestone before the others, then by milestone order), then
+# by how many issues wait on it, then by number.
 
 # The pr records come after the issues. A PR that closes an open issue gives
 # that issue its files; one that closes only closed issues is listed alone.
@@ -143,7 +144,7 @@ function notes(m,   i, c) {
 # Prints a track's top 5, and the want lines of its top wanted, which the
 # overlap file takes.
 function track(name, a, n, wanted,   i, j, k, m) {
-  for (i = 1; i <= n; i++) { rank(a[i]); key[a[i]] = sprintf("%012d %06d %08d", eff[a[i]], 999999 - ups[a[i]], a[i]) }
+  for (i = 1; i <= n; i++) { rank(a[i]); key[a[i]] = sprintf("%s %06d %08d", eff[a[i]], 999999 - ups[a[i]], a[i]) }
   for (i = 2; i <= n; i++) for (j = i; j > 1 && key[a[j - 1]] > key[a[j]]; j--) { k = a[j]; a[j] = a[j - 1]; a[j - 1] = k }
   print "== " name
   if (!n) print "none"
