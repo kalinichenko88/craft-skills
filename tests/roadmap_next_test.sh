@@ -66,12 +66,15 @@ out=$(bash "$scripts/next.sh")
 check 'fallback by order' 'note: nothing on the main path of M1 · Stage 1 is free; it is from M2 · Stage 2' "$(grep '^note: nothing ' <<<"$out")"
 check 'fallback main path' '#40 Issue 40 (M2 · Stage 2), unblocks 0' "$(section 'main path' <<<"$out")"
 check 'a second current milestone is secondary' '#30 Issue 30 (M3 · Stage 3), unblocks 0' "$(section secondary <<<"$out" | head -1)"
+# Sets the description of milestone $1, as M1, to $2.
+done_when() { ms 'map(if (.title | startswith($m + " ")) then .description = $d else . end)' --arg m "$1" --arg d "$2"; }
 # Each track ranks the issues of a current milestone first, then by milestone
-# order: with M2, M4 and M5 current, M4 before M5, and both before M1 and M3.
-# A blocker in M3 of an M4 issue ranks with M4.
+# order. M2, M4 and M5 are current, and the Done when of M2, the goal, names
+# #10 of M1 and #20: M2 before M1 on the main path, M4 before M5 and both
+# before M3 in secondary, M4 before M3 in bugs. A blocker in M3 of an M4
+# issue ranks with M4.
 reset
-ms 'map(if (.title | startswith("M2 ")) then .description = $d else . end)' \
-  --arg d $'Done when:\n- the export works (#10, #20)\n\nCurrent.'
+done_when M2 $'Done when:\n- the export works (#10, #20)\n\nCurrent.'
 mark M4
 mark M5
 put '10:M1 20:M2 30:M3 31:M3 32:M3 35:M5 40:M4 41:M4 42:M4'
@@ -89,9 +92,8 @@ check 'a current milestone ranks first in bugs' \
 # what that waits on. A number before the Done when, of another repository, or
 # right after another number, as #41, names nothing: busy #41 is then not held
 # on the main path. The rest of the goal milestone is secondary.
-done_when() { ms 'map(if (.title | startswith("M1 ")) then .description = $d else . end)' --arg d "$1"; }
 reset
-done_when $'Fix #19 first.\n\nDone when:\n- a user signs up (#21)\n- the export works (#22, other/repo#23, #22#41)\n\nCurrent.'
+done_when M1 $'Fix #19 first.\n\nDone when:\n- a user signs up (#21)\n- the export works (#22, other/repo#23, #22#41)\n\nCurrent.'
 put '19 20 21 22 23 40:M2 41:M2'
 blocks 21 20
 edit 22 '.labels.nodes = [{name: "bug"}]'
@@ -108,7 +110,7 @@ check 'no note on a Done when that names open issues' 0 "$(grep -c '^note: ' <<<
 # A Done when as one sentence: the description of this repository's
 # M3 · Skills hold in real runs, as GitHub gave it on 2026-11-11.
 reset
-done_when $'The skills do what their rules say in real runs: the conventions load and hold in subagents, and the end of a task leaves nothing for the person to do by hand.\n\nDone when the runs of #196 load the conventions before the first edit in 5 of 5 per task, the runs of #197 keep one direction between features in 5 of 5, a review subagent on the task of #227 invokes the conventions skills in 5 of 5 runs, a session that went into its worktree with cd removes the worktree and the branch itself (#195), the command for the project scope runs as the docs give it (#165), and `collect.sh` finds the issues of a repository whose remote still has its old name (#252).\n\nCurrent.'
+done_when M1 $'The skills do what their rules say in real runs: the conventions load and hold in subagents, and the end of a task leaves nothing for the person to do by hand.\n\nDone when the runs of #196 load the conventions before the first edit in 5 of 5 per task, the runs of #197 keep one direction between features in 5 of 5, a review subagent on the task of #227 invokes the conventions skills in 5 of 5 runs, a session that went into its worktree with cd removes the worktree and the branch itself (#195), the command for the project scope runs as the docs give it (#165), and `collect.sh` finds the issues of a repository whose remote still has its old name (#252).\n\nCurrent.'
 put '165 195 196 197 227 252 19'
 out=$(bash "$scripts/next.sh")
 check 'a Done when sentence names six' 6 "$(grep -c '^==> #.*\[main path, ' "$(sed -n 's/^overlap: \([^ ]*\) .*/\1/p' <<<"$out")")"
@@ -120,7 +122,7 @@ check 'a Done when of closed issues' \
   "$(bash "$scripts/next.sh" | sed -n 2,4p)"
 # Every issue that it names is busy: the next milestone is the goal, current
 # too, with no note on the Done when.
-done_when $'Done when:\n- a user signs up (#20)\n\nCurrent.'
+done_when M1 $'Done when:\n- a user signs up (#20)\n\nCurrent.'
 mark M2
 put '20 40:M2'
 edit 20 '.assignees.nodes = [{login: "someone"}]'
