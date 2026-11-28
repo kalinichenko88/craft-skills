@@ -38,7 +38,9 @@ The first user is the author.
 ## Constraints
 
 - **Law and licence:** MIT. Recorded payloads in `tests/fixtures/` come only
-  from public repositories, or from a fake tracker that a test builds.
+  from public repositories, or from a fake tracker that a test builds. A text
+  that takes from another project names it in `THIRD-PARTY-NOTICES.md`, with
+  its licence.
 - **The hosts:** Claude Code caps the context of one hook at 10,000
   characters, and `rules.md` loads through two hooks for each event, one for
   each part. An `Explore` subagent of Claude Code gets none (PDR 0012). After a compaction, Claude Code keeps only the first 20,000
@@ -71,3 +73,4 @@ None.
 - [0014 The hook shows the number and the title of an issue that a prompt names alone](pdr/0014-hook-shows-issue-title.md) — accepted; revisit when: Claude Code stops giving a message before a tool call as a narration, or a take-in from a prompt that is not the issue alone shows a narration with no title, twice
 - [0015 An update of craft reaches each host at a release, not at a push](pdr/0015-update-at-a-release.md) — accepted; revisit when: a fix waits on `main` for more than 7 days with no release, twice, or a person asks for the update of each push in Claude Code
 - [0016 The first data store of its kind gets an ADR for that alone](pdr/0016-adr-for-a-first-store.md) — rejected; revisit when: the `store` task gets no ADR in at least 3 of 10 runs with the skill; or a real project has to migrate a first store that got no ADR, twice
+- [0017 The plugin reviews with its own texts, in every host](pdr/0017-own-review-texts.md) — accepted; revisit when: the lens names fewer confirmed defects than the review command of a host on three new cases, or a text of the plugin cannot be kept at the level of a host's command for its cost

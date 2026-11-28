@@ -1,0 +1,9 @@
+pr289 D1: 0 of 1, was 2
+pr289 D2: 0 of 1, was 0
+pr289 D3: 0 of 1, was 3
+pr289 D4: 0 of 1, was 1
+pr289 D5: 0 of 1, was 0
+pr289: 0 of 5, floor 1, 0 failed reads, 1 findings a run
+below: pr289
+lost: pr289 D1
+lost: pr289 D3

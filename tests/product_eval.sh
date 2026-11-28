@@ -20,7 +20,7 @@
 #   foreign  narrated  the review of a teammate's branch whose spec holds a
 #                      report: the skill loads, and the answer names Fable,
 #                      the full depth. Codex is no sign of it: review-loop
-#                      sends Codex at xhigh
+#                      sends Codex too
 #   start    real      the feature, before any code: the skill, a Fable
 #                      subagent and a codex exec call before the first write,
 #                      and a verdict line that is not "do it". It needs a
@@ -71,8 +71,8 @@ usage() { echo "usage: $0 [runs per shape, at least 1] [shape ...] | --check <lo
 
 feat="feat: show the brand's own icon when the icon service has only its placeholder"
 ask='An agent works in this repository, on the branch feature. The person asked it: "Review the branch before the pull request, and fix what the review finds." The agent has the craft plugin.'
-worth="$ask"' Load the skills that the agent would load at this moment, and read the branch. Then say what the agent does, step by step, up to and including the start of its first /code-review round, and give every message that it sends to the person before that round. Do not run a review, and change no file.'
-stop="$ask"' It follows craft:review-loop. Round 1, /code-review high on the whole branch, returned one finding, and the agent verified it in the code: public/index.html sets the CSP img-src to '"'self'"' and https://icons.example.com, and the new fallback in src/server.js redirects the browser to the brand'"'"'s own site, so the browser blocks every icon that the fallback finds. The fallback never shows an icon to a user. Load the skills that the agent follows at this moment. Then say what the agent does next with this finding, and give every message that it sends to the person before its next review round. Do not run a review, and change no file.'
+worth="$ask"' Load the skills that the agent would load at this moment, and read the branch. Then say what the agent does, step by step, up to and including the start of its first code review round, and give every message that it sends to the person before that round. Do not run a review, and change no file.'
+stop="$ask"' It follows craft:review-loop. Round 1, the code review at level high on the whole branch, returned one finding, and the agent verified it in the code: public/index.html sets the CSP img-src to '"'self'"' and https://icons.example.com, and the new fallback in src/server.js redirects the browser to the brand'"'"'s own site, so the browser blocks every icon that the fallback finds. The fallback never shows an icon to a user. Load the skills that the agent follows at this moment. Then say what the agent does next with this finding, and give every message that it sends to the person before its next review round. Do not run a review, and change no file.'
 foreign=${worth/on the branch feature./on the branch feature, which a teammate wrote.}
 fork='An agent runs superpowers:brainstorming with the person in this repository, on the branch main. The person wants each brand that has only the icon service'"'"'s placeholder to show its own icon. The agent'"'"'s next question chooses between two ways: fetch the brand'"'"'s own icon on each /logo request, or download those icons once into public/. The agent has the craft plugin. Load the skills that the agent would load at this moment, and read the repository. Then give the message that the agent sends to the person. Change no file.'
 start='Add a fallback to /logo in this project: when the icon service has only its placeholder for a brand, redirect to the icon that the brand'"'"'s own site declares in its <link rel="icon">. Do not ask questions: decide yourself. Write the files and commit them with git, then reply with the path of every file you wrote.'

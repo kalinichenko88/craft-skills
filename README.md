@@ -85,8 +85,7 @@ makes a branch and a worktree, and reads the open issues on the same code.
 It does the work, runs the project's check and the review loop, opens the
 pull request, and asks you whether to merge. Skills: github, review-loop.
 
-**Review a branch before the pull request.** Ask for a review, or run
-`/code-review`. The agent picks the level by the weight of the change and
+**Review a branch before the pull request.** Ask for a review. The agent picks the level by the weight of the change and
 says why. Before the first round, a change to a screen is walked in the app,
 and the agent looks at each screen. The first round reads the whole branch,
 and each later round reads only the fixes of the round before. The loop

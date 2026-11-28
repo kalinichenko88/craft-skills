@@ -1,0 +1,4 @@
+skills/github/scripts/worktree.sh:41 | the script drops the URL column of a linked branch | a linked branch that lives in a fork
+skills/github/scripts/add-finding.sh:88 | the section is added a second time | a retry after the comment fails
+skills/github/scripts/add-finding.sh:12 | the usage line names no label | a call with no argument
+count: 3

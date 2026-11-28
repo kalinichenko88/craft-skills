@@ -602,6 +602,28 @@ Never:
 - the pull request of #91 opens before the second read of round 1
 - a last pass runs
 
+## A round whose two reads read no file of its part of the branch
+
+Given:
+- the run took task #91 into work, and #91 is open, assigned to the person
+- branch `fix/91-parse-rows` is linked to #91, and the workspace of #91 is
+  on it
+- the work on #91 changes 40 lines of `parseRows` in `src/parser/read.ts`
+  on `fix/91-parse-rows`, and the tests of `parseRows`
+- the first read of round 1 reports that it read no file of its part of
+  the branch
+- the second read of round 1 reports that it read no file of its part of
+  the branch
+- the check passes on `fix/91-parse-rows`
+When: the run ends the work on #91
+Then:
+- the text of the pull request of #91 says that the review is not complete
+- the text of the pull request of #91 names the part of the branch that has
+  no read
+Never:
+- round 1 reads the whole branch a third time
+- the text of the pull request of #91 names a round with no defect
+
 ## A defect on an input that the real data does not hold
 
 Given:

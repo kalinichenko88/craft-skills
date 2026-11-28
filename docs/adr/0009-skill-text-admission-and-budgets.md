@@ -19,6 +19,7 @@
 - 2026-11-24 #485: Options considered. Was: "ADR 0006 alone: a `SKILL.md` under the cap grows with no decision" and "Supersede ADR 0006: its cap and the reason for it hold. One point of it changes, so it gets the Status `accepted, narrowed by 0009`, the form that the person decided on 2026-11-13 (#267)".
 - 2026-11-24 #485: Decision. Was: "We will record the size of each `SKILL.md`, each side file and `rules.md` in the repository, and of each flow that has a named list of its files." and "A text that grows past its recorded size fails `make check` until the same pull request changes the record. This narrows one point of ADR 0006: there, a `SKILL.md` under the cap can grow up to 20,000 characters with no decision. The cap of ADR 0006, its count and its debt list hold."
 - 2026-11-24 #485: Confirmation. Was: "as ADR 0010 narrows it".
+- 2026-11-25 #466: Decision. Was: the steps, with the 10 runs of step 1, for each text: "We will admit a sentence for a case into the text of a skill, a side file or `rules.md` by these steps."
 
 ## Context
 
@@ -66,6 +67,10 @@ cannot be told from noise.
   form that the person decided on 2026-11-13 (#267): its cap and the reason
   for it hold, and since #405 a changed point is rewritten in the ADR's own
   file, so that one decision needs no two files. ADR 0006 holds that point.
+- Ten runs for a lens file of the review too, as for each other text: a
+  pass of its eval is three runs of each case, with 15 to 30 chances a case,
+  and ten runs make a pass three times the cost, $14 to $37. Dropped on
+  2026-11-25 (#466).
 - A ceiling for each text, and a size of its own for a flow: dropped by
   ADR 0010. A cut leaves a ceiling stale, and the number of a flow can fail
   only on its arithmetic.
@@ -98,6 +103,12 @@ decides:
 A false fact in a text, as a wrong path or a wrong number, is not a case: it
 is corrected at once.
 
+A lens file of the review, `code-lens.md` or `security-lens.md`, has another
+measure for the runs of steps 1 and 8: `tests/review_loop_reader_eval.sh`,
+three runs of each case with known defects. A part of such a lens joins
+only with a gain that the sums of all passes of a text show, since three
+runs of one case tell apart only a large effect (ADR 0013).
+
 We will keep these budgets, in characters as `jq -Rs length` counts them:
 
 | Text | Budget | Reason |
@@ -127,7 +138,8 @@ so a review round cannot add a sentence by its report alone. Growth of a
 text past its record is a line in a diff that a reviewer sees. The reasons and the numbers
 are in one place, out of the text that a run reads.
 
-Bad: step 1 costs 10 runs before an edit, and step 8 the runs after it. The
+Bad: step 1 costs 10 runs before an edit, and step 8 the runs after it; for
+a lens file of the review, a pass of its eval. The
 numbers other than 20,000, and the 3 of 10 of step 1, have no measurement
 behind them and can be wrong. A
 record of sizes changes in most pull requests that edit a skill, and two

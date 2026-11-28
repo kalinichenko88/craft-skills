@@ -44,6 +44,6 @@ The walk does not end the turn: go on to round 1.
 
 Why: on one plugin user's UI feature, the tests and the review passed. A
 walk through Playwright after them found UI bugs and a few errors in
-business logic. `/code-review`, the lenses and Codex read the diff, and none
+business logic. The code review, the lenses and Codex read the diff, and none
 of them opens the app. PDR 0003 of this plugin records the decision and when
 to revisit it.

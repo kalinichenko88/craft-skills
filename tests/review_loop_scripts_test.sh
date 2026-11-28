@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Runs the review-loop skill's codex-review.sh against a fake codex. The fake
-# answers with findings that codex exec wrote on the final head of PR #9, and
-# logs the arguments of each call, so no test reaches Codex.
+# answers with what codex exec wrote on the final head of PR #9, a report in
+# the lines of the code lens, or findings as JSON when the call has a schema,
+# and logs the arguments of each call, so no test reaches Codex.
 
 set -eu
 
@@ -22,7 +23,7 @@ case $1 in
     printf '%s\n' "$@" >"$FAKE/args"
     while [ $# -gt 0 ]; do
       case $1 in
-        --output-schema) cp "$2" "$FAKE/schema.json"; shift ;;
+        --output-schema) cp "$2" "$FAKE/schema.json"; answer=codex-findings.json; shift ;;
         -o) out=$2; shift ;;
         -) cat >"$FAKE/stdin" ;;
       esac
@@ -34,7 +35,10 @@ case $1 in
     [ -z "${FAKE_HANG:-}" ] || { exec 3> >(sleep 30 & echo $! >"$FAKE/hung"; read -r _); sleep 30 3>&-; }
     [ -z "${FAKE_FAIL:-}" ] || { echo 'ERROR: stream disconnected before completion'; exit 1; }
     [ -z "${FAKE_NO_MESSAGE:-}" ] || exit 0
-    cp "$FIXTURES/codex-findings.json" "$out" ;;
+    # codex exec -o writes its last message with no new line at its end.
+    [ "${FAKE_CUT:-}" != 1 ] || { printf '%s' 'a.txt:1 | a claim | an input' >"$out"; exit 0; }
+    [ "${FAKE_CUT:-}" != line ] || { echo 'a.txt:1 | a claim | an input' >"$out"; exit 0; }
+    cp "$FIXTURES/${answer:-codex-report.txt}" "$out" ;;
   *) echo "fake codex: no answer for: $*" >&2; exit 1 ;;
 esac
 EOF
@@ -66,13 +70,23 @@ mkdir "$tmp/nocodex"
 ln -s "$(command -v git)" "$tmp/nocodex/git"
 nocodex() { (cd "$repo" && PATH="$tmp/nocodex" "$BASH" "$script" "$@"); }
 
+# A change to code: Codex gets the prompt of a reader of the review loop, at
+# the widest level, and its report comes out as it is, with no schema.
 out=$(review "$base")
-check 'prints the findings that codex wrote, and nothing of its session' "$(cat "$fixtures/codex-findings.json")" "$out"
+check 'prints the report that codex wrote, and nothing of its session' "$(cat "$fixtures/codex-report.txt")" "$out"
+check 'the recorded report passes the check of a report' 'ok: 17 findings' \
+  "$(bash "$root/skills/review-loop/scripts/report-check.sh" "$fixtures/codex-report.txt")"
+grep -qxF "Read $root/skills/review-loop/code-lens.md and do what it says." "$tmp/args" ||
+  fail 'the prompt sends codex to the code lens beside the script' "$(cat "$tmp/args")"
+[ -f "$root/skills/review-loop/code-lens.md" ] || fail 'the code lens is beside the scripts folder'
+grep -qxF "Range: $base..$head" "$tmp/args" ||
+  fail 'the prompt names the range of the whole branch, from the merge base to the SHA of HEAD' "$(cat "$tmp/args")"
+grep -qxF "Tree: $(git -C "$repo" rev-parse --show-toplevel)" "$tmp/args" || fail 'the prompt names the working tree' "$(cat "$tmp/args")"
+grep -qxF 'Level: xhigh' "$tmp/args" || fail 'codex reads at the widest level' "$(cat "$tmp/args")"
+if grep -qxF -- '--output-schema' "$tmp/args"; then fail 'without --docs, codex gets no schema' "$(cat "$tmp/args")"; fi
 check 'codex runs in the read-only sandbox' read-only "$(grep -A1 -xF -- -s "$tmp/args" | sed -n 2p)"
 grep -qxF -- '--ephemeral' "$tmp/args" || fail 'codex keeps no session files' "$(cat "$tmp/args")"
 grep -qF 'file nothing' "$tmp/args" || fail 'the prompt tells codex, which loads rules.md too, to file nothing' "$(cat "$tmp/args")"
-grep -qF "git diff $base...$head" "$tmp/args" ||
-  fail 'the prompt names the range of the whole branch, from the merge base to the SHA of HEAD' "$(cat "$tmp/args")"
 if grep -qF 'the code that it describes' "$tmp/args"; then fail 'without --docs, the prompt has no brief for documents' "$(cat "$tmp/args")"; fi
 
 # A change to documents only gets one Codex read with the brief that its
@@ -81,7 +95,6 @@ rm -f "$tmp/args"
 check 'with --docs: prints the findings that codex wrote' "$(cat "$fixtures/codex-findings.json")" "$(review --docs "$base")"
 grep -qF 'the code that it describes' "$tmp/args" ||
   fail 'with --docs: the prompt reads the text against the code that it describes' "$(cat "$tmp/args")"
-if grep -qF 'code that gives a wrong result' "$tmp/args"; then fail 'with --docs: the prompt has no brief for code' "$(cat "$tmp/args")"; fi
 grep -qF 'file nothing' "$tmp/args" || fail 'with --docs: the prompt tells codex to file nothing' "$(cat "$tmp/args")"
 grep -qF "git diff $base...$head" "$tmp/args" || fail 'with --docs: the prompt names the range of the whole branch' "$(cat "$tmp/args")"
 code=0
@@ -90,7 +103,14 @@ check '--docs with no base is a usage error' 2 "$code"
 grep -qxF 'usage: codex-review.sh [--docs] <base>' "$tmp/err" || fail 'the usage line names --docs' "$(cat "$tmp/err")"
 rm -f "$tmp/args"
 review HEAD~1 >/dev/null
-grep -qF "git diff $base...$head" "$tmp/args" || fail 'a base given as a name goes into the prompt as its SHA' "$(cat "$tmp/args")"
+grep -qxF "Range: $base..$head" "$tmp/args" || fail 'a base given as a name goes into the prompt as its SHA' "$(cat "$tmp/args")"
+# The lens reads the range with two dots, so a base that the default branch
+# moved past the branch point must not show its commits as reverted.
+ahead=$(git -C "$repo" -c user.name=t -c user.email=t@example.com commit-tree "$base^{tree}" -p "$base" -m ahead)
+rm -f "$tmp/args"
+review "$ahead" >/dev/null
+grep -qxF "Range: $base..$head" "$tmp/args" ||
+  fail 'a base that is not an ancestor of HEAD goes into the prompt as the merge base' "$(cat "$tmp/args")"
 check 'the schema asks for the fields of a finding' 'file line summary failure_scenario' \
   "$(jq -r '.properties.findings.items.required | join(" ")' "$tmp/schema.json")"
 check 'the recorded findings fit the schema' 'true' \
@@ -104,11 +124,23 @@ grep -qF 'stream disconnected' "$tmp/err" || fail 'a failed codex run shows its 
 
 code=0
 out=$(FAKE_NO_MESSAGE=1 review "$base" 2>"$tmp/err") || code=$?
-check 'codex that ends with no findings file exits 1, not with no output' 1 "$code"
-grep -qF 'codex prints its session here' "$tmp/err" || fail 'codex with no findings file shows its log on stderr' "$(cat "$tmp/err")"
+check 'codex that ends with no report exits 1, not with no output' 1 "$code"
+grep -qF 'codex prints its session here' "$tmp/err" || fail 'codex with no report shows its log on stderr' "$(cat "$tmp/err")"
 
-# Without the limit, the fake's sleep ends after 30 seconds and its findings
-# come out with exit 0.
+# A report that Codex cut has no count line: the read failed.
+code=0
+out=$(FAKE_CUT=1 review "$base" 2>"$tmp/err") || code=$?
+check 'a report with no count line exits 1' 1 "$code"
+check 'a report with no count line prints no findings' '' "$out"
+check 'a report with no count line shows the report and the reason on stderr' \
+  "$(printf '%s\n' 'a.txt:1 | a claim | an input' 'failed read: no count line')" "$(cat "$tmp/err")"
+
+FAKE_CUT=line review "$base" >/dev/null 2>"$tmp/err" || true
+check 'a report that ends with a new line gets no empty line before the reason' \
+  "$(printf '%s\n' 'a.txt:1 | a claim | an input' 'failed read: no count line')" "$(cat "$tmp/err")"
+
+# Without the limit, the fake's sleep ends after 30 seconds and its report
+# comes out with exit 0.
 code=0
 out=$(FAKE_HANG=1 CODEX_REVIEW_LIMIT=1 review "$base" 2>"$tmp/err") || code=$?
 check 'a codex run past the time limit exits 1' 1 "$code"

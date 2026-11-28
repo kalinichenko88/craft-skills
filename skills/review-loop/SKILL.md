@@ -18,8 +18,8 @@ also in a fix of the loop; a test, a comment or wording is a nit, fixed with
 no round. A finding that needs a particular input is counted against real
 data first, and a count of zero declines it, except for data loss or a
 security hole. When the loop had more than one round, one last pass reads
-the whole branch again, once. At `xhigh` in Claude Code, Codex reads the
-whole branch once too. At `high` and `xhigh`, and for a change to tests
+the whole branch again, once. In Claude Code, Codex reads the whole branch
+once too. At `high` and `xhigh`, and for a change to tests
 only, one review reads the tests of the whole branch once. In a project with
 an architecture file or ADRs, one review reads the branch against them once,
 beside round 1, at `high` and `xhigh` and for a change to that file or an
@@ -36,11 +36,11 @@ this skill's base directory.
 
 | Moment | What must happen | Read first |
 | --- | --- | --- |
-| The change is documents only, or it changes the text of a skill or a prompt | One review subagent reads that text, in place of `/code-review` or beside it | `documents.md` |
+| The change is documents only, or it changes the text of a skill or a prompt | One review subagent reads that text, in place of the code review or beside it | `documents.md` |
 | Before round 1, when *The walk* says that the change is walked | Its six steps in the app | `walk.md` |
 | Round 1 starts, and *A review of the architecture* says that its step runs | Its subagent and its prompt, beside round 1 | `architecture-and-tests.md` |
 | The last pass starts, or the only round of the loop confirms no defect: at `high` or `xhigh`, or for a change to tests only | The review of the tests | `architecture-and-tests.md` |
-| At `xhigh` in Claude Code: the last pass starts, the only round of the loop confirms no defect, or step 4 of *The rounds* stops the rounds | Codex reads the whole branch | `codex.md` |
+| In Claude Code, in a code review: the last pass starts, the only round of the loop confirms no defect, or step 4 of *The rounds* stops the rounds | Codex reads the whole branch | `codex.md` |
 | The review ends, or the person answers the merge question | The check, the summary, and on its conditions the pull request and the merge question | `summary.md` |
 | In Claude Code, the checks of superpowers on a spec and on a plan | Two readers of the spec and one of the plan, with no rounds | `spec-and-plan.md` |
 
@@ -58,7 +58,7 @@ found a defect that normal use reaches.
 
 ## The level
 
-Pick the level of `/code-review` by the weight of the change, and give the
+Pick the level of the code review by the weight of the change, and give the
 reason in one sentence: "Why high: it changes the token refresh, which every
 request goes through."
 
@@ -69,17 +69,15 @@ request goes through."
 | `high` | New state rules or reducer logic, a new page, route or endpoint, and any change the other rows do not name. |
 | `xhigh` | Security, data loss, concurrency, or architecture across modules or apps. |
 
-`medium` is not a default: each level needs its own reason. `max` and `ultra`
-run only when the person asks; `ultra` is billed. A change to a test file is
-never `low`: `/code-review low` skips test files.
+`medium` is not a default: each level needs its own reason.
 
-A change to documents only takes no `/code-review`: one review subagent reads
+A change to documents only takes no code review: one review subagent reads
 the text the range changes. The text of a skill or a prompt, as a `SKILL.md`
 or `rules.md`, counts as a document, though it is the product. `documents.md`
 gives the prompt of that subagent, the one round of such a change, and which
 review reads each range when that text comes with code.
 
-A review subagent and Codex's `/review` have no levels.
+Codex's `/review` has no levels.
 
 ## Worth first
 
@@ -131,21 +129,34 @@ and for a move that a script or a test proves unchanged.
 
 1. **Commit the work, and the docs it makes false.** Find those docs as
    *Docs move with the change* in the global prompt says, so that round 1
-   reads them. The first round reads the whole branch:
-   `/code-review <level> <base>..HEAD`, where `<base>` is
+   reads them. The first round reads the whole branch, from `<base>` to the
+   SHA of `HEAD`, where `<base>` is
    `git merge-base origin/<default branch> HEAD`, or
-   `git merge-base <default branch> HEAD` where there is no `origin`. Name the
-   range: with no target, `/code-review` reads only the commits ahead of the
-   upstream, and after a push that is not the whole branch. In Codex:
-   `/review`, *Review against a base branch*.
+   `git merge-base <default branch> HEAD` where there is no `origin`. A round
+   is one subagent with this prompt and no other job. Where the `Agent` tool
+   of the host takes them, give it `model: "opus"` and `effort` at the level:
+
+   ```
+   Read <dir>/code-lens.md and do what it says.
+   Range: <base>..<head>
+   Tree: <the working tree of the branch>
+   Level: <level>
+   ```
+
+   Write its report, word for word, to a file in the session's scratchpad
+   directory, or, with none, in a new folder from `mktemp -d`, with the
+   Write tool, and run `bash <dir>/scripts/report-check.sh <file>`. In
+   Codex: `/review`, *Review against a base branch*, with no check.
 2. **The fixes of a round are one commit.** The next round reads only that
-   commit: `/code-review <level> <sha>^..<sha>`. In Codex: `/review`, *Review a
-   commit*. Inside the loop, never send the whole branch again.
+   commit: the same prompt with `Range: <sha>^..<sha>`. In Codex: `/review`,
+   *Review a commit*. Inside the loop, never send the whole branch again.
 3. **Stop at the first round that confirms no defect**, whatever that round
-   declines, for the first time or again. A round whose report says it read
-   no file of its range confirms nothing and does not count. When its level
-   skipped the files, run that range again one level up, in its place.
-   Otherwise correct the range, and run it again. A defect is a confirmed
+   declines, for the first time or again. A round or security review whose
+   report says it read no file of its range, or gets `failed read:` from the
+   check of step 1, read nothing: correct a wrong range or tree, and send
+   its reader once more. When the second read fails too, stop the review
+   there: the summary names that range, and the pull request and the merge
+   question say that the review is not complete. A defect is a confirmed
    finding of one of two kinds:
    - a wrong result, a crash or a broken contract, on an input or a state
      that the project's real use reaches;
@@ -169,9 +180,9 @@ and for a move that a script or a test proves unchanged.
 4. **The third round still confirms a defect:** stop the rounds, and skip
    what is left of step 5. Do not fix that defect: its fix needs a fourth
    round, and only the person can start one. The nits of round 3 are one
-   commit, and no round reads it. When the change is at `xhigh`, in Claude
-   Code, and the Codex step has not run in this review, Codex then reads the
-   whole branch, as `codex.md` says. Then go to
+   commit, and no round reads it. In Claude Code, in a code review whose
+   Codex step has not run, Codex then reads the whole branch, as `codex.md`
+   says. Then go to
    the security review, or to the summary when the security review has
    already run. The summary's **Rounds:** item names the findings of round 3
    and of a Codex read at this stop, each defect as confirmed and not fixed:
@@ -270,28 +281,23 @@ more: see `documents.md`.
 ## The security review
 
 After the last pass, the Codex review, the review of the tests and their
-rounds, `/security-review` runs once, on the final branch. It reads the branch
-against origin's default branch and takes no target, so it never runs inside
-the loop. A change to documents only gets none, unless the person asks for
-it. Its findings go through *The findings*, and its fixes through
-*Fixes from other places*. In Codex: `/review` with the custom instructions
-"Find security defects on this branch against origin/<default branch>:
-injection, authentication, authorization, secrets and data exposure." Where
-there is no `origin` remote, say so in the summary.
-
-In Claude Code, send one `general-purpose` subagent with no `model`, with
-this prompt, and do not run `/security-review` in the session:
+rounds, the security review runs once, on the final branch. A change to
+documents only gets none, unless the person asks for it. It is one subagent
+as in step 1 of *The rounds*, with `effort: "high"` and this prompt, where
+`<base>` is the base of step 1 and `<head>` the SHA of `HEAD` now:
 
 ```
-Run /security-review with the Skill tool, and return its report. Change no file.
+Read <dir>/security-lens.md and do what it says.
+Range: <base>..<head>
+Tree: <the working tree of the branch>
 ```
+
+Its report goes through the check of step 1. Its findings go through *The
+findings*, and its fixes through *Fixes from other places*. In Codex:
+`/review` with the custom instructions "Find security defects on this branch
+against origin/<default branch>: injection, authentication, authorization,
+secrets and data exposure." Where there is no `origin` remote, say so in the
+summary.
 
 After its report and the rounds on its findings, read `summary.md` and go on
 to *The summary*, then to the conditions of *The pull request*.
-
-Why a subagent: the prompt of `/security-review` ends "Your final reply must
-contain the markdown report and nothing else." Run in the session, the agent
-ended its turn on the report, with no push and no pull request: on #61, and
-twice on #167, after #83 added a sentence against it here. In a subagent, that
-line holds for the subagent's reply.
-

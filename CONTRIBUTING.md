@@ -111,14 +111,15 @@ check. A change to a check updates the output that the test expects.
 `tests/review_loop_eval.sh` counts the review rounds and what each one reads.
 It checks that no count of rounds goes past three, that the review of the
 tests runs once next to the last pass and never without one, that the
-review of the architecture runs once before round 2, and that a security
-review follows the last pass, in a subagent and not in the session. Its
+review of the architecture runs once before round 2, that a security review
+follows the last pass, that Codex reads the branch once, and that neither the
+session nor a subagent runs a review command of the host: a round is a subagent whose prompt names
+`code-lens.md`, and the security review one that names `security-lens.md`. Its
 fixture has a local `origin` and an architecture file, and its task says
 that no one can answer questions. With `stop` after the count of runs, as
 `tests/review_loop_eval.sh 3 stop`, a run starts at the stop after round 3
 of an `xhigh` review: the eval checks one Codex read, no fourth round, the
-defects of round 3 and of Codex left unfixed, and a security review in a
-subagent. A fake `codex` first on `PATH` returns the defect of Codex, and an
+defects of round 3 and of Codex left unfixed, and a security review. A fake `codex` first on `PATH` returns the defect of Codex, and an
 empty Codex home keeps a real `codex` from a read, so no run spends the
 Codex limit. Run it after a change to
 `skills/review-loop` or to its section in `rules.md`.
@@ -146,6 +147,23 @@ the same prompt. Run it after a change to
 `skills/review-loop/architecture-lens.md`, to `skills/architecture/invariants.md`,
 to `skills/architecture/adrs.md` or to the parts of
 `skills/architecture/SKILL.md` that it reads.
+`tests/review_loop_reader_eval.sh` sends the reader of the code review to
+changes with known defects, three runs each, and counts the runs whose
+report names each defect. Its cases are the lines of
+`tests/fixtures/review_loop_reader/cases.tsv`: three merged pull requests of
+this repository, each with the defects that its issues name, and with a
+floor, the count that the review command of the host named; a case of two
+trees for a check that stands in for another; and for the security lens a
+case of two trees with three holes and three things that are no hole, whose
+reports it counts as noise. A case from a
+commit needs the full history of the repository. `READER_LOCAL` names a
+folder with more cases, as the cases of a private repository, which stay
+outside this one. It exits 1 when a case is below its floor, or when no run
+names a defect that the last recorded pass named. With `--codex`, Codex
+reads the cases. Run it alone, before and after each change to a lens file
+of the code review or the security review, and write the new counts into
+`cases.tsv`. `tests/review_loop_reader_checks_test.sh` runs its counter in
+`make check`, on reports written by hand and with a stub of `claude`.
 `tests/debt_lens_eval.sh` sends the review of the instruction files to a
 monorepo whose `CLAUDE.md` files repeat and contradict its architecture file
 and each other. It checks each repeat, contradiction, redundancy and

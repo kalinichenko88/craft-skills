@@ -12,8 +12,8 @@ confirms no defect when neither review does, and their fixes are one commit.
 A fix of its finding that changes code is the fix of a defect: a round reads
 it, as step 2 says. A Convention finding is the exception: step 3 decides
 whether it is a defect or a nit.
-On a change to documents only, that round is `/code-review` at the level of
-that code.
+On a change to documents only, that round is the code review at the level
+of that code.
 
 The subagent is an `Agent` call of its own, not a job in the prompt of round
 1, with `model: "opus"`, and `effort` at the level of round 1, or `high` when
@@ -29,8 +29,9 @@ Tree: <the working tree of the branch>
 
 In Codex: `/review` with the same three lines as its custom instructions.
 
-Why: `/code-review` reads the diff and the `CLAUDE.md` files, and none of its
-angles reads the architecture file, the ADRs or the conventions skills. Why
+Why: the code lens reads the diff for defects, and neither it nor the
+security lens reads the architecture file, the ADRs or the conventions
+skills. Why
 `opus`: the step runs at each `high` review there, and `fable` costs 2.5
 times as much. Why the conventions here: in real sessions, 0 of 136 review
 subagents of a TypeScript change started a conventions skill, 44 of them
